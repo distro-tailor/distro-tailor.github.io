@@ -1,8 +1,12 @@
 /**
  * URL Schema Versioning and Migration Engine for DistroTailor.
  * 
- * Ensures permalinks shared across forum posts, GitHub issues, and social chats
- * never suffer from URL bit rot as taxonomy and questions evolve.
+ * CORE SCHEMA INVARIANT:
+ * 1. Only bump CURRENT_SCHEMA_VERSION upon actual deployment/release.
+ * 2. Only bump CURRENT_SCHEMA_VERSION when a BREAKING change to parameter names,
+ *    removed criteria keys, or structural question criteria changes occurs.
+ * 3. Additive non-breaking enhancements (new distros, optional parameters,
+ *    new non-destructive tips or questions) MUST remain on the current schema version.
  */
 
 export const CURRENT_SCHEMA_VERSION = 1;

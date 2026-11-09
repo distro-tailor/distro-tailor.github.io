@@ -59,3 +59,9 @@ Feature: URL State Sharing and Collaborative Configuration
     And maps "rpi" to canonical "embedded-sbc"
     And maps "aarch64" to canonical "arm64"
     And seamlessly updates the browser address bar to the modern canonical format
+
+  Scenario: Schema version remains locked unless deployed with breaking parameter changes
+    Given the application undergoes non-breaking updates such as adding distros, recipes, or tips
+    When URL state persistence generates links
+    Then the schema version remains "v=1" without premature bumps
+    And schema version increments are strictly gated to breaking taxonomy changes upon deployment

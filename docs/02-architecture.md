@@ -110,3 +110,15 @@ DistroTailor handles bootloader placement cleanly across different storage layou
 2. **Old Legacy BIOS Systems:** Sector 0 (MBR) jumps to GRUB Stage 2 in the unpartitioned post-MBR gap.
 3. **Older MacBooks (2006–2008):** Hybrid GRUB bundles `grub-efi-ia32-bin` to bridge 64-bit kernels with 32-bit Apple EFI firmware.
 4. **ARM / Raspberry Pi:** Bypasses GRUB entirely; GPU firmware (`start4.elf`) boots the kernel directly via device tree files.
+
+---
+
+## 🔗 URL State Persistence & Schema Versioning Invariant
+
+DistroTailor persists all criteria, flow progress, and active views directly into the browser URL (`window.location.search` with hash fallback) to allow seamless sharing and bookmarking on static hosts like GitHub Pages.
+
+### Strict Schema Version Invariant:
+1. **Never Bump For Minor Releases:** Adding new distributions, expanding add-on recipes, adding helpful tips, or introducing optional non-breaking questions **MUST NOT** bump the schema version. The schema remains on `v=1`.
+2. **Deploy-Gated Breaking Changes Only:** The schema version (`CURRENT_SCHEMA_VERSION`) is strictly updated **only upon official deployment** AND **only when a breaking change occurs** to parameter keys, removed taxonomy options, or incompatible criteria structures.
+3. **Automated Migration Pipeline:** When a breaking change is deployed, a new migration step is registered in `SCHEMA_MIGRATIONS[oldVer]`. Old links arriving at the site are automatically upgraded, their address bar updated via `history.replaceState`, and the user's progress preserved.
+4. **Graceful Fallback for Deprecated or Future Links:** If an incoming link uses an obsolete schema (`v < MINIMUM_SUPPORTED_SCHEMA_VERSION`) or a newer future schema (`v > CURRENT_SCHEMA_VERSION`), the application intercepts it before evaluation and renders a friendly Fallback Card with "Start Fresh" and "Browse All Distros" actions, guaranteeing zero white-screen crashes.
