@@ -351,6 +351,27 @@ export const QUESTIONS: Question[] = [
         description: 'Scored a cheap Dell PowerEdge (R720/R730), HP ProLiant (DL380), or Supermicro rack server? Ideal for Proxmox VE hypervisors or multi-bay ZFS storage',
         icon: '🖧',
         appliesCriteria: { architecture: 'x86_64', platform: 'server', footprint: 'full' }
+      },
+      {
+        id: 'apple_silicon_mac',
+        label: 'Apple Silicon Mac (M1 / M2 / M3 / M4 MacBook, Mini, Studio)',
+        description: 'Modern ARM Apple hardware. Native bare-metal Linux via Fedora Asahi Remix with conformant Vulkan/OpenGL GPU drivers and speaker DSP',
+        icon: '🍎',
+        appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'full' }
+      },
+      {
+        id: 'snapdragon_arm_laptop',
+        label: 'Snapdragon / ARM Laptop (Snapdragon X Elite, ThinkPad X13s, Surface Pro X)',
+        description: 'Modern Qualcomm ARM64 laptops with extreme 20+ hour battery life, supported in upstream Linux kernels 6.11+',
+        icon: '🐉',
+        appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'standard' }
+      },
+      {
+        id: 'riscv_board',
+        label: 'RISC-V Board or PC (VisionFive 2, Milk-V, SpacemiT)',
+        description: 'Open-standard instruction set architecture (ISA) single-board computer or developer workstation',
+        icon: '📐',
+        appliesCriteria: { architecture: 'riscv64', platform: 'embedded-sbc', footprint: 'lean' }
       }
     ]
   },
@@ -365,8 +386,8 @@ export const QUESTIONS: Question[] = [
     shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner' && criteria.useCase !== 'browser-wasm',
     tip: {
       icon: '⚡',
-      title: 'Binary Repos vs. Cross-Compilation',
-      text: 'x86_64 and ARM64 enjoy massive prebuilt binary packages from Debian and Alpine. NOMMU and RISC-V often require source compilation via Buildroot.'
+      title: 'Beyond x86: The Modern Silicon Landscape',
+      text: 'ARM64 powers everything from Raspberry Pis to Snapdragon X Elite laptops and Apple Silicon (via Asahi). RISC-V is the rising open-standard architecture.'
     },
     options: [
       {
@@ -378,8 +399,8 @@ export const QUESTIONS: Question[] = [
       },
       {
         id: 'arm64',
-        label: 'ARM64 / AArch64',
-        description: 'Raspberry Pi 4/5, Apple Silicon VMs, AWS Graviton, and modern SBCs',
+        label: 'ARM64 / AArch64 (Qualcomm Snapdragon, Apple Silicon, Raspberry Pi 4/5)',
+        description: 'Modern power-efficient silicon: Snapdragon X Elite, Apple M-series, AWS Graviton, and SBCs',
         icon: '📱',
         appliesCriteria: { architecture: 'arm64' }
       },

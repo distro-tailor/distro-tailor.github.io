@@ -733,6 +733,21 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           howTo: 'Deploy the compute provider daemon directly via HiveOS custom script runner.'
         }
       ];
+    case 'asahi-linux':
+      return [
+        {
+          title: 'Vulkan Gaming & Steam on Apple Silicon',
+          icon: '🎮',
+          description: 'Play x86 Windows and Linux games on Apple Silicon via FEX-Emu / Box64 and conformant Honeykrisp Vulkan driver.',
+          howTo: 'Install FEX-Emu or Box64 and launch Steam: fex-emu steam.'
+        },
+        {
+          title: 'Safe Audio DSP Protection Check',
+          icon: '🔊',
+          description: 'Ensure Bankstown / PipeWire speaker DSP protection daemon is active to get full rich Mac sound without damaging speakers.',
+          howTo: 'Check speaker protection status: systemctl status asahi-sound-dsp.'
+        }
+      ];
     default:
       return [
         {

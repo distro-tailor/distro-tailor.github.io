@@ -242,6 +242,41 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       downloadUrl: 'https://www.truenas.com/download-truenas-scale/'
     }
   },
+  // --- APPLE SILICON & ARM64 LAPTOPS ---
+  {
+    id: 'asahi-linux',
+    name: 'Fedora Asahi Remix (Apple Silicon)',
+    tagline: 'Native bare-metal Linux for Apple Silicon (M1/M2/M3/M4) with conformant Rust GPU drivers',
+    description:
+      'The premier Linux distribution for Apple Silicon MacBooks (Air/Pro), Mac Mini, and Mac Studio. A collaboration between the Asahi Linux reverse-engineering team and the Fedora Project, featuring custom Apple M-series kernel patches, m1n1 bootloader, open-source Rust OpenGL 4.6 & Vulkan 1.3 GPU drivers, and calibrated speaker DSP protection.',
+    website: 'https://asahilinux.org',
+    documentationUrl: 'https://docs.fedoraproject.org/en-US/fedora-asahi-remix/',
+    logoEmoji: '🍎',
+    platforms: ['bare-metal', 'desktop'],
+    architectures: ['arm64'],
+    footprint: 'full',
+    minRamMb: 4096,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['desktop', 'gaming'],
+    packageManager: 'dnf / Flatpak',
+    rollingRelease: false,
+    highlights: [
+      'Native Apple Silicon execution: Runs bare-metal on M1, M2, M3 hardware with zero virtualization overhead',
+      'Open-source Rust GPU drivers: Fully conformant Vulkan 1.3 and OpenGL 4.6 drivers reverse-engineered for Apple AGX silicon',
+      'Calibrated Audio DSP: Built-in speaker equalization and software limiters preventing physical damage to Mac tweeters',
+      'Safe APFS Coexistence: Dual-boots alongside macOS without breaking Apple recovery partition or FileVault'
+    ],
+    tradeoffs: [
+      'Hardware specific: Strictly built for Apple Silicon ARM Macs (not for standard x86 PCs or Raspberry Pi)',
+      'Evolving hardware support: Newer chips (M3 Max / M4) may have experimental external display or webcam features'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://fedora-asahi-remix.org'
+    }
+  },
   {
     id: 'bazzite',
     name: 'Bazzite',

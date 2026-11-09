@@ -205,6 +205,19 @@ test('Core Matcher: Identifies TrueNAS SCALE for enterprise multi-bay rack stora
   assert.ok(result.bestMatch.score >= 85);
 });
 
+test('Core Matcher: Identifies Asahi Linux for Apple Silicon (M1/M2/M3) desktop machines', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'intermediate',
+    useCase: 'desktop',
+    platform: 'bare-metal',
+    architecture: 'arm64',
+    footprint: 'full'
+  });
+
+  const topIds = result.topMatches.slice(0, 3).map(m => m.distro.id);
+  assert.ok(topIds.includes('asahi-linux'));
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });
