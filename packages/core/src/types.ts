@@ -58,6 +58,7 @@ export type ExperienceLevel =
 export type PrimaryUseCase =
   | 'desktop'
   | 'gaming'
+  | 'media-center'
   | 'server'
   | 'k8s-cluster'
   | 'container-base'

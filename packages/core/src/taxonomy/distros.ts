@@ -35,6 +35,39 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     }
   },
   {
+    id: 'libreelec',
+    name: 'LibreELEC',
+    tagline: 'Just enough OS for Kodi: Turn any old PC, TV box, or Raspberry Pi into a dedicated media center',
+    description:
+      'A purpose-built, ultra-lightweight Linux appliance designed purely to run the Kodi entertainment center on your TV. Boots in seconds directly into a 10-foot TV user interface, fully controllable by TV remotes (HDMI-CEC), gamepads, or smartphones. Hardware-accelerated 4K/1080p playback even on ancient hardware.',
+    website: 'https://libreelec.tv',
+    documentationUrl: 'https://wiki.libreelec.tv',
+    logoEmoji: '📺',
+    platforms: ['bare-metal', 'embedded-sbc'],
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    footprint: 'minimal',
+    minRamMb: 512,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'read-only-rootfs',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['media-center'],
+    rollingRelease: false,
+    highlights: [
+      'Turnkey living room media center: boots straight to Kodi 10-foot TV interface',
+      'Supports TV remotes automatically via HDMI-CEC (no keyboard or mouse needed)',
+      'Hardware-accelerated video decoding (H.264, HEVC, AV1) on low-spec hardware',
+      'Read-only atomic system: impervious to accidental file deletion or kid tampering',
+      'Runs effortlessly on ancient laptops, thrifted office PCs, and Raspberry Pis'
+    ],
+    tradeoffs: [
+      'Appliance design: cannot install generic Linux desktop apps or web browsers outside Kodi add-ons'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://libreelec.tv/downloads/'
+    }
+  },
+  {
     id: 'bazzite',
     name: 'Bazzite',
     tagline: 'The next-generation SteamOS alternative for PC gaming and handhelds',

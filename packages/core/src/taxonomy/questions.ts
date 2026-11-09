@@ -50,11 +50,46 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal' }
       },
       {
+        id: 'media_center',
+        label: '📺 Living Room Media Center / TV Box (Kodi)',
+        description: 'Turn an old PC or TV box into a dedicated media player controlled with a TV remote or smartphone',
+        icon: '📺',
+        appliesCriteria: { useCase: 'media-center', footprint: 'minimal', platform: 'bare-metal' }
+      },
+      {
+        id: 'cheap_router',
+        label: '📡 Home Router & Wi-Fi Firewall',
+        description: 'Turn an old PC, mini-PC, or box into a fast home router, ditch ISP rental fees, and block ads network-wide',
+        icon: '📡',
+        appliesCriteria: { useCase: 'router-networking', footprint: 'micro', platform: 'router-firewall' }
+      },
+      {
+        id: 'shop_kiosk',
+        label: '🏪 Store Display, Digital Menu Board, or Shop Kiosk',
+        description: 'Boot directly into a full-screen website, digital price menu, or dashboard with no desktop interface',
+        icon: '🏪',
+        appliesCriteria: { useCase: 'kiosk-signage', footprint: 'lean', platform: 'kiosk' }
+      },
+      {
         id: 'revive_old_pc',
-        label: '💨 Revive an Obsolete, Slow Computer',
-        description: 'Make an ancient 10-20 year old PC or laptop with low RAM fast and usable again',
+        label: '💨 Revive an Ancient, Slow Computer',
+        description: 'Make an ancient 10-20 year old PC or laptop with low RAM (512MB-2GB) snappy and usable again',
         icon: '💨',
         appliesCriteria: { useCase: 'desktop', footprint: 'minimal', platform: 'bare-metal' }
+      },
+      {
+        id: 'home_server',
+        label: '🏠 Simple Home Server & Private Cloud',
+        description: 'Run Plex/Jellyfin, backup family photos, or run a 24/7 ad-blocker on cheap low-power hardware',
+        icon: '🏠',
+        appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc' }
+      },
+      {
+        id: 'daily_desktop',
+        label: '💻 Everyday Computer for School, Work, or Web',
+        description: 'Friendly desktop for web browsing, YouTube, and typing, completely immune to Windows malware',
+        icon: '💻',
+        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal' }
       },
       {
         id: 'modern_gaming',
@@ -62,27 +97,6 @@ export const QUESTIONS: Question[] = [
         description: 'Play modern Steam, Epic, and indie PC games with a controller-friendly TV interface',
         icon: '🎮',
         appliesCriteria: { useCase: 'gaming', footprint: 'full', platform: 'bare-metal' }
-      },
-      {
-        id: 'daily_desktop',
-        label: '💻 Everyday Computer for School, Work, or Web',
-        description: 'Friendly desktop for web browsing, YouTube, office documents, immune to Windows malware',
-        icon: '💻',
-        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal' }
-      },
-      {
-        id: 'home_server',
-        label: '🏠 Simple Home Media / Storage Server',
-        description: 'Run Plex/Jellyfin to stream movies, backup photos, or host personal files 24/7',
-        icon: '🏠',
-        appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'bare-metal' }
-      },
-      {
-        id: 'kiosk_display',
-        label: '🖥️ Digital Sign or Locked Web Kiosk',
-        description: 'Boot directly into a full-screen website or dashboard with no desktop interface',
-        icon: '🖥️',
-        appliesCriteria: { useCase: 'kiosk-signage', footprint: 'lean', platform: 'kiosk' }
       },
       {
         id: 'browser_wasm',
@@ -130,6 +144,13 @@ export const QUESTIONS: Question[] = [
         description: 'Locked-down appliance booting straight into full-screen browser or app',
         icon: '🖥️',
         appliesCriteria: { useCase: 'kiosk-signage', platform: 'kiosk' }
+      },
+      {
+        id: 'media_center',
+        label: 'Home Theater PC (HTPC) / Dedicated Media Center',
+        description: 'Boots directly into Kodi/Jellyfin with remote-control navigation and HW-accelerated video decoding',
+        icon: '📺',
+        appliesCriteria: { useCase: 'media-center', platform: 'bare-metal' }
       },
       {
         id: 'server_cloud',

@@ -64,6 +64,29 @@ test('Core Matcher: Identifies antiX for reviving ancient PCs with minimal RAM',
   assert.ok(result.bestMatch.score >= 80);
 });
 
+test('Core Matcher: Pinpoints LibreELEC for living room media center (Kodi TV)', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'media-center',
+    platform: 'bare-metal',
+    architecture: 'x86_64'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'libreelec');
+  assert.ok(result.bestMatch.score >= 80);
+});
+
+test('Core Matcher: Pinpoints OpenWrt for home router & firewall', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'router-networking',
+    platform: 'router-firewall'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'openwrt');
+  assert.ok(result.bestMatch.score >= 80);
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });

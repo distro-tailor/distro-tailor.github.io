@@ -153,6 +153,13 @@ export function evaluateCriteria(
           matched: true,
           explanation: `Matches your ${criteria.experienceLevel} comfort zone.`
         });
+      } else if (criteria.experienceLevel === 'beginner' && distro.experienceLevel === 'systems-engineer') {
+        earned -= 15; // Don't recommend a source-compilation distro to a beginner
+        reasons.push({
+          feature: 'Experience Level',
+          matched: false,
+          explanation: `Requires advanced low-level source compilation (not ideal for beginners).`
+        });
       }
     }
 
