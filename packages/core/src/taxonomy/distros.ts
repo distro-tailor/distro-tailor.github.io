@@ -102,6 +102,41 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       downloadUrl: 'https://endlessos.org/download/'
     }
   },
+  // --- HOME NAS & FAMILY BACKUPS ---
+  {
+    id: 'openmediavault',
+    name: 'OpenMediaVault (OMV)',
+    tagline: 'Turn any old PC into a private home NAS for phone photo backups, media, and shared family storage',
+    description:
+      'A Debian-based turnkey Network Attached Storage (NAS) operating system that lets families ditch iCloud and Google Photos monthly storage fees. Controlled entirely through a clean web browser interface with 1-click support for phone photo & video auto-backup (Immich/Nextcloud), Mac Time Machine, Windows file shares (SMB/CIFS), and disk health monitoring.',
+    website: 'https://www.openmediavault.org',
+    documentationUrl: 'https://docs.openmediavault.org',
+    logoEmoji: '📦',
+    platforms: ['bare-metal', 'embedded-sbc', 'server'],
+    architectures: ['x86_64', 'arm64'],
+    footprint: 'lean',
+    minRamMb: 1024,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['nas-storage', 'server'],
+    packageManager: 'apt',
+    rollingRelease: false,
+    highlights: [
+      'Simple web browser dashboard: manage family storage from your phone or laptop with no Linux commands',
+      'Auto-backup photos and videos from iPhones and Androids (replaces iCloud & Google Photos)',
+      'Automated background backups for Mac (Time Machine) and Windows laptops',
+      'Shared family drive: easily access photos, movies, and documents from any device in the home',
+      'Lightweight Debian core: runs smoothly on 10-15 year old computers with as little as 1GB RAM'
+    ],
+    tradeoffs: [
+      'Headless server design: managed through your web browser, not a desktop monitor UI'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.openmediavault.org/?page_id=77'
+    }
+  },
   {
     id: 'bazzite',
     name: 'Bazzite',

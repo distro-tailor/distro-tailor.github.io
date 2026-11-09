@@ -60,6 +60,7 @@ export type PrimaryUseCase =
   | 'gaming'
   | 'media-center'
   | 'education-kids'
+  | 'nas-storage'
   | 'server'
   | 'k8s-cluster'
   | 'container-base'

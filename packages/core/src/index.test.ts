@@ -98,6 +98,17 @@ test('Core Matcher: Pinpoints Endless OS for kids school and education', () => {
   assert.ok(result.bestMatch.score >= 80);
 });
 
+test('Core Matcher: Pinpoints OpenMediaVault for family NAS and photo backups', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'nas-storage',
+    platform: 'bare-metal'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'openmediavault');
+  assert.ok(result.bestMatch.score >= 80);
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });

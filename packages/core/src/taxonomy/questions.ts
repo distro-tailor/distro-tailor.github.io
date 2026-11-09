@@ -78,6 +78,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'kiosk-signage', footprint: 'lean', platform: 'kiosk' }
       },
       {
+        id: 'nas_photo_backup',
+        label: '📦 Family Photo/Video Backup & Home Storage (NAS)',
+        description: 'Auto-backup family phone photos and videos over Wi-Fi, share files at home, and ditch monthly iCloud/Google Drive fees',
+        icon: '📦',
+        appliesCriteria: { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal' }
+      },
+      {
         id: 'revive_old_pc',
         label: '💨 Revive an Ancient, Slow Computer',
         description: 'Make an ancient 10-20 year old PC or laptop with low RAM (512MB-2GB) snappy and usable again',
@@ -165,6 +172,13 @@ export const QUESTIONS: Question[] = [
         description: 'Locked-down, offline-capable environment with Scratch, Khan Academy, and child-safe controls',
         icon: '🎓',
         appliesCriteria: { useCase: 'education-kids', platform: 'bare-metal' }
+      },
+      {
+        id: 'nas_storage',
+        label: 'Network Attached Storage (NAS) / File Server & Backups',
+        description: 'Headless storage appliance with web UI, automated phone photo sync, and Samba/NFS file sharing',
+        icon: '📦',
+        appliesCriteria: { useCase: 'nas-storage', platform: 'server' }
       },
       {
         id: 'server_cloud',
