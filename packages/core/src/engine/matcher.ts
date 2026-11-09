@@ -189,7 +189,15 @@ export function evaluateCriteria(
   let recommendedRecipe;
   const targetGeneratorId =
     bestMatch.distro.recipeGeneratorId ||
-    (criteria.useCase === 'iot-embedded' ? 'buildroot-embedded' : 'debootstrap-debian');
+    (criteria.platform === 'wsl2'
+      ? 'wsl2-debian'
+      : criteria.platform === 'vm'
+      ? 'cloud-init-qcow2'
+      : criteria.useCase === 'hypervisor-vms'
+      ? 'proxmox-lxc'
+      : criteria.useCase === 'iot-embedded'
+      ? 'buildroot-embedded'
+      : 'debootstrap-debian');
 
   if (targetGeneratorId) {
     recommendedRecipe = resolveRecipeGenerator(targetGeneratorId, criteria);

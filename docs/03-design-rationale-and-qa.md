@@ -154,6 +154,26 @@ flowchart LR
 
 ---
 
+## 📦 9. Expanded Output Types & Delivery Paradigms
+
+### Q9.1: What are all the output types DistroTailor generates across computing form factors?
+* **Problem:** Limiting output to ISOs ignores developers on Windows, homelab operators running Proxmox clusters, and embedded engineers.
+* **Architecture:** DistroTailor supports **9 distinct output formats** spanning physical, cloud, and containerized platforms:
+
+| Output Format | Target Platform | Generated Artifacts & Capabilities |
+| :--- | :--- | :--- |
+| **`iso`** | Physical PCs, Laptops, Macs | Hybrid BIOS/UEFI Live ISO with tailored kernel and pruned firmware. |
+| **`disk-image`** | Raspberry Pi / SD Cards | Raw `.img` partition layout ready for direct flashing. |
+| **`qcow2`** | Proxmox VE, KVM, OpenStack | Sparse virtual disk image with `cloud-init` and QEMU guest agent. |
+| **`wsl2`** | Windows 10/11 Subsystem for Linux | Zero-kernel rootfs tarball (`rootfs.tar.gz`) + `wsl.conf` + PowerShell installer. |
+| **`lxc-template`** | Proxmox VE, Incus, LXD | High-density `.tar.xz` container template (<25MB RAM on boot). |
+| **`dockerfile`** | Docker, Podman, Kubernetes | Multi-stage minimal container image based on Alpine or Distroless. |
+| **`buildroot`** | Microcontrollers & SBCs | Cross-compiled kernel and BusyBox `distro.defconfig`. |
+| **`tarball`** | Custom RootFS / Chroot | Minimal root directory archive for bootstrapping and provisioning. |
+| **`wasm-browser`** | Web Browsers | Standalone HTML with `v86` WebAssembly 32-bit x86 emulator. |
+
+---
+
 ## 📋 Summary Table of Archetypes & Flagships
 
 | User Goal / Hardware Archetype | Flagship Recommendation | Key Architectural Trait |

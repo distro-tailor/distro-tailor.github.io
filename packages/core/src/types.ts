@@ -6,6 +6,7 @@ export type PlatformTarget =
   | 'embedded-sbc'
   | 'microcontroller'
   | 'browser-wasm'
+  | 'wsl2'
   | 'router-firewall'
   | 'k8s-node'
   | 'desktop'
@@ -121,7 +122,10 @@ export type RecipeGeneratorId =
   | 'buildroot-embedded'
   | 'kiosk-web'
   | 'distroless-docker'
-  | 'wasm-browser';
+  | 'wasm-browser'
+  | 'cloud-init-qcow2'
+  | 'wsl2-debian'
+  | 'proxmox-lxc';
 
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
@@ -174,11 +178,21 @@ export interface DistroScore {
   reasons: MatchReason[];
 }
 
+export type TargetFormat =
+  | 'iso'
+  | 'disk-image'
+  | 'tarball'
+  | 'dockerfile'
+  | 'buildroot'
+  | 'qcow2'
+  | 'wsl2'
+  | 'lxc-template';
+
 export interface GeneratedRecipe {
   id: RecipeGeneratorId;
   title: string;
   summary: string;
-  targetFormat: 'iso' | 'disk-image' | 'tarball' | 'dockerfile' | 'buildroot';
+  targetFormat: TargetFormat;
   estimatedBuildTimeMinutes: number;
   hostDependencies: string[];
   files: Array<{

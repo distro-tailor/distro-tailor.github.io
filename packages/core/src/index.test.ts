@@ -243,6 +243,43 @@ test('Core Matcher: Identifies Ubuntu Studio for freelance graphics, 3D art and 
   assert.ok(result.bestMatch.score >= 85);
 });
 
+test('Recipe Generators: Generates Cloud-Init QCOW2 virtual machine disk recipe', () => {
+  const result = evaluateCriteria({
+    useCase: 'server',
+    platform: 'vm'
+  });
+
+  assert.ok(result.recommendedRecipe);
+  assert.equal(result.recommendedRecipe.targetFormat, 'qcow2');
+  assert.equal(result.recommendedRecipe.id, 'cloud-init-qcow2');
+  assert.ok(result.recommendedRecipe.files.some(f => f.filename === 'user-data'));
+  assert.ok(result.recommendedRecipe.files.some(f => f.filename === 'meta-data'));
+});
+
+test('Recipe Generators: Generates WSL2 rootfs package recipe for Windows developers', () => {
+  const result = evaluateCriteria({
+    platform: 'wsl2'
+  });
+
+  assert.ok(result.recommendedRecipe);
+  assert.equal(result.recommendedRecipe.targetFormat, 'wsl2');
+  assert.equal(result.recommendedRecipe.id, 'wsl2-debian');
+  assert.ok(result.recommendedRecipe.files.some(f => f.filename === 'wsl.conf'));
+  assert.ok(result.recommendedRecipe.files.some(f => f.filename === 'install-wsl.ps1'));
+});
+
+test('Recipe Generators: Generates Proxmox LXC system container template recipe', () => {
+  const result = evaluateCriteria({
+    useCase: 'hypervisor-vms',
+    platform: 'server'
+  });
+
+  assert.ok(result.recommendedRecipe);
+  assert.equal(result.recommendedRecipe.targetFormat, 'lxc-template');
+  assert.equal(result.recommendedRecipe.id, 'proxmox-lxc');
+  assert.ok(result.recommendedRecipe.files.some(f => f.filename === 'lxc-create.sh'));
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });

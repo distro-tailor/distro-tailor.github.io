@@ -24,6 +24,27 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     And the Makefile must fetch the official Buildroot source tree
     And the Makefile must support "make menuconfig" for fine-grained interactive tuning
 
+  Scenario: Generating a Cloud-Init QCOW2 Virtual Machine Disk Recipe
+    Given the criteria specify a virtual machine server or Proxmox KVM node
+    When the recipe generator resolves "cloud-init-qcow2"
+    Then the generated files must include "Makefile", "user-data", and "meta-data"
+    And the user-data file must configure the "tailor" user and SSH keys
+    And the Makefile must generate a sparse QCOW2 disk image
+
+  Scenario: Generating a Windows Subsystem for Linux (WSL2) Distro Package
+    Given the criteria specify "wsl2" as the target platform
+    When the recipe generator resolves "wsl2-debian"
+    Then the generated files must include "Makefile", "wsl.conf", and "install-wsl.ps1"
+    And the wsl.conf must enable systemd and automounting
+    And the generated tarball must omit redundant Linux kernels and firmware
+
+  Scenario: Generating a Proxmox LXC Container Template
+    Given the criteria specify homelab virtualization or high-density containers
+    When the recipe generator resolves "proxmox-lxc"
+    Then the generated files must include "Makefile", "lxc-create.sh", and "README.md"
+    And the Makefile must output an XZ-compressed rootfs archive ".tar.xz"
+    And the rootfs must exclude kernel and bootloader binaries
+
   Scenario: Providing a 3-Tier Testing and Verification Ladder
     Given any generated recipe or recommended image
     When the results view is displayed to the user

@@ -395,6 +395,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'standard' }
       },
       {
+        id: 'windows_wsl2',
+        label: 'Windows 10 / 11 Subsystem for Linux (WSL2)',
+        description: 'Run native Linux directly inside Windows alongside your Windows desktop without dual-booting or repartitioning',
+        icon: '🪟',
+        appliesCriteria: { platform: 'wsl2', footprint: 'minimal' }
+      },
+      {
         id: 'riscv_board',
         label: 'RISC-V Board or PC (VisionFive 2, Milk-V, SpacemiT)',
         description: 'Open-standard instruction set architecture (ISA) single-board computer or developer workstation',

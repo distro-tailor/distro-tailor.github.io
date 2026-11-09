@@ -277,6 +277,7 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
       'browser-wasm': { label: 'Web Browser VM', icon: '🌐' },
       'router-firewall': { label: 'Router Appliance', icon: '📡' },
       vm: { label: 'Virtual Machine', icon: '🖧' },
+      wsl2: { label: 'Windows Subsystem for Linux (WSL2)', icon: '🪟' },
       container: { label: 'Docker Container', icon: '🐳' }
     },
     architecture: {

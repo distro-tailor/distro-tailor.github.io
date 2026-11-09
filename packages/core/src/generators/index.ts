@@ -5,6 +5,9 @@ import { generateBuildrootRecipe } from './buildroot.js';
 import { generateKioskRecipe } from './kiosk.js';
 import { generateContainerRecipe } from './container.js';
 import { generateWasmRecipe } from './wasm.js';
+import { generateCloudInitRecipe } from './cloud-init.js';
+import { generateWslRecipe } from './wsl.js';
+import { generateLxcRecipe } from './lxc.js';
 
 export function resolveRecipeGenerator(
   generatorId: RecipeGeneratorId,
@@ -23,6 +26,12 @@ export function resolveRecipeGenerator(
       return generateContainerRecipe(criteria);
     case 'wasm-browser':
       return generateWasmRecipe(criteria);
+    case 'cloud-init-qcow2':
+      return generateCloudInitRecipe(criteria);
+    case 'wsl2-debian':
+      return generateWslRecipe(criteria);
+    case 'proxmox-lxc':
+      return generateLxcRecipe(criteria);
     default:
       return generateDebootstrapRecipe(criteria);
   }
