@@ -297,6 +297,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc' }
       },
       {
+        id: 'repurposed_gadget',
+        label: 'Repurposed Gadget (Synology NAS, Old Phone, Ouya, Thin Client)',
+        description: 'Reclaim proprietary hardware: install OpenMediaVault on Synology NAS, postmarketOS on old phones, or Linux on Ouya/thin clients',
+        icon: '🔓',
+        appliesCriteria: { platform: 'embedded-sbc', footprint: 'lean' }
+      },
+      {
         id: 'gaming_handheld',
         label: 'Handheld Gaming Device (Steam Deck, ROG Ally, etc.)',
         description: 'Portable gaming PC with integrated display and thumbsticks',

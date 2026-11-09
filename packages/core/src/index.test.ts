@@ -143,6 +143,18 @@ test('Core Matcher: Recommends Armbian or DietPi for ARM TV boxes and single boa
   assert.ok(topIds.includes('armbian') || topIds.includes('dietpi'));
 });
 
+test('Core Matcher: Identifies postmarketOS for repurposed mobile and gadget hardware', () => {
+  const result = evaluateCriteria({
+    useCase: 'iot-embedded',
+    platform: 'embedded-sbc',
+    cLibPreference: 'musl',
+    footprint: 'minimal'
+  });
+
+  const topIds = result.topMatches.slice(0, 3).map(m => m.distro.id);
+  assert.ok(topIds.includes('postmarketos') || topIds.includes('alpine') || topIds.includes('buildroot'));
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });

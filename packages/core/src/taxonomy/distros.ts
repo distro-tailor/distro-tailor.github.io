@@ -400,6 +400,39 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       downloadUrl: 'https://www.armbian.com/download/'
     }
   },
+  {
+    id: 'postmarketos',
+    name: 'postmarketOS (pmOS)',
+    tagline: 'True Alpine Linux extending the lifespan of old smartphones and gadgets',
+    description:
+      'A touch-friendly and server-capable distribution built on Alpine Linux designed to reclaim abandoned consumer hardware (old smartphones, tablets, Ouya, and handhelds). Features mainline Linux kernel drivers, avoids Android battery drain and vendor lock-in, and turns idle phones with built-in battery UPS into zero-cost home servers.',
+    website: 'https://postmarketos.org',
+    documentationUrl: 'https://wiki.postmarketos.org',
+    logoEmoji: '📱',
+    platforms: ['embedded-sbc', 'bare-metal'],
+    architectures: ['arm64', 'armv7', 'x86_64'],
+    footprint: 'minimal',
+    minRamMb: 256,
+    initSystems: ['openrc', 'systemd'],
+    cLibraries: ['musl'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['server', 'iot-embedded', 'desktop'],
+    packageManager: 'apk',
+    rollingRelease: true,
+    highlights: [
+      'Reclaims 250+ abandoned smartphone and tablet models with clean mainline Linux',
+      'Ultra-light Alpine base (musl libc): idles at only 40MB RAM in server mode',
+      'Built-in Battery UPS: old phones never shut down during home power blips',
+      'Supports Phosh/Plasma Mobile touchscreens or headless SSH server'
+    ],
+    tradeoffs: [
+      'Flashing requires unlocking the device bootloader and using fastboot or recovery'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://postmarketos.org/download/'
+    }
+  },
 
   // --- CONTAINERS & ULTRA-LEAN ---
   {
