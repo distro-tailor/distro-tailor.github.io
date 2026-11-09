@@ -25,6 +25,99 @@ const state: AppState = {
 
 const flow = new QuestionFlow(QUESTIONS);
 
+// --- URL STATE PERSISTENCE (GitHub Pages & Refresh Friendly) ---
+
+function saveStateToUrl(): void {
+  const params = new URLSearchParams();
+
+  if (state.activeTab !== 'wizard') {
+    params.set('tab', state.activeTab);
+  }
+
+  if (state.activeFileIndex > 0) {
+    params.set('file', String(state.activeFileIndex));
+  }
+
+  if (state.answeredQuestionIds.size > 0) {
+    params.set('ans', Array.from(state.answeredQuestionIds).join(','));
+  }
+
+  // Serialize criteria keys into clean query parameters
+  for (const [key, value] of Object.entries(state.criteria)) {
+    if (value !== undefined && value !== null && value !== '') {
+      params.set(key, String(value));
+    }
+  }
+
+  const queryString = params.toString();
+  const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+  window.history.replaceState(null, '', newUrl);
+}
+
+function loadStateFromUrl(): void {
+  // Read from query string, or fallback to hash if query is empty (supports both ?... and #...)
+  const rawParams = window.location.search || (window.location.hash.includes('?') ? window.location.hash.slice(window.location.hash.indexOf('?')) : window.location.hash.replace(/^#\/?/, ''));
+  if (!rawParams) return;
+
+  const params = new URLSearchParams(rawParams.startsWith('?') ? rawParams.slice(1) : rawParams);
+
+  const tab = params.get('tab');
+  if (tab === 'wizard' || tab === 'expert' || tab === 'results') {
+    state.activeTab = tab;
+  }
+
+  const file = params.get('file');
+  if (file && !isNaN(Number(file))) {
+    state.activeFileIndex = Number(file);
+  }
+
+  const ans = params.get('ans');
+  if (ans) {
+    state.answeredQuestionIds.clear();
+    ans.split(',').filter(Boolean).forEach((id) => state.answeredQuestionIds.add(id));
+  }
+
+  const knownCriteriaKeys: (keyof UserCriteria)[] = [
+    'useCase',
+    'platform',
+    'architecture',
+    'footprint',
+    'statePreference',
+    'cLibPreference',
+    'initPreference',
+    'experienceLevel',
+    'maxRamMb',
+    'prefersGui',
+    'requiresCustomBuild'
+  ];
+
+  for (const key of knownCriteriaKeys) {
+    const val = params.get(key);
+    if (val !== null) {
+      if (key === 'maxRamMb') {
+        state.criteria[key] = Number(val);
+      } else if (key === 'prefersGui' || key === 'requiresCustomBuild') {
+        state.criteria[key] = val === 'true';
+      } else {
+        (state.criteria as any)[key] = val;
+      }
+    }
+  }
+
+  // If criteria are present and all questions answered, default to results view unless tab was explicitly set
+  if (Object.keys(state.criteria).length > 0 && !params.has('tab')) {
+    const nextQ = flow.getNextQuestion(state.criteria, state.answeredQuestionIds);
+    if (!nextQ) {
+      state.activeTab = 'results';
+    }
+  }
+}
+
+window.addEventListener('popstate', () => {
+  loadStateFromUrl();
+  render();
+});
+
 function getAppElement(): HTMLElement {
   const el = document.getElementById('app');
   if (!el) throw new Error('Missing #app root element');
@@ -86,6 +179,7 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
 }
 
 function render() {
+  saveStateToUrl();
   const app = getAppElement();
   const evaluation: RecommendationOutput = evaluateCriteria(state.criteria);
   const nextQuestion = flow.getNextQuestion(state.criteria, state.answeredQuestionIds);
@@ -904,6 +998,8 @@ function attachEventHandlers(
     state.answeredQuestionIds.clear();
     state.history = [];
     state.activeTab = 'wizard';
+    state.activeFileIndex = 0;
+    saveStateToUrl();
     render();
   });
 
@@ -1057,5 +1153,6 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#039;');
 }
 
-// Initial mount
+// Initial mount with URL restoration
+loadStateFromUrl();
 render();
