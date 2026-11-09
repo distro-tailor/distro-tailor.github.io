@@ -135,7 +135,7 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
         emulator.add_listener("download-progress", (e) => {
           if (e && e.total > 0) {
             const pct = Math.round((e.loaded / e.total) * 100);
-            setStatus(\`📥 Downloading \${e.file_name || 'kernel'}: \${pct}%\`);
+            setStatus("📥 Downloading " + (e.file_name || "kernel") + ": " + pct + "%");
           }
         });
 
