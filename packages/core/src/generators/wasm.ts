@@ -66,56 +66,32 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
       background: #000;
       border: 2px solid #334155;
       border-radius: 8px;
-      padding: 8px;
+      padding: 10px;
       box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8);
       margin-top: 0.5rem;
       width: fit-content;
       min-width: 640px;
       min-height: 400px;
-      position: relative;
     }
     #screen_container {
       cursor: text;
+      outline: none;
     }
-    #screen {
+    #screen_container:focus {
+      outline: 2px solid #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+    #screen_container div {
       white-space: pre;
-      position: relative;
-      font-family: "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
-      font-weight: 700;
-      font-size: 15px;
-      line-height: normal;
-      color: #fff;
-    }
-    #vga {
-      background-color: #000;
-      display: block;
-    }
-    .blinking-cursor {
-      animation: blinking-cursor .6s step-start infinite;
-    }
-    @keyframes blinking-cursor {
-      50% { background-color: transparent; }
-    }
-    #log-feed {
-      margin-top: 1rem;
-      max-width: 760px;
-      width: 100%;
-      background: #0b1120;
-      border: 1px solid #1e293b;
-      border-radius: 6px;
-      padding: 0.5rem 0.8rem;
-      font-family: monospace;
-      font-size: 11px;
-      color: #94a3b8;
-      max-height: 120px;
-      overflow-y: auto;
+      font: 14px monospace;
+      line-height: 14px;
     }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>🐧 DistroTailor: WebAssembly Linux VM (v86)</h1>
-    <p>Booting Buildroot Linux kernel in client-side WebAssembly.</p>
+    <p>Booting a live x86 Linux operating system directly in your browser.</p>
     
     <div id="status-bar">⏳ Preparing WebAssembly virtual machine...</div>
     
@@ -126,15 +102,10 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
   </div>
 
   <div class="terminal-wrapper">
-    <div id="screen_container">
-      <div id="screen"></div>
-      <canvas id="vga"></canvas>
+    <div id="screen_container" tabindex="0">
+      <div style="white-space: pre; font: 14px monospace; line-height: 14px"></div>
+      <canvas style="display: none"></canvas>
     </div>
-  </div>
-
-  <div id="log-feed">
-    <div style="color: #38bdf8; font-weight: bold; margin-bottom: 2px;">Kernel Activity Feed:</div>
-    <div id="log-content">Waiting for CPU boot...</div>
   </div>
 
   <script type="module">
@@ -142,7 +113,6 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
 
     const statusEl = document.getElementById("status-bar");
     const screenEl = document.getElementById("screen_container");
-    const logContent = document.getElementById("log-content");
 
     function logStep(stepNum, msg, color) {
       if (!color) color = "#38bdf8";
@@ -150,15 +120,6 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
       console.log("%c" + formatted, "color: " + color);
       statusEl.textContent = formatted;
       statusEl.style.color = color;
-    }
-
-    function appendFeed(text) {
-      if (logContent.textContent === "Waiting for CPU boot...") {
-        logContent.textContent = "";
-      }
-      logContent.textContent += text;
-      const feed = document.getElementById("log-feed");
-      feed.scrollTop = feed.scrollHeight;
     }
 
     async function fetchBufferWithLog(stepNum, name, url) {
@@ -177,16 +138,16 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
 
     async function startVM() {
       try {
-        logStep("1/5", "Importing V86 engine from CDN...");
+        logStep("1/4", "Importing V86 engine from CDN...");
         const { V86 } = await import("https://cdn.jsdelivr.net/npm/v86/build/libv86.mjs");
         console.log("[DistroTailor] V86 module loaded successfully:", typeof V86);
 
-        // Pre-fetch all binary assets into memory
-        const biosBuffer = await fetchBufferWithLog("2/5", "SeaBIOS", "https://cdn.jsdelivr.net/npm/v86/bios/seabios.bin");
-        const vgaBiosBuffer = await fetchBufferWithLog("3/5", "VGABIOS", "https://cdn.jsdelivr.net/npm/v86/bios/vgabios.bin");
-        const bzimageBuffer = await fetchBufferWithLog("4/5", "Linux Kernel", "./bzimage.bin");
+        // Pre-fetch all binary assets into memory so V86 has 0 network latency/CORS stalls
+        const biosBuffer = await fetchBufferWithLog("2/4", "SeaBIOS", "https://cdn.jsdelivr.net/npm/v86/bios/seabios.bin");
+        const vgaBiosBuffer = await fetchBufferWithLog("3/4", "VGABIOS", "https://cdn.jsdelivr.net/npm/v86/bios/vgabios.bin");
+        const cdromBuffer = await fetchBufferWithLog("4/4", "Linux Live ISO", "./linux.iso");
 
-        logStep("5/5", "Instantiating x86 WebAssembly VM...");
+        logStep("BOOTING", "SeaBIOS Starting... Mounting ISO CD-ROM...");
         console.log("[DistroTailor] Creating V86 instance with buffers in memory...");
 
         const emulator = new V86({
@@ -194,44 +155,23 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
           memory_size: 64 * 1024 * 1024,
           vga_memory_size: 2 * 1024 * 1024,
           screen_container: screenEl,
-          screen: {
-            container: screenEl,
-            use_graphical_text: false
-          },
-          filesystem: {},
           bios: { buffer: biosBuffer },
           vga_bios: { buffer: vgaBiosBuffer },
-          bzimage: { buffer: bzimageBuffer },
-          cmdline: "tsc=reliable mitigations=off random.trust_cpu=on",
+          cdrom: { buffer: cdromBuffer },
           disable_speaker: true,
           autostart: true
         });
 
         console.log("[DistroTailor] V86 instance created! Registering listeners...");
 
-        emulator.add_listener("emulator-ready", () => {
-          console.log("%c[DistroTailor Event] emulator-ready fired", "color: #22c55e; font-weight: bold;");
-        });
-
         emulator.add_listener("emulator-loaded", () => {
-          console.log("%c[DistroTailor Event] emulator-loaded fired! CPU starting execution...", "color: #22c55e; font-weight: bold;");
-          logStep("READY", "🟢 Linux Kernel Booting! Click in terminal to send keys.", "#4ade80");
-          appendFeed("[System] CPU core started\\n");
+          console.log("%c[DistroTailor Event] emulator-loaded fired! CPU executing.", "color: #22c55e; font-weight: bold;");
+          logStep("READY", "🟢 SeaBIOS & Linux Live ISO Booting! Keystrokes are active.", "#4ade80");
+          screenEl.focus();
         });
 
         emulator.add_listener("screen-set-mode", (isGraphical) => {
           console.log("[DistroTailor Event] screen-set-mode:", isGraphical ? "GRAPHICAL (Canvas)" : "TEXT (DOM Div)");
-          appendFeed("[Display] Switched to " + (isGraphical ? "Graphical Canvas" : "Text Screen") + "\\n");
-        });
-
-        // Capture serial console characters as they stream from Linux kernel
-        emulator.add_listener("serial0-output-char", (char) => {
-          appendFeed(char);
-        });
-
-        emulator.add_listener("download-error", (err) => {
-          console.error("%c[DistroTailor Error] download-error:", "color: #f87171;", err);
-          logStep("ERROR", "Download error: " + JSON.stringify(err), "#f87171");
         });
 
         // Controls
@@ -247,6 +187,8 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
         // Focus screen on click
         screenEl?.addEventListener("click", () => {
           screenEl.focus();
+          console.log("[DistroTailor] Terminal focused. Keystrokes sent to VM.");
+        });
         });
 
         console.log("%c[DistroTailor] VM start sequence initiated successfully.", "color: #38bdf8; font-weight: bold;");
@@ -268,19 +210,19 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
 # ==============================================================================
 
 PORT ?= 3000
-BZIMAGE_URL ?= https://i.copy.sh/buildroot-bzimage.bin
+ISO_URL ?= https://copy.sh/v86/images/linux.iso
 
 .PHONY: all fetch serve clean
 
 all: fetch serve
 
 fetch:
-	@if [ ! -f "bzimage.bin" ]; then \\
-		echo "[+] Downloading Buildroot Linux kernel (5.0MB)..."; \\
-		curl -sSL "$(BZIMAGE_URL)" -o bzimage.bin; \\
-		echo "[+] bzimage.bin downloaded successfully."; \\
+	@if [ ! -f "linux.iso" ]; then \\
+		echo "[+] Downloading Linux Live ISO (5.5MB)..."; \\
+		curl -sSL "$(ISO_URL)" -o linux.iso; \\
+		echo "[+] linux.iso downloaded successfully."; \\
 	else \\
-		echo "[✔] bzimage.bin already exists."; \\
+		echo "[✔] linux.iso already exists."; \\
 	fi
 
 serve: fetch
@@ -297,16 +239,16 @@ serve: fetch
 	fi
 
 clean:
-	rm -f bzimage.bin
+	rm -f linux.iso
 `;
 
   const readmeContent = `# In-Browser WebAssembly Linux (v86)
 
-This recipe boots a genuine 32-bit x86 Buildroot Linux kernel and BusyBox userspace directly in your web browser tab via WebAssembly.
+This recipe boots a genuine 32-bit x86 Linux live CD and BusyBox userspace directly in your web browser tab via WebAssembly.
 
 ## Quick Start
 
-1. **Download the local Linux kernel & start the web server:**
+1. **Download the local Linux ISO & start the web server:**
    \`\`\`bash
    make
    \`\`\`
@@ -315,7 +257,7 @@ This recipe boots a genuine 32-bit x86 Buildroot Linux kernel and BusyBox usersp
    \`\`\`text
    http://localhost:3000
    \`\`\`
-   Click inside the terminal screen and watch Linux boot directly inside your browser!
+   Click inside the terminal screen and watch SeaBIOS boot into Linux directly inside your browser!
 `;
 
   return {
@@ -329,12 +271,12 @@ This recipe boots a genuine 32-bit x86 Buildroot Linux kernel and BusyBox usersp
     files: [
       {
         filename: 'index.html',
-        description: 'Single-file WebAssembly emulator loading SeaBIOS and local Linux bzImage',
+        description: 'Single-file WebAssembly emulator loading SeaBIOS and local Linux live ISO',
         content: htmlContent
       },
       {
         filename: 'Makefile',
-        description: 'Fetches the 5.0MB Linux kernel locally and starts the local web server',
+        description: 'Fetches the 5.5MB Linux live ISO locally and starts the local web server',
         content: makefileContent
       },
       {
