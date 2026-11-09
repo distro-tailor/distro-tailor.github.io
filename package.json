@@ -1,0 +1,23 @@
+{
+  "name": "distro-tailor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Adaptive 20-questions Linux selector and custom distro recipe generator",
+  "author": "DistroTailor Community",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run --workspaces build",
+    "test": "npm run --workspaces test",
+    "lint": "npm run --workspaces lint",
+    "dev:cli": "npm run -w @distro-tailor/cli dev",
+    "dev:web": "npm run -w @distro-tailor/web dev",
+    "cli": "npm run -w @distro-tailor/cli start --"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
