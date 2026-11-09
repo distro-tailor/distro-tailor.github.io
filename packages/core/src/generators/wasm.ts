@@ -189,7 +189,6 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
           screenEl.focus();
           console.log("[DistroTailor] Terminal focused. Keystrokes sent to VM.");
         });
-        });
 
         console.log("%c[DistroTailor] VM start sequence initiated successfully.", "color: #38bdf8; font-weight: bold;");
 
