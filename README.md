@@ -23,6 +23,15 @@ DistroTailor is built as a hybrid modular monorepo:
 
 ---
 
+## 📚 Documentation & Specifications
+
+- **[Vision & Goals](docs/01-vision-and-goals.md)**: Product mission, user personas, zero-bloat philosophy, and modular design.
+- **[Architecture & System Design](docs/02-architecture.md)**: Matching engine math, recipe generators, and bootloader topologies.
+- **[Documentation Portal](docs/README.md)**: Central documentation index.
+- **[Living Specifications (Gherkin)](specs/)**: Behavior-driven `.feature` files covering all functional flows.
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites

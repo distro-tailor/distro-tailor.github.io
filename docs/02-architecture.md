@@ -1,0 +1,112 @@
+# 🏗️ DistroTailor: Architecture & System Design
+
+This document details the software architecture, package hierarchy, decision engine algorithms, recipe generators, and bootloader topologies of DistroTailor.
+
+---
+
+## 📦 Monorepo Package Topology
+
+DistroTailor is engineered as a clean, modular TypeScript monorepo with zero circular dependencies:
+
+```
+distro-tailor/
+├── packages/
+│   ├── core/                  # Pure TypeScript domain & engine (Node & Browser compatible)
+│   │   ├── src/
+│   │   │   ├── types.ts       # Domain taxonomy, criteria interfaces, profiles
+│   │   │   ├── engine/
+│   │   │   │   ├── matcher.ts         # Weighted constraint matching algorithm
+│   │   │   │   └── question-flow.ts   # Adaptive dynamic questionnaire director
+│   │   │   ├── taxonomy/
+│   │   │   │   ├── distros.ts         # Verified profile registry (22+ distributions)
+│   │   │   │   └── questions.ts       # 20-Questions tree with contextual tips
+│   │   │   └── generators/
+│   │   │       ├── debootstrap.ts     # Debian minbase ISO generator
+│   │   │       ├── kiosk.ts           # Alpine + Cage Wayland appliance builder
+│   │   │       ├── buildroot.ts       # Embedded Buildroot defconfig generator
+│   │   │       ├── alpine.ts          # Minimal apk chroot generator
+│   │   │       ├── container.ts       # Multi-stage distroless container generator
+│   │   │       └── wasm.ts            # Browser WebVM (v86) assembler
+│   │   └── src/index.test.ts  # Node.js native test runner test suite (16 tests)
+│   │
+│   ├── web/                   # Client-side SPA (Vite + Tailwind CSS)
+│   │   ├── src/
+│   │   │   ├── main.ts        # Reactive UI, keyboard navigation, HMR
+│   │   │   └── style.css      # Dark-mode styling and micro-interactions
+│   │   └── vite.config.ts     # Aliased to core/src for instant HMR
+│   │
+│   └── cli/                   # Interactive terminal wizard & automation engine
+│       ├── src/
+│       │   ├── index.ts       # CLI entrypoint & JSON API
+│       │   └── wizard.ts      # Terminal interactive prompts
+│       └── distro-recipe/     # In-browser WASM WebVM runner (v86 + Bochs BIOS)
+│
+├── specs/                     # Gherkin behavior specifications (.feature files)
+└── docs/                      # Architectural and product documentation
+```
+
+---
+
+## 🧠 Decision Engine & Entropy Reduction (`matcher.ts`)
+
+The core matching algorithm scores distributions against user criteria using a **normalized weighted constraint model**:
+
+$$\text{Score} = \max\left(0, \min\left(100, \text{round}\left(\frac{\sum W_{\text{earned}}}{\sum W_{\text{max}}} \times 100\right)\right)\right)$$
+
+### Constraint Weights Matrix:
+
+| Criterion | Max Weight | Hard/Soft Gate | Evaluation Logic |
+| :--- | :---: | :---: | :--- |
+| **Primary Use Case** | **25 pts** | Soft | Direct match against `distro.primaryUseCases` |
+| **Platform Target** | **20 pts** | Soft (-10 penalty) | Direct match against `distro.platforms` |
+| **CPU Architecture** | **20 pts** | **Hard Gate (-40 penalty)** | Heavy penalty for incompatible hardware (e.g. x86 binary on ARM) |
+| **Storage & RAM Footprint** | **15 pts** | Soft (-15 penalty) | Ordered hierarchy check (`micro` < `minimal` < `lean` < `standard` < `full`) |
+| **State Immutability** | **10 pts** | Soft | Compares `mutable`, `declarative`, `immutable-ostree`, `stateless-ram` |
+| **C Library & Init** | **10 pts** | Soft (5 pts each) | `musl` vs. `glibc` and `systemd` vs. `busybox`/`openrc` |
+| **Experience Level** | **5 pts** | Soft (-15 penalty) | Penalizes source-compilation systems (Buildroot) for beginners |
+
+---
+
+## ⚙️ Turnkey Recipe Generators (`packages/core/src/generators/`)
+
+When a user requires a bespoke operating system build rather than an off-the-shelf ISO, DistroTailor generates reproducible configuration and build scripts:
+
+### 1. `debootstrap-debian` (Live Hybrid ISO)
+- Bootstraps Debian `minbase` with `--no-install-recommends`.
+- Generates a custom GRUB menu and builds a **hybrid BIOS/UEFI bootable ISO** via `grub-mkrescue`.
+- Supports modular variables: `HARDWARE_TARGET`, `PRUNE_FIRMWARE=1`, `DESKTOP_ENV`, and `ENABLE_DISTROBOX=1`.
+
+### 2. `kiosk-web` (Cage Wayland Single-App Appliance)
+- Bootstraps an ultra-lightweight Alpine Linux rootfs (`musl libc`).
+- Installs the **Cage** Wayland kiosk compositor.
+- Injects an **auto-restart watchdog loop** that respawns the target binary (`APP_CMD`) if it exits or crashes.
+- Employs OverlayFS for safe, uncorrupted power-cuts.
+
+### 3. `buildroot-embedded` (Microcontroller / Embedded SBC)
+- Cross-compiles Linux kernel, uClibc-ng or musl libc, and BusyBox userspace.
+- Generates tiny root filesystems (< 8 MB) supporting NOMMU microcontrollers.
+- Injects a tailored `distro.defconfig` with interactive `make menuconfig` support.
+
+---
+
+## 🥾 Bootloader Topology & Disk Structure
+
+DistroTailor handles bootloader placement cleanly across different storage layouts:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        PHYSICAL DISK (GPT)                             │
+├──────────────────────────────┬─────────────────────────────────────────┤
+│ Partition 1: ESP (FAT32)     │ Partition 2: Root Filesystem (ext4/etc) │
+│ Mounted at: /boot/efi        │ Mounted at: /                           │
+│                              │                                         │
+│ ├── EFI/BOOT/BOOTX64.EFI     │ ├── /boot/vmlinuz (Kernel)              │
+│ └── EFI/debian/grubx64.efi   │ ├── /boot/initrd.img (Drivers)          │
+│                              │ └── /boot/grub/grub.cfg (Menu script)   │
+└──────────────────────────────┴─────────────────────────────────────────┘
+```
+
+1. **UEFI Systems (Modern PCs/Macs):** The motherboard reads `BOOTX64.EFI` directly from the FAT32 EFI System Partition.
+2. **Old Legacy BIOS Systems:** Sector 0 (MBR) jumps to GRUB Stage 2 in the unpartitioned post-MBR gap.
+3. **Older MacBooks (2006–2008):** Hybrid GRUB bundles `grub-efi-ia32-bin` to bridge 64-bit kernels with 32-bit Apple EFI firmware.
+4. **ARM / Raspberry Pi:** Bypasses GRUB entirely; GPU firmware (`start4.elf`) boots the kernel directly via device tree files.

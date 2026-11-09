@@ -1,0 +1,43 @@
+Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
+  As a computer user with any level of technical experience
+  I want to answer intuitive, plain-English questions about what I want to accomplish
+  So that I am matched with the ideal Linux distribution or turnkey appliance without confusing jargon
+
+  Background:
+    Given the DistroTailor 20 Questions engine is initialized
+    And the registry contains desktop, appliance, embedded, server, and container distributions
+
+  Scenario: Novice user wants a living room media center
+    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    When the user selects goal "Living Room Media Center / TV Box (Kodi)"
+    Then the engine should recommend "LibreELEC" with a match score of at least 80%
+    And the recommendation should highlight remote-control navigation and HDMI-CEC support
+    And the recommendation should suggest modular add-ons such as RetroArch gaming and home streaming
+
+  Scenario: Family wants a private photo/video backup and home NAS
+    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    When the user selects goal "Family Photo/Video Backup & Home Storage (NAS)"
+    Then the engine should recommend "OpenMediaVault (OMV)" with a match score of at least 80%
+    And the recommendation should highlight replacing iCloud and Google Photos fees with automated Wi-Fi phone sync
+    And the recommendation should suggest modular add-ons such as Home Assistant and Pi-hole ad-blocking
+
+  Scenario: Homeowner wants a private local smart home hub
+    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    When the user selects goal "Smart Home Automation Hub (Home Assistant)"
+    Then the engine should recommend "Home Assistant OS (HAOS)" with a match score of at least 80%
+    And the recommendation should highlight 100% private local execution without cloud subscription fees
+    And the recommendation should explain atomic A/B dual-rootfs rollbacks
+
+  Scenario: Product creator wants to boot directly into a custom application
+    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    When the user selects goal "Dedicated Single-App Appliance / Custom Product"
+    Then the engine should recommend "Cage Wayland Appliance"
+    And the generated recipe should provide an auto-restart watchdog loop
+    And the recipe should support custom application binaries via "APP_CMD"
+
+  Scenario: Switching between Goal Mode and Technical Mode on the fly
+    Given the user is currently on Question 2 in "Goal Mode"
+    When the user clicks the "⇄ switch" toggle button in the question header
+    Then the wizard should smoothly transition to "Technical Mode"
+    And technical questions such as architecture, C library, and immutability should become accessible
+    And previously compatible answers should be preserved without restarting
