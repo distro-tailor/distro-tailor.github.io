@@ -14,95 +14,82 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
       background: #090d16;
       color: #e2e8f0;
       margin: 0;
-      padding: 2rem;
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
     .header {
-      max-width: 800px;
+      max-width: 720px;
       width: 100%;
       margin-bottom: 1rem;
     }
     h1 {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       color: #38bdf8;
-      margin: 0 0 0.5rem 0;
+      margin: 0 0 0.4rem 0;
     }
     p {
       color: #94a3b8;
-      font-size: 0.875rem;
-      margin: 0 0 1rem 0;
+      font-size: 0.85rem;
+      margin: 0 0 0.8rem 0;
     }
     #status-bar {
       background: #1e293b;
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
       color: #38bdf8;
-      margin-bottom: 1rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
+      display: inline-block;
       border: 1px solid #334155;
+      margin-bottom: 0.5rem;
     }
     .controls {
       display: flex;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
     }
     button {
       background: #0284c7;
       color: #fff;
       border: none;
-      padding: 0.4rem 0.9rem;
-      border-radius: 6px;
-      font-size: 0.8rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 5px;
+      font-size: 0.78rem;
       cursor: pointer;
       font-weight: 500;
-      transition: background 0.15s;
     }
     button:hover {
       background: #0369a1;
     }
-    #screen_container {
+    .terminal-wrapper {
       background: #000;
       border: 2px solid #334155;
       border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.7);
-      width: fit-content;
-      min-width: 640px;
-      min-height: 400px;
-      cursor: text;
-    }
-    #screen_container pre, #screen_container div {
-      white-space: pre;
-      font: 14px "Courier New", monospace;
-      line-height: 14px;
-      margin: 0;
-    }
-    canvas {
-      border: none;
+      padding: 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      margin-top: 0.5rem;
     }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>🐧 DistroTailor: WebAssembly Linux VM (v86)</h1>
-    <p>Running a full x86 Linux kernel and BusyBox userspace directly in client-side WebAssembly.</p>
+    <p>Booting a genuine x86 Linux kernel and BusyBox environment in WebAssembly.</p>
     
-    <div id="status-bar">⏳ Initializing WebAssembly VM...</div>
+    <div id="status-bar">⏳ Preparing WebAssembly virtual machine...</div>
     
     <div class="controls">
       <button id="btn-fullscreen">⛶ Fullscreen</button>
-      <button id="btn-reboot">🔄 Reboot VM</button>
+      <button id="btn-reboot">🔄 Reboot</button>
     </div>
   </div>
 
-  <div id="screen_container" tabindex="0" title="Click to interact with Linux terminal">
-    <div style="white-space: pre; font: 14px monospace; line-height: 14px"></div>
-    <canvas style="display: none"></canvas>
+  <div class="terminal-wrapper">
+    <div id="screen_container">
+      <div style="white-space: pre; font: 14px monospace; line-height: 14px"></div>
+      <canvas style="display: none"></canvas>
+    </div>
   </div>
 
   <script type="module">
@@ -111,13 +98,13 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
     const statusEl = document.getElementById("status-bar");
     let emulator = null;
 
-    function updateStatus(text, color = "#38bdf8") {
+    function setStatus(text, color = "#38bdf8") {
       statusEl.textContent = text;
       statusEl.style.color = color;
     }
 
     try {
-      updateStatus("📦 Loading SeaBIOS and Linux ISO...");
+      setStatus("📦 Loading SeaBIOS and Linux image (7.4 MB)...");
       
       emulator = new V86({
         wasm_path: "https://cdn.jsdelivr.net/npm/v86/build/v86.wasm",
@@ -126,32 +113,30 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
         screen_container: document.getElementById("screen_container"),
         bios: { url: "https://cdn.jsdelivr.net/npm/v86/bios/seabios.bin" },
         vga_bios: { url: "https://cdn.jsdelivr.net/npm/v86/bios/vgabios.bin" },
-        cdrom: { url: "./linux4.iso" },
+        cdrom: {
+          url: "./linux4.iso",
+          size: 7712768,
+          async: false
+        },
+        disable_speaker: true,
         autostart: true
       });
 
-      // Track download progress
       emulator.add_listener("download-progress", (e) => {
         if (e && e.total > 0) {
           const pct = Math.round((e.loaded / e.total) * 100);
-          updateStatus(\`📥 Downloading \${e.file_name || 'OS image'}: \${pct}%...\`);
+          setStatus(\`📥 Downloading \${e.file_name || 'assets'}: \${pct}%\`);
         }
       });
 
-      // Fired when WASM is compiled and ready
       emulator.add_listener("emulator-ready", () => {
-        updateStatus("✔ VM Ready. SeaBIOS starting... (Click screen to type)", "#4ade80");
-      });
-
-      emulator.add_listener("emulator-started", () => {
-        updateStatus("🟢 Linux Kernel Booting! Click in screen to send keystrokes.", "#4ade80");
+        setStatus("🟢 SeaBIOS Starting! Linux kernel decompressing...", "#4ade80");
       });
 
       emulator.add_listener("download-error", (e) => {
-        updateStatus("❌ Failed to load linux4.iso. Run 'make fetch' in this directory.", "#f87171");
+        setStatus("❌ Failed to load linux4.iso. Run 'make fetch' in this folder.", "#f87171");
       });
 
-      // Controls
       document.getElementById("btn-fullscreen")?.addEventListener("click", () => {
         emulator.screen_go_fullscreen();
       });
@@ -160,13 +145,8 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
         emulator.restart();
       });
 
-      // Focus screen on click to capture keyboard
-      document.getElementById("screen_container")?.addEventListener("click", () => {
-        document.getElementById("screen_container")?.focus();
-      });
-
     } catch (err) {
-      updateStatus("❌ Error: " + err.message, "#f87171");
+      setStatus("❌ " + err.message, "#f87171");
       console.error(err);
     }
   </script>
