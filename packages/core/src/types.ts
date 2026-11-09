@@ -64,6 +64,7 @@ export type PrimaryUseCase =
   | 'smart-home'
   | 'appliance-product'
   | 'ai-gpu-compute'
+  | 'hypervisor-vms'
   | 'server'
   | 'k8s-cluster'
   | 'container-base'

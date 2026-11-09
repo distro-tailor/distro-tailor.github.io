@@ -95,6 +95,10 @@ export function evaluateCriteria(
 
       if (distroIdx <= targetIdx) {
         earned += 15;
+        // Bonus for exact footprint tier alignment
+        if (distroIdx === targetIdx) {
+          earned += 2;
+        }
         reasons.push({
           feature: 'Footprint',
           matched: true,

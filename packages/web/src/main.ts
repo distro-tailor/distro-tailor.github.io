@@ -258,6 +258,7 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
       'smart-home': { label: 'Smart Home Hub', icon: '🏡' },
       'appliance-product': { label: 'Dedicated Single-App Appliance', icon: '🛠️' },
       'ai-gpu-compute': { label: 'AI, LLM & GPU Compute', icon: '🧠' },
+      'hypervisor-vms': { label: 'Homelab Virtualization & Hypervisor', icon: '🖧' },
       'router-networking': { label: 'Home Router & Firewall', icon: '📡' },
       'kiosk-signage': { label: 'Store Display & Kiosk', icon: '🏪' },
       desktop: { label: 'Everyday Desktop', icon: '💻' },
@@ -970,6 +971,29 @@ function renderResultsView(evaluation: RecommendationOutput): string {
             <div class="mt-3 pt-2.5 border-t border-emerald-900/30 text-[11px] text-emerald-400 font-medium">
               👉 To get this lean build, use the <strong>Custom Build Recipe Generator</strong> below!
             </div>
+          </div>
+        </div>
+
+        <!-- The PCPartPicker vs. Fixed Hardware Paradigm Callout -->
+        <div class="mt-4 pt-4 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+            <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1">
+              <span>🍏</span>
+              <span>Fixed Closed Hardware (MacBook / Mac Studio / SBC)</span>
+            </div>
+            <p class="text-slate-400 text-[11px] leading-relaxed">
+              Apple Silicon, Intel MacBooks, and Raspberry Pis have a <strong>100% deterministic, closed chip inventory</strong>. Generic Linux ISOs carry thousands of drivers for PC components that physically cannot exist in that machine. DistroTailor drops 99% of firmware, bundling only the exact Broadcom / Apple silicon blobs.
+            </p>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+            <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1">
+              <span>🛠️</span>
+              <span>The "PCPartPicker" Custom Rig (Modular Selection)</span>
+            </div>
+            <p class="text-slate-400 text-[11px] leading-relaxed">
+              When building on PCPartPicker, you choose <strong>ONE</strong> motherboard NIC, <strong>ONE</strong> Wi-Fi card, and <strong>ONE</strong> GPU. A generic ISO must bundle drivers for every component ever listed on PCPartPicker! DistroTailor's recipe isolates your active manifest, pruning the thousands of parts you didn't buy.
+            </p>
           </div>
         </div>
       </div>

@@ -181,6 +181,30 @@ test('Core Matcher: Identifies HiveOS for multi-GPU mining rigs and compute node
   assert.ok(result.bestMatch.score >= 80);
 });
 
+test('Core Matcher: Identifies Proxmox VE for used enterprise server racks & homelab virtualization', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'intermediate',
+    useCase: 'hypervisor-vms',
+    platform: 'server',
+    architecture: 'x86_64'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'proxmox-ve');
+  assert.ok(result.bestMatch.score >= 85);
+});
+
+test('Core Matcher: Identifies TrueNAS SCALE for enterprise multi-bay rack storage servers', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'nas-storage',
+    platform: 'server',
+    statePreference: 'read-only-rootfs'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'truenas-scale');
+  assert.ok(result.bestMatch.score >= 85);
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });

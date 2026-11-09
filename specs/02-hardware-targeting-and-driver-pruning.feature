@@ -36,3 +36,18 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     And it must indicate that the ~92% bloat reduction is achieved via the Custom Makefile Recipe Generator
     And it must show side-by-side metrics comparing a ~4.5GB generic distribution with a ~200MB tailored build
     And it must quantify firmware blob reduction, idle RAM reduction, and cold boot duration
+
+  Scenario: The PCPartPicker Modular Rig vs Fixed Closed Hardware Bloat Contrast
+    Given a user compares building a modular DIY PC on PCPartPicker vs using a fixed MacBook or Mac Studio
+    When inspecting the Bloat Checker
+    Then the system highlights that fixed hardware has 100% deterministic silicon where generic drivers are 99% waste
+    And highlights that modular PCPartPicker rigs only use 1 NIC, 1 Wi-Fi, and 1 GPU out of thousands bundled in generic ISOs
+    And the generated build recipe includes "make detect-hardware" to scan active PCI/USB inventory and prune unused blobs
+
+  Scenario: Repurposing a Craigslist enterprise server rack (Dell PowerEdge / HP ProLiant / Supermicro)
+    Given the user specifies device "Used Enterprise Rack Server (Craigslist / eBay 1U/2U/4U)"
+    And the user selects goal "Homelab Virtualization & Hypervisor Host"
+    When the evaluation completes
+    Then the engine should recommend "Proxmox Virtual Environment (PVE)" with 100% compatibility
+    And the recommendation should feature IPMI fan silencing scripts ("ipmitool") and Ceph clustering
+    And for multi-bay storage arrays, it should suggest "TrueNAS SCALE" with IT-mode HBA flashing guides

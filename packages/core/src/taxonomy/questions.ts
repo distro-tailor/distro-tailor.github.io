@@ -151,6 +151,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'lean', platform: 'server' }
       },
       {
+        id: 'homelab_virtualization',
+        label: 'Homelab Virtualization & Hypervisor Host (Proxmox / KVM / LXC)',
+        description: 'Run multiple isolated Linux/Windows virtual machines, Docker apps, and ZFS storage pools on a single powerful host or Craigslist server rack',
+        icon: '🖧',
+        appliesCriteria: { useCase: 'hypervisor-vms', footprint: 'standard', platform: 'server' }
+      },
+      {
         id: 'browser_wasm',
         label: 'Try Linux right now in my web browser tab',
         description: 'Test Linux in a sandbox without installing anything or touching your hard drive',
@@ -259,6 +266,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'ai-gpu-compute', platform: 'server' }
       },
       {
+        id: 'hypervisor_virtualization',
+        label: 'Bare-Metal Hypervisor & VM Host (Proxmox VE / KVM / LXC / ZFS)',
+        description: 'Host dozens of virtual machines and containers on used enterprise rack servers with web GUI, ZFS, and cluster management',
+        icon: '🖧',
+        appliesCriteria: { useCase: 'hypervisor-vms', platform: 'server', footprint: 'standard' }
+      },
+      {
         id: 'browser_wasm',
         label: 'In-Browser WebAssembly (WASM) Sandbox',
         description: 'Runs entirely inside a browser tab client-side with zero native install',
@@ -330,6 +344,13 @@ export const QUESTIONS: Question[] = [
         description: 'Portable gaming PC with integrated display and thumbsticks',
         icon: '🎮',
         appliesCriteria: { architecture: 'x86_64' }
+      },
+      {
+        id: 'used_server_rack',
+        label: 'Used Enterprise Rack Server (Craigslist / eBay 1U/2U/4U)',
+        description: 'Scored a cheap Dell PowerEdge (R720/R730), HP ProLiant (DL380), or Supermicro rack server? Ideal for Proxmox VE hypervisors or multi-bay ZFS storage',
+        icon: '🖧',
+        appliesCriteria: { architecture: 'x86_64', platform: 'server', footprint: 'full' }
       }
     ]
   },

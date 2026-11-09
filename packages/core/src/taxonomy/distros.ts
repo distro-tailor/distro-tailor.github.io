@@ -172,6 +172,76 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       downloadUrl: 'https://www.home-assistant.io/installation/'
     }
   },
+  // --- HOMELAB & ENTERPRISE RACK VIRTUALIZATION ---
+  {
+    id: 'proxmox-ve',
+    name: 'Proxmox Virtual Environment (PVE)',
+    tagline: 'Enterprise Type-1 Hypervisor (KVM + LXC) with web GUI, ZFS, and cluster management',
+    description:
+      'The undisputed champion for repurposed enterprise server racks (Dell PowerEdge, HP ProLiant, Supermicro) and homelab servers. Combines enterprise KVM virtualization and lightweight LXC containers on a solid Debian base. Includes native OpenZFS storage pools, software-defined Ceph clustering, live VM migration, automated backups, and complete hardware monitoring accessible via a slick web dashboard.',
+    website: 'https://www.proxmox.com/en/proxmox-virtual-environment',
+    documentationUrl: 'https://pve.proxmox.com/pve-docs/',
+    logoEmoji: '🖧',
+    platforms: ['bare-metal', 'server'],
+    architectures: ['x86_64'],
+    footprint: 'standard',
+    minRamMb: 2048,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['hypervisor-vms', 'server'],
+    packageManager: 'apt (Debian)',
+    rollingRelease: false,
+    highlights: [
+      'Type-1 Bare-Metal Hypervisor: Run dozens of Linux & Windows VMs and lightweight LXC containers simultaneously',
+      'Native OpenZFS & Ceph integration: Built-in support for multi-drive SAS/SATA backplanes and software RAID',
+      'Multi-Node High Availability: Group multiple cheap Craigslist rack servers into a unified cluster with live VM migration',
+      'Enterprise Hardware Support: Out-of-the-box drivers for Dell PERC/HBA, HP SmartArray, 10GbE SFP+ NICs, and IPMI monitoring',
+      'Browser Web GUI: Full graphical management console with web-based VNC/SPICE consoles and backup scheduling'
+    ],
+    tradeoffs: [
+      'Headless hypervisor: Designed to run without a local desktop monitor; managed entirely through the web network port',
+      'Noisy fan curve tuning: Enterprise rack fans can be loud in a home room until tuned via ipmitool BMC scripts'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.proxmox.com/en/downloads/proxmox-virtual-environment/iso'
+    }
+  },
+  {
+    id: 'truenas-scale',
+    name: 'TrueNAS SCALE',
+    tagline: 'Enterprise OpenZFS storage appliance and Docker/K8s application host on Debian',
+    description:
+      'The premier open-source network-attached storage (NAS) and storage area network (SAN) operating system for multi-drive chassis and rack servers. Built on Debian Linux, it pairs bulletproof OpenZFS with a polished web GUI for RAID-Z disk arrays, snapshots, cloud sync, SMB/NFS file shares, and containerized homelab apps.',
+    website: 'https://www.truenas.com/truenas-scale/',
+    documentationUrl: 'https://www.truenas.com/docs/scale/',
+    logoEmoji: '🦈',
+    platforms: ['bare-metal', 'server'],
+    architectures: ['x86_64'],
+    footprint: 'full',
+    minRamMb: 8192,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'read-only-rootfs',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['nas-storage', 'server'],
+    packageManager: 'TrueNAS Catalog / Docker',
+    rollingRelease: false,
+    highlights: [
+      'Bulletproof OpenZFS: RAID-Z1/Z2/Z3 protects petabytes of data against silent bit rot and multi-drive hardware failures',
+      'Enterprise Chassis Management: Graphical disk visualization for 8 to 36-bay hot-swap SAS/SATA backplanes',
+      'One-Click Homelab Apps: Deploy Nextcloud, Plex, Jellyfin, Immich, and Tailscale directly from the integrated catalog',
+      'High-Speed Networking: Native support for dual 10GbE/25GbE/40GbE SFP+ optical NICs and iSCSI block storage'
+    ],
+    tradeoffs: [
+      'Memory Intensive: ZFS Adaptive Replacement Cache (ARC) works best with at least 8GB to 16GB+ of ECC RAM',
+      'Dedicated Appliance: Operating system rootfs is locked down; all user workloads run inside isolated containers'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.truenas.com/download-truenas-scale/'
+    }
+  },
   {
     id: 'bazzite',
     name: 'Bazzite',

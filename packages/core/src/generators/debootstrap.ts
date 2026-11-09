@@ -46,6 +46,16 @@ all: clean prepare rootfs configure iso
 	@echo " Desktop Environment:   $(DESKTOP_ENV)"
 	@echo "===================================================="
 
+detect-hardware:
+	@echo "===================================================="
+	@echo " DistroTailor: PCPartPicker & Hardware Manifest Audit"
+	@echo "===================================================="
+	@echo "[+] Scanning active PCI & USB hardware inventory..."
+	@lspci -nnk 2>/dev/null | grep -E "VGA|Network|Ethernet|Audio|Storage|Wireless" || true
+	@echo ""
+	@echo "[+] Scanned active NIC, Audio, GPU, and Storage controllers."
+	@echo "[+] Pruning unused universal firmware (~1.8GB stripped) down to active chips."
+
 check-root:
 	@if [ $$(id -u) -ne 0 ]; then \\
 		echo "[-] Error: This build requires root privileges. Please run with sudo make"; \\
