@@ -20,14 +20,14 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
       align-items: center;
     }
     .header {
-      max-width: 720px;
+      max-width: 760px;
       width: 100%;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
     }
     h1 {
       font-size: 1.4rem;
       color: #38bdf8;
-      margin: 0 0 0.4rem 0;
+      margin: 0 0 0.3rem 0;
     }
     p {
       color: #94a3b8;
@@ -47,7 +47,7 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
     .controls {
       display: flex;
       gap: 0.5rem;
-      margin-top: 0.5rem;
+      margin-top: 0.4rem;
     }
     button {
       background: #0284c7;
@@ -66,16 +66,25 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
       background: #000;
       border: 2px solid #334155;
       border-radius: 8px;
-      padding: 6px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      padding: 8px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8);
       margin-top: 0.5rem;
+      width: fit-content;
+    }
+    #screen_container {
+      cursor: text;
+    }
+    #screen_container div {
+      white-space: pre;
+      font: 14px monospace;
+      line-height: 14px;
     }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>🐧 DistroTailor: WebAssembly Linux VM (v86)</h1>
-    <p>Booting a genuine x86 Linux kernel and BusyBox environment in WebAssembly.</p>
+    <p>Booting Buildroot Linux kernel in client-side WebAssembly.</p>
     
     <div id="status-bar">⏳ Preparing WebAssembly virtual machine...</div>
     
@@ -103,52 +112,62 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
       statusEl.style.color = color;
     }
 
-    try {
-      setStatus("📦 Loading SeaBIOS and Linux image (7.4 MB)...");
-      
-      emulator = new V86({
-        wasm_path: "https://cdn.jsdelivr.net/npm/v86/build/v86.wasm",
-        memory_size: 64 * 1024 * 1024,
-        vga_memory_size: 2 * 1024 * 1024,
-        screen_container: document.getElementById("screen_container"),
-        bios: { url: "https://cdn.jsdelivr.net/npm/v86/bios/seabios.bin" },
-        vga_bios: { url: "https://cdn.jsdelivr.net/npm/v86/bios/vgabios.bin" },
-        cdrom: {
-          url: "./linux4.iso",
-          size: 7712768,
-          async: false
-        },
-        disable_speaker: true,
-        autostart: true
-      });
+    async function initVM() {
+      try {
+        setStatus("📦 Loading SeaBIOS and Buildroot Linux kernel...");
+        
+        emulator = new V86({
+          wasm_path: "https://cdn.jsdelivr.net/npm/v86/build/v86.wasm",
+          memory_size: 64 * 1024 * 1024,
+          vga_memory_size: 2 * 1024 * 1024,
+          screen_container: document.getElementById("screen_container"),
+          bios: { url: "https://cdn.jsdelivr.net/npm/v86/bios/seabios.bin" },
+          vga_bios: { url: "https://cdn.jsdelivr.net/npm/v86/bios/vgabios.bin" },
+          bzimage: {
+            url: "./bzimage.bin",
+            async: false
+          },
+          cmdline: "tsc=reliable mitigations=off random.trust_cpu=on",
+          disable_speaker: true,
+          autostart: true
+        });
 
-      emulator.add_listener("download-progress", (e) => {
-        if (e && e.total > 0) {
-          const pct = Math.round((e.loaded / e.total) * 100);
-          setStatus(\`📥 Downloading \${e.file_name || 'assets'}: \${pct}%\`);
-        }
-      });
+        emulator.add_listener("download-progress", (e) => {
+          if (e && e.total > 0) {
+            const pct = Math.round((e.loaded / e.total) * 100);
+            setStatus(\`📥 Downloading \${e.file_name || 'kernel'}: \${pct}%\`);
+          }
+        });
 
-      emulator.add_listener("emulator-ready", () => {
-        setStatus("🟢 SeaBIOS Starting! Linux kernel decompressing...", "#4ade80");
-      });
+        emulator.add_listener("emulator-loaded", () => {
+          setStatus("🟢 Linux Kernel Booting! Click in terminal to send keys.", "#4ade80");
+        });
 
-      emulator.add_listener("download-error", (e) => {
-        setStatus("❌ Failed to load linux4.iso. Run 'make fetch' in this folder.", "#f87171");
-      });
+        emulator.add_listener("download-error", (e) => {
+          setStatus("❌ Failed to download kernel image.", "#f87171");
+          console.error("Download error:", e);
+        });
 
-      document.getElementById("btn-fullscreen")?.addEventListener("click", () => {
-        emulator.screen_go_fullscreen();
-      });
+        document.getElementById("btn-fullscreen")?.addEventListener("click", () => {
+          emulator.screen_go_fullscreen();
+        });
 
-      document.getElementById("btn-reboot")?.addEventListener("click", () => {
-        emulator.restart();
-      });
+        document.getElementById("btn-reboot")?.addEventListener("click", () => {
+          emulator.restart();
+        });
 
-    } catch (err) {
-      setStatus("❌ " + err.message, "#f87171");
-      console.error(err);
+        // Click to focus
+        document.getElementById("screen_container")?.addEventListener("click", () => {
+          document.getElementById("screen_container")?.focus();
+        });
+
+      } catch (err) {
+        setStatus("❌ " + err.message, "#f87171");
+        console.error(err);
+      }
     }
+
+    initVM();
   </script>
 </body>
 </html>
@@ -159,19 +178,19 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
 # ==============================================================================
 
 PORT ?= 3000
-IMAGE_URL ?= https://copy.sh/v86/images/linux4.iso
+BZIMAGE_URL ?= https://i.copy.sh/buildroot-bzimage.bin
 
 .PHONY: all fetch serve clean
 
 all: fetch serve
 
 fetch:
-	@if [ ! -f "linux4.iso" ]; then \\
-		echo "[+] Downloading tiny Linux ISO (7.4MB)..."; \\
-		curl -sSL "$(IMAGE_URL)" -o linux4.iso; \\
-		echo "[+] linux4.iso downloaded successfully."; \\
+	@if [ ! -f "bzimage.bin" ]; then \\
+		echo "[+] Downloading Buildroot Linux kernel (5.0MB)..."; \\
+		curl -sSL "$(BZIMAGE_URL)" -o bzimage.bin; \\
+		echo "[+] bzimage.bin downloaded successfully."; \\
 	else \\
-		echo "[✔] linux4.iso already exists."; \\
+		echo "[✔] bzimage.bin already exists."; \\
 	fi
 
 serve: fetch
@@ -188,20 +207,19 @@ serve: fetch
 	fi
 
 clean:
-	rm -f linux4.iso
+	rm -f bzimage.bin
 `;
 
   const readmeContent = `# In-Browser WebAssembly Linux (v86)
 
-This recipe runs a genuine 32-bit x86 Linux kernel and BusyBox userspace directly in your web browser tab via WebAssembly.
+This recipe boots a genuine 32-bit x86 Buildroot Linux kernel and BusyBox userspace directly in your web browser tab via WebAssembly.
 
 ## Quick Start
 
-1. **Download the local Linux image & start the web server:**
+1. **Download the local Linux kernel & start the web server:**
    \`\`\`bash
    make
    \`\`\`
-   *(Or separately: \`make fetch\` then \`make serve\`)*
 
 2. **Open in your browser:**
    \`\`\`text
@@ -221,12 +239,12 @@ This recipe runs a genuine 32-bit x86 Linux kernel and BusyBox userspace directl
     files: [
       {
         filename: 'index.html',
-        description: 'Single-file WebAssembly emulator loading SeaBIOS and local Linux ISO',
+        description: 'Single-file WebAssembly emulator loading SeaBIOS and local Linux bzImage',
         content: htmlContent
       },
       {
         filename: 'Makefile',
-        description: 'Fetches the 7.4MB Linux ISO locally and starts the local web server',
+        description: 'Fetches the 5.0MB Linux kernel locally and starts the local web server',
         content: makefileContent
       },
       {
