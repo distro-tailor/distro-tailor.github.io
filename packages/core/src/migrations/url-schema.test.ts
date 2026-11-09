@@ -46,3 +46,27 @@ test('URL Schema Migrations: Normalizes legacy aliases (e.g. aarch64 -> arm64, r
   assert.equal(result.migrated, true);
   assert.ok(result.warnings.length >= 3);
 });
+
+test('URL Schema Migrations: Intercepts unsupported older schemas (v=0) with clean fallback status', () => {
+  const obsoleteParams = {
+    v: '0',
+    useCase: 'something-ancient'
+  };
+
+  const result = migrateUrlParameters(obsoleteParams);
+  assert.equal(result.supported, false);
+  assert.equal(result.status, 'unsupported-too-old');
+  assert.ok(result.fallbackNotice?.includes('no longer supported'));
+});
+
+test('URL Schema Migrations: Intercepts future schemas (v=99) with clean fallback status', () => {
+  const futureParams = {
+    v: '99',
+    useCase: 'quantum-computing'
+  };
+
+  const result = migrateUrlParameters(futureParams);
+  assert.equal(result.supported, false);
+  assert.equal(result.status, 'unsupported-too-new');
+  assert.ok(result.fallbackNotice?.includes('newer version'));
+});

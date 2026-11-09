@@ -17,6 +17,7 @@ interface AppState {
   activeFileIndex: number;
   isSharedView: boolean;
   showShareModal: boolean;
+  unsupportedSchemaNotice?: string;
 }
 
 const state: AppState = {
@@ -26,7 +27,8 @@ const state: AppState = {
   activeTab: 'wizard',
   activeFileIndex: 0,
   isSharedView: false,
-  showShareModal: false
+  showShareModal: false,
+  unsupportedSchemaNotice: undefined
 };
 
 const flow = new QuestionFlow(QUESTIONS);
@@ -76,6 +78,15 @@ function loadStateFromUrl(): void {
 
   // Run URL schema migration to normalize historical, unversioned, or alias parameters
   const migration = migrateUrlParameters(rawRecord);
+
+  if (!migration.supported) {
+    state.unsupportedSchemaNotice = migration.fallbackNotice;
+    state.criteria = {};
+    state.answeredQuestionIds.clear();
+    return;
+  }
+  state.unsupportedSchemaNotice = undefined;
+
   const params = new Map(Object.entries(migration.params));
 
   if (migration.migrated && migration.warnings.length > 0) {
@@ -459,11 +470,47 @@ function render() {
   attachEventHandlers(nextQuestion, evaluation);
 }
 
+function renderUnsupportedSchemaFallback(notice: string): string {
+  return `
+    <div class="bg-slate-900/80 border border-amber-500/40 rounded-2xl p-6 sm:p-10 backdrop-blur shadow-2xl text-center max-w-2xl mx-auto my-6">
+      <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner">
+        🕰️
+      </div>
+      <h2 class="text-2xl font-extrabold text-slate-100 mb-2">Unsupported Link Schema</h2>
+      <p class="text-sm text-slate-300 leading-relaxed mb-6">
+        ${notice}
+      </p>
+
+      <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-400 mb-8 text-left space-y-2">
+        <p class="font-semibold text-slate-200 flex items-center gap-1.5">
+          <span>💡</span> Why did this happen?
+        </p>
+        <p class="leading-relaxed">
+          DistroTailor continuously refines hardware targeting, Linux distros, and question taxonomy. When a link from a deprecated or incompatible schema is opened, we protect you from invalid recipes and allow you to restart cleanly.
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <button id="btn-fallback-fresh" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/40 transition-all cursor-pointer">
+          Start Fresh 20 Questions
+        </button>
+        <button id="btn-fallback-expert" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-xs transition-all cursor-pointer">
+          Browse Contenders (Expert Matrix)
+        </button>
+      </div>
+    </div>
+  `;
+}
+
 function renderPrimarySection(
   nextQuestion: ReturnType<typeof flow.getNextQuestion>,
   progress: ReturnType<typeof flow.getProgress>,
   evaluation: RecommendationOutput
 ): string {
+  if (state.unsupportedSchemaNotice) {
+    return renderUnsupportedSchemaFallback(state.unsupportedSchemaNotice);
+  }
+
   if (state.activeTab === 'results' || (!nextQuestion && state.activeTab === 'wizard')) {
     return renderResultsView(evaluation);
   }
@@ -1263,12 +1310,19 @@ function attachEventHandlers(
     state.activeFileIndex = 0;
     state.isSharedView = false;
     state.showShareModal = false;
+    state.unsupportedSchemaNotice = undefined;
     saveStateToUrl();
     render();
   };
 
   document.getElementById('btn-reset')?.addEventListener('click', resetAll);
   document.getElementById('btn-start-fresh')?.addEventListener('click', resetAll);
+  document.getElementById('btn-fallback-fresh')?.addEventListener('click', resetAll);
+  document.getElementById('btn-fallback-expert')?.addEventListener('click', () => {
+    state.unsupportedSchemaNotice = undefined;
+    state.activeTab = 'expert';
+    render();
+  });
 
   // Shared Banner Tweak Button
   document.getElementById('btn-tweak-shared')?.addEventListener('click', () => {
