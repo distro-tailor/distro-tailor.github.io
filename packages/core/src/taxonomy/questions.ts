@@ -1,12 +1,107 @@
 import { Question } from '../types.js';
 
 export const QUESTIONS: Question[] = [
+  // --- STEP 1: EXPERIENCE & JARGON LEVEL ---
   {
-    id: 'primary_use_case',
+    id: 'user_familiarity',
     order: 1,
-    prompt: 'What is the primary role or mission for this Linux system?',
-    subtext: 'This sets the foundational baseline for packages, security posture, and kernel capabilities.',
+    prompt: 'First off, how familiar are you with Linux?',
+    subtext: 'This helps DistroTailor speak your language and skip confusing jargon.',
+    category: 'preferences',
+    options: [
+      {
+        id: 'beginner',
+        label: '🌱 New to Linux / Just have a goal in mind',
+        description: 'Keep it simple in plain English! (e.g. turn an old PC into a gaming console or revive an old laptop)',
+        icon: '🌱',
+        appliesCriteria: { experienceLevel: 'beginner' }
+      },
+      {
+        id: 'intermediate',
+        label: '🌿 Everyday User / Comfortable Tinkerer',
+        description: 'I know basic terminal commands, package managers, and ISOs, and want a practical recommendation.',
+        icon: '🌿',
+        appliesCriteria: { experienceLevel: 'intermediate' }
+      },
+      {
+        id: 'systems-engineer',
+        label: '🌳 Systems Hacker / Embedded Engineer',
+        description: 'Hit me with low-level kernel configs, NOMMU, init systems, libc choices, or Buildroot compilation.',
+        icon: '🌳',
+        appliesCriteria: { experienceLevel: 'systems-engineer' }
+      }
+    ]
+  },
+
+  // --- STEP 2A: BEGINNER GOAL ---
+  {
+    id: 'beginner_goal',
+    order: 2,
+    prompt: 'What is your dream project or goal for this machine?',
+    subtext: 'Tell us what you want to create in everyday terms.',
     category: 'platform',
+    shouldAsk: (criteria) => criteria.experienceLevel === 'beginner',
+    options: [
+      {
+        id: 'retro_gaming_console',
+        label: '🕹️ Turn it into a Retro Gaming Console',
+        description: 'Play arcade, PS1, N64, SNES, and retro games on the TV with game controllers',
+        icon: '🕹️',
+        appliesCriteria: { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal' }
+      },
+      {
+        id: 'revive_old_pc',
+        label: '💨 Revive an Obsolete, Slow Computer',
+        description: 'Make an ancient 10-20 year old PC or laptop with low RAM fast and usable again',
+        icon: '💨',
+        appliesCriteria: { useCase: 'desktop', footprint: 'minimal', platform: 'bare-metal' }
+      },
+      {
+        id: 'modern_gaming',
+        label: '🎮 Modern PC Gaming (Steam Deck / Couch Gaming)',
+        description: 'Play modern Steam, Epic, and indie PC games with a controller-friendly TV interface',
+        icon: '🎮',
+        appliesCriteria: { useCase: 'gaming', footprint: 'full', platform: 'bare-metal' }
+      },
+      {
+        id: 'daily_desktop',
+        label: '💻 Everyday Computer for School, Work, or Web',
+        description: 'Friendly desktop for web browsing, YouTube, office documents, immune to Windows malware',
+        icon: '💻',
+        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal' }
+      },
+      {
+        id: 'home_server',
+        label: '🏠 Simple Home Media / Storage Server',
+        description: 'Run Plex/Jellyfin to stream movies, backup photos, or host personal files 24/7',
+        icon: '🏠',
+        appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'bare-metal' }
+      },
+      {
+        id: 'kiosk_display',
+        label: '🖥️ Digital Sign or Locked Web Kiosk',
+        description: 'Boot directly into a full-screen website or dashboard with no desktop interface',
+        icon: '🖥️',
+        appliesCriteria: { useCase: 'kiosk-signage', footprint: 'lean', platform: 'kiosk' }
+      },
+      {
+        id: 'browser_wasm',
+        label: '🌐 Try Linux right now in my web browser tab',
+        description: 'Test Linux in a sandbox without installing anything or touching your hard drive',
+        icon: '🌐',
+        appliesCriteria: { useCase: 'browser-wasm', footprint: 'minimal', platform: 'browser-wasm' }
+      }
+    ]
+  },
+
+  // --- STEP 2B: TECHNICAL USE CASE ---
+  {
+    id: 'technical_use_case',
+    order: 2,
+    prompt: 'What is the primary role or mission for this Linux system?',
+    subtext: 'Sets the foundational baseline for packages, security boundaries, and kernel capabilities.',
+    category: 'platform',
+    shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner',
     options: [
       {
         id: 'iot_embedded',
@@ -45,7 +140,7 @@ export const QUESTIONS: Question[] = [
       },
       {
         id: 'desktop_gaming',
-        label: 'Daily Workstation, Gaming, or Development',
+        label: 'Workstation, Gaming, or Development',
         description: 'Rich GUI desktop environment, audio/video, GPU acceleration, and dev tools',
         icon: '🎮',
         appliesCriteria: { useCase: 'desktop', platform: 'bare-metal', prefersGui: true }
@@ -59,13 +154,55 @@ export const QUESTIONS: Question[] = [
       }
     ]
   },
+
+  // --- STEP 3A: BEGINNER DEVICE ---
+  {
+    id: 'beginner_device',
+    order: 3,
+    prompt: 'What kind of machine or device are you installing this on?',
+    subtext: 'Pick what best describes your hardware.',
+    category: 'hardware',
+    shouldAsk: (criteria) => criteria.experienceLevel === 'beginner' && criteria.useCase !== 'browser-wasm',
+    options: [
+      {
+        id: 'standard_pc',
+        label: '💻 Standard PC or Laptop (Intel or AMD)',
+        description: 'Most ordinary desktops and laptops made in the last 10-12 years',
+        icon: '💻',
+        appliesCriteria: { architecture: 'x86_64' }
+      },
+      {
+        id: 'ancient_pc',
+        label: '👴 Ancient / Obsolete Computer (15-20 years old)',
+        description: 'Very old machines with older CPUs and limited memory',
+        icon: '👴',
+        appliesCriteria: { architecture: 'x86_64', footprint: 'minimal' }
+      },
+      {
+        id: 'raspberry_pi',
+        label: '🍓 Raspberry Pi or Mini Board',
+        description: 'Raspberry Pi 3, 4, 5, or similar single-board mini computers',
+        icon: '🍓',
+        appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc' }
+      },
+      {
+        id: 'gaming_handheld',
+        label: '🎮 Handheld Gaming Device (Steam Deck, ROG Ally, etc.)',
+        description: 'Portable gaming PC with integrated display and thumbsticks',
+        icon: '🎮',
+        appliesCriteria: { architecture: 'x86_64' }
+      }
+    ]
+  },
+
+  // --- STEP 3B: TECHNICAL ARCHITECTURE ---
   {
     id: 'hardware_architecture',
-    order: 2,
+    order: 3,
     prompt: 'What CPU architecture does the target hardware use?',
     subtext: 'Different distributions specialize in cross-compilation or prebuilt binary repositories.',
     category: 'hardware',
-    shouldAsk: (criteria) => criteria.useCase !== 'browser-wasm',
+    shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner' && criteria.useCase !== 'browser-wasm',
     options: [
       {
         id: 'x86_64',
@@ -104,12 +241,48 @@ export const QUESTIONS: Question[] = [
       }
     ]
   },
+
+  // --- STEP 4A: BEGINNER RAM ---
+  {
+    id: 'beginner_memory',
+    order: 4,
+    prompt: 'Roughly how much memory (RAM) does the computer have?',
+    subtext: 'A rough estimate is fine.',
+    category: 'hardware',
+    shouldAsk: (criteria) => criteria.experienceLevel === 'beginner' && criteria.useCase !== 'browser-wasm',
+    options: [
+      {
+        id: 'very_low',
+        label: '🪶 Very Low (Under 1 GB RAM / Ancient machine)',
+        description: 'Old computer that struggles with modern Windows or heavy browsers',
+        icon: '🪶',
+        appliesCriteria: { footprint: 'minimal', maxRamMb: 1024 }
+      },
+      {
+        id: 'modest',
+        label: '⚡ Modest (2 GB to 4 GB RAM)',
+        description: 'Typical older laptop or basic office PC',
+        icon: '⚡',
+        appliesCriteria: { footprint: 'lean', maxRamMb: 4096 }
+      },
+      {
+        id: 'plenty',
+        label: '🚀 Plenty (8 GB RAM or more)',
+        description: 'Modern desktop, gaming PC, or workstation',
+        icon: '🚀',
+        appliesCriteria: { footprint: 'standard', maxRamMb: 8192 }
+      }
+    ]
+  },
+
+  // --- STEP 4B: TECHNICAL FOOTPRINT ---
   {
     id: 'memory_and_storage',
-    order: 3,
+    order: 4,
     prompt: 'What are your target storage footprint and RAM constraints?',
     subtext: 'How light does the root filesystem need to be?',
     category: 'hardware',
+    shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner',
     options: [
       {
         id: 'extreme_micro',
@@ -141,12 +314,15 @@ export const QUESTIONS: Question[] = [
       }
     ]
   },
+
+  // --- STEP 5: IMMUTABILITY (Only for Intermediate & Systems Engineers) ---
   {
     id: 'system_immutability',
-    order: 4,
+    order: 5,
     prompt: 'How should system state and configuration changes be managed?',
     subtext: 'Traditional mutable OSes vs. modern immutable / declarative architectures.',
     category: 'lifecycle',
+    shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner',
     options: [
       {
         id: 'traditional_mutable',
@@ -178,13 +354,15 @@ export const QUESTIONS: Question[] = [
       }
     ]
   },
+
+  // --- STEP 6: C LIBRARY & INIT (Only for Systems Engineers) ---
   {
     id: 'c_library_and_init',
-    order: 5,
+    order: 6,
     prompt: 'Do you have preferences for C Library and Init System?',
     subtext: 'Standard glibc + systemd vs. lightweight musl + OpenRC / BusyBox init.',
     category: 'software',
-    shouldAsk: (criteria) => criteria.footprint === 'micro' || criteria.footprint === 'minimal',
+    shouldAsk: (criteria) => criteria.experienceLevel === 'systems-engineer',
     options: [
       {
         id: 'musl_busybox',
@@ -216,47 +394,19 @@ export const QUESTIONS: Question[] = [
       }
     ]
   },
-  {
-    id: 'user_experience_level',
-    order: 6,
-    prompt: 'What is your comfort level maintaining this system?',
-    subtext: 'Determines whether we lean towards turn-key automated tools or granular control.',
-    category: 'preferences',
-    options: [
-      {
-        id: 'beginner',
-        label: 'Novice / Set-and-Forget',
-        description: 'Needs graphical setup, robust sane defaults, and minimal maintenance',
-        icon: '🌱',
-        appliesCriteria: { experienceLevel: 'beginner' }
-      },
-      {
-        id: 'intermediate',
-        label: 'Intermediate Linux User',
-        description: 'Comfortable with CLI, package managers, and standard systemd administration',
-        icon: '🌿',
-        appliesCriteria: { experienceLevel: 'intermediate' }
-      },
-      {
-        id: 'advanced',
-        label: 'Advanced Tinker / Systems Hacker',
-        description: 'Wants full control over kernel modules, custom init scripts, and minimal bloat',
-        icon: '🌳',
-        appliesCriteria: { experienceLevel: 'advanced' }
-      }
-    ]
-  },
+
+  // --- STEP 7: BUILD RECIPE OR PREBUILT IMAGE ---
   {
     id: 'recipe_generation_intent',
     order: 7,
-    prompt: 'Do you want a pre-built image or a custom compilation recipe?',
-    subtext: 'Choose whether you want an existing ISO/image or a customized Makefile to compile it.',
+    prompt: 'How would you like to get started?',
+    subtext: 'Choose whether you want an existing image to download or a custom compilation recipe.',
     category: 'preferences',
     options: [
       {
         id: 'recommend_prebuilt',
         label: 'Recommend the Best Existing Distro',
-        description: 'Provide an off-the-shelf, battle-tested ISO, OCI container, or Cloud AMI',
+        description: 'Provide an off-the-shelf, battle-tested ISO image to flash or download',
         icon: '📥',
         appliesCriteria: { requiresCustomBuild: false }
       },

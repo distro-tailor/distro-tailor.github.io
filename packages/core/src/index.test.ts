@@ -40,11 +40,37 @@ test('Core Matcher: Identifies Alpine / Distroless for minimal container base', 
   assert.ok(topTwoIds.includes('alpine') || topTwoIds.includes('chainguard-distroless'));
 });
 
-test('QuestionFlow: Dynamically filters questions for browser WASM', () => {
-  const flow = new QuestionFlow(QUESTIONS);
-  const eligible = flow.getEligibleQuestions({ useCase: 'browser-wasm' });
+test('Core Matcher: Pinpoints Batocera for beginner retro-gaming on old hardware', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'gaming',
+    footprint: 'lean',
+    architecture: 'x86_64'
+  });
 
-  // For browser-wasm, hardware_architecture question should be skipped
-  const hasHardwareQuestion = eligible.some(q => q.id === 'hardware_architecture');
-  assert.equal(hasHardwareQuestion, false);
+  assert.equal(result.bestMatch.distro.id, 'batocera');
+  assert.ok(result.bestMatch.score >= 80);
+});
+
+test('Core Matcher: Identifies antiX for reviving ancient PCs with minimal RAM', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'desktop',
+    footprint: 'minimal',
+    architecture: 'x86_64'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'antix');
+  assert.ok(result.bestMatch.score >= 80);
+});
+
+test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
+  const flow = new QuestionFlow(QUESTIONS);
+  const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });
+
+  assert.ok(beginnerEligible.some(q => q.id === 'beginner_goal'));
+  assert.ok(beginnerEligible.some(q => q.id === 'beginner_device'));
+  assert.equal(beginnerEligible.some(q => q.id === 'c_library_and_init'), false);
+  assert.equal(beginnerEligible.some(q => q.id === 'system_immutability'), false);
+  assert.equal(beginnerEligible.some(q => q.id === 'technical_use_case'), false);
 });

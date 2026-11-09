@@ -1,6 +1,138 @@
 import { DistroProfile } from '../types.js';
 
 export const DISTRO_REGISTRY: DistroProfile[] = [
+  // --- RETRO & MODERN GAMING ---
+  {
+    id: 'batocera',
+    name: 'Batocera.linux',
+    tagline: 'Turn any old PC, laptop, or Raspberry Pi into a dedicated retro gaming console',
+    description:
+      'A specialized retro-gaming distribution that boots directly into EmulationStation with zero configuration. It supports hundreds of console emulators out of the box (PS1, PS2, N64, GameCube, Arcade) and can run entirely from a USB flash drive without touching your internal hard drive.',
+    website: 'https://batocera.org',
+    documentationUrl: 'https://wiki.batocera.org',
+    logoEmoji: '🕹️',
+    platforms: ['bare-metal', 'embedded-sbc'],
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    footprint: 'lean',
+    minRamMb: 1024,
+    initSystems: ['busybox'],
+    cLibraries: ['glibc'],
+    stateModel: 'stateless-ram',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['gaming'],
+    rollingRelease: false,
+    highlights: [
+      'Turnkey retro console: boots straight to controller-friendly menu',
+      'Supports Xbox, PlayStation, 8BitDo, and generic USB controllers out of the box',
+      'Runs off a bootable USB flash drive—no hard drive partitioning required',
+      'Breathes new life into obsolete PCs by turning them into arcade machines'
+    ],
+    tradeoffs: [
+      'Dedicated gaming appliance—not meant for general desktop or web browsing'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://batocera.org/download'
+    }
+  },
+  {
+    id: 'bazzite',
+    name: 'Bazzite',
+    tagline: 'The next-generation SteamOS alternative for PC gaming and handhelds',
+    description:
+      'An immutable gaming-focused operating system built on Fedora Atomic. Features Steam Big Picture Mode out of the box, ready-to-play Proton gaming, and pre-installed GPU drivers for NVIDIA and AMD.',
+    website: 'https://bazzite.gg',
+    documentationUrl: 'https://universal-blue.discourse.group/docs?topic=30',
+    logoEmoji: '🎮',
+    platforms: ['bare-metal', 'desktop'],
+    architectures: ['x86_64'],
+    footprint: 'full',
+    minRamMb: 4096,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'immutable-ostree',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['gaming', 'desktop'],
+    packageManager: 'rpm-ostree / flatpak',
+    rollingRelease: false,
+    highlights: [
+      'Console-style TV gaming experience directly from boot',
+      'Flawless support for Steam Deck, ASUS ROG Ally, Lenovo Legion Go, and living room PCs',
+      'Automatic HDR, GameMode, and modern GPU driver setup'
+    ],
+    tradeoffs: [
+      'Requires modern x86_64 hardware with Vulkan-compatible GPU'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://bazzite.gg/#download'
+    }
+  },
+
+  // --- REVIVING OBSOLETE HARDWARE ---
+  {
+    id: 'antix',
+    name: 'antiX Linux',
+    tagline: 'Ultra-lightweight lifesaver for ancient, obsolete computers',
+    description:
+      'A fast, lightweight, systemd-free desktop operating system designed specifically to revive old computers with as little as 256MB RAM and 15-20 year old processors that modern operating systems have abandoned.',
+    website: 'https://antixlinux.com',
+    documentationUrl: 'https://antixlinux.com/the-most/',
+    logoEmoji: '💨',
+    platforms: ['bare-metal', 'desktop'],
+    architectures: ['x86_64', 'armv7'],
+    footprint: 'minimal',
+    minRamMb: 256,
+    initSystems: ['runit', 'busybox'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['desktop'],
+    packageManager: 'apt',
+    rollingRelease: false,
+    highlights: [
+      'Runs effortlessly on ancient computers with 256MB - 512MB RAM',
+      'Ultra-responsive desktop environment (IceWM/Fluxbox)',
+      'Debian-compatible repository with thousands of lightweight applications'
+    ],
+    tradeoffs: [
+      'Visual aesthetic is retro/classic rather than modern translucent eye candy'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://antixlinux.com/download/'
+    }
+  },
+  {
+    id: 'linux-mint',
+    name: 'Linux Mint',
+    tagline: 'The most welcoming, elegant desktop for Linux newcomers',
+    description:
+      'The gold standard distribution for people transitioning from Windows or macOS. Everything works out of the box: media codecs, office suites, web browsers, and hardware drivers with zero terminal knowledge required.',
+    website: 'https://linuxmint.com',
+    documentationUrl: 'https://linuxmint-user-guide.readthedocs.io',
+    logoEmoji: '🍃',
+    platforms: ['bare-metal', 'desktop', 'vm'],
+    architectures: ['x86_64'],
+    footprint: 'full',
+    minRamMb: 2048,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['desktop'],
+    packageManager: 'apt',
+    rollingRelease: false,
+    highlights: [
+      'Familiar, comfortable Windows-like desktop layout (Cinnamon)',
+      'One-click Software Manager app store with zero command-line needed',
+      'Exceptional stability based on Ubuntu Long Term Support (LTS)'
+    ],
+    tradeoffs: [
+      'Needs at least 2GB RAM—not suitable for ancient 512MB PCs'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://linuxmint.com/download.php'
+    }
+  },
+
   // --- EMBEDDED & MICROCONTROLLER ---
   {
     id: 'buildroot',
