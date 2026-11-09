@@ -122,10 +122,20 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
       statusEl.style.color = color;
     }
 
-    async function fetchBufferWithLog(stepNum, name, url) {
+    async function fetchBufferWithLog(stepNum, name, url, fallbackUrl) {
       logStep(stepNum, "Fetching " + name + "... (" + url + ")");
       const startTime = performance.now();
-      const res = await fetch(url);
+      let res;
+      try {
+        res = await fetch(url);
+        if (!res.ok && fallbackUrl) {
+          console.warn("Failed fetching from " + url + ", trying fallback " + fallbackUrl);
+          res = await fetch(fallbackUrl);
+        }
+      } catch (e) {
+        if (fallbackUrl) res = await fetch(fallbackUrl);
+        else throw e;
+      }
       if (!res.ok) {
         throw new Error("Failed to fetch " + name + " (" + url + "): HTTP " + res.status + " " + res.statusText);
       }
@@ -143,11 +153,11 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
         console.log("[DistroTailor] V86 module loaded successfully:", typeof V86);
 
         // Pre-fetch all binary assets into memory so V86 has 0 network latency/CORS stalls
-        const biosBuffer = await fetchBufferWithLog("2/4", "SeaBIOS", "https://cdn.jsdelivr.net/npm/v86/bios/seabios.bin");
-        const vgaBiosBuffer = await fetchBufferWithLog("3/4", "VGABIOS", "https://cdn.jsdelivr.net/npm/v86/bios/vgabios.bin");
-        const cdromBuffer = await fetchBufferWithLog("4/4", "Linux Live ISO", "./linux.iso");
+        const biosBuffer = await fetchBufferWithLog("2/4", "Bochs BIOS", "./bochs-bios.bin", "https://raw.githubusercontent.com/copy/v86/master/bios/bochs-bios.bin");
+        const vgaBiosBuffer = await fetchBufferWithLog("3/4", "Bochs VGABIOS", "./bochs-vgabios.bin", "https://raw.githubusercontent.com/copy/v86/master/bios/bochs-vgabios.bin");
+        const cdromBuffer = await fetchBufferWithLog("4/4", "Linux Live ISO", "./linux.iso", "https://copy.sh/v86/images/linux.iso");
 
-        logStep("BOOTING", "SeaBIOS Starting... Mounting ISO CD-ROM...");
+        logStep("BOOTING", "Bochs BIOS Starting... Mounting ISO CD-ROM...");
         console.log("[DistroTailor] Creating V86 instance with buffers in memory...");
 
         const emulator = new V86({
@@ -166,7 +176,7 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
 
         emulator.add_listener("emulator-loaded", () => {
           console.log("%c[DistroTailor Event] emulator-loaded fired! CPU executing.", "color: #22c55e; font-weight: bold;");
-          logStep("READY", "🟢 SeaBIOS & Linux Live ISO Booting! Keystrokes are active.", "#4ade80");
+          logStep("READY", "🟢 Linux Kernel Booting! Keystrokes are active.", "#4ade80");
           screenEl.focus();
         });
 
@@ -210,6 +220,8 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
 
 PORT ?= 3000
 ISO_URL ?= https://copy.sh/v86/images/linux.iso
+BIOS_URL ?= https://raw.githubusercontent.com/copy/v86/master/bios/bochs-bios.bin
+VGABIOS_URL ?= https://raw.githubusercontent.com/copy/v86/master/bios/bochs-vgabios.bin
 
 .PHONY: all fetch serve clean
 
@@ -219,10 +231,16 @@ fetch:
 	@if [ ! -f "linux.iso" ]; then \\
 		echo "[+] Downloading Linux Live ISO (5.5MB)..."; \\
 		curl -sSL "$(ISO_URL)" -o linux.iso; \\
-		echo "[+] linux.iso downloaded successfully."; \\
-	else \\
-		echo "[✔] linux.iso already exists."; \\
 	fi
+	@if [ ! -f "bochs-bios.bin" ]; then \\
+		echo "[+] Downloading Bochs BIOS (64KB)..."; \\
+		curl -sSL "$(BIOS_URL)" -o bochs-bios.bin; \\
+	fi
+	@if [ ! -f "bochs-vgabios.bin" ]; then \\
+		echo "[+] Downloading Bochs VGABIOS (42KB)..."; \\
+		curl -sSL "$(VGABIOS_URL)" -o bochs-vgabios.bin; \\
+	fi
+	@echo "[✔] All VM binaries verified."
 
 serve: fetch
 	@echo "===================================================="
@@ -238,7 +256,7 @@ serve: fetch
 	fi
 
 clean:
-	rm -f linux.iso
+	rm -f linux.iso bochs-bios.bin bochs-vgabios.bin
 `;
 
   const readmeContent = `# In-Browser WebAssembly Linux (v86)
