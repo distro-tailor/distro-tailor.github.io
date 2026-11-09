@@ -13,6 +13,8 @@ interface AppState {
   history: UserCriteria[];
   activeTab: 'wizard' | 'expert' | 'results';
   activeFileIndex: number;
+  isSharedView: boolean;
+  showShareModal: boolean;
 }
 
 const state: AppState = {
@@ -20,7 +22,9 @@ const state: AppState = {
   answeredQuestionIds: new Set(),
   history: [],
   activeTab: 'wizard',
-  activeFileIndex: 0
+  activeFileIndex: 0,
+  isSharedView: false,
+  showShareModal: false
 };
 
 const flow = new QuestionFlow(QUESTIONS);
@@ -104,6 +108,11 @@ function loadStateFromUrl(): void {
     }
   }
 
+  // If criteria are present in URL, mark as shared configuration
+  if (Object.keys(state.criteria).length > 0) {
+    state.isSharedView = true;
+  }
+
   // If criteria are present and all questions answered, default to results view unless tab was explicitly set
   if (Object.keys(state.criteria).length > 0 && !params.has('tab')) {
     const nextQ = flow.getNextQuestion(state.criteria, state.answeredQuestionIds);
@@ -122,6 +131,88 @@ function getAppElement(): HTMLElement {
   const el = document.getElementById('app');
   if (!el) throw new Error('Missing #app root element');
   return el;
+}
+
+// --- SHARING & NOTIFICATION UTILITIES ---
+
+function showToast(message: string, icon = '✅'): void {
+  const existing = document.getElementById('distro-toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'distro-toast';
+  toast.className = 'fixed bottom-6 right-6 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-xl bg-slate-900/95 text-slate-100 border border-emerald-500/40 shadow-2xl backdrop-blur-md text-xs font-medium animate-in fade-in slide-in-from-bottom-3 duration-200';
+  toast.innerHTML = `<span class="text-base">${icon}</span><span>${message}</span>`;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 3200);
+}
+
+async function copyToClipboard(text: string, successMsg = 'Copied to clipboard!', icon = '✅'): Promise<void> {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      textArea.remove();
+    }
+    showToast(successMsg, icon);
+  } catch {
+    prompt('Copy this shareable link:', text);
+  }
+}
+
+function generateMarkdownSummary(evaluation: RecommendationOutput): string {
+  const best = evaluation.bestMatch;
+  const url = window.location.href;
+  const constraintsList = Object.entries(state.criteria)
+    .map(([k, v]) => `• ${formatConstraint(k, v).icon} ${formatConstraint(k, v).label}`)
+    .join('\n');
+
+  return `🐧 **DistroTailor Recommendation: ${best.distro.name} (${best.score}% Match)**
+*${best.distro.tagline}*
+
+**Tailored Configuration:**
+${constraintsList || '• Default profile'}
+
+**Key Highlights:**
+${best.distro.highlights.map((h) => `• ${h}`).join('\n')}
+
+🔗 **View or customize this Linux build:**
+${url}`;
+}
+
+async function triggerDeviceShare(evaluation: RecommendationOutput): Promise<void> {
+  const best = evaluation.bestMatch;
+  const shareData = {
+    title: `DistroTailor: ${best.distro.name} (${best.score}% Match)`,
+    text: `Found my tailored Linux match: ${best.distro.name} - ${best.distro.tagline}`,
+    url: window.location.href
+  };
+
+  if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+    try {
+      await navigator.share(shareData);
+      showToast('Shared successfully!', '🚀');
+    } catch (e: any) {
+      if (e.name !== 'AbortError') {
+        copyToClipboard(window.location.href, 'Link copied to clipboard!', '🔗');
+      }
+    }
+  } else {
+    copyToClipboard(window.location.href, 'Link copied to clipboard!', '🔗');
+  }
 }
 
 function formatConstraint(key: string, value: any): { label: string; icon: string } {
@@ -169,8 +260,34 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
       lean: { label: 'Lean (1-2GB RAM)', icon: '📦' },
       standard: { label: 'Standard (4-8GB RAM)', icon: '🚀' },
       full: { label: 'Full Workstation', icon: '🎮' }
+    },
+    statePreference: {
+      'traditional-mutable': { label: 'Standard Mutable (apt/dnf)', icon: '✏️' },
+      'read-only-rootfs': { label: 'Read-Only RootFS (OverlayFS)', icon: '🔒' },
+      'immutable-ostree': { label: 'Atomic / Immutable (OSTree)', icon: '🛡️' }
+    },
+    cLibPreference: {
+      glibc: { label: 'GNU C Library (glibc)', icon: '📚' },
+      musl: { label: 'musl libc (Lean & Fast)', icon: '🪶' },
+      uclibc: { label: 'uClibc-ng (Embedded)', icon: '🔌' }
+    },
+    initPreference: {
+      systemd: { label: 'systemd (Standard)', icon: '⚙️' },
+      openrc: { label: 'OpenRC (Lightweight)', icon: '⚡' },
+      runit: { label: 'runit (Minimalist)', icon: '⏱️' },
+      busybox: { label: 'BusyBox Init (Embedded)', icon: '🧰' }
     }
   };
+
+  if (key === 'maxRamMb') {
+    return { label: `${value} MB RAM`, icon: '🧠' };
+  }
+  if (key === 'prefersGui') {
+    return { label: value ? 'Graphical Desktop (GUI)' : 'Headless / Terminal Only', icon: value ? '🖼️' : '⌨️' };
+  }
+  if (key === 'requiresCustomBuild') {
+    return { label: value ? 'Custom Build Recipe Required' : 'Prebuilt ISO Preferred', icon: '🛠️' };
+  }
 
   if (map[key] && map[key][value]) {
     return map[key][value];
@@ -184,6 +301,15 @@ function render() {
   const evaluation: RecommendationOutput = evaluateCriteria(state.criteria);
   const nextQuestion = flow.getNextQuestion(state.criteria, state.answeredQuestionIds);
   const progress = flow.getProgress(state.criteria, state.answeredQuestionIds);
+
+  // Dynamic Browser Tab Title
+  if (state.activeTab === 'results') {
+    document.title = `DistroTailor — ${evaluation.bestMatch.distro.name} (${evaluation.bestMatch.score}% Match)`;
+  } else if (state.activeTab === 'expert') {
+    document.title = 'DistroTailor — Expert Architecture Matrix';
+  } else {
+    document.title = `DistroTailor — 20 Questions (${progress.current + 1}/${progress.total})`;
+  }
 
   app.innerHTML = `
     <!-- Top Header Navigation -->
@@ -216,8 +342,9 @@ function render() {
             <button id="btn-view-results" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${state.activeTab === 'results' ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-950/40' : 'bg-emerald-950/60 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900/60'}">
               🎯 View Match (${evaluation.bestMatch.score}%)
             </button>
-          ` : ''}
-          ${Object.keys(state.criteria).length > 0 ? `
+            <button id="btn-share-header" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 flex items-center gap-1.5 transition-all shadow-sm" title="Share this configuration via link">
+              <span>🔗</span> Share
+            </button>
             <button id="btn-reset" class="px-2.5 py-1.5 text-xs text-slate-400 hover:text-red-400 transition-colors" title="Start over">
               Restart
             </button>
@@ -249,7 +376,7 @@ function render() {
 
           <!-- Top Contender Cards -->
           <div class="space-y-2.5">
-            ${evaluation.topMatches.slice(0, 6).map((m, idx) => `
+            ${evaluation.topMatches.slice(0, 6).map((m) => `
               <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 hover:border-slate-700 transition-all">
                 <div class="flex items-center justify-between text-sm mb-1.5">
                   <div class="flex items-center gap-2 font-medium text-slate-200">
@@ -271,9 +398,16 @@ function render() {
             `).join('')}
           </div>
 
-          <!-- Active Constraints Tags -->
+          <!-- Active Constraints Tags with Interactive Removal and Share -->
           <div class="mt-5 pt-4 border-t border-slate-800">
-            <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5">Your Choices So Far</h4>
+            <div class="flex items-center justify-between mb-2.5">
+              <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Your Choices So Far</h4>
+              ${Object.keys(state.criteria).length > 0 ? `
+                <button id="btn-share-sidebar" class="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer transition-colors" title="Share this configuration link">
+                  <span>🔗</span> Share Link
+                </button>
+              ` : ''}
+            </div>
             ${Object.keys(state.criteria).length === 0 ? `
               <p class="text-xs text-slate-500 italic">No constraints yet. Select an option to start narrowing down!</p>
             ` : `
@@ -281,9 +415,10 @@ function render() {
                 ${Object.entries(state.criteria).map(([k, v]) => {
                   const c = formatConstraint(k, v);
                   return `
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs bg-slate-800 text-slate-200 border border-slate-700/60 shadow-sm">
+                    <span class="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-lg text-xs bg-slate-800 text-slate-200 border border-slate-700/60 shadow-sm group hover:border-slate-600 transition-colors">
                       <span>${c.icon}</span>
                       <span>${c.label}</span>
+                      <button data-remove-key="${k}" class="btn-remove-choice text-slate-500 hover:text-red-400 p-0.5 rounded transition-colors text-[10px] leading-none" title="Remove this choice">✕</button>
                     </span>
                   `;
                 }).join('')}
@@ -299,6 +434,9 @@ function render() {
     <footer class="border-t border-slate-800/80 py-6 px-6 text-center text-xs text-slate-500">
       <p>DistroTailor is 100% Free & Open Source under the MIT License · Built for curious humans, families, and systems tinkerers.</p>
     </footer>
+
+    <!-- Interactive Share Modal -->
+    ${state.showShareModal ? renderShareModal(evaluation) : ''}
   `;
 
   attachEventHandlers(nextQuestion, evaluation);
@@ -555,6 +693,31 @@ function renderResultsView(evaluation: RecommendationOutput): string {
 
   return `
     <div class="space-y-6">
+
+      <!-- Shared Configuration Notice Banner -->
+      ${state.isSharedView ? `
+        <div class="bg-indigo-950/40 border border-indigo-700/50 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs shadow-xl animate-in fade-in">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-indigo-900/60 border border-indigo-600/40 flex items-center justify-center text-xl shrink-0">
+              🔗
+            </div>
+            <div>
+              <h4 class="font-bold text-indigo-100 text-sm">You are viewing a shared tailored Linux build!</h4>
+              <p class="text-slate-400 text-[11px] mt-0.5">
+                Configured with <strong>${Object.keys(state.criteria).length} tailored criteria</strong>. You can inspect the recipe, tweak any choice, or start your own build.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 whitespace-nowrap self-end sm:self-auto">
+            <button id="btn-tweak-shared" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-all shadow-md">
+              Tweak Choices
+            </button>
+            <button id="btn-start-fresh" class="px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 font-medium transition-all">
+              Start Fresh
+            </button>
+          </div>
+        </div>
+      ` : ''}
       
       <!-- Top Match Winner Banner -->
       <div class="bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-950 border border-emerald-500/30 rounded-2xl p-6 sm:p-8 relative overflow-hidden shadow-2xl">
@@ -572,9 +735,14 @@ function renderResultsView(evaluation: RecommendationOutput): string {
             </div>
           </div>
 
-          <a href="${best.distro.website}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-950/40">
-            Official Website ↗
-          </a>
+          <div class="flex items-center gap-2">
+            <button id="btn-share-match" class="px-4 py-2.5 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 transition-all flex items-center gap-1.5 shadow-md cursor-pointer" title="Share this tailored match permalink">
+              <span>🔗</span> Share Match
+            </button>
+            <a href="${best.distro.website}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-950/40">
+              Official Website ↗
+            </a>
+          </div>
         </div>
 
         <p class="text-sm text-slate-300 leading-relaxed mb-6">${best.distro.description}</p>
@@ -821,9 +989,14 @@ function renderResultsView(evaluation: RecommendationOutput): string {
               <p class="text-xs text-slate-400 mt-1">${recipe.summary}</p>
             </div>
             
-            <button id="btn-copy-recipe" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5">
-              <span>📋</span> Copy Active File
-            </button>
+            <div class="flex items-center gap-2">
+              <button id="btn-share-recipe" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer" title="Share this build recipe permalink">
+                <span>🔗</span> Share Recipe
+              </button>
+              <button id="btn-copy-recipe" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5">
+                <span>📋</span> Copy Active File
+              </button>
+            </div>
           </div>
 
           <!-- Dependencies & Build Info -->
@@ -964,6 +1137,78 @@ function renderExpertMatrix(): string {
   `;
 }
 
+function renderShareModal(evaluation: RecommendationOutput): string {
+  const best = evaluation.bestMatch;
+  const url = window.location.href;
+  const markdownSummary = generateMarkdownSummary(evaluation);
+  const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
+
+  return `
+    <div id="share-modal-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[90] flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+        
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl p-2 rounded-xl bg-slate-950 border border-slate-800">${best.distro.logoEmoji || '🐧'}</span>
+            <div>
+              <h3 class="text-base font-bold text-slate-100">Share Tailored Linux Build</h3>
+              <p class="text-xs text-slate-400">${best.distro.name} (${best.score}% Match)</p>
+            </div>
+          </div>
+          <button id="btn-close-share-modal" class="text-slate-400 hover:text-slate-200 text-lg p-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer" title="Close">
+            ✕
+          </button>
+        </div>
+
+        <!-- Direct Shareable URL -->
+        <div class="mb-4">
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Direct Shareable Link (Preserves All Criteria)</label>
+          <div class="flex items-center gap-2">
+            <input type="text" readonly id="share-link-input" value="${url}" class="flex-1 bg-slate-950 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-xs font-mono select-all focus:outline-none focus:border-emerald-500" />
+            <button id="btn-copy-share-link" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-colors shrink-0 flex items-center gap-1 cursor-pointer">
+              <span>📋</span> Copy
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">Anyone opening this link will see your exact tailored recommendation and build recipe.</p>
+        </div>
+
+        <!-- Formatted Markdown for Reddit, Discord, GitHub -->
+        <div class="mb-5">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="text-xs font-semibold text-slate-300">Forum & Chat Markdown (Reddit, Discord, GitHub)</label>
+            <button id="btn-copy-markdown" class="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer">
+              <span>📋</span> Copy Markdown
+            </button>
+          </div>
+          <textarea readonly id="share-markdown-preview" rows="4" class="w-full bg-slate-950 border border-slate-800 text-slate-400 p-2.5 rounded-lg text-[11px] font-mono select-all focus:outline-none resize-none">${escapeHtml(markdownSummary)}</textarea>
+        </div>
+
+        <!-- Quick Share Destinations -->
+        <div>
+          <span class="block text-xs font-semibold text-slate-400 mb-2">Quick Share</span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+            ${canNativeShare ? `
+              <button id="btn-native-share" class="col-span-2 sm:col-span-1 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 font-medium transition-colors cursor-pointer">
+                <span>📤</span> Device
+              </button>
+            ` : ''}
+            <a href="https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(`Tailored Linux Distro Match: ${best.distro.name} (${best.score}%)`)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-orange-950/40 hover:bg-orange-900/40 text-orange-300 border border-orange-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors">
+              <span>🤖</span> Reddit
+            </a>
+            <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(`Found my Linux match with DistroTailor: ${best.distro.name} (${best.score}% Match)!`)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-sky-950/40 hover:bg-sky-900/40 text-sky-300 border border-sky-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors">
+              <span>🐦</span> X / Twitter
+            </a>
+            <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out my tailored Linux distro match: ${best.distro.name} (${best.score}%) - ${url}`)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-300 border border-emerald-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors">
+              <span>💬</span> WhatsApp
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
 // Global keyboard handler registration guard
 let keyboardHandlerRegistered = false;
 
@@ -993,14 +1238,95 @@ function attachEventHandlers(
     render();
   });
 
-  document.getElementById('btn-reset')?.addEventListener('click', () => {
+  const resetAll = () => {
     state.criteria = {};
     state.answeredQuestionIds.clear();
     state.history = [];
     state.activeTab = 'wizard';
     state.activeFileIndex = 0;
+    state.isSharedView = false;
+    state.showShareModal = false;
     saveStateToUrl();
     render();
+  };
+
+  document.getElementById('btn-reset')?.addEventListener('click', resetAll);
+  document.getElementById('btn-start-fresh')?.addEventListener('click', resetAll);
+
+  // Shared Banner Tweak Button
+  document.getElementById('btn-tweak-shared')?.addEventListener('click', () => {
+    state.activeTab = 'expert';
+    render();
+  });
+
+  // Share Actions (Header, Match Banner, Sidebar, Recipe)
+  const openShareModal = () => {
+    state.showShareModal = true;
+    render();
+  };
+
+  document.getElementById('btn-share-header')?.addEventListener('click', openShareModal);
+  document.getElementById('btn-share-match')?.addEventListener('click', openShareModal);
+  document.getElementById('btn-share-sidebar')?.addEventListener('click', openShareModal);
+  document.getElementById('btn-share-recipe')?.addEventListener('click', openShareModal);
+
+  // Close Share Modal
+  document.getElementById('btn-close-share-modal')?.addEventListener('click', () => {
+    state.showShareModal = false;
+    render();
+  });
+
+  document.getElementById('share-modal-backdrop')?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).id === 'share-modal-backdrop') {
+      state.showShareModal = false;
+      render();
+    }
+  });
+
+  // Copy Share Link in Modal
+  document.getElementById('btn-copy-share-link')?.addEventListener('click', () => {
+    copyToClipboard(window.location.href, 'Direct permalink copied to clipboard!', '🔗');
+  });
+
+  // Copy Markdown in Modal
+  document.getElementById('btn-copy-markdown')?.addEventListener('click', () => {
+    const md = generateMarkdownSummary(evaluation);
+    copyToClipboard(md, 'Markdown summary copied! Ready to paste into Reddit, Discord, or GitHub.', '📋');
+  });
+
+  // Native Device Share in Modal
+  document.getElementById('btn-native-share')?.addEventListener('click', () => {
+    triggerDeviceShare(evaluation);
+  });
+
+  // Individual Constraint Chip Removal
+  document.querySelectorAll<HTMLButtonElement>('.btn-remove-choice').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = btn.getAttribute('data-remove-key') as keyof UserCriteria;
+      if (key && state.criteria[key] !== undefined) {
+        delete state.criteria[key];
+        if (key === 'useCase') {
+          state.answeredQuestionIds.delete('beginner_goal');
+          state.answeredQuestionIds.delete('technical_use_case');
+        } else if (key === 'platform' || key === 'architecture') {
+          state.answeredQuestionIds.delete('beginner_device');
+          state.answeredQuestionIds.delete('hardware_architecture');
+        } else if (key === 'footprint' || key === 'maxRamMb') {
+          state.answeredQuestionIds.delete('beginner_memory');
+          state.answeredQuestionIds.delete('memory_and_storage');
+        } else if (key === 'experienceLevel') {
+          state.answeredQuestionIds.delete('beginner_experience');
+        } else if (key === 'statePreference') {
+          state.answeredQuestionIds.delete('immutability_and_state');
+        } else if (key === 'cLibPreference' || key === 'initPreference') {
+          state.answeredQuestionIds.delete('c_library_and_init');
+        }
+        saveStateToUrl();
+        render();
+        showToast(`Removed filter: ${key}`, '🗑️');
+      }
+    });
   });
 
   // Toggle Flow Mode (Goal / Novice <-> Technical)
