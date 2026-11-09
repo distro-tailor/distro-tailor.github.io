@@ -4,7 +4,9 @@ import {
   QUESTIONS,
   UserCriteria,
   RecommendationOutput,
-  DISTRO_REGISTRY
+  DISTRO_REGISTRY,
+  CURRENT_SCHEMA_VERSION,
+  migrateUrlParameters
 } from '@distro-tailor/core';
 
 interface AppState {
@@ -29,10 +31,13 @@ const state: AppState = {
 
 const flow = new QuestionFlow(QUESTIONS);
 
-// --- URL STATE PERSISTENCE (GitHub Pages & Refresh Friendly) ---
+// --- URL STATE PERSISTENCE & VERSION MIGRATION (GitHub Pages Friendly) ---
 
 function saveStateToUrl(): void {
   const params = new URLSearchParams();
+
+  // Always write schema version first to guarantee backward-compatibility across releases
+  params.set('v', String(CURRENT_SCHEMA_VERSION));
 
   if (state.activeTab !== 'wizard') {
     params.set('tab', state.activeTab);
@@ -63,7 +68,19 @@ function loadStateFromUrl(): void {
   const rawParams = window.location.search || (window.location.hash.includes('?') ? window.location.hash.slice(window.location.hash.indexOf('?')) : window.location.hash.replace(/^#\/?/, ''));
   if (!rawParams) return;
 
-  const params = new URLSearchParams(rawParams.startsWith('?') ? rawParams.slice(1) : rawParams);
+  const urlSearchParams = new URLSearchParams(rawParams.startsWith('?') ? rawParams.slice(1) : rawParams);
+  const rawRecord: Record<string, string> = {};
+  for (const [k, v] of urlSearchParams.entries()) {
+    rawRecord[k] = v;
+  }
+
+  // Run URL schema migration to normalize historical, unversioned, or alias parameters
+  const migration = migrateUrlParameters(rawRecord);
+  const params = new Map(Object.entries(migration.params));
+
+  if (migration.migrated && migration.warnings.length > 0) {
+    console.info('[DistroTailor] Migrated URL parameters to schema v' + migration.version, migration.warnings);
+  }
 
   const tab = params.get('tab');
   if (tab === 'wizard' || tab === 'expert' || tab === 'results') {
@@ -97,7 +114,7 @@ function loadStateFromUrl(): void {
 
   for (const key of knownCriteriaKeys) {
     const val = params.get(key);
-    if (val !== null) {
+    if (val !== undefined && val !== null) {
       if (key === 'maxRamMb') {
         state.criteria[key] = Number(val);
       } else if (key === 'prefersGui' || key === 'requiresCustomBuild') {

@@ -44,3 +44,18 @@ Feature: URL State Sharing and Collaborative Configuration
     When the user shares the current URL with a friend
     Then the friend opens the link and sees questions 1 and 2 already answered
     And the wizard prompts question 3 (Hardware / Target Device)
+
+  Scenario: URL schema versioning guarantees forward and backward compatibility
+    Given the current schema version is "v=1"
+    When any shareable link or state is generated
+    Then the URL explicitly prefixes the schema version parameter "?v=1"
+    And future application updates run sequential schema migrations without breaking links
+
+  Scenario: Backward-compatible normalization of legacy aliases and unversioned links
+    Given a user opens an unversioned legacy link "?useCase=home-automation&platform=rpi&architecture=aarch64"
+    When the application initializes
+    Then the migration engine assigns schema version "v=1"
+    And maps "home-automation" to canonical "smart-home"
+    And maps "rpi" to canonical "embedded-sbc"
+    And maps "aarch64" to canonical "arm64"
+    And seamlessly updates the browser address bar to the modern canonical format
