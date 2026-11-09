@@ -38,7 +38,7 @@ export const QUESTIONS: Question[] = [
     id: 'beginner_goal',
     order: 2,
     prompt: 'What do you want to build or accomplish?',
-    subtext: 'Pick the outcome you want to see running on your screen.',
+    subtext: 'Pick your main priority. (Want a combo like Media Center + Retro Games or NAS + Smart Home? Pick your foundation here—you can customize and mix & match add-ons later!)',
     category: 'platform',
     shouldAsk: (criteria) => criteria.experienceLevel === 'beginner',
     options: [

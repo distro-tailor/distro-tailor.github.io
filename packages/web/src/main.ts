@@ -298,9 +298,118 @@ function renderPrimarySection(
   `;
 }
 
+function getAddonCombos(distroId: string): { title: string; icon: string; description: string; howTo: string }[] {
+  switch (distroId) {
+    case 'libreelec':
+      return [
+        {
+          title: 'Retro Gaming (Arcade, SNES, PS1, N64)',
+          icon: '🕹️',
+          description: 'Play classic retro games straight from your couch with USB or Bluetooth game controllers.',
+          howTo: 'Enable "RetroPlayer" in Kodi Settings → Add-ons → Game Clients, or install the LibreELEC RetroArch addon.'
+        },
+        {
+          title: 'Stream From Home Storage (NAS / Jellyfin)',
+          icon: '📦',
+          description: 'Access family photos, home videos, and movies stored on your home server or NAS.',
+          howTo: 'Add network folder via SMB/NFS, or install the official Jellyfin / Plex add-on from Kodi repository.'
+        }
+      ];
+    case 'openmediavault':
+      return [
+        {
+          title: 'Smart Home Hub (Home Assistant)',
+          icon: '🏡',
+          description: 'Run your local private smart home hub alongside family file storage on the same PC.',
+          howTo: 'Install "omv-extras" plugin → enable Compose / Docker → 1-click launch Home Assistant container.'
+        },
+        {
+          title: 'Private Family Photo Cloud (Immich)',
+          icon: '📸',
+          description: 'Auto-backup phone photos and replace Google Photos / iCloud with AI face & map search.',
+          howTo: 'Deploy the Immich Docker Compose template directly inside the OMV web interface.'
+        },
+        {
+          title: 'Network-Wide Ad Blocker (Pi-hole)',
+          icon: '🛡️',
+          description: 'Block ads and tracking for every phone, laptop, and smart TV connected to your Wi-Fi.',
+          howTo: 'Launch a Pi-hole container and point your home Wi-Fi router DNS to your OMV box IP address.'
+        }
+      ];
+    case 'home-assistant-os':
+      return [
+        {
+          title: 'Smart Security Camera NVR (Frigate)',
+          icon: '📹',
+          description: 'Local video recording with real-time AI object detection (people, packages, vehicles).',
+          howTo: 'Install the "Frigate NVR" add-on directly from the Home Assistant Supervisor Add-on Store.'
+        },
+        {
+          title: 'Universal Smart Hub (Zigbee & Matter)',
+          icon: '🔌',
+          description: 'Connect low-cost smart bulbs and motion sensors with zero proprietary brand bridges.',
+          howTo: 'Plug in a Sonoff or SkyConnect USB dongle and enable the Zigbee2MQTT / Matter add-on.'
+        },
+        {
+          title: 'Family Music & Media Server',
+          icon: '🎵',
+          description: 'Stream music to smart speakers throughout the house with synchronized multi-room audio.',
+          howTo: 'Install Music Assistant or Jellyfin from the Home Assistant Community Add-on Store.'
+        }
+      ];
+    case 'cage-appliance':
+    case 'porteus-kiosk':
+      return [
+        {
+          title: 'Custom Brand Splash (Silent Boot)',
+          icon: '🎨',
+          description: 'Display your company logo or product graphic during the 3-second boot.',
+          howTo: 'Set your splash image in Plymouth or pass quiet splash kernel parameters in the Makefile.'
+        },
+        {
+          title: 'Touchscreen Calibration & Virtual Keyboard',
+          icon: '📱',
+          description: 'Turn into an interactive retail POS, product kiosk, or wall control panel.',
+          howTo: 'Cage automatically binds to libinput; enable onboard or wvkbd for on-screen touch typing.'
+        }
+      ];
+    case 'batocera':
+      return [
+        {
+          title: 'Living Room Media Center (Kodi)',
+          icon: '📺',
+          description: 'Turn your retro console into a living room media player when you are not gaming.',
+          howTo: 'Press the Main Menu button on your gamepad → select "Kodi Media Center" (it comes pre-installed!).'
+        },
+        {
+          title: 'Network Game Sync Over Wi-Fi',
+          icon: '☁️',
+          description: 'Sync your game saves and add new games over your home network from Mac or PC.',
+          howTo: 'Enable Network Shares in Batocera settings to access the ROM folder from your laptop.'
+        }
+      ];
+    default:
+      return [
+        {
+          title: 'Containerize Any Service (Docker & Compose)',
+          icon: '🐳',
+          description: 'Run media servers, ad-blockers, smart home, and coding sandboxes in isolated containers.',
+          howTo: 'Install Docker with one command (curl -fsSL https://get.docker.com | sh) and run any homelab app.'
+        },
+        {
+          title: 'Secure Remote Access (Tailscale VPN)',
+          icon: '🔒',
+          description: 'Access your machine securely from anywhere outside the house without opening router ports.',
+          howTo: 'Install Tailscale to join your personal private mesh network in 30 seconds.'
+        }
+      ];
+  }
+}
+
 function renderResultsView(evaluation: RecommendationOutput): string {
   const best = evaluation.bestMatch;
   const recipe = evaluation.recommendedRecipe;
+  const combos = getAddonCombos(best.distro.id);
 
   return `
     <div class="space-y-6">
@@ -368,6 +477,36 @@ function renderResultsView(evaluation: RecommendationOutput): string {
           </div>
         </div>
 
+      </div>
+
+      <!-- Mix & Match Hybrid Combos -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
+        <div class="mb-5">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🧩</span>
+            <h3 class="text-lg font-bold text-slate-100">Mix & Match: Popular Combos for ${best.distro.name}</h3>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">
+            Linux is modular. You don't have to choose just one thing! Start with ${best.distro.name} as your core foundation, then layer on these add-on capabilities:
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          ${combos.map(combo => `
+            <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2.5 mb-2">
+                  <span class="text-2xl">${combo.icon}</span>
+                  <h4 class="text-sm font-semibold text-slate-200">${combo.title}</h4>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed mb-3">${combo.description}</p>
+              </div>
+              <div class="pt-2.5 border-t border-slate-800/80 text-[11px] text-emerald-400 font-mono">
+                👉 ${combo.howTo}
+              </div>
+            </div>
+          `).join('')}
+        </div>
       </div>
 
       <!-- Turnkey Prebuilt Download or Custom Recipe -->
