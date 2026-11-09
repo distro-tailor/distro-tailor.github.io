@@ -36,9 +36,9 @@ DEBOOTSTRAP ?= debootstrap
 GENISOIMAGE ?= genisoimage
 MKSQUASHFS  ?= mksquashfs
 
-.PHONY: all clean check-root prepare rootfs configure iso
+.PHONY: all clean check-root prepare rootfs configure iso detect-hardware
 
-all: clean prepare rootfs configure iso
+all: detect-hardware clean prepare rootfs configure iso
 	@echo "===================================================="
 	@echo " Build Complete! Image: $(OUTPUT_DIR)/$(ISO_NAME)"
 	@echo " Hardware Profile:      $(HARDWARE_TARGET)"
@@ -155,8 +155,15 @@ sudo apt-get update
 sudo apt-get install -y debootstrap genisoimage grub-pc-bin grub-efi-amd64-bin mtools libisoburn
 \`\`\`
 
+## Hardware Manifest Audit (PCPartPicker / Custom Rig)
+Before building, you can audit your machine's active hardware components to preview which drivers will be retained:
+\`\`\`bash
+make detect-hardware
+\`\`\`
+This isolates your motherboard's specific NIC, Wi-Fi, audio, and GPU controllers, allowing the build process to strip ~1.8GB of universal driver bloat.
+
 ## Build
-Run with root permissions:
+Run with root permissions (hardware detection runs automatically on build):
 \`\`\`bash
 sudo make
 \`\`\`
@@ -190,7 +197,8 @@ Default credentials: \`root\` / \`tailor\`
     ],
     quickstartCommands: [
       'sudo apt-get install -y debootstrap genisoimage grub-pc-bin libisoburn',
-      'sudo make',
+      'make detect-hardware  # (Optional: audit active NIC, Wi-Fi & GPU inventory)',
+      'sudo make             # Automatically audits & builds custom zero-bloat ISO',
       `qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 1024`
     ]
   };
