@@ -32,5 +32,7 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     Given a user completes their questionnaire
     When the Results page renders
     Then a "Zero-Bloat Hardware Optimization" card must be displayed
+    And it must clearly clarify that official prebuilt ISOs still carry upstream generic bloat
+    And it must indicate that the ~92% bloat reduction is achieved via the Custom Makefile Recipe Generator
     And it must show side-by-side metrics comparing a ~4.5GB generic distribution with a ~200MB tailored build
     And it must quantify firmware blob reduction, idle RAM reduction, and cold boot duration

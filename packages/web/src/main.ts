@@ -566,20 +566,23 @@ function renderResultsView(evaluation: RecommendationOutput): string {
               <h3 class="text-lg font-bold text-slate-100">Zero-Bloat Hardware Optimization</h3>
             </div>
             <p class="text-xs text-slate-400 mt-1">
-              Generic distros ship 1.8GB of drivers for 10,000 devices you don't own. DistroTailor trims all the fat.
+              <span class="text-amber-400 font-semibold">⚠️ Note:</span> Prebuilt official ISOs from distros must support all PCs on Earth and still carry generic bloat. The ultra-lean footprint below is achieved when building with DistroTailor's <strong>custom Makefile / build recipe</strong>!
             </p>
           </div>
-          <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+          <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
             ~92% Bloat Eliminated
           </span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Generic Distro -->
+          <!-- Generic Prebuilt Distro -->
           <div class="p-4 rounded-xl bg-slate-950/70 border border-red-950/40 text-xs">
             <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
-              <span class="font-bold text-slate-300">Generic Distro (Ubuntu / Debian ISO)</span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-950/60 text-red-400 border border-red-900/40">Kitchen Sink</span>
+              <div>
+                <span class="font-bold text-slate-300 block">Off-The-Shelf Prebuilt ISO</span>
+                <span class="text-[11px] text-slate-500">Direct download from distro website</span>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-950/60 text-red-400 border border-red-900/40">Generic Driver Bloat</span>
             </div>
             <ul class="space-y-2 text-slate-400">
               <li class="flex items-center justify-between">
@@ -605,34 +608,42 @@ function renderResultsView(evaluation: RecommendationOutput): string {
             </ul>
           </div>
 
-          <!-- DistroTailor Hardware-Tailored -->
-          <div class="p-4 rounded-xl bg-emerald-950/20 border border-emerald-800/40 text-xs">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-emerald-900/30">
-              <span class="font-bold text-emerald-300">DistroTailor Hardware-Tailored</span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Lean & Mean</span>
+          <!-- DistroTailor Custom Makefile Build -->
+          <div class="p-4 rounded-xl bg-emerald-950/20 border border-emerald-800/40 text-xs flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 mb-3 border-b border-emerald-900/30">
+                <div>
+                  <span class="font-bold text-emerald-300 block">DistroTailor Custom Makefile Build</span>
+                  <span class="text-[11px] text-emerald-400/70">Built via recipe generator below</span>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Hardware-Tailored</span>
+              </div>
+              <ul class="space-y-2 text-slate-300">
+                <li class="flex items-center justify-between">
+                  <span>📦 Total Footprint:</span>
+                  <span class="font-mono font-bold text-emerald-400">~150 MB – 350 MB (-93%)</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span>🚗 Firmware Blobs:</span>
+                  <span class="font-mono text-emerald-300">&lt; 15 MB (only your specific chip)</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span>⚙️ Kernel Drivers:</span>
+                  <span class="font-mono text-emerald-300">Targeted via localmodconfig</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span>⚡ Idle RAM Consumption:</span>
+                  <span class="font-mono text-emerald-300">~60 MB – 150 MB</span>
+                </li>
+                <li class="flex items-center justify-between">
+                  <span>⏱️ Cold Boot Duration:</span>
+                  <span class="font-mono font-bold text-emerald-400">&lt; 2 – 4 seconds</span>
+                </li>
+              </ul>
             </div>
-            <ul class="space-y-2 text-slate-300">
-              <li class="flex items-center justify-between">
-                <span>📦 Total Footprint:</span>
-                <span class="font-mono font-bold text-emerald-400">~150 MB – 350 MB (-93%)</span>
-              </li>
-              <li class="flex items-center justify-between">
-                <span>🚗 Firmware Blobs:</span>
-                <span class="font-mono text-emerald-300">&lt; 15 MB (only your specific chip)</span>
-              </li>
-              <li class="flex items-center justify-between">
-                <span>⚙️ Kernel Drivers:</span>
-                <span class="font-mono text-emerald-300">Targeted via localmodconfig</span>
-              </li>
-              <li class="flex items-center justify-between">
-                <span>⚡ Idle RAM Consumption:</span>
-                <span class="font-mono text-emerald-300">~60 MB – 150 MB</span>
-              </li>
-              <li class="flex items-center justify-between">
-                <span>⏱️ Cold Boot Duration:</span>
-                <span class="font-mono font-bold text-emerald-400">&lt; 2 – 4 seconds</span>
-              </li>
-            </ul>
+            <div class="mt-3 pt-2.5 border-t border-emerald-900/30 text-[11px] text-emerald-400 font-medium">
+              👉 To get this lean build, use the <strong>Custom Build Recipe Generator</strong> below!
+            </div>
           </div>
         </div>
       </div>
