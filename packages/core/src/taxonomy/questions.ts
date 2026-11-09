@@ -137,6 +137,20 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'gaming', footprint: 'full', platform: 'bare-metal' }
       },
       {
+        id: 'ai_ml_server',
+        label: 'AI & Local LLM Server or Data Science Box',
+        description: 'Run local AI models (Ollama, vLLM, DeepSeek, PyTorch, Stable Diffusion) with full NVIDIA/AMD GPU acceleration',
+        icon: '🧠',
+        appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'full', platform: 'server' }
+      },
+      {
+        id: 'crypto_mining_rig',
+        label: 'Multi-GPU Mining Rig or Distributed Compute Node',
+        description: 'Dedicated headless rig for crypto mining or distributed GPU compute with fan control, watchdog, and web telemetry',
+        icon: '⛏️',
+        appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'lean', platform: 'server' }
+      },
+      {
         id: 'browser_wasm',
         label: 'Try Linux right now in my web browser tab',
         description: 'Test Linux in a sandbox without installing anything or touching your hard drive',
@@ -236,6 +250,13 @@ export const QUESTIONS: Question[] = [
         description: 'Rich GUI desktop environment, audio/video, GPU acceleration, and dev tools',
         icon: '🎮',
         appliesCriteria: { useCase: 'desktop', platform: 'bare-metal', prefersGui: true }
+      },
+      {
+        id: 'ai_gpu_compute',
+        label: 'AI / ML Training, Local LLM Inference & GPU Mining',
+        description: 'Optimized for NVIDIA CUDA, AMD ROCm, PyTorch, vLLM, Ollama, and multi-GPU headless compute rigs',
+        icon: '🧠',
+        appliesCriteria: { useCase: 'ai-gpu-compute', platform: 'server' }
       },
       {
         id: 'browser_wasm',

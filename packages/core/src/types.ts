@@ -63,6 +63,7 @@ export type PrimaryUseCase =
   | 'nas-storage'
   | 'smart-home'
   | 'appliance-product'
+  | 'ai-gpu-compute'
   | 'server'
   | 'k8s-cluster'
   | 'container-base'

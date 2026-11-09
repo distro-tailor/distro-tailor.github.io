@@ -45,6 +45,7 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
       'nas-storage': { label: 'Family Photo & Video NAS', icon: '📦' },
       'smart-home': { label: 'Smart Home Hub', icon: '🏡' },
       'appliance-product': { label: 'Dedicated Single-App Appliance', icon: '🛠️' },
+      'ai-gpu-compute': { label: 'AI, LLM & GPU Compute', icon: '🧠' },
       'router-networking': { label: 'Home Router & Firewall', icon: '📡' },
       'kiosk-signage': { label: 'Store Display & Kiosk', icon: '🏪' },
       desktop: { label: 'Everyday Desktop', icon: '💻' },
@@ -403,6 +404,36 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           icon: '☁️',
           description: 'Sync your game saves and add new games over your home network from Mac or PC.',
           howTo: 'Enable Network Shares in Batocera settings to access the ROM folder from your laptop.'
+        }
+      ];
+    case 'pop-os':
+      return [
+        {
+          title: 'Local AI LLM Assistant (Ollama + Open-WebUI)',
+          icon: '🤖',
+          description: 'Run DeepSeek, Llama 3, or Mistral 100% locally on your NVIDIA GPU with private ChatGPT web UI.',
+          howTo: 'Run `curl -fsSL https://ollama.com/install.sh | sh` then `ollama run llama3`.'
+        },
+        {
+          title: 'PyTorch & Data Science Environment',
+          icon: '📊',
+          description: 'GPU-accelerated Python machine learning stack with CUDA 12 pre-configured.',
+          howTo: 'Install PyTorch with GPU support: `pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121`.'
+        }
+      ];
+    case 'hiveos':
+      return [
+        {
+          title: 'Automated Thermal & Fan Watchdog',
+          icon: '❄️',
+          description: 'Protect GPUs from thermal throttling and maintain peak mining efficiency.',
+          howTo: 'Set target core temperature (e.g. 60°C) and autofan threshold in the HiveOS dashboard.'
+        },
+        {
+          title: 'Distributed AI Compute Worker (Akash / Render)',
+          icon: '🌐',
+          description: 'Monetize idle GPU computing power on decentralized AI compute networks.',
+          howTo: 'Deploy the compute provider daemon directly via HiveOS custom script runner.'
         }
       ];
     default:

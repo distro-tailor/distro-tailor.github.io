@@ -204,6 +204,74 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       downloadUrl: 'https://bazzite.gg/#download'
     }
   },
+  // --- GPU WORKSTATIONS, AI & DATA SCIENCE ---
+  {
+    id: 'pop-os',
+    name: 'Pop!_OS (System76)',
+    tagline: 'The premier Linux workstation OS for AI, machine learning, and GPU compute',
+    description:
+      'Developed by System76, Pop!_OS features dedicated out-of-the-box NVIDIA ISOs with pre-baked GPU drivers, CUDA/cuDNN support, and seamless hybrid graphics switching. The standard choice for data scientists, ML engineers, and local AI development (PyTorch, TensorFlow, Ollama, Stable Diffusion) without DKMS or driver breakage.',
+    website: 'https://pop.system76.com',
+    documentationUrl: 'https://support.system76.com',
+    logoEmoji: '🧠',
+    platforms: ['bare-metal', 'desktop'],
+    architectures: ['x86_64'],
+    footprint: 'full',
+    minRamMb: 4096,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['ai-gpu-compute', 'desktop', 'gaming'],
+    packageManager: 'apt / flatpak',
+    rollingRelease: false,
+    highlights: [
+      'Dedicated NVIDIA ISO: GPU drivers and CUDA kernel modules pre-compiled out of the box',
+      'Zero-friction PyTorch & TensorFlow: apt install pytorch-cuda without driver version mismatch',
+      'System76 Power management: 1-click switching between Integrated, Hybrid, and Dedicated GPU',
+      'Auto-tiling COSMIC desktop window manager for efficient multi-monitor data workflows'
+    ],
+    tradeoffs: [
+      'Heavier workstation footprint (~4GB ISO, requires 4GB+ RAM and dedicated disk space)'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://pop.system76.com'
+    }
+  },
+  // --- MULTI-GPU MINING & DISTRIBUTED COMPUTE ---
+  {
+    id: 'hiveos',
+    name: 'HiveOS',
+    tagline: 'Dedicated Linux management platform for multi-GPU mining rigs and distributed compute',
+    description:
+      'An Ubuntu-based, headless Linux operating system engineered specifically for multi-GPU crypto mining and GPU compute rigs. Features a centralized web/mobile dashboard, automated GPU overclocking/undervolting profiles, hardware watchdog rebooting, thermal throttling management, and remote bulk rig flashing from USB/SSD.',
+    website: 'https://hiveon.com/os/',
+    documentationUrl: 'https://hiveon.com/knowledge-base/',
+    logoEmoji: '⛏️',
+    platforms: ['bare-metal', 'server'],
+    architectures: ['x86_64'],
+    footprint: 'lean',
+    minRamMb: 4096,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['ai-gpu-compute', 'server'],
+    packageManager: 'apt',
+    rollingRelease: false,
+    highlights: [
+      'Multi-GPU plug-and-play: auto-detects up to 12+ mixed NVIDIA and AMD GPUs per motherboard',
+      'Web & mobile app telemetry: real-time hashrate, wattage, fan speeds, and core/memory clocks',
+      'Built-in hardware watchdog: automatically restarts miner or reboots OS if a GPU hangs',
+      'Individual VRAM/core clock tuning to maximize efficiency and minimize electricity draw'
+    ],
+    tradeoffs: [
+      'Specialized utility OS: intended strictly for headless GPU compute and crypto mining'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://hiveon.com/install/'
+    }
+  },
 
   // --- REVIVING OBSOLETE HARDWARE ---
   {
@@ -782,7 +850,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     cLibraries: ['glibc'],
     stateModel: 'mutable',
     experienceLevel: 'beginner',
-    primaryUseCases: ['desktop', 'server', 'gaming'],
+    primaryUseCases: ['desktop', 'server', 'gaming', 'ai-gpu-compute'],
     packageManager: 'apt / snap',
     rollingRelease: false,
     highlights: [

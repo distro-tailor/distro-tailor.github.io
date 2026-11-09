@@ -155,6 +155,32 @@ test('Core Matcher: Identifies postmarketOS for repurposed mobile and gadget har
   assert.ok(topIds.includes('postmarketos') || topIds.includes('alpine') || topIds.includes('buildroot'));
 });
 
+test('Core Matcher: Identifies Pop!_OS for AI / Data Science GPU workstations', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'ai-gpu-compute',
+    platform: 'desktop',
+    footprint: 'full',
+    architecture: 'x86_64'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'pop-os');
+  assert.ok(result.bestMatch.score >= 80);
+});
+
+test('Core Matcher: Identifies HiveOS for multi-GPU mining rigs and compute nodes', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'ai-gpu-compute',
+    platform: 'server',
+    footprint: 'lean',
+    architecture: 'x86_64'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'hiveos');
+  assert.ok(result.bestMatch.score >= 80);
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });
