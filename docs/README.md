@@ -18,6 +18,15 @@ Welcome to the central documentation index for **DistroTailor**—the 20-Questio
   - Recipe Generator Pipeline (Debootstrap, Cage Wayland, Buildroot, Alpine)
   - Bootloader Topology (UEFI ESP, Legacy BIOS MBR, Apple 32-bit EFI, ARM GPU boot)
 
+- **[Design Rationale, Q&A & Architectural Decisions](03-design-rationale-and-qa.md)**
+  - Inverted Funnel Philosophy (300+ distros down to 1 champion + 2 contenders)
+  - 3-Layer Composable Architecture (Anchor Distros, Desktop Modifiers, Flathub/AppStream apps)
+  - Hardware Epochs & 4 Kernel Tracks (Modern HWE, Enterprise LTS, Specialized Silicon, Low-Latency)
+  - PCPartPicker Modular Rigs vs. Fixed Closed Hardware (Apple Silicon, Raspberry Pi)
+  - Enterprise Server Racks (Craigslist/eBay) with Proxmox VE & TrueNAS SCALE
+  - Freelance Home Office & Creative Multimedia Studios (Linux Mint, Fedora, Ubuntu Studio)
+  - URL Sharing Invariants, Schema Migration Engine, and Universal CLI/Web/API Parity
+
 ---
 
 ## 🥒 Behavior-Driven Living Specifications (`specs/`)
