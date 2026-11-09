@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run --workspaces build",
+    "build": "npm run -w @distro-tailor/core build && npm run -w @distro-tailor/cli build && npm run -w @distro-tailor/web build",
     "test": "npm run --workspaces --if-present test",
     "lint": "npm run --workspaces --if-present lint",
     "dev:cli": "npm run -w @distro-tailor/cli dev",
