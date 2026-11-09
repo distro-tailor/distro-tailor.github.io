@@ -71,6 +71,20 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal' }
       },
       {
+        id: 'smart_home',
+        label: 'Smart Home Automation Hub (Home Assistant)',
+        description: 'Turn a Raspberry Pi or mini PC into a private smart home controller for Zigbee, Matter, lights, and sensors with zero cloud fees',
+        icon: '🏡',
+        appliesCriteria: { useCase: 'smart-home', footprint: 'lean', platform: 'embedded-sbc' }
+      },
+      {
+        id: 'appliance_product',
+        label: 'Dedicated Single-App Appliance / Custom Product',
+        description: 'Building a product where your app is the ONLY thing running (like Kodi or RetroPie, but for your custom Flutter, Qt, Web, or Python app)',
+        icon: '🛠️',
+        appliesCriteria: { useCase: 'appliance-product', footprint: 'minimal', platform: 'kiosk' }
+      },
+      {
         id: 'cheap_router',
         label: 'Home Router & Wi-Fi Firewall',
         description: 'Turn an old PC or box into a fast home router, ditch ISP rental fees, and block ads network-wide',
@@ -179,6 +193,20 @@ export const QUESTIONS: Question[] = [
         description: 'Headless storage appliance with web UI, automated phone photo sync, and Samba/NFS file sharing',
         icon: '📦',
         appliesCriteria: { useCase: 'nas-storage', platform: 'server' }
+      },
+      {
+        id: 'smart_home',
+        label: 'Smart Home Automation Hub (Home Assistant / Local IoT)',
+        description: 'Headless or touchscreen local hub managing Zigbee, Matter, Thread, camera NVR, and automations',
+        icon: '🏡',
+        appliesCriteria: { useCase: 'smart-home', platform: 'embedded-sbc' }
+      },
+      {
+        id: 'appliance_product',
+        label: 'Dedicated Single-App Appliance / Hardware Product (Cage / Buildroot)',
+        description: 'Boots directly into a single full-screen application (Flutter, Qt, Web, Python) with zero desktop clutter and auto-restart',
+        icon: '🛠️',
+        appliesCriteria: { useCase: 'appliance-product', platform: 'kiosk' }
       },
       {
         id: 'server_cloud',

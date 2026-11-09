@@ -43,6 +43,8 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
       gaming: { label: 'Retro Gaming Console', icon: '🕹️' },
       'education-kids': { label: 'Kid-Safe School & Coding', icon: '🎓' },
       'nas-storage': { label: 'Family Photo & Video NAS', icon: '📦' },
+      'smart-home': { label: 'Smart Home Hub', icon: '🏡' },
+      'appliance-product': { label: 'Dedicated Single-App Appliance', icon: '🛠️' },
       'router-networking': { label: 'Home Router & Firewall', icon: '📡' },
       'kiosk-signage': { label: 'Store Display & Kiosk', icon: '🏪' },
       desktop: { label: 'Everyday Desktop', icon: '💻' },
@@ -262,9 +264,11 @@ function renderPrimarySection(
           const keyNum = idx + 1;
           // Strip any leading emoji from label string to avoid duplicate display
           const cleanLabel = opt.label.replace(/^[\p{Emoji}\s]+/u, '').trim();
+          const isSpanFull = (numOptions % 2 === 1 && idx === numOptions - 1 && numOptions > 3);
+          const spanClass = isSpanFull ? 'sm:col-span-2' : '';
 
           return `
-            <button data-option-id="${opt.id}" class="option-btn group relative text-left p-5 rounded-xl border border-slate-700/60 bg-slate-950/70 hover:bg-slate-800/90 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-950/40 transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400">
+            <button data-option-id="${opt.id}" class="option-btn group relative text-left p-5 rounded-xl border border-slate-700/60 bg-slate-950/70 hover:bg-slate-800/90 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-950/40 transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 ${spanClass}">
               <div>
                 <div class="flex items-start justify-between gap-3 mb-3">
                   <span class="text-3xl p-2 rounded-xl bg-slate-900 border border-slate-700/60 group-hover:scale-110 transition-transform">${opt.icon || '👉'}</span>

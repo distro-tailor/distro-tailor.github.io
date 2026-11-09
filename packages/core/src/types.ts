@@ -61,6 +61,8 @@ export type PrimaryUseCase =
   | 'media-center'
   | 'education-kids'
   | 'nas-storage'
+  | 'smart-home'
+  | 'appliance-product'
   | 'server'
   | 'k8s-cluster'
   | 'container-base'

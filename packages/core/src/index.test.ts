@@ -109,6 +109,28 @@ test('Core Matcher: Pinpoints OpenMediaVault for family NAS and photo backups', 
   assert.ok(result.bestMatch.score >= 80);
 });
 
+test('Core Matcher: Pinpoints Home Assistant OS for smart home automation', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'smart-home',
+    platform: 'embedded-sbc'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'home-assistant-os');
+  assert.ok(result.bestMatch.score >= 80);
+});
+
+test('Core Matcher: Pinpoints Cage Appliance for dedicated single-app hardware product', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'appliance-product',
+    platform: 'kiosk'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'cage-appliance');
+  assert.ok(result.bestMatch.score >= 80);
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });

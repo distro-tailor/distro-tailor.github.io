@@ -1,23 +1,26 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
 
 export function generateKioskRecipe(criteria: UserCriteria): GeneratedRecipe {
+  const isAppliance = criteria.useCase === 'appliance-product';
   const kioskUrl = 'https://example.com';
 
   const makefileContent = `# ==============================================================================
-# DistroTailor: Alpine + Cage Wayland Kiosk Appliance
-# Boots directly into full-screen Chromium with zero window manager or desktop
+# DistroTailor: Alpine + Cage Wayland Single-App Appliance
+# Boots directly into your single application with zero desktop or window manager
 # ==============================================================================
 
 BUILD_DIR   ?= ./build
 ROOTFS_DIR  ?= $(BUILD_DIR)/rootfs
 OUTPUT_DIR  ?= ./output
 KIOSK_URL   ?= "${kioskUrl}"
+APP_CMD     ?= ${isAppliance ? '"/opt/app/my-custom-app"' : '"chromium-browser --kiosk --no-first-run --incognito --disable-features=TranslateUI --overscroll-history-navigation=0 $$(KIOSK_URL)"'}
 
 .PHONY: all clean check-root prepare build
 
 all: clean prepare build
 	@echo "===================================================="
-	@echo " Kiosk Appliance RootFS Ready in: $(ROOTFS_DIR)"
+	@echo " Single-App Appliance RootFS Ready in: $(ROOTFS_DIR)"
+	@echo " App launcher configured: $(APP_CMD)"
 	@echo "===================================================="
 
 check-root:
@@ -33,28 +36,34 @@ build: prepare
 	@echo "[+] Bootstrapping Alpine Base..."
 	curl -sSL "https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/alpine-minirootfs-3.20.0-x86_64.tar.gz" | tar -xz -C $(ROOTFS_DIR)
 	
-	@echo "[+] Installing Cage (Wayland Kiosk Compositor) & Chromium..."
+	@echo "[+] Installing Cage (Wayland Kiosk Compositor) & GUI dependencies..."
 	mount -t proc none $(ROOTFS_DIR)/proc
 	mount -o bind /sys $(ROOTFS_DIR)/sys
 	mount -o bind /dev $(ROOTFS_DIR)/dev
 
 	chroot $(ROOTFS_DIR) /bin/sh -c "\\
 		apk update && \\
-		apk add --no-cache cage chromium ttf-dejavu openrc udev mesa-dri-gallium && \\
-		adduser -D -u 1000 kiosk && \\
-		addgroup kiosk video && \\
-		addgroup kiosk input"
+		apk add --no-cache cage ${isAppliance ? 'mesa-dri-gallium udev font-noto libinput' : 'chromium ttf-dejavu openrc udev mesa-dri-gallium'} && \\
+		adduser -D -u 1000 appuser && \\
+		addgroup appuser video && \\
+		addgroup appuser input"
 
-	# Inject Kiosk startup script
-	@echo '#!/bin/sh' > $(ROOTFS_DIR)/home/kiosk/kiosk-start.sh
-	@echo 'exec cage -- chromium-browser --kiosk --no-first-run --incognito --disable-features=TranslateUI --overscroll-history-navigation=0 "$(KIOSK_URL)"' >> $(ROOTFS_DIR)/home/kiosk/kiosk-start.sh
-	@chmod +x $(ROOTFS_DIR)/home/kiosk/kiosk-start.sh
-	@chown 1000:1000 $(ROOTFS_DIR)/home/kiosk/kiosk-start.sh
+	# Inject Single-App startup script
+	@mkdir -p $(ROOTFS_DIR)/home/appuser
+	@echo '#!/bin/sh' > $(ROOTFS_DIR)/home/appuser/app-start.sh
+	@echo '# Watchdog loop: relaunch app immediately if it exits or crashes' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
+	@echo 'while true; do' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
+	@echo '  cage -s -- $(APP_CMD)' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
+	@echo '  echo "App exited ($$?). Restarting in 1s..."' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
+	@echo '  sleep 1' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
+	@echo 'done' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
+	@chmod +x $(ROOTFS_DIR)/home/appuser/app-start.sh
+	@chown -R 1000:1000 $(ROOTFS_DIR)/home/appuser
 
 	umount -l $(ROOTFS_DIR)/dev || true
 	umount -l $(ROOTFS_DIR)/sys || true
 	umount -l $(ROOTFS_DIR)/proc || true
-	@echo "[+] Kiosk configuration complete."
+	@echo "[+] Appliance configuration complete."
 
 clean:
 	@umount -l $(ROOTFS_DIR)/dev 2>/dev/null || true
@@ -65,22 +74,33 @@ clean:
 
   return {
     id: 'kiosk-web',
-    title: 'Locked-Down Wayland Web Kiosk (Alpine + Cage)',
-    summary:
-      'Creates a tamper-proof digital signage/kiosk appliance booting directly into hardware-accelerated Chromium on Wayland (Cage).',
+    title: isAppliance
+      ? 'Dedicated Single-App Wayland Appliance (Alpine + Cage)'
+      : 'Locked-Down Wayland Web Kiosk (Alpine + Cage)',
+    summary: isAppliance
+      ? 'Builds a dedicated single-app hardware appliance that boots directly into your custom binary (Flutter, Qt, Web, Python, SDL) in < 4 seconds with silent boot and auto-restart watchdog.'
+      : 'Creates a tamper-proof digital signage/kiosk appliance booting directly into hardware-accelerated Chromium on Wayland (Cage).',
     targetFormat: 'disk-image',
     estimatedBuildTimeMinutes: 4,
     hostDependencies: ['curl', 'tar', 'chroot'],
     files: [
       {
         filename: 'Makefile',
-        description: 'Installs Alpine, Cage Wayland compositor, and Chromium kiosk launcher',
+        description: isAppliance
+          ? 'Installs Alpine, Cage Wayland kiosk compositor, and launches custom app binary with auto-restart'
+          : 'Installs Alpine, Cage Wayland compositor, and Chromium kiosk launcher',
         content: makefileContent
       }
     ],
-    quickstartCommands: [
-      'sudo make KIOSK_URL="https://your-dashboard.com"',
-      '# Deploy rootfs or test in QEMU'
-    ]
+    quickstartCommands: isAppliance
+      ? [
+          '# Copy your binary or Flutter/Qt app into build/rootfs/opt/app/',
+          'sudo make APP_CMD="/opt/app/my-custom-app"',
+          '# Boot in QEMU or flash to hardware'
+        ]
+      : [
+          'sudo make KIOSK_URL="https://your-dashboard.com"',
+          '# Deploy rootfs or test in QEMU'
+        ]
   };
 }

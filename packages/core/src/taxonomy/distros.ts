@@ -137,6 +137,41 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       downloadUrl: 'https://www.openmediavault.org/?page_id=77'
     }
   },
+  // --- SMART HOME AUTOMATION ---
+  {
+    id: 'home-assistant-os',
+    name: 'Home Assistant OS (HAOS)',
+    tagline: 'Dedicated, privacy-first local smart home hub OS with zero cloud subscriptions',
+    description:
+      'An all-in-one, turnkey operating system built specifically to turn a Raspberry Pi, mini PC, or VM into a private smart home automation hub. Runs Home Assistant Core, Supervisor, and hundreds of local add-ons (Zigbee2MQTT, ESPHome, Frigate NVR, Node-RED, Matter/Thread) with atomic dual-boot A/B updates, plug-and-play USB dongle pass-through, and web dashboard configuration accessible from any phone or browser.',
+    website: 'https://www.home-assistant.io',
+    documentationUrl: 'https://www.home-assistant.io/installation/',
+    logoEmoji: '🏡',
+    platforms: ['embedded-sbc', 'bare-metal', 'vm'],
+    architectures: ['arm64', 'x86_64', 'armv7'],
+    footprint: 'lean',
+    minRamMb: 1024,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'read-only-rootfs',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['smart-home', 'iot-embedded', 'server'],
+    packageManager: 'Docker / Add-on Store',
+    rollingRelease: false,
+    highlights: [
+      '100% private local control: automations run instantly even if your home internet is down',
+      'Integrates with 2,500+ device brands: Philips Hue, IKEA, Matter, Zigbee, Z-Wave, ESP32, Apple HomeKit',
+      'Turnkey web & mobile dashboard ready out of the box at homeassistant.local:8123',
+      'Atomic dual-rootfs A/B updates with automatic rollback if a system update ever fails'
+    ],
+    tradeoffs: [
+      'Locked-down appliance: designed exclusively for home automation, not general-purpose computing',
+      'Requires dedicated hardware (Raspberry Pi 4/5, Intel NUC / Mini PC, or Proxmox VM)'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.home-assistant.io/installation/'
+    }
+  },
   {
     id: 'bazzite',
     name: 'Bazzite',
@@ -254,7 +289,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     cLibraries: ['uclibc-ng', 'musl', 'glibc'],
     stateModel: 'read-only-rootfs',
     experienceLevel: 'systems-engineer',
-    primaryUseCases: ['iot-embedded', 'router-networking'],
+    primaryUseCases: ['iot-embedded', 'router-networking', 'appliance-product'],
     rollingRelease: false,
     highlights: [
       'Generates root filesystems under 10MB',
@@ -317,7 +352,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     cLibraries: ['glibc'],
     stateModel: 'mutable',
     experienceLevel: 'beginner',
-    primaryUseCases: ['server', 'iot-embedded', 'kiosk-signage'],
+    primaryUseCases: ['server', 'iot-embedded', 'kiosk-signage', 'appliance-product'],
     packageManager: 'apt',
     rollingRelease: false,
     highlights: [
@@ -530,6 +565,39 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     prebuiltImage: {
       downloadUrl: 'https://porteus-kiosk.org/download.html'
     },
+    recipeGeneratorId: 'kiosk-web'
+  },
+  // --- SINGLE-APP PRODUCT & WAYLAND APPLIANCE ---
+  {
+    id: 'cage-appliance',
+    name: 'Cage Wayland Appliance',
+    tagline: 'Boots directly into a single GUI application with zero desktop clutter',
+    description:
+      'A dedicated single-app appliance stack built on Alpine or Debian with Cage (Wayland kiosk compositor). Designed for custom hardware products (touchscreens, POS, media controllers, industrial dashboards, or custom Flutter/Qt/Web/Python apps) that boot straight into one full-screen app in under 4 seconds with silent boot, auto-restart on crash, and safe power-off.',
+    website: 'https://github.com/cage-kiosk/cage',
+    documentationUrl: 'https://github.com/cage-kiosk/cage#readme',
+    logoEmoji: '🛠️',
+    platforms: ['kiosk', 'bare-metal', 'embedded-sbc', 'vm'],
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    footprint: 'minimal',
+    minRamMb: 256,
+    initSystems: ['openrc', 'systemd', 'busybox'],
+    cLibraries: ['musl', 'glibc'],
+    stateModel: 'stateless-ram',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['appliance-product', 'kiosk-signage', 'iot-embedded'],
+    packageManager: 'apk / apt',
+    rollingRelease: false,
+    highlights: [
+      'Single-app focus: maximizes GPU and CPU exclusively for your application',
+      'Auto-restart watchdog: if your app exits or crashes, Cage relaunches it instantly',
+      'Silent splash boot: users see your product brand from power button to UI',
+      'OverlayFS safe: can be pulled from wall power without disk corruption'
+    ],
+    tradeoffs: [
+      'Single application only: no desktop multitasking or window controls',
+      'Requires Wayland-compatible GUI backend (Flutter, Qt Wayland, GTK, Chromium, SDL2)'
+    ],
     recipeGeneratorId: 'kiosk-web'
   },
   {
