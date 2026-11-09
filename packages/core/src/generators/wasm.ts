@@ -72,22 +72,42 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
       width: fit-content;
       min-width: 640px;
       min-height: 400px;
+      position: relative;
     }
     #screen_container {
       cursor: text;
     }
-    #screen_container div {
+    #screen {
       white-space: pre;
-      font: 14px monospace;
-      line-height: 14px;
+      position: relative;
+      font-family: "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace;
+      font-weight: 700;
+      font-size: 15px;
+      line-height: normal;
+      color: #fff;
     }
-    #serial-output {
-      display: none;
-      white-space: pre-wrap;
-      font-family: "Courier New", monospace;
-      font-size: 13px;
-      color: #4ade80;
-      max-height: 400px;
+    #vga {
+      background-color: #000;
+      display: block;
+    }
+    .blinking-cursor {
+      animation: blinking-cursor .6s step-start infinite;
+    }
+    @keyframes blinking-cursor {
+      50% { background-color: transparent; }
+    }
+    #log-feed {
+      margin-top: 1rem;
+      max-width: 760px;
+      width: 100%;
+      background: #0b1120;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 0.5rem 0.8rem;
+      font-family: monospace;
+      font-size: 11px;
+      color: #94a3b8;
+      max-height: 120px;
       overflow-y: auto;
     }
   </style>
@@ -102,24 +122,27 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
     <div class="controls">
       <button id="btn-fullscreen">⛶ Fullscreen</button>
       <button id="btn-reboot">🔄 Reboot</button>
-      <button id="btn-toggle-serial">Terminal View: VGA / Serial</button>
     </div>
   </div>
 
   <div class="terminal-wrapper">
     <div id="screen_container">
-      <div style="white-space: pre; font: 14px monospace; line-height: 14px"></div>
-      <canvas style="display: none"></canvas>
+      <div id="screen"></div>
+      <canvas id="vga"></canvas>
     </div>
-    <div id="serial-output"></div>
+  </div>
+
+  <div id="log-feed">
+    <div style="color: #38bdf8; font-weight: bold; margin-bottom: 2px;">Kernel Activity Feed:</div>
+    <div id="log-content">Waiting for CPU boot...</div>
   </div>
 
   <script type="module">
     console.log("[DistroTailor] Starting WebVM Initialization...");
 
     const statusEl = document.getElementById("status-bar");
-    const serialEl = document.getElementById("serial-output");
     const screenEl = document.getElementById("screen_container");
+    const logContent = document.getElementById("log-content");
 
     function logStep(stepNum, msg, color) {
       if (!color) color = "#38bdf8";
@@ -127,6 +150,15 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
       console.log("%c" + formatted, "color: " + color);
       statusEl.textContent = formatted;
       statusEl.style.color = color;
+    }
+
+    function appendFeed(text) {
+      if (logContent.textContent === "Waiting for CPU boot...") {
+        logContent.textContent = "";
+      }
+      logContent.textContent += text;
+      const feed = document.getElementById("log-feed");
+      feed.scrollTop = feed.scrollHeight;
     }
 
     async function fetchBufferWithLog(stepNum, name, url) {
@@ -149,7 +181,7 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
         const { V86 } = await import("https://cdn.jsdelivr.net/npm/v86/build/libv86.mjs");
         console.log("[DistroTailor] V86 module loaded successfully:", typeof V86);
 
-        // Pre-fetch all binary assets into memory so V86 has 0 network latency/CORS stalls
+        // Pre-fetch all binary assets into memory
         const biosBuffer = await fetchBufferWithLog("2/5", "SeaBIOS", "https://cdn.jsdelivr.net/npm/v86/bios/seabios.bin");
         const vgaBiosBuffer = await fetchBufferWithLog("3/5", "VGABIOS", "https://cdn.jsdelivr.net/npm/v86/bios/vgabios.bin");
         const bzimageBuffer = await fetchBufferWithLog("4/5", "Linux Kernel", "./bzimage.bin");
@@ -162,10 +194,15 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
           memory_size: 64 * 1024 * 1024,
           vga_memory_size: 2 * 1024 * 1024,
           screen_container: screenEl,
+          screen: {
+            container: screenEl,
+            use_graphical_text: false
+          },
+          filesystem: {},
           bios: { buffer: biosBuffer },
           vga_bios: { buffer: vgaBiosBuffer },
           bzimage: { buffer: bzimageBuffer },
-          cmdline: "tsc=reliable mitigations=off random.trust_cpu=on console=ttyS0 console=tty0",
+          cmdline: "tsc=reliable mitigations=off random.trust_cpu=on",
           disable_speaker: true,
           autostart: true
         });
@@ -179,21 +216,17 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
         emulator.add_listener("emulator-loaded", () => {
           console.log("%c[DistroTailor Event] emulator-loaded fired! CPU starting execution...", "color: #22c55e; font-weight: bold;");
           logStep("READY", "🟢 Linux Kernel Booting! Click in terminal to send keys.", "#4ade80");
+          appendFeed("[System] CPU core started\\n");
         });
 
         emulator.add_listener("screen-set-mode", (isGraphical) => {
           console.log("[DistroTailor Event] screen-set-mode:", isGraphical ? "GRAPHICAL (Canvas)" : "TEXT (DOM Div)");
+          appendFeed("[Display] Switched to " + (isGraphical ? "Graphical Canvas" : "Text Screen") + "\\n");
         });
 
         // Capture serial console characters as they stream from Linux kernel
-        let serialBuffer = "";
         emulator.add_listener("serial0-output-char", (char) => {
-          serialBuffer += char;
-          serialEl.textContent = serialBuffer;
-          serialEl.scrollTop = serialEl.scrollHeight;
-          if (serialBuffer.length === 1) {
-            console.log("%c[DistroTailor] First character received from Linux kernel serial port!", "color: #38bdf8; font-weight: bold;");
-          }
+          appendFeed(char);
         });
 
         emulator.add_listener("download-error", (err) => {
@@ -209,21 +242,6 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
         document.getElementById("btn-reboot")?.addEventListener("click", () => {
           console.log("[DistroTailor] Rebooting emulator...");
           emulator.restart();
-        });
-
-        // View toggle between VGA screen and Serial console
-        let isSerialView = false;
-        document.getElementById("btn-toggle-serial")?.addEventListener("click", () => {
-          isSerialView = !isSerialView;
-          if (isSerialView) {
-            screenEl.style.display = "none";
-            serialEl.style.display = "block";
-            console.log("[DistroTailor] Switched to Serial Console View");
-          } else {
-            screenEl.style.display = "block";
-            serialEl.style.display = "none";
-            console.log("[DistroTailor] Switched to VGA Screen View");
-          }
         });
 
         // Focus screen on click
