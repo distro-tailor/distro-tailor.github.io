@@ -227,6 +227,7 @@ function renderPrimarySection(
   }
 
   const numOptions = nextQuestion.options.length;
+  const isBeginner = state.criteria.experienceLevel === 'beginner' || !state.criteria.experienceLevel;
   // Dynamic balanced grid: 3 options get a clean 3-column row, others get a 2-column grid
   const gridClass = numOptions === 3
     ? 'grid grid-cols-1 md:grid-cols-3 gap-4'
@@ -235,13 +236,16 @@ function renderPrimarySection(
   return `
     <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur shadow-xl">
       
-      <!-- Round & Step Indicator -->
-      <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-800/80">
+      <!-- Round & Step Indicator with Flow Mode Toggle -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-slate-800/80 gap-3">
         <div class="flex items-center gap-3">
           <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             Question ${progress.current + 1} of ${progress.total}
           </span>
-          <span class="text-xs text-slate-400 font-medium hidden sm:inline">20 Questions for Linux</span>
+          <button id="btn-toggle-flow-mode" class="px-2.5 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${isBeginner ? 'bg-slate-800/90 text-slate-300 hover:text-emerald-300 hover:border-emerald-500/40 border border-slate-700/60' : 'bg-indigo-950/60 text-indigo-300 hover:text-indigo-200 hover:border-indigo-500/50 border border-indigo-700/60'}" title="Switch between Goal-Oriented Mode and Low-Level Technical Mode">
+            <span>${isBeginner ? '🌱 Goal Mode' : '⚙️ Technical Mode'}</span>
+            <span class="text-[10px] text-slate-400 font-mono">⇄ switch</span>
+          </button>
         </div>
         
         <!-- Segmented Step Dots -->
@@ -283,6 +287,19 @@ function renderPrimarySection(
           `;
         }).join('')}
       </div>
+
+      <!-- Contextual Linux Pro-Tip Box -->
+      ${nextQuestion.tip ? `
+        <div class="mt-6 p-4 rounded-xl bg-slate-950/70 border border-slate-800 flex items-start gap-3.5 text-xs">
+          <span class="text-xl p-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
+            ${nextQuestion.tip.icon || '💡'}
+          </span>
+          <div>
+            <h4 class="font-semibold text-slate-200 mb-0.5">${nextQuestion.tip.title}</h4>
+            <p class="text-slate-400 leading-relaxed">${nextQuestion.tip.text}</p>
+          </div>
+        </div>
+      ` : ''}
 
       <!-- Navigation Controls -->
       <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-800/80">
@@ -717,6 +734,27 @@ function attachEventHandlers(
     state.answeredQuestionIds.clear();
     state.history = [];
     state.activeTab = 'wizard';
+    render();
+  });
+
+  // Toggle Flow Mode (Goal / Novice <-> Technical)
+  document.getElementById('btn-toggle-flow-mode')?.addEventListener('click', () => {
+    const isBeginner = state.criteria.experienceLevel === 'beginner' || !state.criteria.experienceLevel;
+    const newLevel = isBeginner ? 'intermediate' : 'beginner';
+    
+    state.criteria = {
+      ...state.criteria,
+      experienceLevel: newLevel
+    };
+
+    // If switching modes, ensure conflicting stage question IDs get re-prompted cleanly
+    state.answeredQuestionIds.delete('beginner_goal');
+    state.answeredQuestionIds.delete('technical_use_case');
+    state.answeredQuestionIds.delete('beginner_device');
+    state.answeredQuestionIds.delete('hardware_architecture');
+    state.answeredQuestionIds.delete('beginner_memory');
+    state.answeredQuestionIds.delete('memory_and_storage');
+
     render();
   });
 

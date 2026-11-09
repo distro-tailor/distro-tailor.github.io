@@ -8,6 +8,11 @@ export const QUESTIONS: Question[] = [
     prompt: 'How much Linux experience do you have?',
     subtext: 'No wrong answers! We tailor all remaining questions to speak your language.',
     category: 'preferences',
+    tip: {
+      icon: '💡',
+      title: 'Zero shame in picking Beginner!',
+      text: 'Picking Beginner cuts out 90% of technical jargon and lets you pick an outcome (TV box, home server, gaming console) in under 60 seconds. You can toggle to Technical mode at any time using the mode switch in the header!'
+    },
     options: [
       {
         id: 'beginner',
@@ -41,6 +46,11 @@ export const QUESTIONS: Question[] = [
     subtext: 'Pick your main priority. (Want a combo like Media Center + Retro Games or NAS + Smart Home? Pick your foundation here—you can customize and mix & match add-ons later!)',
     category: 'platform',
     shouldAsk: (criteria) => criteria.experienceLevel === 'beginner',
+    tip: {
+      icon: '🧩',
+      title: 'Linux is Modular — You Can Mix & Match',
+      text: 'Don\'t stress over choosing between two goals (like a Media Center AND Retro Games). Pick your primary interface first—Linux lets you layer on containers, emulators, or ad-blockers on the results page.'
+    },
     options: [
       {
         id: 'retro_gaming_console',
@@ -144,6 +154,11 @@ export const QUESTIONS: Question[] = [
     subtext: 'Sets the foundational baseline for packages, security boundaries, and kernel capabilities.',
     category: 'platform',
     shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner',
+    tip: {
+      icon: '⚙️',
+      title: 'Architectural Baseline',
+      text: 'Your choice defines the kernel configuration and security boundaries (e.g. musl libc for micro containers vs. glibc for broad software compatibility).'
+    },
     options: [
       {
         id: 'iot_embedded',
@@ -240,6 +255,11 @@ export const QUESTIONS: Question[] = [
     subtext: 'Pick what best describes your hardware.',
     category: 'hardware',
     shouldAsk: (criteria) => criteria.experienceLevel === 'beginner' && criteria.useCase !== 'browser-wasm',
+    tip: {
+      icon: '💡',
+      title: 'Repurpose, Don\'t E-Waste',
+      text: 'An old laptop with a broken screen or a $35 Raspberry Pi uses under 15W of power—making it 10x more energy-efficient for a 24/7 home server than running an expensive gaming desktop!'
+    },
     options: [
       {
         id: 'standard_pc',
@@ -280,6 +300,11 @@ export const QUESTIONS: Question[] = [
     subtext: 'Different distributions specialize in cross-compilation or prebuilt binary repositories.',
     category: 'hardware',
     shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner' && criteria.useCase !== 'browser-wasm',
+    tip: {
+      icon: '⚡',
+      title: 'Binary Repos vs. Cross-Compilation',
+      text: 'x86_64 and ARM64 enjoy massive prebuilt binary packages from Debian and Alpine. NOMMU and RISC-V often require source compilation via Buildroot.'
+    },
     options: [
       {
         id: 'x86_64',
@@ -327,6 +352,11 @@ export const QUESTIONS: Question[] = [
     subtext: 'A rough estimate is fine. Pick what sounds closest.',
     category: 'hardware',
     shouldAsk: (criteria) => criteria.experienceLevel === 'beginner' && criteria.useCase !== 'browser-wasm',
+    tip: {
+      icon: '🚀',
+      title: 'Linux is Incredibly Lean',
+      text: 'While Windows 11 idles at 3.5GB to 4GB of RAM, lightweight Linux systems like antiX and DietPi idle at just 60MB to 150MB of RAM, making ancient 1GB machines feel brand new.'
+    },
     options: [
       {
         id: 'very_low',
@@ -360,6 +390,11 @@ export const QUESTIONS: Question[] = [
     subtext: 'How light does the root filesystem need to be?',
     category: 'hardware',
     shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner',
+    tip: {
+      icon: '📦',
+      title: 'Footprint Hierarchy',
+      text: 'Micro (<16MB) fits in embedded SPI flash chips. Minimal (<100MB) runs from fast RAM-disks. Standard (1-5GB) provides full desktop utilities and multi-gigabyte package caches.'
+    },
     options: [
       {
         id: 'extreme_micro',
@@ -400,6 +435,11 @@ export const QUESTIONS: Question[] = [
     subtext: 'Traditional mutable OSes vs. modern immutable / declarative architectures.',
     category: 'lifecycle',
     shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner',
+    tip: {
+      icon: '🛡️',
+      title: 'Appliance Secret: Immutability',
+      text: 'Commercial appliances and smart home hubs lock `/usr` as read-only. If someone yanks the power cable or an update fails, the device falls back to the previous boot partition automatically.'
+    },
     options: [
       {
         id: 'traditional_mutable',
@@ -440,6 +480,11 @@ export const QUESTIONS: Question[] = [
     subtext: 'Standard glibc + systemd vs. lightweight musl + OpenRC / BusyBox init.',
     category: 'software',
     shouldAsk: (criteria) => criteria.experienceLevel === 'systems-engineer',
+    tip: {
+      icon: '🏢',
+      title: 'glibc vs. musl Trade-Off',
+      text: 'glibc runs 99.9% of commercial software (Steam, NVIDIA drivers, Chrome). musl produces ultra-compact binaries (5x smaller) with sub-second boot times, perfect for custom appliances.'
+    },
     options: [
       {
         id: 'musl_busybox',
@@ -479,6 +524,11 @@ export const QUESTIONS: Question[] = [
     prompt: 'How would you like to get started?',
     subtext: 'Choose whether you want an existing image to download or a custom compilation recipe.',
     category: 'preferences',
+    tip: {
+      icon: '🚀',
+      title: 'Turnkey Flash vs. Custom-Bake',
+      text: 'Prebuilt images get you up and running in 5 minutes with BalenaEtcher. Build recipes give you the exact Makefile or Buildroot config to bake your own bespoke Linux distro from source.'
+    },
     options: [
       {
         id: 'recommend_prebuilt',

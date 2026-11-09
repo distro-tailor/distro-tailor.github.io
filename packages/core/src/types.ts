@@ -141,6 +141,12 @@ export interface QuestionOption {
   appliesCriteria: Partial<UserCriteria>;
 }
 
+export interface QuestionTip {
+  icon?: string;
+  title: string;
+  text: string;
+}
+
 export interface Question {
   id: string;
   order: number;
@@ -149,6 +155,7 @@ export interface Question {
   category: 'platform' | 'hardware' | 'lifecycle' | 'software' | 'preferences';
   options: QuestionOption[];
   shouldAsk?: (criteriaSoFar: UserCriteria) => boolean;
+  tip?: QuestionTip;
 }
 
 export interface MatchReason {
