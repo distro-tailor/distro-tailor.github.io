@@ -428,11 +428,13 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     cLibraries: ['glibc'],
     stateModel: 'mutable',
     experienceLevel: 'beginner',
-    primaryUseCases: ['desktop'],
+    primaryUseCases: ['home-office', 'desktop'],
     packageManager: 'apt',
     rollingRelease: false,
     highlights: [
       'Familiar, comfortable Windows-like desktop layout (Cinnamon)',
+      'Turnkey LibreOffice & Microsoft 365 compatibility: pre-installed office suite, PDF tools, and printer/scanner drivers',
+      'Timeshift snapshot restore: complete peace of mind with automatic system snapshots that undo mistakes in one click',
       'One-click Software Manager app store with zero command-line needed',
       'Exceptional stability based on Ubuntu Long Term Support (LTS)'
     ],
@@ -441,6 +443,74 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     ],
     prebuiltImage: {
       downloadUrl: 'https://linuxmint.com/download.php'
+    }
+  },
+  // --- FREELANCER WORKSTATIONS & CREATIVE PROS ---
+  {
+    id: 'fedora',
+    name: 'Fedora Workstation',
+    tagline: 'Leading-edge, rock-solid Linux desktop for developers, freelancers, and creative pros',
+    description:
+      'The premier Linux workstation for professional creators, developers, and remote knowledge workers. Featuring an unadulterated GNOME desktop, industry-leading Wayland fractional scaling, PipeWire pro-audio routing, Flatpak sandboxing, and modern developer toolchains. Linus Torvalds personal daily driver.',
+    website: 'https://fedoraproject.org/workstation/',
+    documentationUrl: 'https://docs.fedoraproject.org/en-US/fedora/latest/',
+    logoEmoji: '🎩',
+    platforms: ['bare-metal', 'desktop', 'vm'],
+    architectures: ['x86_64', 'arm64'],
+    footprint: 'full',
+    minRamMb: 2048,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['home-office', 'desktop', 'creative-studio'],
+    packageManager: 'dnf / Flatpak',
+    rollingRelease: false,
+    highlights: [
+      'Polished GNOME Wayland desktop: Smooth fractional scaling for 4K displays and multi-monitor setups',
+      'First-class developer toolchains: Native Podman, Toolbx, Rust, Node.js, and Python with zero friction',
+      'PipeWire audio & Wayland color management: Color-calibrated display profiles for graphic design and photography',
+      'Enterprise-grade security: SELinux enabled out of the box with Flatpak application sandboxing'
+    ],
+    tradeoffs: [
+      'Rapid 6-month release cadence requires upgrading versions every 6–13 months',
+      'Requires enabling third-party RPM Fusion repository for proprietary NVIDIA drivers and patent-encumbered codecs'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://fedoraproject.org/workstation/download/'
+    }
+  },
+  {
+    id: 'ubuntu-studio',
+    name: 'Ubuntu Studio',
+    tagline: 'Turnkey creative multimedia operating system for graphic artists, 3D animators, and video editors',
+    description:
+      'The definitive open-source operating system for freelance creatives, designers, and video producers. Built on Ubuntu LTS with a low-latency kernel, real-time PipeWire/JACK audio routing, and the complete creative suite pre-installed: Krita, Blender, Inkscape, Darktable, GIMP, OBS Studio, and Kdenlive.',
+    website: 'https://ubuntustudio.org',
+    documentationUrl: 'https://ubuntustudio.org/manual/',
+    logoEmoji: '🎨',
+    platforms: ['bare-metal', 'desktop'],
+    architectures: ['x86_64'],
+    footprint: 'full',
+    minRamMb: 4096,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['creative-studio', 'desktop'],
+    packageManager: 'apt / snap / Flatpak',
+    rollingRelease: false,
+    highlights: [
+      'Turnkey Creative Suite: Blender 3D, Krita digital painting, Inkscape vector design, and Darktable RAW photo editing ready on boot',
+      'Low-Latency Linux Kernel: Tuned for real-time video previewing, high-framerate animation rendering, and zero-drop audio',
+      'Color management & drawing tablet calibration: Plug-and-play Wacom, Huion, and XP-Pen drawing tablet support',
+      'Ubuntu LTS foundation: Rock-solid stability with 5 years of security updates'
+    ],
+    tradeoffs: [
+      'Heavy initial ISO download (~5GB) due to bundling the complete creative application suite'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://ubuntustudio.org/download/'
     }
   },
 

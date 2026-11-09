@@ -35,6 +35,9 @@ export function evaluateCriteria(
     if (criteria.useCase) {
       if (distro.primaryUseCases.includes(criteria.useCase)) {
         earned += 25;
+        if (distro.primaryUseCases[0] === criteria.useCase) {
+          earned += 2; // Bonus for flagship primary focus
+        }
         reasons.push({
           feature: 'Use Case',
           matched: true,

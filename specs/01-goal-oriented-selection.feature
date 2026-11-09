@@ -35,6 +35,20 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the generated recipe should provide an auto-restart watchdog loop
     And the recipe should support custom application binaries via "APP_CMD"
 
+  Scenario: Freelancer needs a reliable home office workstation for documents and video calls
+    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    When the user selects goal "Home Office & Freelancing (Word, Excel, Invoicing, Zoom, Slack)"
+    Then the engine should recommend "Linux Mint" or "Fedora Workstation" with a match score of at least 80%
+    And the recommendation should highlight 100% Microsoft Office compatibility and Timeshift snapshot rollbacks
+    And the recommendation should suggest modular add-ons such as OnlyOffice editors and web app managers
+
+  Scenario: Digital artist and video editor needs a turnkey creative multimedia studio
+    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    When the user selects goal "Graphic Design, 3D Art & Video Production (Blender, Krita, DaVinci)"
+    Then the engine should recommend "Ubuntu Studio" with a match score of at least 80%
+    And the recommendation should highlight low-latency kernel, drawing tablet calibration, and pre-installed Krita and Blender
+    And the recommendation should suggest modular add-ons such as DaVinci Resolve setup and PipeWire audio routing
+
   Scenario: Switching between Goal Mode and Technical Mode on the fly
     Given the user is currently on Question 2 in "Goal Mode"
     When the user clicks the "⇄ switch" toggle button in the question header

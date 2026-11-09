@@ -218,6 +218,31 @@ test('Core Matcher: Identifies Asahi Linux for Apple Silicon (M1/M2/M3) desktop 
   assert.ok(topIds.includes('asahi-linux'));
 });
 
+test('Core Matcher: Identifies Linux Mint or Fedora for home office and freelance workstations', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'home-office',
+    platform: 'bare-metal',
+    architecture: 'x86_64'
+  });
+
+  const topIds = result.topMatches.slice(0, 2).map(m => m.distro.id);
+  assert.ok(topIds.includes('linux-mint') || topIds.includes('fedora'));
+  assert.ok(result.bestMatch.score >= 80);
+});
+
+test('Core Matcher: Identifies Ubuntu Studio for freelance graphics, 3D art and video production', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'creative-studio',
+    platform: 'bare-metal',
+    footprint: 'full'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'ubuntu-studio');
+  assert.ok(result.bestMatch.score >= 85);
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });

@@ -130,6 +130,20 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal' }
       },
       {
+        id: 'freelance_office_docs',
+        label: 'Home Office & Freelancing (Word, Excel, Invoicing, Zoom, Slack)',
+        description: 'Daily remote work driver: 100% Microsoft Office format fidelity (OnlyOffice/LibreOffice), PDF signing, and printer setup with zero Windows crashes',
+        icon: '💼',
+        appliesCriteria: { useCase: 'home-office', footprint: 'standard', platform: 'bare-metal', prefersGui: true }
+      },
+      {
+        id: 'freelance_creative_graphics',
+        label: 'Graphic Design, 3D Art & Video Production (Blender, Krita, DaVinci)',
+        description: 'Creative workstation for freelance digital artists, video editors, and 3D animators with color-managed Wayland and GPU acceleration',
+        icon: '🎨',
+        appliesCriteria: { useCase: 'creative-studio', footprint: 'full', platform: 'bare-metal', prefersGui: true }
+      },
+      {
         id: 'modern_gaming',
         label: 'Modern PC Gaming (Steam Deck / Couch Gaming)',
         description: 'Play modern Steam, Epic, and indie PC games with a controller-friendly TV interface',
@@ -257,6 +271,20 @@ export const QUESTIONS: Question[] = [
         description: 'Rich GUI desktop environment, audio/video, GPU acceleration, and dev tools',
         icon: '🎮',
         appliesCriteria: { useCase: 'desktop', platform: 'bare-metal', prefersGui: true }
+      },
+      {
+        id: 'home_office_workstation',
+        label: 'Home Office & Freelancer Workstation (Office Suite, PDF, Web)',
+        description: 'Turnkey productivity: 100% MS Office format fidelity, LibreOffice/OnlyOffice, PDF signing, Zoom/Slack, and rock-solid stability',
+        icon: '💼',
+        appliesCriteria: { useCase: 'home-office', platform: 'bare-metal', prefersGui: true }
+      },
+      {
+        id: 'creative_media_production',
+        label: 'Creative Studio: Graphic Design, 3D Art & Pro Audio/Video',
+        description: 'Digital painting (Krita), vector design (Inkscape), 3D animation (Blender), RAW photography (Darktable), and low-latency audio/video editing',
+        icon: '🎨',
+        appliesCriteria: { useCase: 'creative-studio', platform: 'bare-metal', prefersGui: true }
       },
       {
         id: 'ai_gpu_compute',

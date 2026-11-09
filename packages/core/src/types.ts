@@ -65,6 +65,8 @@ export type PrimaryUseCase =
   | 'appliance-product'
   | 'ai-gpu-compute'
   | 'hypervisor-vms'
+  | 'home-office'
+  | 'creative-studio'
   | 'server'
   | 'k8s-cluster'
   | 'container-base'

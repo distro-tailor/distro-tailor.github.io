@@ -259,6 +259,8 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
       'appliance-product': { label: 'Dedicated Single-App Appliance', icon: '🛠️' },
       'ai-gpu-compute': { label: 'AI, LLM & GPU Compute', icon: '🧠' },
       'hypervisor-vms': { label: 'Homelab Virtualization & Hypervisor', icon: '🖧' },
+      'home-office': { label: 'Home Office & Freelancer Workstation', icon: '💼' },
+      'creative-studio': { label: 'Creative Studio (Art, 3D & Video)', icon: '🎨' },
       'router-networking': { label: 'Home Router & Firewall', icon: '📡' },
       'kiosk-signage': { label: 'Store Display & Kiosk', icon: '🏪' },
       desktop: { label: 'Everyday Desktop', icon: '💻' },
@@ -279,8 +281,9 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
     },
     architecture: {
       x86_64: { label: 'Standard 64-bit PC', icon: '💻' },
-      arm64: { label: 'ARM64 (Raspberry Pi 4/5)', icon: '📱' },
+      arm64: { label: 'ARM64 (Raspberry Pi 4/5 / Apple Silicon / Snapdragon)', icon: '📱' },
       armv7: { label: '32-bit ARM (Older Pi)', icon: '📟' },
+      riscv64: { label: 'RISC-V 64-bit Board', icon: '📐' },
       nommu: { label: 'Microcontroller (NOMMU)', icon: '🔌' }
     },
     footprint: {
@@ -746,6 +749,81 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           icon: '🔊',
           description: 'Ensure Bankstown / PipeWire speaker DSP protection daemon is active to get full rich Mac sound without damaging speakers.',
           howTo: 'Check speaker protection status: systemctl status asahi-sound-dsp.'
+        }
+      ];
+    case 'linux-mint':
+      return [
+        {
+          title: 'One-Click Timeshift System Rollback',
+          icon: '⏱️',
+          description: 'Automatic hourly or daily snapshots that let you restore your working desktop in seconds if an update ever glitches.',
+          howTo: 'Launch Timeshift from the application menu, select backup destination, and schedule daily snapshots.'
+        },
+        {
+          title: 'Microsoft 365 & Google Workspace Web Apps',
+          icon: '💼',
+          description: 'Run Word, Excel, PowerPoint, and Outlook in dedicated standalone application windows with native desktop notifications.',
+          howTo: 'Open Web Apps (WebApp Manager) from the menu, enter office.com or docs.google.com, and create instant desktop icons.'
+        }
+      ];
+    case 'fedora':
+      return [
+        {
+          title: 'OnlyOffice Desktop Editors (100% MS Office Fidelity)',
+          icon: '📄',
+          description: 'Full native compatibility with DOCX, XLSX, and PPTX files for corporate client deliverables.',
+          howTo: 'Install via Flatpak: flatpak install flathub org.onlyoffice.desktopeditors.'
+        },
+        {
+          title: 'Isolated Developer Containers (Podman & Toolbx)',
+          icon: '📦',
+          description: 'Run multiple Python, Node.js, and Rust toolchain versions in isolated containers without polluting your host workstation.',
+          howTo: 'Spin up a containerized dev environment instantly with `toolbox create` and `toolbox enter`.'
+        }
+      ];
+    case 'ubuntu-studio':
+      return [
+        {
+          title: 'Drawing Tablet Calibration (Wacom / Huion / XP-Pen)',
+          icon: '🖊️',
+          description: 'Plug-and-play pressure sensitivity, stylus button mapping, and multi-monitor screen mapping.',
+          howTo: 'Open Settings → Wacom Tablet or Graphics Tablet to calibrate pressure curves and map active display area.'
+        },
+        {
+          title: 'DaVinci Resolve & OBS Streaming Studio',
+          icon: '🎬',
+          description: 'Professional 4K color grading, multi-track timeline video editing, and hardware-accelerated screen capture.',
+          howTo: 'Install DaVinci Resolve via MakerEZ script or launch pre-configured OBS Studio with PipeWire low-latency capture.'
+        }
+      ];
+    case 'proxmox-ve':
+      return [
+        {
+          title: 'Proxmox Helper Scripts (1-Click LXC Containers)',
+          icon: '⚡',
+          description: 'Deploy Plex, Pi-hole, Home Assistant, Docker, and 100+ services into lightweight LXC containers in 10 seconds.',
+          howTo: 'Run community helper scripts from community-scripts.github.io/proxcp/ directly in the Proxmox Shell.'
+        },
+        {
+          title: 'Automated Nightly Backups to NAS / PBS',
+          icon: '🛡️',
+          description: 'Snapshot all your VMs and LXCs with zero downtime and deduplicated incremental storage.',
+          howTo: 'Under Datacenter → Backup → Add, configure a daily schedule targeting an NFS, SMB, or PBS storage pool.'
+        }
+      ];
+    case 'truenas-scale':
+      return [
+        {
+          title: 'Nextcloud Private Family Cloud',
+          icon: '☁️',
+          description: 'Self-hosted Google Drive / Dropbox replacement with mobile auto-upload, calendar, and contacts.',
+          howTo: 'Install the official Nextcloud app from the TrueNAS SCALE Apps catalog with one click.'
+        },
+        {
+          title: 'ZFS Scrub & SMART Disk Health Alerts',
+          icon: '🩺',
+          description: 'Automated disk health monitoring and monthly bit-rot repair to ensure zero silent data corruption.',
+          howTo: 'Under Data Protection → Scrub Tasks, schedule bi-weekly pool scrubs and configure email/webhook alerts.'
         }
       ];
     default:
