@@ -367,6 +367,39 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       downloadUrl: 'https://dietpi.com/#download'
     }
   },
+  {
+    id: 'armbian',
+    name: 'Armbian',
+    tagline: 'Optimized Linux for ARM TV boxes and single-board computers',
+    description:
+      'A purpose-built Debian and Ubuntu derivative optimized specifically for ARM single-board computers (Orange Pi, Banana Pi, Odroid) and cheap Android TV boxes/sticks (Amlogic S905/S912, Rockchip, Allwinner). Features custom hardware device trees (FDT/DTB), GPU/VPU hardware acceleration, and automated configuration tools.',
+    website: 'https://www.armbian.com',
+    documentationUrl: 'https://docs.armbian.com',
+    logoEmoji: '🦎',
+    platforms: ['embedded-sbc', 'server', 'bare-metal'],
+    architectures: ['arm64', 'armv7', 'riscv64'],
+    footprint: 'lean',
+    minRamMb: 256,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['server', 'iot-embedded', 'media-center', 'router-networking'],
+    packageManager: 'apt',
+    rollingRelease: false,
+    highlights: [
+      'Breathes new life into cheap $25 Android TV boxes (Amlogic, Allwinner, Rockchip)',
+      'Pre-configured hardware device trees for HDMI video, Wi-Fi, and Ethernet',
+      'Built-in armbian-config tool for 1-click Docker, Samba, and Pi-hole setup',
+      'Extremely energy efficient: runs 24/7 consuming only 3W to 5W of power'
+    ],
+    tradeoffs: [
+      'Booting Android TV boxes requires flashing an SD card and copying the matching device tree (.dtb) file'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.armbian.com/download/'
+    }
+  },
 
   // --- CONTAINERS & ULTRA-LEAN ---
   {

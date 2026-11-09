@@ -263,23 +263,37 @@ export const QUESTIONS: Question[] = [
     options: [
       {
         id: 'standard_pc',
-        label: 'Standard PC or Laptop (Intel or AMD)',
+        label: 'Standard PC or Windows Laptop (Intel or AMD)',
         description: 'Most ordinary desktops and laptops made in the last 10-12 years',
         icon: '💻',
         appliesCriteria: { architecture: 'x86_64' }
       },
       {
+        id: 'old_macbook',
+        label: 'Old Intel MacBook / Mac (2006–2017)',
+        description: 'Revive an older MacBook, MacBook Air/Pro, or Mac Mini abandoned by Apple macOS updates (includes Broadcom Wi-Fi driver fix)',
+        icon: '🍏',
+        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal' }
+      },
+      {
         id: 'ancient_pc',
         label: 'Ancient / Obsolete Computer (15-20 years old)',
-        description: 'Very old machines with older CPUs and limited memory',
+        description: 'Very old machines with older CPUs and limited memory (under 1GB–2GB RAM)',
         icon: '👴',
         appliesCriteria: { architecture: 'x86_64', footprint: 'minimal' }
       },
       {
         id: 'raspberry_pi',
-        label: 'Raspberry Pi or Mini Board',
-        description: 'Raspberry Pi 3, 4, 5, or similar single-board mini computers',
+        label: 'Raspberry Pi or Mini SBC Board',
+        description: 'Raspberry Pi 3, 4, 5, or similar developer single-board computers',
         icon: '🍓',
+        appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc' }
+      },
+      {
+        id: 'android_tv_box',
+        label: 'Android TV Box or TV Stick (Amlogic, Allwinner, Rockchip)',
+        description: 'Repurpose a cheap $25 TV box/stick into a 24/7 home server, Pi-hole ad-blocker, or Kodi TV player',
+        icon: '📺',
         appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc' }
       },
       {

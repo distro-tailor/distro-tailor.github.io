@@ -131,6 +131,18 @@ test('Core Matcher: Pinpoints Cage Appliance for dedicated single-app hardware p
   assert.ok(result.bestMatch.score >= 80);
 });
 
+test('Core Matcher: Recommends Armbian or DietPi for ARM TV boxes and single board servers', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'server',
+    platform: 'embedded-sbc',
+    architecture: 'arm64'
+  });
+
+  const topIds = result.topMatches.slice(0, 3).map(m => m.distro.id);
+  assert.ok(topIds.includes('armbian') || topIds.includes('dietpi'));
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });
