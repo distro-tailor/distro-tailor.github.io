@@ -59,6 +59,7 @@ export type PrimaryUseCase =
   | 'desktop'
   | 'gaming'
   | 'media-center'
+  | 'education-kids'
   | 'server'
   | 'k8s-cluster'
   | 'container-base'

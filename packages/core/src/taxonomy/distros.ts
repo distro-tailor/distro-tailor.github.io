@@ -67,6 +67,41 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       downloadUrl: 'https://libreelec.tv/downloads/'
     }
   },
+  // --- KIDS, EDUCATION & FAMILY ---
+  {
+    id: 'endless-os',
+    name: 'Endless OS',
+    tagline: 'The ultimate kid-friendly, educational operating system for school, coding, and family learning',
+    description:
+      'A simple, iPad-like operating system designed for children, students, and families. Features an immutable, kid-proof root filesystem that cannot be accidentally broken, built-in parental controls, and hundreds of preloaded educational apps (Scratch coding, Khan Academy, Wikipedia, GCompris math & science games, and LibreOffice) that work both online and completely offline without internet.',
+    website: 'https://endlessos.org',
+    documentationUrl: 'https://support.endlessos.org',
+    logoEmoji: '🎓',
+    platforms: ['bare-metal', 'desktop'],
+    architectures: ['x86_64', 'arm64'],
+    footprint: 'standard',
+    minRamMb: 2048,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'immutable-ostree',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['education-kids', 'desktop'],
+    packageManager: 'flatpak',
+    rollingRelease: false,
+    highlights: [
+      'Simple iPad-style desktop interface that any child can navigate effortlessly',
+      'Kid-proof atomic filesystem: children cannot delete critical OS files or get viruses',
+      'Preloaded with 100+ educational tools: Scratch coding, math games, typing, and typing tutors',
+      'Massive offline encyclopedia: kids can do school research even without an internet connection',
+      'Built-in parental controls and safe app ecosystem (Flatpak)'
+    ],
+    tradeoffs: [
+      'Uses an immutable OSTree base; software installation is strictly managed through the App Center (Flatpaks)'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://endlessos.org/download/'
+    }
+  },
   {
     id: 'bazzite',
     name: 'Bazzite',

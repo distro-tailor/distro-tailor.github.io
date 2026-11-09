@@ -87,6 +87,17 @@ test('Core Matcher: Pinpoints OpenWrt for home router & firewall', () => {
   assert.ok(result.bestMatch.score >= 80);
 });
 
+test('Core Matcher: Pinpoints Endless OS for kids school and education', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'education-kids',
+    platform: 'bare-metal'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'endless-os');
+  assert.ok(result.bestMatch.score >= 80);
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });

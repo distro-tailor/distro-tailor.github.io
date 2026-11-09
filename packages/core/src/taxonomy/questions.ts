@@ -50,6 +50,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal' }
       },
       {
+        id: 'kids_education',
+        label: '🎓 Kid-Safe School & Coding Computer',
+        description: 'An iPad-simple computer for children: school homework, Scratch coding, offline Wikipedia, and educational games—impossible for kids to break',
+        icon: '🎓',
+        appliesCriteria: { useCase: 'education-kids', footprint: 'standard', platform: 'bare-metal' }
+      },
+      {
         id: 'media_center',
         label: '📺 Living Room Media Center / TV Box (Kodi)',
         description: 'Turn an old PC or TV box into a dedicated media player controlled with a TV remote or smartphone',
@@ -151,6 +158,13 @@ export const QUESTIONS: Question[] = [
         description: 'Boots directly into Kodi/Jellyfin with remote-control navigation and HW-accelerated video decoding',
         icon: '📺',
         appliesCriteria: { useCase: 'media-center', platform: 'bare-metal' }
+      },
+      {
+        id: 'education_kids',
+        label: 'Education, STEM & Kid-Safe Computing',
+        description: 'Locked-down, offline-capable environment with Scratch, Khan Academy, and child-safe controls',
+        icon: '🎓',
+        appliesCriteria: { useCase: 'education-kids', platform: 'bare-metal' }
       },
       {
         id: 'server_cloud',
