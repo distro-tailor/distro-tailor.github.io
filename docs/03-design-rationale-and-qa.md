@@ -129,6 +129,31 @@ flowchart LR
 
 ---
 
+## 🧪 8. The 3-Tier Verification & Testing Ladder
+
+### Q8.1: In order to test the final output, what instructions do we provide to users?
+* **Problem:** Telling a user *"here is an ISO or Makefile"* without a progressive testing path leads to fear of wiping their main operating system or abandoning the build.
+* **Architecture:** DistroTailor implements a **3-Tier Testing & Verification Ladder** in both the Web UI and recipe README:
+  1. **Tier 1: In-Browser Instant Sandbox (Zero Risk):**
+     - Emulates an x86 PC client-side inside the browser tab via WebAssembly (`v86` PC emulator).
+     - Allows users to test-drive shell commands and boot scripts with 0% risk to their hard drive.
+  2. **Tier 2: Safe VM Sandbox (Local Hypervisor):**
+     - Tests the generated `.iso` inside **QEMU**, **VirtualBox**, or **UTM** (macOS).
+     - Provides one-liner commands:
+       ```bash
+       # Linux (KVM hardware acceleration):
+       qemu-system-x86_64 -cdrom output/*.iso -m 2048 -enable-kvm
+
+       # macOS (Apple Hypervisor acceleration):
+       qemu-system-x86_64 -cdrom output/*.iso -m 2048 -accel hvf
+       ```
+  3. **Tier 3: Direct Bare-Metal Hardware (Live USB / Machine Boot):**
+     - Flash instructions using cross-platform GUI tools (**BalenaEtcher**, **Raspberry Pi Imager**, **Rufus**) or terminal `dd`.
+     - Hardware boot key cheatsheet: **F12** (Dell, Lenovo), **F11/F12** (HP, MSI), **Del/F8** (ASUS), **Option ⌥** (Mac).
+     - Tests hardware Wi-Fi, audio codecs, and GPU acceleration live in RAM without modifying internal storage.
+
+---
+
 ## 📋 Summary Table of Archetypes & Flagships
 
 | User Goal / Hardware Archetype | Flagship Recommendation | Key Architectural Trait |

@@ -23,3 +23,12 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     Then the generated files must include "distro.defconfig"
     And the Makefile must fetch the official Buildroot source tree
     And the Makefile must support "make menuconfig" for fine-grained interactive tuning
+
+  Scenario: Providing a 3-Tier Testing and Verification Ladder
+    Given any generated recipe or recommended image
+    When the results view is displayed to the user
+    Then the system must provide testing instructions across three tiers:
+      | Tier | Testing Method | Verification Goal |
+      | Tier 1 | In-Browser Instant Sandbox | WebAssembly v86 emulator test-drive with zero drive risk |
+      | Tier 2 | Safe Virtual Machine Sandbox | Local QEMU, VirtualBox, or UTM hypervisor testing |
+      | Tier 3 | Bare-Metal Live USB Boot | Flash via BalenaEtcher/Rufus and boot physical BIOS/UEFI |

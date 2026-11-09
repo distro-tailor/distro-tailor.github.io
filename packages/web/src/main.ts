@@ -1213,6 +1213,86 @@ function renderResultsView(evaluation: RecommendationOutput): string {
         </div>
       ` : ''}
 
+      <!-- 🧪 3-Tier Verification & Testing Ladder -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
+        <div class="mb-5">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🧪</span>
+            <h3 class="text-lg font-bold text-slate-100">3-Tier Verification & Testing Ladder</h3>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">
+            Test and verify your tailored build across three levels of hardware access—from zero-risk browser sandboxes to physical silicon.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Tier 1: In-Browser Instant Sandbox -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-base">🌐</span>
+                <h4 class="text-sm font-bold text-sky-400">Tier 1: Instant In-Browser</h4>
+              </div>
+              <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                Zero installation, zero risk. Emulate x86 boot and interactive terminal commands directly in your browser tab via WebAssembly (v86 PC emulator).
+              </p>
+              <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300">
+                <span class="text-slate-500 uppercase tracking-wider block mb-1 text-[10px] font-semibold">How to test:</span>
+                Select WASM in questions or open the generated HTML WebVM file in Chrome/Firefox.
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-[11px] text-sky-400 font-medium">⚡ 0% Drive Risk</span>
+              <span class="text-[11px] text-slate-500">WASM Sandbox</span>
+            </div>
+          </div>
+
+          <!-- Tier 2: Safe VM Sandbox -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-base">🖧</span>
+                <h4 class="text-sm font-bold text-emerald-400">Tier 2: Safe VM Sandbox</h4>
+              </div>
+              <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                Safe desktop hypervisor testing before touching physical drives. Test GUI desktop, networking, and systemd services in complete isolation.
+              </p>
+              <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 space-y-1.5 overflow-x-auto">
+                <span class="text-slate-500 uppercase tracking-wider block text-[10px] font-semibold">QEMU Command:</span>
+                <code class="text-emerald-400 block text-[10px]">qemu-system-x86_64 -cdrom output/*.iso -m 2048 -enable-kvm</code>
+                <span class="text-slate-500 block text-[10px]">macOS: replace -enable-kvm with -accel hvf</span>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-[11px] text-emerald-400 font-medium">🛡️ Isolated Sandbox</span>
+              <span class="text-[11px] text-slate-500">QEMU / UTM / VBox</span>
+            </div>
+          </div>
+
+          <!-- Tier 3: Direct Bare-Metal Hardware -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-base">⚡</span>
+                <h4 class="text-sm font-bold text-amber-400">Tier 3: Bare-Metal Live USB</h4>
+              </div>
+              <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                Flash bootable ISO to physical USB. Boot real silicon to verify Wi-Fi, GPU acceleration, and pro audio with zero hard drive changes.
+              </p>
+              <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 space-y-1">
+                <span class="text-slate-500 uppercase tracking-wider block text-[10px] font-semibold">Flash & Boot Keys:</span>
+                <span class="block text-slate-300">1. Flash via <strong>BalenaEtcher</strong> or <strong>Rufus</strong></span>
+                <span class="block text-slate-300">2. Boot: Tap <strong>F12</strong> (Dell/Lenovo), <strong>Del/F8</strong> (Asus), or <strong>Option ⌥</strong> (Mac)</span>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-[11px] text-amber-400 font-medium">🚀 Native Silicon Speed</span>
+              <span class="text-[11px] text-slate-500">UEFI USB Boot</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   `;
 }

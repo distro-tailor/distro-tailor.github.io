@@ -168,11 +168,39 @@ Run with root permissions (hardware detection runs automatically on build):
 sudo make
 \`\`\`
 
-## Test with QEMU
+## 🧪 3-Tier Verification & Testing Ladder
+
+### Tier 1: In-Browser Instant Sandbox (Zero Risk)
+If testing in-browser WebAssembly payloads, open the generated HTML file in Chrome/Firefox or launch the DistroTailor WebVM to interact with the shell without touching your filesystem.
+
+### Tier 2: Safe VM Sandbox (QEMU / VirtualBox / UTM)
+Run the built ISO inside a local hypervisor before touching physical drives:
 \`\`\`bash
-qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 1024 -enable-kvm
+# Linux (with KVM hardware acceleration):
+qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable-kvm
+
+# macOS (with Apple Hypervisor acceleration):
+qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -accel hvf
 \`\`\`
-Default credentials: \`root\` / \`tailor\`
+* **VirtualBox / UTM:** Create a new Linux VM, mount \`output/${distroName}-1.0.0-${arch}.iso\` as an optical drive, and boot.
+* **Default credentials:** \`root\` / \`tailor\`
+
+### Tier 3: Direct Bare-Metal Hardware (Live USB / Machine Boot)
+Test directly on your physical PC, laptop, or server rack:
+1. **Flash to USB Flash Drive:**
+   - **GUI (Cross-Platform):** Use **BalenaEtcher**, **Raspberry Pi Imager**, or **Rufus** (select DD Image Mode).
+   - **CLI (Linux/macOS):**
+     \`\`\`bash
+     # Verify your USB target device with lsblk or diskutil list before running:
+     sudo dd if=output/${distroName}-1.0.0-${arch}.iso of=/dev/sdX bs=4M status=progress oflag=sync
+     \`\`\`
+2. **Boot Your Physical Machine:**
+   - Plug the USB into the target machine, power on, and tap the boot selection key:
+     - **F12:** Dell, Lenovo, Alienware
+     - **F11 / F12:** HP, Acer, MSI
+     - **F8 / Del:** ASUS motherboards
+     - **Option (⌥) held down:** Intel MacBooks & Mac Minis
+   - Select the USB UEFI boot partition to test live without touching internal storage.
 `;
 
   return {
