@@ -7,11 +7,22 @@ import {
   evaluateCriteria,
   resolveRecipeGenerator,
   RecipeGeneratorId,
-  UserCriteria
+  UserCriteria,
+  migrateUrlParameters
 } from '@distro-tailor/core';
 import { runInteractiveWizard } from './wizard.js';
 
 const program = new Command();
+
+function parseUrlCriteria(urlString: string): Record<string, string> {
+  const queryString = urlString.includes('?') ? urlString.slice(urlString.indexOf('?') + 1) : urlString;
+  const searchParams = new URLSearchParams(queryString);
+  const raw: Record<string, string> = {};
+  for (const [k, v] of searchParams.entries()) {
+    raw[k] = v;
+  }
+  return raw;
+}
 
 program
   .name('distro-tailor')
@@ -28,6 +39,7 @@ program
 program
   .command('recommend')
   .description('Evaluate constraints and recommend distributions without interactive prompts')
+  .option('--url <url>', 'Evaluate criteria directly from a DistroTailor shared URL or query string')
   .option('--use-case <useCase>', 'Primary use case (iot-embedded, container-base, k8s-cluster, kiosk-signage, server, desktop, browser-wasm)')
   .option('--platform <platform>', 'Platform target (bare-metal, vm, container, kiosk, embedded-sbc, microcontroller, browser-wasm)')
   .option('--arch <arch>', 'CPU Architecture (x86_64, arm64, armv7, riscv64, nommu, wasm32)')
@@ -37,7 +49,7 @@ program
   .option('--init <init>', 'Init system (systemd, openrc, runit, busybox)')
   .option('--json', 'Output results as machine-readable JSON')
   .action((options) => {
-    const criteria: UserCriteria = {
+    let criteria: UserCriteria = {
       useCase: options.useCase,
       platform: options.platform,
       architecture: options.arch,
@@ -46,6 +58,32 @@ program
       cLibPreference: options.cLib,
       initPreference: options.init
     };
+
+    if (options.url) {
+      const raw = parseUrlCriteria(options.url);
+      const migration = migrateUrlParameters(raw);
+
+      if (!migration.supported) {
+        console.error(pc.red(`\n✖ Schema Error: ${migration.fallbackNotice}`));
+        process.exit(1);
+      }
+
+      if (migration.migrated && migration.warnings.length > 0) {
+        console.log(pc.yellow(`ℹ Normalized URL parameters (v${migration.version}): ${migration.warnings.join('; ')}`));
+      }
+
+      criteria = {
+        ...criteria,
+        useCase: (migration.params.useCase as any) || criteria.useCase,
+        platform: (migration.params.platform as any) || criteria.platform,
+        architecture: (migration.params.architecture as any) || criteria.architecture,
+        footprint: (migration.params.footprint as any) || criteria.footprint,
+        statePreference: (migration.params.statePreference as any) || criteria.statePreference,
+        cLibPreference: (migration.params.cLibPreference as any) || criteria.cLibPreference,
+        initPreference: (migration.params.initPreference as any) || criteria.initPreference,
+        experienceLevel: (migration.params.experienceLevel as any) || criteria.experienceLevel
+      };
+    }
 
     const result = evaluateCriteria(criteria);
 
@@ -75,16 +113,41 @@ program
 program
   .command('export')
   .description('Directly export a custom distro build recipe (Makefile/Dockerfile)')
-  .requiredOption('--recipe <recipeId>', 'Recipe ID (debootstrap-debian, alpine-chroot, buildroot-embedded, kiosk-web, distroless-docker, wasm-browser)')
+  .option('--url <url>', 'Export recipe derived directly from a DistroTailor shared URL or query string')
+  .option('--recipe <recipeId>', 'Recipe ID (debootstrap-debian, alpine-chroot, buildroot-embedded, kiosk-web, distroless-docker, wasm-browser)')
   .option('--out <outputDir>', 'Destination directory', './distro-recipe')
   .option('--arch <arch>', 'CPU architecture', 'x86_64')
   .action(async (options) => {
-    const recipeId = options.recipe as RecipeGeneratorId;
-    const targetDir = path.resolve(process.cwd(), options.out);
+    let recipeId = options.recipe as RecipeGeneratorId;
+    let arch = options.arch;
 
-    const recipe = resolveRecipeGenerator(recipeId, {
-      architecture: options.arch
-    });
+    if (options.url) {
+      const raw = parseUrlCriteria(options.url);
+      const migration = migrateUrlParameters(raw);
+
+      if (!migration.supported) {
+        console.error(pc.red(`\n✖ Schema Error: ${migration.fallbackNotice}`));
+        process.exit(1);
+      }
+
+      const evalResult = evaluateCriteria(migration.params as any);
+      if (evalResult.recommendedRecipe) {
+        recipeId = evalResult.recommendedRecipe.id;
+        arch = (migration.params.architecture as any) || arch;
+        console.log(pc.cyan(`ℹ Inferred recipe "${recipeId}" from shared URL (${evalResult.bestMatch.distro.name})`));
+      } else {
+        console.error(pc.red('\n✖ No specific build recipe mapped for the criteria in this URL.'));
+        process.exit(1);
+      }
+    }
+
+    if (!recipeId) {
+      console.error(pc.red('\n✖ Error: Please specify either --recipe <recipeId> or --url <sharedUrl>.'));
+      process.exit(1);
+    }
+
+    const targetDir = path.resolve(process.cwd(), options.out);
+    const recipe = resolveRecipeGenerator(recipeId, { architecture: arch });
 
     await fs.mkdir(targetDir, { recursive: true });
 
