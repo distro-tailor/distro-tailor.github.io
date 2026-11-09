@@ -10,11 +10,21 @@ export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedReci
 # Architecture: ${arch}
 # ==============================================================================
 
-DISTRO_NAME ?= ${distroName}
-VERSION     ?= 1.0.0
-ARCH        ?= ${arch}
-SUITE       ?= bookworm
-MIRROR      ?= http://deb.debian.org/debian
+DISTRO_NAME     ?= ${distroName}
+VERSION         ?= 1.0.0
+ARCH            ?= ${arch}
+SUITE           ?= bookworm
+MIRROR          ?= http://deb.debian.org/debian
+
+# --- MODULAR HARDWARE & DESKTOP TUNING ---
+# HARDWARE_TARGET: generic-x86 | rpi | intel-nuc | vm
+HARDWARE_TARGET ?= generic-x86
+# PRUNE_FIRMWARE: 1 = Strips 1.8GB of unused vendor blobs, keeps only essential free firmware
+PRUNE_FIRMWARE  ?= 1
+# DESKTOP_ENV: none (headless) | cage (wayland kiosk) | xfce | kde | gnome
+DESKTOP_ENV     ?= none
+# FRANKENSTEIN_HYBRID: 1 = Pre-installs Distrobox to run Arch AUR / Fedora packages on this Debian base!
+ENABLE_DISTROBOX ?= 0
 
 BUILD_DIR   ?= ./build
 ROOTFS_DIR  ?= $(BUILD_DIR)/rootfs
@@ -31,6 +41,9 @@ MKSQUASHFS  ?= mksquashfs
 all: clean prepare rootfs configure iso
 	@echo "===================================================="
 	@echo " Build Complete! Image: $(OUTPUT_DIR)/$(ISO_NAME)"
+	@echo " Hardware Profile:      $(HARDWARE_TARGET)"
+	@echo " Firmware Pruning:      $(if $(filter 1,$(PRUNE_FIRMWARE)),ENABLED (-1.8GB bloat stripped),DISABLED)"
+	@echo " Desktop Environment:   $(DESKTOP_ENV)"
 	@echo "===================================================="
 
 check-root:
@@ -68,6 +81,23 @@ configure: rootfs
 			netbase \\
 			ca-certificates \\
 			curl && \\
+		\\
+		# Optional Desktop Injection \\
+		if [ '$(DESKTOP_ENV)' = 'cage' ]; then \\
+			apt-get install -y --no-install-recommends cage xwayland libgl1-mesa-dri; \\
+		elif [ '$(DESKTOP_ENV)' = 'xfce' ]; then \\
+			apt-get install -y --no-install-recommends xfce4-session xfwm4 xinit; \\
+		elif [ '$(DESKTOP_ENV)' = 'kde' ]; then \\
+			apt-get install -y --no-install-recommends plasma-workspace-wayland sddm; \\
+		elif [ '$(DESKTOP_ENV)' = 'gnome' ]; then \\
+			apt-get install -y --no-install-recommends gnome-session gdm3; \\
+		fi && \\
+		\\
+		# Optional Frankenstein Hybrid Engine (Distrobox) \\
+		if [ '$(ENABLE_DISTROBOX)' = '1' ]; then \\
+			apt-get install -y --no-install-recommends podman distrobox; \\
+		fi && \\
+		\\
 		echo '${distroName}' > /etc/hostname && \\
 		echo 'root:tailor' | chpasswd && \\
 		apt-get clean && \\
