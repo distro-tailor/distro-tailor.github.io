@@ -5,28 +5,28 @@ export const QUESTIONS: Question[] = [
   {
     id: 'user_familiarity',
     order: 1,
-    prompt: 'First off, how familiar are you with Linux?',
-    subtext: 'This helps DistroTailor speak your language and skip confusing jargon.',
+    prompt: 'How much Linux experience do you have?',
+    subtext: 'No wrong answers! We tailor all remaining questions to speak your language.',
     category: 'preferences',
     options: [
       {
         id: 'beginner',
-        label: '🌱 New to Linux / Just have a goal in mind',
-        description: 'Keep it simple in plain English! (e.g. turn an old PC into a gaming console or revive an old laptop)',
+        label: 'New to Linux / Just have a project in mind',
+        description: 'Keep it simple in plain English (e.g. turn an old PC into a gaming console, media player, or school station)',
         icon: '🌱',
         appliesCriteria: { experienceLevel: 'beginner' }
       },
       {
         id: 'intermediate',
-        label: '🌿 Everyday User / Comfortable Tinkerer',
-        description: 'I know basic terminal commands, package managers, and ISOs, and want a practical recommendation.',
+        label: 'Comfortable Tinkerer / Everyday User',
+        description: 'I know basic terminal commands, package managers, and ISOs, and want a practical recommendation',
         icon: '🌿',
         appliesCriteria: { experienceLevel: 'intermediate' }
       },
       {
         id: 'systems-engineer',
-        label: '🌳 Systems Hacker / Embedded Engineer',
-        description: 'Hit me with low-level kernel configs, NOMMU, init systems, libc choices, or Buildroot compilation.',
+        label: 'Systems Hacker / Embedded Engineer',
+        description: 'Hit me with low-level kernel configs, NOMMU, init systems, libc choices, or custom Buildroot compilation',
         icon: '🌳',
         appliesCriteria: { experienceLevel: 'systems-engineer' }
       }
@@ -37,84 +37,84 @@ export const QUESTIONS: Question[] = [
   {
     id: 'beginner_goal',
     order: 2,
-    prompt: 'What is your dream project or goal for this machine?',
-    subtext: 'Tell us what you want to create in everyday terms.',
+    prompt: 'What do you want to build or accomplish?',
+    subtext: 'Pick the outcome you want to see running on your screen.',
     category: 'platform',
     shouldAsk: (criteria) => criteria.experienceLevel === 'beginner',
     options: [
       {
         id: 'retro_gaming_console',
-        label: '🕹️ Turn it into a Retro Gaming Console',
-        description: 'Play arcade, PS1, N64, SNES, and retro games on the TV with game controllers',
+        label: 'Retro Gaming Console',
+        description: 'Play arcade, PS1, N64, SNES, and retro classics on your TV with game controllers',
         icon: '🕹️',
         appliesCriteria: { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal' }
       },
       {
         id: 'kids_education',
-        label: '🎓 Kid-Safe School & Coding Computer',
-        description: 'An iPad-simple computer for children: school homework, Scratch coding, offline Wikipedia, and educational games—impossible for kids to break',
+        label: 'Kid-Safe School & Coding Computer',
+        description: 'An iPad-simple computer for children: school homework, Scratch coding, offline Wikipedia, and educational games',
         icon: '🎓',
         appliesCriteria: { useCase: 'education-kids', footprint: 'standard', platform: 'bare-metal' }
       },
       {
         id: 'media_center',
-        label: '📺 Living Room Media Center / TV Box (Kodi)',
-        description: 'Turn an old PC or TV box into a dedicated media player controlled with a TV remote or smartphone',
+        label: 'Living Room Media Center / TV Box (Kodi)',
+        description: 'Turn an old PC or TV box into a dedicated media player controlled with a regular TV remote',
         icon: '📺',
         appliesCriteria: { useCase: 'media-center', footprint: 'minimal', platform: 'bare-metal' }
       },
       {
+        id: 'nas_photo_backup',
+        label: 'Family Photo/Video Backup & Home Storage (NAS)',
+        description: 'Auto-backup family phone photos and videos over Wi-Fi, share files at home, and ditch monthly cloud fees',
+        icon: '📦',
+        appliesCriteria: { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal' }
+      },
+      {
         id: 'cheap_router',
-        label: '📡 Home Router & Wi-Fi Firewall',
-        description: 'Turn an old PC, mini-PC, or box into a fast home router, ditch ISP rental fees, and block ads network-wide',
+        label: 'Home Router & Wi-Fi Firewall',
+        description: 'Turn an old PC or box into a fast home router, ditch ISP rental fees, and block ads network-wide',
         icon: '📡',
         appliesCriteria: { useCase: 'router-networking', footprint: 'micro', platform: 'router-firewall' }
       },
       {
         id: 'shop_kiosk',
-        label: '🏪 Store Display, Digital Menu Board, or Shop Kiosk',
-        description: 'Boot directly into a full-screen website, digital price menu, or dashboard with no desktop interface',
+        label: 'Store Display, Digital Menu Board, or Shop Kiosk',
+        description: 'Boot directly into a full-screen website, digital price menu, or dashboard with no desktop clutter',
         icon: '🏪',
         appliesCriteria: { useCase: 'kiosk-signage', footprint: 'lean', platform: 'kiosk' }
       },
       {
-        id: 'nas_photo_backup',
-        label: '📦 Family Photo/Video Backup & Home Storage (NAS)',
-        description: 'Auto-backup family phone photos and videos over Wi-Fi, share files at home, and ditch monthly iCloud/Google Drive fees',
-        icon: '📦',
-        appliesCriteria: { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal' }
-      },
-      {
         id: 'revive_old_pc',
-        label: '💨 Revive an Ancient, Slow Computer',
-        description: 'Make an ancient 10-20 year old PC or laptop with low RAM (512MB-2GB) snappy and usable again',
+        label: 'Revive an Ancient, Slow Computer',
+        description: 'Make an ancient 10-20 year old PC or laptop with low RAM (512MB-2GB) snappy and fast again',
         icon: '💨',
         appliesCriteria: { useCase: 'desktop', footprint: 'minimal', platform: 'bare-metal' }
       },
       {
         id: 'home_server',
-        label: '🏠 Simple Home Server & Private Cloud',
+        label: 'Simple Home Server & Private Cloud',
         description: 'Run Plex/Jellyfin, backup family photos, or run a 24/7 ad-blocker on cheap low-power hardware',
         icon: '🏠',
         appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc' }
       },
       {
         id: 'daily_desktop',
-        label: '💻 Everyday Computer for School, Work, or Web',
+        label: 'Everyday Computer for School, Work, or Web',
         description: 'Friendly desktop for web browsing, YouTube, and typing, completely immune to Windows malware',
         icon: '💻',
         appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal' }
       },
       {
         id: 'modern_gaming',
-        label: '🎮 Modern PC Gaming (Steam Deck / Couch Gaming)',
+        label: 'Modern PC Gaming (Steam Deck / Couch Gaming)',
         description: 'Play modern Steam, Epic, and indie PC games with a controller-friendly TV interface',
         icon: '🎮',
         appliesCriteria: { useCase: 'gaming', footprint: 'full', platform: 'bare-metal' }
       },
       {
         id: 'browser_wasm',
-        label: '🌐 Try Linux right now in my web browser tab',
+        label: 'Try Linux right now in my web browser tab',
         description: 'Test Linux in a sandbox without installing anything or touching your hard drive',
         icon: '🌐',
         appliesCriteria: { useCase: 'browser-wasm', footprint: 'minimal', platform: 'browser-wasm' }
@@ -208,35 +208,35 @@ export const QUESTIONS: Question[] = [
   {
     id: 'beginner_device',
     order: 3,
-    prompt: 'What kind of machine or device are you installing this on?',
+    prompt: 'What kind of machine or device are you using?',
     subtext: 'Pick what best describes your hardware.',
     category: 'hardware',
     shouldAsk: (criteria) => criteria.experienceLevel === 'beginner' && criteria.useCase !== 'browser-wasm',
     options: [
       {
         id: 'standard_pc',
-        label: '💻 Standard PC or Laptop (Intel or AMD)',
+        label: 'Standard PC or Laptop (Intel or AMD)',
         description: 'Most ordinary desktops and laptops made in the last 10-12 years',
         icon: '💻',
         appliesCriteria: { architecture: 'x86_64' }
       },
       {
         id: 'ancient_pc',
-        label: '👴 Ancient / Obsolete Computer (15-20 years old)',
+        label: 'Ancient / Obsolete Computer (15-20 years old)',
         description: 'Very old machines with older CPUs and limited memory',
         icon: '👴',
         appliesCriteria: { architecture: 'x86_64', footprint: 'minimal' }
       },
       {
         id: 'raspberry_pi',
-        label: '🍓 Raspberry Pi or Mini Board',
+        label: 'Raspberry Pi or Mini Board',
         description: 'Raspberry Pi 3, 4, 5, or similar single-board mini computers',
         icon: '🍓',
         appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc' }
       },
       {
         id: 'gaming_handheld',
-        label: '🎮 Handheld Gaming Device (Steam Deck, ROG Ally, etc.)',
+        label: 'Handheld Gaming Device (Steam Deck, ROG Ally, etc.)',
         description: 'Portable gaming PC with integrated display and thumbsticks',
         icon: '🎮',
         appliesCriteria: { architecture: 'x86_64' }
@@ -295,28 +295,28 @@ export const QUESTIONS: Question[] = [
   {
     id: 'beginner_memory',
     order: 4,
-    prompt: 'Roughly how much memory (RAM) does the computer have?',
-    subtext: 'A rough estimate is fine.',
+    prompt: 'Roughly how much memory (RAM) does it have?',
+    subtext: 'A rough estimate is fine. Pick what sounds closest.',
     category: 'hardware',
     shouldAsk: (criteria) => criteria.experienceLevel === 'beginner' && criteria.useCase !== 'browser-wasm',
     options: [
       {
         id: 'very_low',
-        label: '🪶 Very Low (Under 1 GB RAM / Ancient machine)',
+        label: 'Very Low (Under 1 GB RAM / Ancient machine)',
         description: 'Old computer that struggles with modern Windows or heavy browsers',
         icon: '🪶',
         appliesCriteria: { footprint: 'minimal', maxRamMb: 1024 }
       },
       {
         id: 'modest',
-        label: '⚡ Modest (2 GB to 4 GB RAM)',
+        label: 'Modest (2 GB to 4 GB RAM)',
         description: 'Typical older laptop or basic office PC',
         icon: '⚡',
         appliesCriteria: { footprint: 'lean', maxRamMb: 4096 }
       },
       {
         id: 'plenty',
-        label: '🚀 Plenty (8 GB RAM or more)',
+        label: 'Plenty (8 GB RAM or more)',
         description: 'Modern desktop, gaming PC, or workstation',
         icon: '🚀',
         appliesCriteria: { footprint: 'standard', maxRamMb: 8192 }
