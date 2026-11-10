@@ -634,35 +634,5 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { cLibPreference: 'no-preference', initPreference: 'no-preference' }
       }
     ]
-  },
-
-  // --- STEP 7: BUILD RECIPE OR PREBUILT IMAGE ---
-  {
-    id: 'recipe_generation_intent',
-    order: 7,
-    prompt: 'How would you like to get started?',
-    subtext: 'Choose whether you want an existing image to download or a custom compilation recipe.',
-    category: 'preferences',
-    tip: {
-      icon: '🚀',
-      title: 'Turnkey Flash vs. Custom-Bake',
-      text: 'Prebuilt images get you up and running in 5 minutes with BalenaEtcher. Build recipes give you the exact Makefile or Buildroot config to bake your own bespoke Linux distro from source.'
-    },
-    options: [
-      {
-        id: 'recommend_prebuilt',
-        label: 'Recommend the Best Existing Distro',
-        description: 'Provide an off-the-shelf, battle-tested ISO image to flash or download',
-        icon: '📥',
-        appliesCriteria: { requiresCustomBuild: false }
-      },
-      {
-        id: 'generate_custom_recipe',
-        label: 'Generate a Custom Build Recipe (Makefile / Script)',
-        description: 'Give me a reproducible Makefile/toolchain to compile and assemble the OS myself',
-        icon: '🛠️',
-        appliesCriteria: { requiresCustomBuild: true }
-      }
-    ]
   }
 ];
