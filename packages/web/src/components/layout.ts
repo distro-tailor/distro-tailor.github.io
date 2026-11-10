@@ -78,28 +78,32 @@ export function renderNavbar(state: AppState, evaluation: RecommendationOutput):
   `;
 }
 
-export function renderLeaderboard(evaluation: RecommendationOutput): string {
+export function renderLeaderboard(evaluation: RecommendationOutput, state: AppState): string {
+  const isExpanded = state.showAllContenders;
+  const displayMatches = isExpanded ? evaluation.topMatches : evaluation.topMatches.slice(0, 6);
+  const totalCount = DISTRO_REGISTRY.length;
+
   return `
     <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80 gap-2">
       <div class="min-w-0">
         <h3 class="text-sm font-bold text-slate-200 truncate">The Contenders</h3>
         <p class="text-[11px] text-slate-400 truncate">Updates live as you answer</p>
       </div>
-      <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300 shrink-0">
-        ${DISTRO_REGISTRY.length} distros
-      </span>
+      <button id="btn-header-distros-count" class="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-slate-800 text-slate-300 hover:text-emerald-300 hover:bg-slate-700 transition-colors shrink-0 cursor-pointer" title="Click to view all ${totalCount} distros">
+        ${isExpanded ? `All ${totalCount} distros` : `Top 6 of ${totalCount}`}
+      </button>
     </div>
 
-    <!-- Top Contender Cards -->
-    <div class="space-y-2.5">
-      ${evaluation.topMatches
-        .slice(0, 6)
+    <!-- Contender Cards (Scrollable when expanded) -->
+    <div class="space-y-2.5 ${isExpanded ? 'max-h-[520px] overflow-y-auto pr-1 select-none' : ''}">
+      ${displayMatches
         .map(
-          (m) => `
+          (m, idx) => `
         <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 hover:border-slate-700 transition-all min-w-0">
           <div class="flex items-center justify-between text-sm mb-1.5 gap-2">
             <div class="flex items-center gap-2 font-medium text-slate-200 min-w-0 flex-1">
               <span class="text-base shrink-0">${m.distro.logoEmoji || '🐧'}</span>
+              <span class="text-[11px] font-mono font-bold text-slate-500 shrink-0">#${idx + 1}</span>
               <span class="truncate">${m.distro.name}</span>
             </div>
             <span class="font-mono text-xs font-bold shrink-0 ${
@@ -121,6 +125,16 @@ export function renderLeaderboard(evaluation: RecommendationOutput): string {
       `
         )
         .join('')}
+    </div>
+
+    <!-- Toggle All 31 Contenders Action Bar -->
+    <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs">
+      <button id="btn-toggle-all-contenders" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 cursor-pointer transition-colors">
+        <span>${isExpanded ? '▲ Show Top 6 Only' : `▼ View All ${totalCount} Distros (${evaluation.topMatches.length} Ranked)`}</span>
+      </button>
+      <button id="btn-quick-matrix" class="text-[11px] font-mono text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1 cursor-pointer" title="Open full comparison matrix">
+        <span>Matrix</span> ↗
+      </button>
     </div>
   `;
 }

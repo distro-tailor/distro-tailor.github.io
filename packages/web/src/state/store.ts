@@ -13,7 +13,8 @@ export function createDefaultState(): AppState {
     isSharedView: false,
     history: [],
     flowMode: 'smart',
-    showShareModal: false
+    showShareModal: false,
+    showAllContenders: false
   };
 }
 
@@ -155,6 +156,11 @@ export class AppStore extends EventTarget implements IAppStore {
   public setShareModal(show: boolean): void {
     if (this._state.showShareModal === show) return;
     this._state.showShareModal = show;
+    this.notify();
+  }
+
+  public toggleAllContenders(): void {
+    this._state.showAllContenders = !this._state.showAllContenders;
     this.notify();
   }
 

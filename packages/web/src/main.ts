@@ -65,7 +65,7 @@ function render(): void {
       <!-- Right Column: Live Standings Leaderboard & Selected Chips -->
       <aside class="lg:col-span-4 flex flex-col gap-4 min-w-0 w-full max-w-full">
         <div class="bg-slate-900/95 backdrop-blur-md border border-slate-800/90 rounded-2xl p-4 sm:p-5 sticky top-24 shadow-xl min-w-0">
-          ${renderLeaderboard(evaluation)}
+          ${renderLeaderboard(evaluation, state)}
           ${renderCriteriaChips(state.criteria)}
         </div>
       </aside>

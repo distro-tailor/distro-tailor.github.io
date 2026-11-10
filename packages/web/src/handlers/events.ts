@@ -55,6 +55,18 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
     router.saveStateToUrl(store.getState(), true);
   });
 
+  // Toggle All 31 Contenders in Leaderboard
+  document.getElementById('btn-toggle-all-contenders')?.addEventListener('click', () => {
+    store.toggleAllContenders();
+  });
+  document.getElementById('btn-header-distros-count')?.addEventListener('click', () => {
+    store.toggleAllContenders();
+  });
+  document.getElementById('btn-quick-matrix')?.addEventListener('click', () => {
+    store.setTab('expert');
+    router.saveStateToUrl(store.getState(), true);
+  });
+
   // Reset triggers
   document.getElementById('btn-reset')?.addEventListener('click', () => resetAll('Reset to fresh start'));
   document.getElementById('btn-start-fresh')?.addEventListener('click', () => resetAll('Reset to fresh start'));

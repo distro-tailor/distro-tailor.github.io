@@ -31,6 +31,7 @@ export interface AppState {
   history: HistorySnapshot[];
   flowMode: FlowMode;
   showShareModal: boolean;
+  showAllContenders: boolean;
 }
 
 /**
@@ -97,6 +98,11 @@ export interface IAppStore {
    * Toggles visibility of the interactive share modal.
    */
   setShareModal(show: boolean): void;
+
+  /**
+   * Toggles visibility of all 31 contenders in the live sidebar leaderboard.
+   */
+  toggleAllContenders(): void;
 
   /**
    * Completely resets state to initial defaults, optionally applying clean shared criteria.

@@ -8,6 +8,7 @@ test('AppStore: initializes with clean default state and emits events on update'
 
   assert.equal(state.activeTab, 'wizard');
   assert.equal(state.flowMode, 'smart');
+  assert.equal(state.showAllContenders, false);
   assert.deepEqual(state.criteria, {});
   assert.equal(state.answeredQuestionIds.size, 0);
 
@@ -79,4 +80,15 @@ test('AppStore: setFlowMode clears technical criteria when switching to smart/be
   assert.equal(state.criteria.statePreference, undefined);
   assert.equal(state.answeredQuestionIds.has('c_library_and_init'), false);
   assert.equal(state.answeredQuestionIds.has('system_immutability'), false);
+});
+
+test('AppStore: toggleAllContenders flips visibility state and notifies subscribers', () => {
+  const store = new AppStore();
+  assert.equal(store.getState().showAllContenders, false);
+
+  store.toggleAllContenders();
+  assert.equal(store.getState().showAllContenders, true);
+
+  store.toggleAllContenders();
+  assert.equal(store.getState().showAllContenders, false);
 });
