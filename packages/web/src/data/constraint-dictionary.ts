@@ -95,5 +95,13 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
   realtimeAudio: {
     true: { label: 'Pro Audio (Low-Latency Realtime Kernel)', icon: '🎵' },
     false: { label: 'Standard Everyday Audio', icon: '🔊' }
+  },
+  peripheralNeed: {
+    'touchscreen': { label: 'Touchscreen / 2-in-1 Tablet', icon: '📱' },
+    'printer-scanner': { label: 'Home / Office Printers & Scanners', icon: '🖨️' },
+    'vr-headset': { label: 'Virtual Reality (VR) / Sim Rig', icon: '🥽' },
+    'drawing-tablet': { label: 'Drawing Tablet / Stylus Pen', icon: '🎨' },
+    'mixed-dpi': { label: 'Mixed 4K / High-DPI Multi-Monitor', icon: '📺' },
+    'standard': { label: 'Standard Mouse, Keyboard & Screen', icon: '🖥️' }
   }
 };

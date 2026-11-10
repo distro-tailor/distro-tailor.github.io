@@ -15,7 +15,8 @@ test('Constraint Dictionary: contains all primary dimensions with valid labels a
     'releaseCadence',
     'driverPhilosophy',
     'bootMedium',
-    'realtimeAudio'
+    'realtimeAudio',
+    'peripheralNeed'
   ];
 
   for (const dim of expectedDimensions) {

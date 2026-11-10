@@ -744,10 +744,75 @@ export const QUESTIONS: Question[] = [
     ]
   },
 
-  // --- STEP 10: IMMUTABILITY (Only for Intermediate & Systems Engineers) ---
+  // --- STEP 10: ATTACHED PERIPHERALS & DISPLAYS ---
+  {
+    id: 'attached_peripherals',
+    order: 10,
+    isOptional: true,
+    prompt: 'Do you have any specialized peripherals or attached displays?',
+    subtext: 'Hardware peripherals like touchscreens, printers, VR headsets, and 4K displays require specific driver stacks.',
+    category: 'hardware',
+    shouldAsk: (criteria) =>
+      criteria.prefersGui !== false &&
+      criteria.useCase !== 'browser-wasm' &&
+      criteria.platform !== 'container' &&
+      criteria.platform !== 'router-firewall' &&
+      criteria.footprint !== 'micro',
+    tip: {
+      icon: '🔌',
+      title: 'Peripherals & Display Servers',
+      text: 'Touchscreens and mixed 4K/1080p multi-monitors require modern Wayland compositors for smooth gestures and fractional scaling. Wi-Fi printers benefit from pre-bundled CUPS and mDNS daemons.'
+    },
+    options: [
+      {
+        id: 'standard_peripherals',
+        label: 'Standard Mouse, Keyboard & Screen',
+        description: 'Everyday standard desktop or laptop peripherals with no special hardware requirements',
+        icon: '🖥️',
+        appliesCriteria: { peripheralNeed: 'standard' }
+      },
+      {
+        id: 'touchscreen_tablet',
+        label: 'Touchscreen, Tablet, or 2-in-1 Laptop',
+        description: 'Requires native Wayland multi-touch gestures, auto-screen rotation, and virtual on-screen keyboards',
+        icon: '📱',
+        appliesCriteria: { peripheralNeed: 'touchscreen' }
+      },
+      {
+        id: 'printers_scanners',
+        label: 'Home or Office Printers & Document Scanners',
+        description: 'Requires turnkey CUPS printing, automatic Bonjour/mDNS Wi-Fi printer discovery, and HP/Brother drivers',
+        icon: '🖨️',
+        appliesCriteria: { peripheralNeed: 'printer-scanner' }
+      },
+      {
+        id: 'vr_gaming_rig',
+        label: 'Virtual Reality (VR) Headset or Flight/Sim Rig',
+        description: 'Requires SteamVR compatibility, DRM display leasing, cutting-edge Vulkan drivers, and Monado OpenXR',
+        icon: '🥽',
+        appliesCriteria: { peripheralNeed: 'vr-headset' }
+      },
+      {
+        id: 'drawing_tablet',
+        label: 'Drawing Tablet or Pen Stylus (Wacom / Huion)',
+        description: 'Requires digitizer kernel drivers, pressure sensitivity calibration, and creative tool integration',
+        icon: '🎨',
+        appliesCriteria: { peripheralNeed: 'drawing-tablet' }
+      },
+      {
+        id: 'mixed_dpi_monitors',
+        label: 'Multiple Monitors or Mixed 4K / High-DPI Displays',
+        description: 'Requires per-monitor Wayland fractional scaling (125%/150%) and independent refresh rates without blur',
+        icon: '📺',
+        appliesCriteria: { peripheralNeed: 'mixed-dpi' }
+      }
+    ]
+  },
+
+  // --- STEP 11: IMMUTABILITY (Only for Intermediate & Systems Engineers) ---
   {
     id: 'system_immutability',
-    order: 10,
+    order: 11,
     isOptional: true,
     prompt: 'How should system state and configuration changes be managed?',
     subtext: 'Traditional mutable OSes vs. modern immutable / declarative architectures.',

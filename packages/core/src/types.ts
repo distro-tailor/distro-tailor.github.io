@@ -181,6 +181,13 @@ export type DockerAppId =
 export type ReleaseCadence = 'lts' | 'rolling' | 'standard';
 export type DriverPhilosophy = 'seamless-proprietary' | 'free-software-only' | 'no-preference';
 export type BootMedium = 'nvme-ssd' | 'sd-card-usb' | 'pxe-diskless';
+export type PeripheralNeed =
+  | 'touchscreen'
+  | 'printer-scanner'
+  | 'vr-headset'
+  | 'drawing-tablet'
+  | 'mixed-dpi'
+  | 'standard';
 
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
@@ -198,6 +205,7 @@ export interface UserCriteria {
   driverPhilosophy?: DriverPhilosophy;
   bootMedium?: BootMedium;
   realtimeAudio?: boolean;
+  peripheralNeed?: PeripheralNeed;
 
   // Interactive Recipe Modifiers (App Suites & Turnkey Services)
   desktopEnv?: DesktopEnvId;

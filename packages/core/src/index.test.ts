@@ -578,3 +578,32 @@ test('Matcher: Realtime audio significantly boosts Ubuntu Studio', () => {
   assert.ok(studioMatch);
   assert.ok(studioMatch.reasons.some(r => r.feature === 'Low-Latency Audio' && r.matched));
 });
+
+test('Matcher: Specialized peripherals evaluate touch, printers, and VR stacks', () => {
+  // Touchscreen
+  const touchRes = evaluateCriteria({
+    useCase: 'desktop',
+    peripheralNeed: 'touchscreen'
+  });
+  const fedoraMatch = touchRes.allMatches.find(m => m.distro.id === 'fedora');
+  assert.ok(fedoraMatch);
+  assert.ok(fedoraMatch.reasons.some(r => r.feature === 'Touch & Tablet Support' && r.matched));
+
+  // Printers & Scanners
+  const printRes = evaluateCriteria({
+    useCase: 'home-office',
+    peripheralNeed: 'printer-scanner'
+  });
+  const mintMatch = printRes.allMatches.find(m => m.distro.id === 'linux-mint');
+  assert.ok(mintMatch);
+  assert.ok(mintMatch.reasons.some(r => r.feature === 'Printers & Scanners' && r.matched));
+
+  // VR Headsets
+  const vrRes = evaluateCriteria({
+    useCase: 'gaming',
+    peripheralNeed: 'vr-headset'
+  });
+  const bazziteMatch = vrRes.allMatches.find(m => m.distro.id === 'bazzite');
+  assert.ok(bazziteMatch);
+  assert.ok(bazziteMatch.reasons.some(r => r.feature === 'VR & Sim Rigs' && r.matched));
+});

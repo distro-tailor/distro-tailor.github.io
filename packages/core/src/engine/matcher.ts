@@ -28,6 +28,7 @@ export function evaluateCriteria(
   if (criteria.bootMedium) maxWeight += 10;
   if (criteria.prefersGui !== undefined) maxWeight += 10;
   if (criteria.realtimeAudio) maxWeight += 15;
+  if (criteria.peripheralNeed && criteria.peripheralNeed !== 'standard') maxWeight += 15;
 
   if (maxWeight === 0) {
     maxWeight = 100; // Default baseline if nothing specified
@@ -361,6 +362,90 @@ export function evaluateCriteria(
           matched: true,
           explanation: 'Features an out-of-the-box lowlatency / realtime Linux kernel with PipeWire pro audio and JACK.'
         });
+      }
+    }
+
+    // 13. Specialized Hardware & Peripherals (Weight: 15)
+    if (criteria.peripheralNeed && criteria.peripheralNeed !== 'standard') {
+      if (criteria.peripheralNeed === 'touchscreen') {
+        const touchDistros = [
+          'fedora',
+          'fedora-silverblue',
+          'endless-os',
+          'bazzite',
+          'postmarketos',
+          'ubuntu',
+          'asahi-linux'
+        ];
+        if (touchDistros.includes(distro.id)) {
+          earned += 15;
+          reasons.push({
+            feature: 'Touch & Tablet Support',
+            matched: true,
+            explanation: 'First-class Wayland touch gestures, auto-screen rotation, and integrated on-screen keyboard.'
+          });
+        } else if (distro.id === 'antix') {
+          earned -= 10;
+          reasons.push({
+            feature: 'Touch & Tablet Support',
+            matched: false,
+            explanation: 'Uses traditional X11 window managers with minimal or no touch gesture support.'
+          });
+        }
+      } else if (criteria.peripheralNeed === 'printer-scanner') {
+        const printFriendly = ['linux-mint', 'ubuntu', 'fedora'];
+        if (printFriendly.includes(distro.id)) {
+          earned += 15;
+          reasons.push({
+            feature: 'Printers & Scanners',
+            matched: true,
+            explanation: 'Pre-configured CUPS, automatic mDNS Bonjour discovery, and turnkey HP/Brother/Epson driver utilities.'
+          });
+        } else if (['alpine', 'buildroot', 'dietpi'].includes(distro.id)) {
+          earned -= 15;
+          reasons.push({
+            feature: 'Printers & Scanners',
+            matched: false,
+            explanation: 'Minimal base system requires manual terminal setup and installation of CUPS printing daemons.'
+          });
+        }
+      } else if (criteria.peripheralNeed === 'vr-headset') {
+        const vrDistros = ['bazzite', 'pop-os', 'arch'];
+        if (vrDistros.includes(distro.id)) {
+          earned += 15;
+          reasons.push({
+            feature: 'VR & Sim Rigs',
+            matched: true,
+            explanation: 'Cutting-edge Mesa Vulkan drivers, native SteamVR compatibility, Monado/Envision OpenXR runtime, and DRM direct display leasing.'
+          });
+        } else if (['debian', 'antix'].includes(distro.id)) {
+          earned -= 15;
+          reasons.push({
+            feature: 'VR & Sim Rigs',
+            matched: false,
+            explanation: 'Older LTS kernel and Mesa graphics stack lack DRM leasing for modern VR headsets.'
+          });
+        }
+      } else if (criteria.peripheralNeed === 'drawing-tablet') {
+        const artDistros = ['ubuntu-studio', 'fedora', 'pop-os'];
+        if (artDistros.includes(distro.id)) {
+          earned += 15;
+          reasons.push({
+            feature: 'Drawing Tablets & Stylus',
+            matched: true,
+            explanation: 'Pre-calibrated Wacom/Huion digitizer drivers, pressure sensitivity curves, and pen mapping tools.'
+          });
+        }
+      } else if (criteria.peripheralNeed === 'mixed-dpi') {
+        const waylandFractional = ['fedora', 'fedora-silverblue', 'bazzite', 'pop-os', 'ubuntu'];
+        if (waylandFractional.includes(distro.id)) {
+          earned += 15;
+          reasons.push({
+            feature: 'High-DPI & Multi-Monitor',
+            matched: true,
+            explanation: 'Native Wayland per-monitor fractional scaling and independent refresh rates (prevents 4K blur).'
+          });
+        }
       }
     }
 
