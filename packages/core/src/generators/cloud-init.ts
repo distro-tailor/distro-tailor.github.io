@@ -93,11 +93,17 @@ configure: rootfs
 	sudo cp user-data $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net/user-data
 	sudo cp meta-data $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net/meta-data
 
+	@if [ -f docker-compose.yml ]; then \\
+		echo "[+] Bundling docker-compose.yml into /opt/${criteria.dockerApp || 'app'}..."; \\
+		sudo mkdir -p $(ROOTFS_DIR)/opt/${criteria.dockerApp || 'app'}; \\
+		sudo cp docker-compose.yml $(ROOTFS_DIR)/opt/${criteria.dockerApp || 'app'}/docker-compose.yml; \\
+	fi
+
 qcow2: configure
-	@echo "[+] Generating sparse QCOW2 virtual disk image ($(DISK_SIZE))..."
+	@echo "[+] Generating sparse bootable QCOW2 virtual disk image ($(DISK_SIZE))..."
 	$(QEMU_IMG) create -f qcow2 $(QCOW2_FILE) $(DISK_SIZE)
-	@echo "[+] Converting rootfs to QCOW2..."
-	sudo virt-make-fs --type=ext4 --format=qcow2 --size=$(DISK_SIZE) $(ROOTFS_DIR) $(QCOW2_FILE)
+	@echo "[+] Converting rootfs to partitioned QCOW2..."
+	sudo virt-make-fs --partition=mbr --type=ext4 --format=qcow2 --size=$(DISK_SIZE) $(ROOTFS_DIR) $(QCOW2_FILE)
 
 test-qemu:
 	@echo "[+] Booting VM with QEMU (Forwarding SSH to localhost:2222)..."

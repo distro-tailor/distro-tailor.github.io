@@ -8,20 +8,20 @@
 
 ## Remediation Progress Dashboard
 
-- [ ] **P0.1: Reflected DOM XSS Sanitization in Web UI**
-- [ ] **P0.2: Debootstrap ISO Bootability (live-boot & mksquashfs)**
-- [ ] **P0.3: Cloud-Init QCOW2 Disk Bootability & Compose Staging**
-- [ ] **P0.4: Alpine Linux Package Manager Compatibility (`apk` vs `apt-get`)**
-- [ ] **P0.5: Shell & Makefile Command Injection Hardening**
-- [ ] **P0.6: Circuit Breaker False-Positive De-escalation**
-- [ ] **P0.7: Back Button & In-Memory History Synchronization**
-- [ ] **P1.1: RAM Budget Hardware Enforcement in Matcher**
-- [ ] **P1.2: CPU Architecture Hard-Gate Disqualification (score = 0)**
-- [ ] **P1.3: Deterministic & Fact-Based Tie-Breaking**
-- [ ] **P1.4: Fix Question ID Typo in Chip Deletion & Flow Mode Toggle**
-- [ ] **P1.5: Fix Taxonomy UI Typos (`uclibc-ng`, missing State Models)**
-- [ ] **P2.1: Add `tsconfig.json` & Typecheck to `@distro-tailor/web`**
-- [ ] **P2.2: Unify URL Deserialization across Web & CLI (Prevent Dropping Modifiers)**
+- [x] **P0.1: Reflected DOM XSS Sanitization in Web UI** (Resolved: escaped dynamic labels & query params)
+- [x] **P0.2: Debootstrap ISO Bootability (live-boot & mksquashfs)** (Resolved: installed live-boot and compressed rootfs to `iso/live/filesystem.squashfs`)
+- [x] **P0.3: Cloud-Init QCOW2 Disk Bootability & Compose Staging** (Resolved: staged compose file to `/opt/<app>` and partitioned MBR)
+- [x] **P0.4: Alpine Linux Package Manager Compatibility (`apk` vs `apt-get`)** (Resolved: multi-package manager detection for apk, apt, dnf, pacman)
+- [x] **P0.5: Shell & Makefile Command Injection Hardening** (Resolved: extracted app-start.sh into dedicated recipe file and quoted variables)
+- [x] **P0.6: Circuit Breaker False-Positive De-escalation** (Resolved: removed saveStateToUrl from render and raised safety threshold)
+- [x] **P0.7: Back Button & In-Memory History Synchronization** (Resolved: in-app history depth tracking and local question undo)
+- [x] **P1.1: RAM Budget Hardware Enforcement in Matcher** (Resolved: checks `criteria.maxRamMb` vs `distro.minRamMb`)
+- [x] **P1.2: CPU Architecture Hard-Gate Disqualification (score = 0)** (Resolved: binary gate sets score = 0 for incompatible arch)
+- [x] **P1.3: Deterministic & Fact-Based Tie-Breaking** (Resolved: secondary sorting on flagship useCase, min RAM, experience level, name)
+- [x] **P1.4: Fix Question ID Typo in Chip Deletion & Flow Mode Toggle** (Resolved: corrected to `'user_familiarity'` and `'system_immutability'`)
+- [x] **P1.5: Fix Taxonomy UI Typos (`uclibc-ng`, missing State Models)** (Resolved: added `'uclibc-ng'`, `'mutable'`, `'declarative'`, `'stateless-ram'`)
+- [x] **P2.1: Add `tsconfig.json` & Typecheck to `@distro-tailor/web`** (Resolved: added tsconfig.json and verified tsc --noEmit in build)
+- [x] **P2.2: Unify URL Deserialization across Web & CLI (Prevent Dropping Modifiers)** (Resolved: shared `deserializeCriteriaFromParams` in core)
 - [ ] **Final Red Team Re-Audit & Verification**
 
 ---

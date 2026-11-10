@@ -7,6 +7,7 @@ import {
   DISTRO_REGISTRY,
   CURRENT_SCHEMA_VERSION,
   migrateUrlParameters,
+  deserializeCriteriaFromParams,
   DOCKER_APPS_REGISTRY,
   DESKTOP_APPS_REGISTRY,
   getDockerApp,
@@ -45,8 +46,9 @@ const flow = new QuestionFlow(QUESTIONS);
 // --- URL STATE PERSISTENCE, SAFEGUARDS & BROWSER HISTORY ---
 
 let isSyncingUrl = false;
+let inAppHistoryDepth = 0;
 const LOOP_WINDOW_MS = 2000;
-const MAX_TRANSITIONS_IN_WINDOW = 25;
+const MAX_TRANSITIONS_IN_WINDOW = 50;
 let transitionTimestamps: number[] = [];
 
 function checkLoopSafeguard(): boolean {
@@ -55,7 +57,7 @@ function checkLoopSafeguard(): boolean {
   transitionTimestamps.push(now);
 
   if (transitionTimestamps.length > MAX_TRANSITIONS_IN_WINDOW) {
-    console.error('[DistroTailor Safeguard] Infinite history/state loop detected. Resetting to clean homepage.');
+    console.error('[DistroTailor Safeguard] Excessive state transitions detected. Stabilizing.');
     fallbackToHomePage('A rapid state loop was intercepted. Resetting to clean start to protect your browser.');
     return false;
   }
@@ -72,6 +74,7 @@ function fallbackToHomePage(notice?: string): void {
   state.transitionDirection = 'forward';
   state.unsupportedSchemaNotice = undefined;
   transitionTimestamps = [];
+  inAppHistoryDepth = 0;
 
   if (notice) {
     showToast(notice, '⚠️');
@@ -126,11 +129,27 @@ function saveStateToUrl(push = false): void {
   try {
     if (push) {
       window.history.pushState({ ...state.criteria }, '', newUrl);
+      inAppHistoryDepth++;
     } else {
       window.history.replaceState({ ...state.criteria }, '', newUrl);
     }
   } catch (err) {
     console.warn('Failed to update browser history:', err);
+  }
+}
+
+function stepBack(): void {
+  if (inAppHistoryDepth > 0) {
+    window.history.back();
+  } else if (state.answeredQuestionIds.size > 0 || state.history.length > 0) {
+    const prev = state.history.pop();
+    state.criteria = prev || {};
+    const lastAnswered = Array.from(state.answeredQuestionIds).pop();
+    if (lastAnswered) state.answeredQuestionIds.delete(lastAnswered);
+    state.transitionDirection = 'backward';
+    saveStateToUrl(false);
+    render();
+    scrollToQuestionCard();
   }
 }
 
@@ -188,47 +207,7 @@ function loadStateFromUrl(): void {
       ans.split(',').filter(Boolean).forEach((id) => nextAnswered.add(id));
     }
 
-    const nextCriteria: UserCriteria = {};
-    const knownCriteriaKeys: (keyof UserCriteria)[] = [
-      'useCase',
-      'platform',
-      'architecture',
-      'footprint',
-      'statePreference',
-      'cLibPreference',
-      'initPreference',
-      'experienceLevel',
-      'maxRamMb',
-      'prefersGui',
-      'requiresCustomBuild',
-      'desktopEnv',
-      'enableDistrobox',
-      'enableNix',
-      'enableFlatpak',
-      'dockerApp',
-      'desktopApps'
-    ];
-
-    for (const key of knownCriteriaKeys) {
-      const val = params.get(key);
-      if (val !== undefined && val !== null) {
-        if (key === 'maxRamMb') {
-          nextCriteria[key] = Number(val);
-        } else if (key === 'desktopApps') {
-          nextCriteria[key] = val.split(',').filter(Boolean) as DesktopAppId[];
-        } else if (
-          key === 'prefersGui' ||
-          key === 'requiresCustomBuild' ||
-          key === 'enableDistrobox' ||
-          key === 'enableNix' ||
-          key === 'enableFlatpak'
-        ) {
-          nextCriteria[key] = val === 'true' || val === '1';
-        } else {
-          (nextCriteria as any)[key] = val;
-        }
-      }
-    }
+    const nextCriteria: UserCriteria = deserializeCriteriaFromParams(migration.params);
 
     state.criteria = nextCriteria;
     state.answeredQuestionIds = nextAnswered;
@@ -253,6 +232,9 @@ window.addEventListener('popstate', () => {
 
   isSyncingUrl = true;
   try {
+    if (inAppHistoryDepth > 0) {
+      inAppHistoryDepth--;
+    }
     const prevAnsweredCount = state.answeredQuestionIds.size;
     loadStateFromUrl();
     const newAnsweredCount = state.answeredQuestionIds.size;
@@ -410,13 +392,17 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
       full: { label: 'Full Workstation', icon: '🎮' }
     },
     statePreference: {
-      'traditional-mutable': { label: 'Standard Mutable (apt/dnf)', icon: '✏️' },
+      mutable: { label: 'Traditional Mutable (apt/dnf)', icon: '✏️' },
+      'traditional-mutable': { label: 'Traditional Mutable (apt/dnf)', icon: '✏️' },
+      declarative: { label: 'Declarative (NixOS / Guix)', icon: '❄️' },
+      'stateless-ram': { label: 'Stateless / Run from RAM', icon: '⚡' },
       'read-only-rootfs': { label: 'Read-Only RootFS (OverlayFS)', icon: '🔒' },
       'immutable-ostree': { label: 'Atomic / Immutable (OSTree)', icon: '🛡️' }
     },
     cLibPreference: {
       glibc: { label: 'GNU C Library (glibc)', icon: '📚' },
       musl: { label: 'musl libc (Lean & Fast)', icon: '🪶' },
+      'uclibc-ng': { label: 'uClibc-ng (Embedded)', icon: '🔌' },
       uclibc: { label: 'uClibc-ng (Embedded)', icon: '🔌' }
     },
     initPreference: {
@@ -428,7 +414,7 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
   };
 
   if (key === 'maxRamMb') {
-    return { label: `${value} MB RAM`, icon: '🧠' };
+    return { label: `${Number(value) || 0} MB RAM`, icon: '🧠' };
   }
   if (key === 'prefersGui') {
     return { label: value ? 'Graphical Desktop (GUI)' : 'Headless / Terminal Only', icon: value ? '🖼️' : '⌨️' };
@@ -438,14 +424,14 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
   }
   if (key === 'dockerApp') {
     const app = getDockerApp(value);
-    return { label: app ? `Docker: ${app.name}` : `Docker: ${value}`, icon: app ? app.icon : '🐳' };
+    return { label: app ? `Docker: ${app.name}` : `Docker: ${escapeHtml(String(value))}`, icon: app ? app.icon : '🐳' };
   }
   if (key === 'desktopApps') {
     const list = Array.isArray(value) ? value : String(value).split(',').filter(Boolean);
     return { label: `Desktop Apps: ${list.length} selected`, icon: '📦' };
   }
   if (key === 'desktopEnv') {
-    return { label: `Desktop: ${String(value).toUpperCase()}`, icon: '🖼️' };
+    return { label: `Desktop: ${escapeHtml(String(value)).toUpperCase()}`, icon: '🖼️' };
   }
   if (key === 'enableDistrobox') {
     return { label: value ? 'Distrobox (Arch AUR)' : 'Native Only', icon: '🏛️' };
@@ -460,7 +446,7 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
   if (map[key] && map[key][value]) {
     return map[key][value];
   }
-  return { label: `${key}: ${value}`, icon: '📌' };
+  return { label: escapeHtml(`${key}: ${value}`), icon: '📌' };
 }
 
 function scrollToQuestionCard(): void {
@@ -482,7 +468,6 @@ function scrollToQuestionCard(): void {
 }
 
 function render() {
-  saveStateToUrl();
   const app = getAppElement();
   const evaluation: RecommendationOutput = evaluateCriteria(state.criteria);
   const nextQuestion = flow.getNextQuestion(state.criteria, state.answeredQuestionIds);
@@ -555,10 +540,10 @@ function render() {
     </header>
 
     <!-- Main Workspace -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-3.5 py-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 min-w-0 max-w-full overflow-hidden">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3.5 py-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 min-w-0 max-w-full overflow-x-clip">
       
       <!-- Primary Left Column: Wizard Cards or Results -->
-      <section class="lg:col-span-8 flex flex-col gap-6 min-w-0 w-full max-w-full overflow-hidden">
+      <section class="lg:col-span-8 flex flex-col gap-6 min-w-0 w-full max-w-full overflow-x-clip">
         ${renderPrimarySection(nextQuestion, progress, evaluation)}
       </section>
 
@@ -618,8 +603,8 @@ function render() {
                   return `
                     <span class="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-lg text-xs bg-slate-800 text-slate-200 border border-slate-700/60 shadow-sm group hover:border-slate-600 transition-colors max-w-full min-w-0">
                       <span class="shrink-0">${c.icon}</span>
-                      <span class="truncate">${c.label}</span>
-                      <button data-remove-key="${k}" class="btn-remove-choice text-slate-500 hover:text-red-400 p-0.5 rounded transition-colors text-[10px] leading-none shrink-0" title="Remove this choice">✕</button>
+                      <span class="truncate">${escapeHtml(c.label)}</span>
+                      <button data-remove-key="${escapeHtml(k)}" class="btn-remove-choice text-slate-500 hover:text-red-400 p-0.5 rounded transition-colors text-[10px] leading-none shrink-0" title="Remove this choice">✕</button>
                     </span>
                   `;
                 }).join('')}
@@ -704,7 +689,7 @@ function renderUnsupportedSchemaFallback(notice: string): string {
       </div>
       <h2 class="text-xl sm:text-2xl font-extrabold text-slate-100 mb-2 break-words">Unsupported Link Schema</h2>
       <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6 break-words">
-        ${notice}
+        ${escapeHtml(notice)}
       </p>
 
       <div class="p-3.5 sm:p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-400 mb-6 sm:mb-8 text-left space-y-2 min-w-0">
@@ -1953,7 +1938,7 @@ function renderShareModal(evaluation: RecommendationOutput): string {
           <div class="min-w-0">
             <label class="block text-xs font-semibold text-slate-300 mb-1.5">Direct Shareable Link (Preserves All Criteria)</label>
             <div class="flex items-center gap-2 min-w-0">
-              <input type="text" readonly id="share-link-input" value="${url}" class="min-w-0 flex-1 bg-slate-950 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-xs font-mono select-all focus:outline-none focus:border-emerald-500" />
+              <input type="text" readonly id="share-link-input" value="${escapeHtml(url)}" class="min-w-0 flex-1 bg-slate-950 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-xs font-mono select-all focus:outline-none focus:border-emerald-500" />
               <button id="btn-copy-share-link" class="px-3 sm:px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-colors shrink-0 flex items-center gap-1 cursor-pointer">
                 <span>📋</span> <span class="hidden sm:inline">Copy</span>
               </button>
@@ -2109,13 +2094,13 @@ function attachEventHandlers(
           state.answeredQuestionIds.delete('beginner_memory');
           state.answeredQuestionIds.delete('memory_and_storage');
         } else if (key === 'experienceLevel') {
-          state.answeredQuestionIds.delete('beginner_experience');
+          state.answeredQuestionIds.delete('user_familiarity');
         } else if (key === 'statePreference') {
-          state.answeredQuestionIds.delete('immutability_and_state');
+          state.answeredQuestionIds.delete('system_immutability');
         } else if (key === 'cLibPreference' || key === 'initPreference') {
           state.answeredQuestionIds.delete('c_library_and_init');
         }
-        saveStateToUrl();
+        saveStateToUrl(true);
         render();
         showToast(`Removed filter: ${key}`, '🗑️');
       }
@@ -2140,6 +2125,15 @@ function attachEventHandlers(
     state.answeredQuestionIds.delete('beginner_memory');
     state.answeredQuestionIds.delete('memory_and_storage');
 
+    if (newLevel === 'beginner') {
+      state.answeredQuestionIds.delete('system_immutability');
+      state.answeredQuestionIds.delete('c_library_and_init');
+      delete state.criteria.initPreference;
+      delete state.criteria.cLibPreference;
+      delete state.criteria.statePreference;
+    }
+
+    saveStateToUrl(true);
     render();
   });
 
@@ -2193,42 +2187,22 @@ function attachEventHandlers(
 
         // Backspace or Left Arrow = Previous
         if (e.key === 'Backspace' || e.key === 'ArrowLeft') {
-          if (state.history.length > 0 || state.answeredQuestionIds.size > 0) {
-            if (window.history.length > 1) {
-              window.history.back();
-            } else {
-              const prev = state.history.pop();
-              state.criteria = prev || {};
-              const lastAnswered = Array.from(state.answeredQuestionIds).pop();
-              if (lastAnswered) state.answeredQuestionIds.delete(lastAnswered);
-              state.transitionDirection = 'backward';
-              saveStateToUrl(false);
-              render();
-              scrollToQuestionCard();
-            }
-          }
+          stepBack();
         }
+      }
+
+      // Escape key closes modal
+      if (e.key === 'Escape' && state.showShareModal) {
+        state.showShareModal = false;
+        render();
       }
     });
     keyboardHandlerRegistered = true;
   }
 
-  // Back button (delegates to browser history to keep native and in-app back in sync)
+  // Back button (delegates to stepBack to preserve in-app history and prevent site ejection)
   document.getElementById('btn-back')?.addEventListener('click', () => {
-    if (state.history.length > 0 || state.answeredQuestionIds.size > 0) {
-      if (window.history.length > 1) {
-        window.history.back();
-      } else {
-        const prev = state.history.pop();
-        state.criteria = prev || {};
-        const lastAnswered = Array.from(state.answeredQuestionIds).pop();
-        if (lastAnswered) state.answeredQuestionIds.delete(lastAnswered);
-        state.transitionDirection = 'backward';
-        saveStateToUrl(false);
-        render();
-        scrollToQuestionCard();
-      }
-    }
+    stepBack();
   });
 
   // Skip button

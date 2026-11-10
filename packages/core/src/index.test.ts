@@ -362,3 +362,35 @@ test('QuestionFlow: Dynamically tailors questions for beginners (hides init and 
   assert.equal(beginnerEligible.some(q => q.id === 'system_immutability'), false);
   assert.equal(beginnerEligible.some(q => q.id === 'technical_use_case'), false);
 });
+
+test('Matcher: Incompatible CPU architecture results in score 0 (hard physical gate)', () => {
+  // Test NOMMU microcontroller constraint on x86-only distros
+  const result = evaluateCriteria({
+    architecture: 'nommu',
+    useCase: 'server'
+  });
+
+  // Distros that do not support nommu must be disqualified (score = 0)
+  for (const match of result.topMatches) {
+    if (!match.distro.architectures.includes('nommu')) {
+      assert.equal(match.score, 0, `${match.distro.name} must have 0 score on nommu`);
+      assert.ok(match.reasons.some(r => r.feature === 'Architecture' && !r.matched));
+    }
+  }
+});
+
+test('Matcher: RAM constraints evaluate maxRamMb against minRamMb', () => {
+  const lowRamResult = evaluateCriteria({
+    maxRamMb: 512,
+    useCase: 'desktop'
+  });
+
+  // antiX or tiny distros should outrank 4GB workstations like Pop!_OS or Fedora
+  const antix = lowRamResult.topMatches.find(m => m.distro.id === 'antix');
+  assert.ok(antix, 'antiX should be in top matches for 512MB RAM desktop');
+  assert.ok(antix.score > 0);
+
+  const ramReason = antix.reasons.find(r => r.feature === 'RAM Budget');
+  assert.ok(ramReason);
+  assert.equal(ramReason.matched, true);
+});

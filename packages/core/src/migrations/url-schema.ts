@@ -9,6 +9,8 @@
  *    new non-destructive tips or questions) MUST remain on the current schema version.
  */
 
+import { UserCriteria } from '../types.js';
+
 export const CURRENT_SCHEMA_VERSION = 1;
 export const MINIMUM_SUPPORTED_SCHEMA_VERSION = 1;
 
@@ -152,4 +154,53 @@ export function migrateUrlParameters(rawParams: Record<string, string>): Migrati
     warnings,
     params: currentParams
   };
+}
+
+/**
+ * Universally parses normalized URL/query parameter key-values into strongly typed UserCriteria,
+ * ensuring complete parity across Web, CLI, and API consumers.
+ */
+export function deserializeCriteriaFromParams(params: Record<string, string>): UserCriteria {
+  const criteria: UserCriteria = {};
+
+  if (params.useCase) criteria.useCase = params.useCase as any;
+  if (params.platform) criteria.platform = params.platform as any;
+  if (params.architecture) criteria.architecture = params.architecture as any;
+  if (params.footprint) criteria.footprint = params.footprint as any;
+  if (params.statePreference) criteria.statePreference = params.statePreference as any;
+  if (params.cLibPreference) criteria.cLibPreference = params.cLibPreference as any;
+  if (params.initPreference) criteria.initPreference = params.initPreference as any;
+  if (params.experienceLevel) criteria.experienceLevel = params.experienceLevel as any;
+
+  if (params.maxRamMb) {
+    const ram = Number(params.maxRamMb);
+    if (!isNaN(ram) && ram > 0) criteria.maxRamMb = ram;
+  }
+
+  if (params.prefersGui !== undefined) {
+    criteria.prefersGui = params.prefersGui === 'true' || params.prefersGui === '1';
+  }
+  if (params.requiresCustomBuild !== undefined) {
+    criteria.requiresCustomBuild = params.requiresCustomBuild === 'true' || params.requiresCustomBuild === '1';
+  }
+  if (params.desktopEnv) {
+    criteria.desktopEnv = params.desktopEnv as any;
+  }
+  if (params.enableDistrobox !== undefined) {
+    criteria.enableDistrobox = params.enableDistrobox === 'true' || params.enableDistrobox === '1';
+  }
+  if (params.enableNix !== undefined) {
+    criteria.enableNix = params.enableNix === 'true' || params.enableNix === '1';
+  }
+  if (params.enableFlatpak !== undefined) {
+    criteria.enableFlatpak = params.enableFlatpak === 'true' || params.enableFlatpak === '1';
+  }
+  if (params.dockerApp && params.dockerApp !== 'none') {
+    criteria.dockerApp = params.dockerApp as any;
+  }
+  if (params.desktopApps) {
+    criteria.desktopApps = params.desktopApps.split(',').filter(Boolean) as any[];
+  }
+
+  return criteria;
 }

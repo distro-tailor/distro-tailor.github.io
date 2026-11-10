@@ -240,24 +240,53 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
+# Detect host package manager (supports Debian/Ubuntu, Alpine, Fedora, Arch)
+if command -v apk >/dev/null 2>&1; then
+  PKG_MGR="apk"
+elif command -v apt-get >/dev/null 2>&1; then
+  PKG_MGR="apt"
+elif command -v dnf >/dev/null 2>&1; then
+  PKG_MGR="dnf"
+elif command -v pacman >/dev/null 2>&1; then
+  PKG_MGR="pacman"
+else
+  PKG_MGR="unknown"
+fi
+
 echo "===================================================================="
 echo " DistroTailor: Installing ${selectedApps.length} Selected Desktop Application(s)"
-echo " Mode: 100% Unattended / Automated"
+echo " Package Manager: $PKG_MGR | Mode: 100% Unattended"
 echo "===================================================================="
 
 ${aptList.length > 0 ? `
-echo "[+] Step 1: Installing native distribution packages via APT..."
-export DEBIAN_FRONTEND=noninteractive
-apt-get update -y
-apt-get install -y --no-install-recommends \\
-  ${Array.from(new Set(aptList)).join(' \\\n  ')}
+echo "[+] Step 1: Installing native distribution packages..."
+if [ "$PKG_MGR" = "apt" ]; then
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update -y
+  apt-get install -y --no-install-recommends \\
+    ${Array.from(new Set(aptList)).join(' \\\n    ')}
+elif [ "$PKG_MGR" = "apk" ]; then
+  apk update
+  apk add --no-cache \\
+    ${Array.from(new Set(aptList)).join(' \\\n    ')}
+elif [ "$PKG_MGR" = "dnf" ]; then
+  dnf install -y \\
+    ${Array.from(new Set(aptList)).join(' \\\n    ')}
+fi
 echo "[✓] Native packages installed successfully."
 ` : ''}
 
 ${flatpakList.length > 0 ? `
 echo "[+] Step 2: Preparing Flatpak universal desktop sandbox..."
-apt-get update -y
-apt-get install -y --no-install-recommends flatpak
+if ! command -v flatpak >/dev/null 2>&1; then
+  if [ "$PKG_MGR" = "apt" ]; then
+    apt-get update -y && apt-get install -y --no-install-recommends flatpak
+  elif [ "$PKG_MGR" = "apk" ]; then
+    apk update && apk add --no-cache flatpak
+  elif [ "$PKG_MGR" = "dnf" ]; then
+    dnf install -y flatpak
+  fi
+fi
 
 # Ensure Flathub repository is registered
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo

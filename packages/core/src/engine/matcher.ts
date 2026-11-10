@@ -18,6 +18,7 @@ export function evaluateCriteria(
   if (criteria.platform) maxWeight += 20;
   if (criteria.architecture) maxWeight += 20;
   if (criteria.footprint) maxWeight += 15;
+  if (criteria.maxRamMb) maxWeight += 15;
   if (criteria.statePreference && criteria.statePreference !== 'no-preference') maxWeight += 10;
   if (criteria.cLibPreference && criteria.cLibPreference !== 'no-preference') maxWeight += 5;
   if (criteria.initPreference && criteria.initPreference !== 'no-preference') maxWeight += 5;
@@ -29,6 +30,8 @@ export function evaluateCriteria(
 
   const scoredDistros: DistroScore[] = distros.map((distro) => {
     let earned = 0;
+    let isHardDisqualified = false;
+    let hardDisqualificationReason = '';
     const reasons: MatchReason[] = [];
 
     // 1. Use Case Alignment (Weight: 25)
@@ -71,7 +74,7 @@ export function evaluateCriteria(
       }
     }
 
-    // 3. CPU Architecture (Weight: 20 - Hard Gate)
+    // 3. CPU Architecture (Weight: 20 - Hard Physical Disqualifier Gate)
     if (criteria.architecture) {
       if (distro.architectures.includes(criteria.architecture)) {
         earned += 20;
@@ -81,16 +84,17 @@ export function evaluateCriteria(
           explanation: `Supports ${criteria.architecture} hardware.`
         });
       } else {
-        earned -= 40; // Heavy penalty for incompatible architecture
+        isHardDisqualified = true;
+        hardDisqualificationReason = `Cannot run on ${criteria.architecture} hardware (unsupported CPU architecture).`;
         reasons.push({
           feature: 'Architecture',
           matched: false,
-          explanation: `Lacks official tier-1 support for ${criteria.architecture}.`
+          explanation: hardDisqualificationReason
         });
       }
     }
 
-    // 4. Storage Footprint & RAM (Weight: 15)
+    // 4. Storage Footprint & RAM Budget (Weight: 15 + 15)
     if (criteria.footprint) {
       const footprintOrder = ['micro', 'minimal', 'lean', 'standard', 'full'];
       const targetIdx = footprintOrder.indexOf(criteria.footprint);
@@ -113,6 +117,24 @@ export function evaluateCriteria(
           feature: 'Footprint',
           matched: false,
           explanation: `Exceeds your ${criteria.footprint} size budget (requires ${distro.footprint}).`
+        });
+      }
+    }
+
+    if (criteria.maxRamMb) {
+      if (distro.minRamMb <= criteria.maxRamMb) {
+        earned += 15;
+        reasons.push({
+          feature: 'RAM Budget',
+          matched: true,
+          explanation: `Requires ${distro.minRamMb} MB RAM, fits within your ${criteria.maxRamMb} MB budget.`
+        });
+      } else {
+        earned -= 30; // Heavy penalty: exceeds physically installed RAM
+        reasons.push({
+          feature: 'RAM Budget',
+          matched: false,
+          explanation: `Requires minimum ${distro.minRamMb} MB RAM, which exceeds your ${criteria.maxRamMb} MB hardware budget.`
         });
       }
     }
@@ -170,8 +192,8 @@ export function evaluateCriteria(
       }
     }
 
-    // Normalized relative compatibility score (0 - 100%)
-    const normalizedScore = Math.max(0, Math.min(100, Math.round((earned / maxWeight) * 100)));
+    // Normalized relative compatibility score (0 - 100%). Hard disqualifications are locked to 0%.
+    const normalizedScore = isHardDisqualified ? 0 : Math.max(0, Math.min(100, Math.round((earned / maxWeight) * 100)));
 
     return {
       distro,
@@ -180,16 +202,38 @@ export function evaluateCriteria(
     };
   });
 
-  // Sort descending by match score
-  scoredDistros.sort((a, b) => b.score - a.score);
+  // Deterministic, fact-based tie breaking:
+  // 1. Primary score descending
+  // 2. Flagship use-case alignment
+  // 3. Lower minimum RAM footprint
+  // 4. Exact experience level match
+  // 5. Alphabetical by name
+  scoredDistros.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+    if (criteria.useCase) {
+      const aFlagship = a.distro.primaryUseCases[0] === criteria.useCase;
+      const bFlagship = b.distro.primaryUseCases[0] === criteria.useCase;
+      if (aFlagship !== bFlagship) return aFlagship ? -1 : 1;
+    }
+    if (criteria.maxRamMb && a.distro.minRamMb !== b.distro.minRamMb) {
+      return a.distro.minRamMb - b.distro.minRamMb;
+    }
+    if (criteria.experienceLevel) {
+      const aExp = a.distro.experienceLevel === criteria.experienceLevel;
+      const bExp = b.distro.experienceLevel === criteria.experienceLevel;
+      if (aExp !== bExp) return aExp ? -1 : 1;
+    }
+    return a.distro.name.localeCompare(b.distro.name);
+  });
 
   const bestMatch = scoredDistros[0];
 
   // Resolve recipe generator if requested or available
   let recommendedRecipe;
   const targetGeneratorId =
-    bestMatch.distro.recipeGeneratorId ||
-    (criteria.platform === 'wsl2'
+    criteria.platform === 'wsl2'
       ? 'wsl2-debian'
       : criteria.platform === 'vm'
       ? 'cloud-init-qcow2'
@@ -197,7 +241,7 @@ export function evaluateCriteria(
       ? 'proxmox-lxc'
       : criteria.useCase === 'iot-embedded'
       ? 'buildroot-embedded'
-      : 'debootstrap-debian');
+      : bestMatch.distro.recipeGeneratorId || 'debootstrap-debian';
 
   if (targetGeneratorId) {
     recommendedRecipe = resolveRecipeGenerator(targetGeneratorId, criteria);

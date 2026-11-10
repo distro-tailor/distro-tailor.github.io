@@ -8,7 +8,8 @@ import {
   resolveRecipeGenerator,
   RecipeGeneratorId,
   UserCriteria,
-  migrateUrlParameters
+  migrateUrlParameters,
+  deserializeCriteriaFromParams
 } from '@distro-tailor/core';
 import { runInteractiveWizard } from './wizard.js';
 
@@ -72,16 +73,10 @@ program
         console.log(pc.yellow(`ℹ Normalized URL parameters (v${migration.version}): ${migration.warnings.join('; ')}`));
       }
 
+      const urlCriteria = deserializeCriteriaFromParams(migration.params);
       criteria = {
         ...criteria,
-        useCase: (migration.params.useCase as any) || criteria.useCase,
-        platform: (migration.params.platform as any) || criteria.platform,
-        architecture: (migration.params.architecture as any) || criteria.architecture,
-        footprint: (migration.params.footprint as any) || criteria.footprint,
-        statePreference: (migration.params.statePreference as any) || criteria.statePreference,
-        cLibPreference: (migration.params.cLibPreference as any) || criteria.cLibPreference,
-        initPreference: (migration.params.initPreference as any) || criteria.initPreference,
-        experienceLevel: (migration.params.experienceLevel as any) || criteria.experienceLevel
+        ...urlCriteria
       };
     }
 
@@ -120,6 +115,7 @@ program
   .action(async (options) => {
     let recipeId = options.recipe as RecipeGeneratorId;
     let arch = options.arch;
+    let exportCriteria: UserCriteria = { architecture: arch };
 
     if (options.url) {
       const raw = parseUrlCriteria(options.url);
@@ -130,10 +126,11 @@ program
         process.exit(1);
       }
 
-      const evalResult = evaluateCriteria(migration.params as any);
+      exportCriteria = deserializeCriteriaFromParams(migration.params);
+      const evalResult = evaluateCriteria(exportCriteria);
       if (evalResult.recommendedRecipe) {
         recipeId = evalResult.recommendedRecipe.id;
-        arch = (migration.params.architecture as any) || arch;
+        arch = exportCriteria.architecture || arch;
         console.log(pc.cyan(`ℹ Inferred recipe "${recipeId}" from shared URL (${evalResult.bestMatch.distro.name})`));
       } else {
         console.error(pc.red('\n✖ No specific build recipe mapped for the criteria in this URL.'));
@@ -147,7 +144,7 @@ program
     }
 
     const targetDir = path.resolve(process.cwd(), options.out);
-    const recipe = resolveRecipeGenerator(recipeId, { architecture: arch });
+    const recipe = resolveRecipeGenerator(recipeId, { ...exportCriteria, architecture: arch });
 
     await fs.mkdir(targetDir, { recursive: true });
 

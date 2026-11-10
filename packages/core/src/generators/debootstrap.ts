@@ -102,6 +102,7 @@ configure: rootfs
 		apt-get install -y --no-install-recommends \\
 			linux-image-${arch} \\
 			systemd-sysv \\
+			live-boot \\
 			grub-pc-bin \\
 			grub-efi-${arch}-bin \\
 			iproute2 \\
@@ -159,8 +160,10 @@ configure: rootfs
 	umount -l $(ROOTFS_DIR)/proc || true
 
 iso: configure
-	@echo "[+] Generating bootable ISO..."
+	@echo "[+] Compressing rootfs into live squashfs image..."
+	mkdir -p $(BUILD_DIR)/iso/live
 	mkdir -p $(BUILD_DIR)/iso/boot/grub
+	$(MKSQUASHFS) $(ROOTFS_DIR) $(BUILD_DIR)/iso/live/filesystem.squashfs -comp xz -wildcards -e "boot/*"
 	cp $(ROOTFS_DIR)/boot/vmlinuz-* $(BUILD_DIR)/iso/boot/vmlinuz
 	cp $(ROOTFS_DIR)/boot/initrd.img-* $(BUILD_DIR)/iso/boot/initrd.img
 	

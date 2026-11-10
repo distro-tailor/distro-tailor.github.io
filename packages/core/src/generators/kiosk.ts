@@ -50,13 +50,7 @@ build: prepare
 
 	# Inject Single-App startup script
 	@mkdir -p $(ROOTFS_DIR)/home/appuser
-	@echo '#!/bin/sh' > $(ROOTFS_DIR)/home/appuser/app-start.sh
-	@echo '# Watchdog loop: relaunch app immediately if it exits or crashes' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
-	@echo 'while true; do' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
-	@echo '  cage -s -- $(APP_CMD)' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
-	@echo '  echo "App exited ($$?). Restarting in 1s..."' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
-	@echo '  sleep 1' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
-	@echo 'done' >> $(ROOTFS_DIR)/home/appuser/app-start.sh
+	@cp app-start.sh $(ROOTFS_DIR)/home/appuser/app-start.sh
 	@chmod +x $(ROOTFS_DIR)/home/appuser/app-start.sh
 	@chown -R 1000:1000 $(ROOTFS_DIR)/home/appuser
 
@@ -90,6 +84,19 @@ clean:
           ? 'Installs Alpine, Cage Wayland kiosk compositor, and launches custom app binary with auto-restart'
           : 'Installs Alpine, Cage Wayland compositor, and Chromium kiosk launcher',
         content: makefileContent
+      },
+      {
+        filename: 'app-start.sh',
+        description: 'Cage Wayland auto-restart watchdog supervisor script',
+        executable: true,
+        content: `#!/bin/sh
+# Watchdog loop: relaunch app immediately if it exits or crashes
+while true; do
+  cage -s -- ${isAppliance ? '/opt/app/my-custom-app' : 'chromium --kiosk --no-sandbox http://localhost:8080'}
+  echo "App exited ($?). Restarting in 1s..."
+  sleep 1
+done
+`
       }
     ],
     quickstartCommands: isAppliance
