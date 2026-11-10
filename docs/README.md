@@ -27,6 +27,12 @@ Welcome to the central documentation index for **DistroTailor**—the 20-Questio
   - Freelance Home Office & Creative Multimedia Studios (Linux Mint, Fedora, Ubuntu Studio)
   - URL Sharing Invariants, Schema Migration Engine, and Universal CLI/Web/API Parity
 
+- **[Red Team Architectural & Security Audit Tracker](04-red-team-audit-and-remediation.md)**
+  - Complete findings across Security (DOM XSS, Makefile injection, hardcoded credentials)
+  - Functional issues (ISO bootability, virt-make-fs cloud-init, Alpine apk mismatch)
+  - Matcher & UX enhancements (RAM budget evaluation, hard arch gates, circuit breaker resilience)
+  - Step-by-step remediation tracking dashboard
+
 ---
 
 ## 🥒 Behavior-Driven Living Specifications (`specs/`)
