@@ -80,8 +80,9 @@ export function renderNavbar(state: AppState, evaluation: RecommendationOutput):
 
 export function renderLeaderboard(evaluation: RecommendationOutput, state: AppState): string {
   const isExpanded = state.showAllContenders;
-  const displayMatches = isExpanded ? evaluation.topMatches : evaluation.topMatches.slice(0, 6);
-  const totalCount = DISTRO_REGISTRY.length;
+  const allDistros = evaluation.allMatches || evaluation.topMatches;
+  const displayMatches = isExpanded ? allDistros : allDistros.slice(0, 6);
+  const totalCount = allDistros.length || DISTRO_REGISTRY.length;
 
   return `
     <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80 gap-2">
@@ -130,7 +131,7 @@ export function renderLeaderboard(evaluation: RecommendationOutput, state: AppSt
     <!-- Toggle All 31 Contenders Action Bar -->
     <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs">
       <button id="btn-toggle-all-contenders" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 cursor-pointer transition-colors">
-        <span>${isExpanded ? '▲ Show Top 6 Only' : `▼ View All ${totalCount} Distros (${evaluation.topMatches.length} Ranked)`}</span>
+        <span>${isExpanded ? '▲ Show Top 6 Only' : `▼ View All ${totalCount} Distros (${allDistros.length} Ranked)`}</span>
       </button>
       <button id="btn-quick-matrix" class="text-[11px] font-mono text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1 cursor-pointer" title="Open full comparison matrix">
         <span>Matrix</span> ↗

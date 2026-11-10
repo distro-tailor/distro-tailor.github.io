@@ -254,6 +254,7 @@ export interface GeneratedRecipe {
 
 export interface RecommendationOutput {
   topMatches: DistroScore[];
+  allMatches: DistroScore[];
   bestMatch: DistroScore;
   customRecipeAvailable: boolean;
   recommendedRecipe?: GeneratedRecipe;

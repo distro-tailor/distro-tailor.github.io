@@ -394,3 +394,13 @@ test('Matcher: RAM constraints evaluate maxRamMb against minRamMb', () => {
   assert.ok(ramReason);
   assert.equal(ramReason.matched, true);
 });
+
+test('Matcher: allMatches contains all 31 registered distributions ranked', () => {
+  const result = evaluateCriteria({});
+  assert.equal(result.allMatches.length, 31);
+  assert.equal(result.topMatches.length, 5);
+  // Ensure descending score order
+  for (let i = 0; i < result.allMatches.length - 1; i++) {
+    assert.ok(result.allMatches[i].score >= result.allMatches[i + 1].score);
+  }
+});

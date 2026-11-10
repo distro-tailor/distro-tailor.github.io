@@ -251,6 +251,7 @@ export function evaluateCriteria(
 
   return {
     topMatches: scoredDistros.slice(0, 5),
+    allMatches: scoredDistros,
     bestMatch,
     customRecipeAvailable: !!recommendedRecipe,
     recommendedRecipe,
