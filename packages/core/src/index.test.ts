@@ -467,3 +467,78 @@ test('Hardware Constraints: Desktop app compatibility enforces architecture and 
   assert.equal(neovimCheck.compatible, true);
   assert.equal(neovimCheck.warnings.length, 0);
 });
+
+test('QuestionFlow: Presents expanded questions (display mode, release cadence, driver philosophy, boot medium, pro audio)', () => {
+  const flow = new QuestionFlow(QUESTIONS);
+  const eligible = flow.getEligibleQuestions({ experienceLevel: 'intermediate', useCase: 'desktop' });
+
+  assert.ok(eligible.some(q => q.id === 'display_mode'), 'Must include display_mode');
+  assert.ok(eligible.some(q => q.id === 'release_cadence'), 'Must include release_cadence');
+  assert.ok(eligible.some(q => q.id === 'driver_philosophy'), 'Must include driver_philosophy');
+  assert.ok(eligible.some(q => q.id === 'boot_medium'), 'Must include boot_medium');
+  assert.ok(eligible.some(q => q.id === 'audio_latency'), 'Must include audio_latency');
+});
+
+test('Matcher: Evaluates release cadence (rolling vs LTS)', () => {
+  const rollingRes = evaluateCriteria({
+    useCase: 'desktop',
+    releaseCadence: 'rolling'
+  });
+  const archMatch = rollingRes.allMatches.find(m => m.distro.id === 'arch');
+  assert.ok(archMatch);
+  assert.ok(archMatch.reasons.some(r => r.feature === 'Release Cadence' && r.matched));
+
+  const ltsRes = evaluateCriteria({
+    useCase: 'desktop',
+    releaseCadence: 'lts'
+  });
+  const debianMatch = ltsRes.allMatches.find(m => m.distro.id === 'debian');
+  assert.ok(debianMatch);
+  assert.ok(debianMatch.reasons.some(r => r.feature === 'Release Cadence' && r.matched));
+});
+
+test('Matcher: Evaluates driver philosophy (proprietary vs free software)', () => {
+  const propRes = evaluateCriteria({
+    useCase: 'desktop',
+    driverPhilosophy: 'seamless-proprietary'
+  });
+  const popMatch = propRes.allMatches.find(m => m.distro.id === 'pop-os');
+  assert.ok(popMatch);
+  assert.ok(popMatch.reasons.some(r => r.feature === 'Proprietary Drivers' && r.matched));
+
+  const freeRes = evaluateCriteria({
+    useCase: 'desktop',
+    driverPhilosophy: 'free-software-only'
+  });
+  const debianFreeMatch = freeRes.allMatches.find(m => m.distro.id === 'debian');
+  assert.ok(debianFreeMatch);
+  assert.ok(debianFreeMatch.reasons.some(r => r.feature === 'Open Source Drivers' && r.matched));
+});
+
+test('Matcher: Evaluates boot medium (MicroSD/USB flash wear reduction vs PXE diskless)', () => {
+  const flashRes = evaluateCriteria({
+    useCase: 'server',
+    bootMedium: 'sd-card-usb'
+  });
+  const dietPiMatch = flashRes.allMatches.find(m => m.distro.id === 'dietpi');
+  assert.ok(dietPiMatch);
+  assert.ok(dietPiMatch.reasons.some(r => r.feature === 'Flash Storage' && r.matched));
+
+  const pxeRes = evaluateCriteria({
+    useCase: 'k8s-cluster',
+    bootMedium: 'pxe-diskless'
+  });
+  const talosMatch = pxeRes.allMatches.find(m => m.distro.id === 'talos');
+  assert.ok(talosMatch);
+  assert.ok(talosMatch.reasons.some(r => r.feature === 'Diskless Boot' && r.matched));
+});
+
+test('Matcher: Realtime audio significantly boosts Ubuntu Studio', () => {
+  const studioRes = evaluateCriteria({
+    useCase: 'creative-studio',
+    realtimeAudio: true
+  });
+  const studioMatch = studioRes.allMatches.find(m => m.distro.id === 'ubuntu-studio');
+  assert.ok(studioMatch);
+  assert.ok(studioMatch.reasons.some(r => r.feature === 'Low-Latency Audio' && r.matched));
+});

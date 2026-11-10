@@ -23,6 +23,11 @@ export function evaluateCriteria(
   if (criteria.cLibPreference && criteria.cLibPreference !== 'no-preference') maxWeight += 5;
   if (criteria.initPreference && criteria.initPreference !== 'no-preference') maxWeight += 5;
   if (criteria.experienceLevel) maxWeight += 5;
+  if (criteria.releaseCadence) maxWeight += 10;
+  if (criteria.driverPhilosophy && criteria.driverPhilosophy !== 'no-preference') maxWeight += 10;
+  if (criteria.bootMedium) maxWeight += 10;
+  if (criteria.prefersGui !== undefined) maxWeight += 10;
+  if (criteria.realtimeAudio) maxWeight += 15;
 
   if (maxWeight === 0) {
     maxWeight = 100; // Default baseline if nothing specified
@@ -188,6 +193,114 @@ export function evaluateCriteria(
           feature: 'Experience Level',
           matched: false,
           explanation: `Requires advanced low-level source compilation (not ideal for beginners).`
+        });
+      }
+    }
+
+    // 8. Release Cadence (Weight: 10)
+    if (criteria.releaseCadence) {
+      if (criteria.releaseCadence === 'rolling' && distro.rollingRelease) {
+        earned += 10;
+        reasons.push({
+          feature: 'Release Cadence',
+          matched: true,
+          explanation: 'Continuous rolling release model provides the latest software packages without full OS upgrades.'
+        });
+      } else if (criteria.releaseCadence === 'lts' && !distro.rollingRelease) {
+        earned += 10;
+        reasons.push({
+          feature: 'Release Cadence',
+          matched: true,
+          explanation: 'Predictable long-term enterprise point releases with rock-solid stability.'
+        });
+      } else if (criteria.releaseCadence === 'standard') {
+        earned += 7;
+        reasons.push({
+          feature: 'Release Cadence',
+          matched: true,
+          explanation: 'Standard scheduled release cycle with modern stable packages.'
+        });
+      } else {
+        reasons.push({
+          feature: 'Release Cadence',
+          matched: false,
+          explanation: distro.rollingRelease ? 'Uses rolling updates rather than LTS releases.' : 'Uses fixed point releases rather than continuous rolling updates.'
+        });
+      }
+    }
+
+    // 9. GUI vs Headless Interface (Weight: 10)
+    if (criteria.prefersGui !== undefined) {
+      const isGuiDistro = distro.platforms.includes('desktop') || distro.platforms.includes('kiosk');
+      if (criteria.prefersGui && isGuiDistro) {
+        earned += 10;
+        reasons.push({
+          feature: 'Display Server',
+          matched: true,
+          explanation: 'First-class support for graphical desktop interfaces and Wayland/X11 compositors.'
+        });
+      } else if (!criteria.prefersGui && !isGuiDistro) {
+        earned += 10;
+        reasons.push({
+          feature: 'Headless Mode',
+          matched: true,
+          explanation: 'Optimized for headless server, container, or terminal-first operations.'
+        });
+      }
+    }
+
+    // 10. Driver Philosophy (Weight: 10)
+    if (criteria.driverPhilosophy && criteria.driverPhilosophy !== 'no-preference') {
+      if (criteria.driverPhilosophy === 'free-software-only') {
+        if (['debian', 'alpine', 'arch'].includes(distro.id)) {
+          earned += 10;
+          reasons.push({
+            feature: 'Open Source Drivers',
+            matched: true,
+            explanation: 'Strictly prioritizes 100% Free/Libre open-source software and clean driver separation.'
+          });
+        }
+      } else if (criteria.driverPhilosophy === 'seamless-proprietary') {
+        if (['pop-os', 'linux-mint', 'ubuntu-studio', 'fedora', 'batocera'].includes(distro.id)) {
+          earned += 10;
+          reasons.push({
+            feature: 'Proprietary Drivers',
+            matched: true,
+            explanation: 'Includes out-of-the-box proprietary drivers (NVIDIA GPUs, Broadcom Wi-Fi, media codecs).'
+          });
+        }
+      }
+    }
+
+    // 11. Boot Medium (Weight: 10)
+    if (criteria.bootMedium) {
+      if (criteria.bootMedium === 'sd-card-usb' && ['dietpi', 'libreelec', 'batocera', 'alpine', 'tails', 'antix'].includes(distro.id)) {
+        earned += 10;
+        reasons.push({
+          feature: 'Flash Storage',
+          matched: true,
+          explanation: 'Includes RAM caching and Flash-wear reduction optimized for MicroSD cards and USB thumbdrives.'
+        });
+      } else if (criteria.bootMedium === 'pxe-diskless' && ['talos', 'alpine', 'proxmox-ve'].includes(distro.id)) {
+        earned += 10;
+        reasons.push({
+          feature: 'Diskless Boot',
+          matched: true,
+          explanation: 'Native support for diskless PXE network booting and run-from-RAM architectures.'
+        });
+      } else if (criteria.bootMedium === 'nvme-ssd') {
+        earned += 8;
+      }
+    }
+
+    // 12. Realtime Pro Audio (Weight: 15)
+    if (criteria.realtimeAudio) {
+      if (distro.id === 'ubuntu-studio') {
+        earned += 15;
+        reasons.push({
+          feature: 'Low-Latency Audio',
+          matched: true,
+          explanation: 'Features an out-of-the-box lowlatency / realtime Linux kernel with PipeWire pro audio and JACK.'
         });
       }
     }

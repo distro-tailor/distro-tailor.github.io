@@ -15,6 +15,12 @@ export function formatConstraint(key: string, value: unknown): FormattedConstrai
   if (key === 'prefersGui') {
     return { label: value ? 'Graphical Desktop (GUI)' : 'Headless / Terminal Only', icon: value ? '🖼️' : '⌨️' };
   }
+  if (key === 'realtimeAudio') {
+    return {
+      label: value ? 'Pro Audio (Low-Latency Realtime Kernel)' : 'Standard Everyday Audio',
+      icon: value ? '🎵' : '🔊'
+    };
+  }
   if (key === 'requiresCustomBuild') {
     return { label: value ? 'Custom Build Recipe Required' : 'Prebuilt ISO Preferred', icon: '🛠️' };
   }

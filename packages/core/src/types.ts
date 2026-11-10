@@ -167,6 +167,10 @@ export type DockerAppId =
   | 'tailscale'
   | 'uptime-kuma';
 
+export type ReleaseCadence = 'lts' | 'rolling' | 'standard';
+export type DriverPhilosophy = 'seamless-proprietary' | 'free-software-only' | 'no-preference';
+export type BootMedium = 'nvme-ssd' | 'sd-card-usb' | 'pxe-diskless';
+
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
   platform?: PlatformTarget;
@@ -179,6 +183,10 @@ export interface UserCriteria {
   experienceLevel?: ExperienceLevel;
   prefersGui?: boolean;
   requiresCustomBuild?: boolean;
+  releaseCadence?: ReleaseCadence;
+  driverPhilosophy?: DriverPhilosophy;
+  bootMedium?: BootMedium;
+  realtimeAudio?: boolean;
 
   // Interactive Recipe Modifiers (App Suites & Turnkey Services)
   desktopEnv?: DesktopEnvId;

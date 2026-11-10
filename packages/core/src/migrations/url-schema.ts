@@ -180,6 +180,12 @@ export function deserializeCriteriaFromParams(params: Record<string, string>): U
   if (params.prefersGui !== undefined) {
     criteria.prefersGui = params.prefersGui === 'true' || params.prefersGui === '1';
   }
+  if (params.releaseCadence) criteria.releaseCadence = params.releaseCadence as any;
+  if (params.driverPhilosophy) criteria.driverPhilosophy = params.driverPhilosophy as any;
+  if (params.bootMedium) criteria.bootMedium = params.bootMedium as any;
+  if (params.realtimeAudio !== undefined) {
+    criteria.realtimeAudio = params.realtimeAudio === 'true' || params.realtimeAudio === '1';
+  }
   if (params.requiresCustomBuild !== undefined) {
     criteria.requiresCustomBuild = params.requiresCustomBuild === 'true' || params.requiresCustomBuild === '1';
   }

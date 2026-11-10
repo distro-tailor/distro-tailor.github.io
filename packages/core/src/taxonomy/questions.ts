@@ -546,10 +546,203 @@ export const QUESTIONS: Question[] = [
     ]
   },
 
-  // --- STEP 5: IMMUTABILITY (Only for Intermediate & Systems Engineers) ---
+  // --- STEP 5: DISPLAY INTERFACE (GUI vs Headless) ---
+  {
+    id: 'display_mode',
+    order: 5,
+    prompt: 'Do you need a graphical desktop or a headless terminal-only system?',
+    subtext: 'A graphical desktop interface (Wayland / X11) vs lightweight headless server operations.',
+    category: 'software',
+    shouldAsk: (criteria) =>
+      criteria.prefersGui === undefined &&
+      criteria.useCase !== 'browser-wasm' &&
+      criteria.useCase !== 'container-base' &&
+      criteria.useCase !== 'k8s-cluster' &&
+      criteria.platform !== 'container' &&
+      criteria.platform !== 'k8s-node',
+    tip: {
+      icon: '🖥️',
+      title: 'Graphical vs. Headless',
+      text: 'A graphical desktop adds 300MB–1GB of packages and Wayland/X11 compositors. A headless terminal OS uses 5x less RAM and boots instantly, perfect for remote SSH or servers.'
+    },
+    options: [
+      {
+        id: 'graphical_desktop',
+        label: 'Graphical Desktop / Full Screen GUI',
+        description: 'Interactive mouse/touchscreen interface, web browsers, media playback, and desktop windows',
+        icon: '🖼️',
+        appliesCriteria: { prefersGui: true }
+      },
+      {
+        id: 'headless_terminal',
+        label: 'Headless / Terminal & Remote SSH Only',
+        description: 'No display server; manage entirely via command line, SSH, or web dashboard for maximum speed',
+        icon: '⌨️',
+        appliesCriteria: { prefersGui: false }
+      }
+    ]
+  },
+
+  // --- STEP 6: RELEASE CADENCE ---
+  {
+    id: 'release_cadence',
+    order: 6,
+    prompt: 'What is your preferred software update and release model?',
+    subtext: 'Predictable rock-solid LTS point releases vs continuous bleeding-edge rolling updates.',
+    category: 'lifecycle',
+    shouldAsk: (criteria) => criteria.useCase !== 'browser-wasm',
+    tip: {
+      icon: '🔄',
+      title: 'LTS vs. Rolling Release',
+      text: 'Long Term Support (LTS) distributions like Debian or Ubuntu LTS prioritize stability and rarely change system libraries. Rolling distributions like Arch Linux continuously ship the newest Linux kernels, compilers, and desktop environments.'
+    },
+    options: [
+      {
+        id: 'lts_stable',
+        label: 'Rock-Solid Long-Term Support (LTS)',
+        description: 'Battle-tested point releases; packages stay frozen with backported security fixes (e.g. Debian, Ubuntu LTS, Rocky)',
+        icon: '🛡️',
+        appliesCriteria: { releaseCadence: 'lts' }
+      },
+      {
+        id: 'rolling_bleeding',
+        label: 'Continuous Bleeding-Edge Rolling Release',
+        description: 'Install once and continuously update; always running the latest Linux kernel and bleeding-edge software (e.g. Arch, Void, openSUSE Tumbleweed)',
+        icon: '🔄',
+        appliesCriteria: { releaseCadence: 'rolling' }
+      },
+      {
+        id: 'standard_release',
+        label: 'Standard Scheduled Releases (Every 6 Months)',
+        description: 'Modern updated software refreshed every 6 months without the volatility of daily rolling updates (e.g. Fedora, Ubuntu standard)',
+        icon: '⏱️',
+        appliesCriteria: { releaseCadence: 'standard' }
+      }
+    ]
+  },
+
+  // --- STEP 7: DRIVER PHILOSOPHY ---
+  {
+    id: 'driver_philosophy',
+    order: 7,
+    prompt: 'What is your philosophy on hardware drivers and proprietary software?',
+    subtext: 'Zero-effort proprietary drivers (NVIDIA GPUs, Broadcom Wi-Fi) vs 100% Free / Open Source Software.',
+    category: 'software',
+    shouldAsk: (criteria) =>
+      criteria.useCase !== 'browser-wasm' &&
+      criteria.platform !== 'container' &&
+      criteria.platform !== 'k8s-node',
+    tip: {
+      icon: '⚙️',
+      title: 'Driver Freedom & Binary Blobs',
+      text: 'Modern hardware (especially NVIDIA graphics cards and Broadcom Wi-Fi chips) often requires proprietary binary blobs. Distros like Pop!_OS and Linux Mint include them out of the box, whereas pure GNU distros exclude them.'
+    },
+    options: [
+      {
+        id: 'seamless_proprietary',
+        label: 'Seamless & Turnkey (Include NVIDIA & Wi-Fi Blobs)',
+        description: 'Maximum convenience: out-of-the-box proprietary GPU drivers, Wi-Fi firmware, and media codecs',
+        icon: '🎮',
+        appliesCriteria: { driverPhilosophy: 'seamless-proprietary' }
+      },
+      {
+        id: 'free_software_only',
+        label: '100% Free / Open Source Only (Strict FSF / Libre)',
+        description: 'Principled open-source: zero closed-source binary blobs, strict Free Software Foundation compliance',
+        icon: '🕊️',
+        appliesCriteria: { driverPhilosophy: 'free-software-only' }
+      },
+      {
+        id: 'no_preference_drivers',
+        label: 'No Strong Preference / Standard Balance',
+        description: 'Standard Linux driver defaults with optional non-free firmware repositories when needed',
+        icon: '⚖️',
+        appliesCriteria: { driverPhilosophy: 'no-preference' }
+      }
+    ]
+  },
+
+  // --- STEP 8: BOOT MEDIUM ---
+  {
+    id: 'boot_medium',
+    order: 8,
+    prompt: 'Where will this Linux system be installed and booted from?',
+    subtext: 'Storage drive medium affects filesystem caching, wear reduction, and RAM disk architecture.',
+    category: 'hardware',
+    shouldAsk: (criteria) =>
+      criteria.useCase !== 'browser-wasm' &&
+      criteria.platform !== 'container' &&
+      criteria.platform !== 'wsl2',
+    tip: {
+      icon: '💾',
+      title: 'Flash Wear Reduction & RAM Disks',
+      text: 'MicroSD cards and USB thumbdrives have limited write cycles. Specialized distributions like DietPi, LibreELEC, and Batocera mount logs and temporary directories in RAM (zram) to prevent card burn-out.'
+    },
+    options: [
+      {
+        id: 'nvme_ssd',
+        label: 'Internal NVMe / SATA SSD or Hard Drive',
+        description: 'Standard high-speed persistent disk storage on desktop, laptop, or server',
+        icon: '⚡',
+        appliesCriteria: { bootMedium: 'nvme-ssd' }
+      },
+      {
+        id: 'sd_card_usb',
+        label: 'MicroSD Card or USB Flash Thumbdrive',
+        description: 'Flash storage that benefits from RAM log caching, write reduction, and read-only root options',
+        icon: '💾',
+        appliesCriteria: { bootMedium: 'sd-card-usb' }
+      },
+      {
+        id: 'pxe_diskless',
+        label: 'Network Boot (PXE / Diskless / Run-from-RAM)',
+        description: 'Diskless boot over Ethernet; runs entirely in RAM with no local persistent disk required',
+        icon: '🌐',
+        appliesCriteria: { bootMedium: 'pxe-diskless' }
+      }
+    ]
+  },
+
+  // --- STEP 9: REALTIME AUDIO ---
+  {
+    id: 'audio_latency',
+    order: 9,
+    prompt: 'Will this system be used for pro-audio production or low-latency music creation?',
+    subtext: 'Real-time audio processing (DAWs, software synthesizers, MIDI) requires a low-latency realtime Linux kernel.',
+    category: 'software',
+    shouldAsk: (criteria) =>
+      criteria.prefersGui !== false &&
+      criteria.useCase !== 'browser-wasm' &&
+      criteria.platform !== 'container' &&
+      criteria.platform !== 'k8s-node' &&
+      criteria.footprint !== 'micro',
+    tip: {
+      icon: '🎵',
+      title: 'Pro Audio & Realtime Kernels',
+      text: 'Everyday Linux kernels prioritize throughput over sub-millisecond latency. Professional digital audio workstations (Ardour, Reaper, Bitwig) require PREEMPT_RT or lowlatency kernels to avoid audio buffer xruns and crackles.'
+    },
+    options: [
+      {
+        id: 'pro_audio_realtime',
+        label: 'Yes, Pro Audio Studio / Low-Latency Realtime Kernel',
+        description: 'PipeWire pro-audio, JACK, PREEMPT_RT / lowlatency kernel for DAWs, synths, and guitar amps',
+        icon: '🎵',
+        appliesCriteria: { realtimeAudio: true }
+      },
+      {
+        id: 'standard_audio',
+        label: 'No, Standard Audio & Everyday Multimedia',
+        description: 'Standard desktop audio stack (PulseAudio / standard PipeWire) for music, movies, and conferencing',
+        icon: '🔊',
+        appliesCriteria: { realtimeAudio: false }
+      }
+    ]
+  },
+
+  // --- STEP 10: IMMUTABILITY (Only for Intermediate & Systems Engineers) ---
   {
     id: 'system_immutability',
-    order: 5,
+    order: 10,
     prompt: 'How should system state and configuration changes be managed?',
     subtext: 'Traditional mutable OSes vs. modern immutable / declarative architectures.',
     category: 'lifecycle',
@@ -591,10 +784,10 @@ export const QUESTIONS: Question[] = [
     ]
   },
 
-  // --- STEP 6: C LIBRARY & INIT (Only for Systems Engineers) ---
+  // --- STEP 11: C LIBRARY & INIT (Only for Systems Engineers) ---
   {
     id: 'c_library_and_init',
-    order: 6,
+    order: 11,
     prompt: 'Do you have preferences for C Library and Init System?',
     subtext: 'Standard glibc + systemd vs. lightweight musl + OpenRC / BusyBox init.',
     category: 'software',

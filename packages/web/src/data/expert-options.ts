@@ -92,5 +92,38 @@ export const EXPERT_FIELDS: ExpertFieldConfig[] = [
       { value: 'iot-embedded', label: 'IoT & Embedded' },
       { value: 'browser-wasm', label: 'In-Browser WebAssembly' }
     ]
+  },
+  {
+    id: 'expert-release-cadence',
+    label: 'Release Cadence',
+    criteriaKey: 'releaseCadence',
+    placeholder: 'Any Release Model',
+    options: [
+      { value: 'lts', label: 'Long Term Support (LTS)' },
+      { value: 'rolling', label: 'Rolling Release' },
+      { value: 'standard', label: 'Standard Release Cycle' }
+    ]
+  },
+  {
+    id: 'expert-driver-philosophy',
+    label: 'Driver Philosophy',
+    criteriaKey: 'driverPhilosophy',
+    placeholder: 'No Preference',
+    options: [
+      { value: 'seamless-proprietary', label: 'Proprietary Drivers Included (NVIDIA/Wi-Fi)' },
+      { value: 'free-software-only', label: '100% Free / Open Source Only' },
+      { value: 'no-preference', label: 'No Preference / Standard Balance' }
+    ]
+  },
+  {
+    id: 'expert-boot-medium',
+    label: 'Boot Medium',
+    criteriaKey: 'bootMedium',
+    placeholder: 'Any Boot Medium',
+    options: [
+      { value: 'nvme-ssd', label: 'Internal NVMe / SATA SSD' },
+      { value: 'sd-card-usb', label: 'MicroSD / USB Flash Drive' },
+      { value: 'pxe-diskless', label: 'Network Boot (PXE / Diskless)' }
+    ]
   }
 ];

@@ -11,7 +11,11 @@ test('Constraint Dictionary: contains all primary dimensions with valid labels a
     'footprint',
     'statePreference',
     'cLibPreference',
-    'initPreference'
+    'initPreference',
+    'releaseCadence',
+    'driverPhilosophy',
+    'bootMedium',
+    'realtimeAudio'
   ];
 
   for (const dim of expectedDimensions) {

@@ -76,5 +76,24 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     openrc: { label: 'OpenRC (Lightweight)', icon: '⚡' },
     runit: { label: 'runit (Minimalist)', icon: '⏱️' },
     busybox: { label: 'BusyBox Init (Embedded)', icon: '🧰' }
+  },
+  releaseCadence: {
+    lts: { label: 'Stable Long-Term Support (LTS)', icon: '🛡️' },
+    rolling: { label: 'Bleeding-Edge Rolling Release', icon: '🔄' },
+    standard: { label: 'Standard Release Cycle', icon: '⏱️' }
+  },
+  driverPhilosophy: {
+    'seamless-proprietary': { label: 'Proprietary Drivers (NVIDIA/Wi-Fi)', icon: '🎮' },
+    'free-software-only': { label: '100% Free / Open Source Only', icon: '🕊️' },
+    'no-preference': { label: 'Standard Driver Balance', icon: '⚖️' }
+  },
+  bootMedium: {
+    'nvme-ssd': { label: 'Internal SSD / NVMe Storage', icon: '⚡' },
+    'sd-card-usb': { label: 'MicroSD / USB Flash Drive', icon: '💾' },
+    'pxe-diskless': { label: 'Network Boot (PXE / Diskless)', icon: '🌐' }
+  },
+  realtimeAudio: {
+    true: { label: 'Pro Audio (Low-Latency Realtime Kernel)', icon: '🎵' },
+    false: { label: 'Standard Everyday Audio', icon: '🔊' }
   }
 };

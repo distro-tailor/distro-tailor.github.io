@@ -55,3 +55,12 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     Then the wizard should smoothly transition to "Technical Mode"
     And technical questions such as architecture, C library, and immutability should become accessible
     And previously compatible answers should be preserved without restarting
+
+  Scenario: Adaptive Multi-Question Flow across Release Cadence, Display Mode, and Drivers
+    Given the user progresses through the tailored question flow
+    When navigating beyond basic goals and hardware platforms
+    Then the engine should adaptively prompt for display mode (Headless vs Graphical GUI)
+    And prompt for release update cadence (Stable Long-Term Support LTS vs Bleeding-Edge Rolling)
+    And prompt for hardware driver preference (Seamless Proprietary vs 100% Free Software)
+    And prompt for boot storage medium (NVMe/SSD vs SD Card/Flash vs Diskless PXE)
+    And if multimedia or audio production is targeted, prompt for real-time low-latency audio kernel
