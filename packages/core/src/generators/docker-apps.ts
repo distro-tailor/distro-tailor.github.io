@@ -1,4 +1,4 @@
-import { DockerAppId, UserCriteria } from '../types.js';
+import { CpuArchitecture, DockerAppId, UserCriteria } from '../types.js';
 
 export interface DockerAppDefinition {
   id: DockerAppId;
@@ -9,7 +9,51 @@ export interface DockerAppDefinition {
   defaultPort: string;
   webUrl: string;
   category: 'media' | 'homelab' | 'smart-home' | 'ai' | 'cloud' | 'web';
+  minRamMb: number;
+  architectures: CpuArchitecture[];
   generateCompose: (criteria: UserCriteria) => string;
+}
+
+export interface AppCompatibility {
+  compatible: boolean;
+  warnings: string[];
+  blocker?: string;
+}
+
+export function checkDockerAppCompatibility(
+  app: DockerAppDefinition,
+  criteria: UserCriteria
+): AppCompatibility {
+  const warnings: string[] = [];
+
+  // Hard blocker 1: NOMMU / Microcontrollers
+  if (criteria.architecture === 'nommu') {
+    return {
+      compatible: false,
+      warnings: [],
+      blocker: 'Microcontrollers (NOMMU) lack hardware memory management and cannot run Docker container engines.'
+    };
+  }
+
+  // Hard blocker 2: Architecture compatibility
+  if (criteria.architecture && !app.architectures.includes(criteria.architecture)) {
+    return {
+      compatible: false,
+      warnings: [],
+      blocker: `${app.name} container images do not support ${criteria.architecture} hardware.`
+    };
+  }
+
+  // Soft warning / Budget check: RAM
+  if (criteria.maxRamMb && criteria.maxRamMb < app.minRamMb) {
+    const formatted = app.minRamMb >= 1024 ? `${(app.minRamMb / 1024).toFixed(0)} GB` : `${app.minRamMb} MB`;
+    warnings.push(`Exceeds your ${criteria.maxRamMb} MB budget (requires ~${formatted} RAM).`);
+  }
+
+  return {
+    compatible: true,
+    warnings
+  };
 }
 
 export const DOCKER_APPS_REGISTRY: DockerAppDefinition[] = [
@@ -22,6 +66,8 @@ export const DOCKER_APPS_REGISTRY: DockerAppDefinition[] = [
     defaultPort: '2283',
     webUrl: 'http://localhost:2283',
     category: 'cloud',
+    minRamMb: 4096,
+    architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Immich Turnkey Docker Stack
 # Google Photos & iCloud Replacement with Mobile Auto-Backup & Vector Search
@@ -88,6 +134,8 @@ volumes:
     defaultPort: '8123',
     webUrl: 'http://localhost:8123',
     category: 'smart-home',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64', 'armv7'],
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Home Assistant Turnkey Docker Stack
 # Local-First Smart Home Hub (Zigbee, Matter, HomeKit & MQTT)
@@ -115,6 +163,8 @@ services:
     defaultPort: '8096',
     webUrl: 'http://localhost:8096',
     category: 'media',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Jellyfin Media Server Stack
 # Self-Hosted Movie, TV & Music Streaming (Free Hardware Transcoding)
@@ -144,6 +194,8 @@ services:
     defaultPort: '80',
     webUrl: 'http://localhost:80/admin',
     category: 'homelab',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Pi-hole Network-Wide Ad Blocker
 # DNS Sinkhole for Wi-Fi Telemetry & Tracker Blocking
@@ -175,6 +227,8 @@ services:
     defaultPort: '3000',
     webUrl: 'http://localhost:3000',
     category: 'ai',
+    minRamMb: 8192,
+    architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Ollama + Open-WebUI Local AI LLM Stack
 # Run DeepSeek, Llama 3, and Mistral with Private ChatGPT Web UI
@@ -219,6 +273,8 @@ volumes:
     defaultPort: '8080',
     webUrl: 'http://localhost:8080',
     category: 'cloud',
+    minRamMb: 1536,
+    architectures: ['x86_64', 'arm64', 'armv7'],
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Nextcloud Hub Private Cloud Stack
 # File Storage, WebDAV, Calendar & Document Collaboration
@@ -266,6 +322,8 @@ volumes:
     defaultPort: '8000',
     webUrl: 'http://localhost:8000',
     category: 'web',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64', 'armv7'],
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Classic LAMP + WordPress Stack
 # Web Application Stack (Apache, PHP 8, MariaDB & WordPress)
@@ -312,6 +370,8 @@ volumes:
     defaultPort: 'N/A',
     webUrl: 'https://login.tailscale.com/admin',
     category: 'homelab',
+    minRamMb: 128,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64', 'mips'],
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Tailscale Subnet Router & Mesh VPN
 # Secure Remote Access Without Port Forwarding
@@ -343,6 +403,8 @@ services:
     defaultPort: '3001',
     webUrl: 'http://localhost:3001',
     category: 'homelab',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64', 'armv7'],
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Uptime Kuma Self-Hosted Monitoring
 # Real-Time Service Status, Health Checks & Incident Alerts

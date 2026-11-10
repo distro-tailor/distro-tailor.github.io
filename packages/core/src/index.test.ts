@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateCriteria, QuestionFlow, QUESTIONS } from './index.js';
+import {
+  checkDesktopAppCompatibility,
+  checkDockerAppCompatibility,
+  evaluateCriteria,
+  getDesktopApp,
+  getDockerApp,
+  QuestionFlow,
+  QUESTIONS
+} from './index.js';
 
 test('Core Matcher: Pinpoints Buildroot for NOMMU microcontrollers', () => {
   const result = evaluateCriteria({
@@ -403,4 +411,59 @@ test('Matcher: allMatches contains all 31 registered distributions ranked', () =
   for (let i = 0; i < result.allMatches.length - 1; i++) {
     assert.ok(result.allMatches[i].score >= result.allMatches[i + 1].score);
   }
+});
+
+test('Hardware Constraints: Docker app compatibility enforces architecture and RAM budgets', () => {
+  const immich = getDockerApp('immich');
+  const pihole = getDockerApp('pihole');
+  assert.ok(immich && pihole);
+
+  // NOMMU microcontroller hard blocker
+  const nommuCheck = checkDockerAppCompatibility(immich, { architecture: 'nommu' });
+  assert.equal(nommuCheck.compatible, false);
+  assert.ok(nommuCheck.blocker?.includes('Microcontrollers (NOMMU)'));
+
+  // Architecture incompatibility (Immich not on riscv64)
+  const riscvCheck = checkDockerAppCompatibility(immich, { architecture: 'riscv64' });
+  assert.equal(riscvCheck.compatible, false);
+  assert.ok(riscvCheck.blocker?.includes('do not support riscv64'));
+
+  // Low RAM warning on Immich (requires 4GB, budget 512MB)
+  const lowRamImmich = checkDockerAppCompatibility(immich, { architecture: 'x86_64', maxRamMb: 512 });
+  assert.equal(lowRamImmich.compatible, true);
+  assert.equal(lowRamImmich.warnings.length, 1);
+  assert.ok(lowRamImmich.warnings[0].includes('requires ~4 GB RAM'));
+
+  // Pi-hole on 512MB RAM has no warnings
+  const piholeCheck = checkDockerAppCompatibility(pihole, { architecture: 'x86_64', maxRamMb: 512 });
+  assert.equal(piholeCheck.compatible, true);
+  assert.equal(piholeCheck.warnings.length, 0);
+});
+
+test('Hardware Constraints: Desktop app compatibility enforces architecture and RAM budgets', () => {
+  const chromium = getDesktopApp('chromium');
+  const blender = getDesktopApp('blender');
+  const neovim = getDesktopApp('neovim');
+  assert.ok(chromium && blender && neovim);
+
+  // NOMMU blocker
+  const nommuCheck = checkDesktopAppCompatibility(chromium, { architecture: 'nommu' });
+  assert.equal(nommuCheck.compatible, false);
+  assert.ok(nommuCheck.blocker?.includes('NOMMU'));
+
+  // Architecture blocker (Blender not on armv7)
+  const armv7Check = checkDesktopAppCompatibility(blender, { architecture: 'armv7' });
+  assert.equal(armv7Check.compatible, false);
+  assert.ok(armv7Check.blocker?.includes('armv7'));
+
+  // Low RAM warning on Chromium (2GB req, 512MB budget)
+  const lowRamChromium = checkDesktopAppCompatibility(chromium, { architecture: 'x86_64', maxRamMb: 512 });
+  assert.equal(lowRamChromium.compatible, true);
+  assert.equal(lowRamChromium.warnings.length, 1);
+  assert.ok(lowRamChromium.warnings[0].includes('requires ~2 GB RAM'));
+
+  // Neovim on 512MB has no warnings
+  const neovimCheck = checkDesktopAppCompatibility(neovim, { architecture: 'x86_64', maxRamMb: 512 });
+  assert.equal(neovimCheck.compatible, true);
+  assert.equal(neovimCheck.warnings.length, 0);
 });

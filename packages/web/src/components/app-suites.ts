@@ -1,4 +1,6 @@
 import {
+  checkDesktopAppCompatibility,
+  checkDockerAppCompatibility,
   DESKTOP_APPS_REGISTRY,
   DesktopEnvId,
   DOCKER_APPS_REGISTRY,
@@ -14,6 +16,7 @@ export { getAddonCombos };
 export function renderDesktopAppSuite(criteria: UserCriteria, isPrimary: boolean): string {
   const selectedCount = (criteria.desktopApps || []).length;
   const isExpanded = isPrimary || selectedCount > 0;
+  const isNommu = criteria.architecture === 'nommu';
 
   const innerContent = `
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 min-w-0">
@@ -32,15 +35,46 @@ export function renderDesktopAppSuite(criteria: UserCriteria, isPrimary: boolean
       </span>
     </div>
 
+    ${
+      isNommu
+        ? `
+      <div class="p-3 mb-4 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-300 text-xs flex items-center gap-2.5">
+        <span class="text-base shrink-0">⚠️</span>
+        <span>Microcontrollers (NOMMU) lack display compositors and memory management. Desktop GUI applications cannot run on this target.</span>
+      </div>
+    `
+        : ''
+    }
+
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 text-xs min-w-0">
       ${DESKTOP_APPS_REGISTRY.map((app) => {
         const isSelected = (criteria.desktopApps || []).includes(app.id);
+        const compat = checkDesktopAppCompatibility(app, criteria);
+        const hasWarning = compat.compatible && compat.warnings.length > 0;
+
         return `
-          <div data-app-id="${app.id}" class="btn-toggle-desktop-app p-2.5 rounded-xl border cursor-pointer select-none transition-all flex flex-col justify-between min-w-0 ${isSelected ? 'bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30' : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'}">
+          <div data-app-id="${app.id}" ${compat.blocker ? `data-incompatible-reason="${compat.blocker}"` : ''} class="btn-toggle-desktop-app p-2.5 rounded-xl border select-none transition-all flex flex-col justify-between min-w-0 ${
+            !compat.compatible
+              ? 'opacity-50 cursor-not-allowed bg-slate-950/40 border-slate-900'
+              : isSelected
+              ? 'cursor-pointer bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30'
+              : 'cursor-pointer bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
+          }">
             <div class="flex items-center justify-between mb-1.5 gap-1.5 min-w-0">
               <span class="text-xl shrink-0">${app.icon}</span>
-              <div class="w-4 h-4 rounded border flex items-center justify-center text-[10px] font-bold ${isSelected ? 'bg-emerald-400 border-emerald-400 text-slate-950' : 'border-slate-700 bg-slate-900'}">
-                ${isSelected ? '✓' : ''}
+              <div class="flex items-center gap-1 shrink-0">
+                ${
+                  !compat.compatible
+                    ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30" title="${compat.blocker}">N/A</span>`
+                    : hasWarning
+                    ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30" title="${compat.warnings[0]}">⚠️ ${app.minRamMb >= 1024 ? `${(app.minRamMb / 1024).toFixed(0)}G` : `${app.minRamMb}M`}</span>`
+                    : ''
+                }
+                <div class="w-4 h-4 rounded border flex items-center justify-center text-[10px] font-bold ${
+                  isSelected ? 'bg-emerald-400 border-emerald-400 text-slate-950' : 'border-slate-700 bg-slate-900'
+                }">
+                  ${isSelected ? '✓' : ''}
+                </div>
               </div>
             </div>
             <div class="min-w-0">
@@ -81,6 +115,7 @@ export function renderDesktopAppSuite(criteria: UserCriteria, isPrimary: boolean
 export function renderDockerServiceSuite(criteria: UserCriteria, isPrimary: boolean): string {
   const hasDockerApp = criteria.dockerApp && criteria.dockerApp !== 'none';
   const isExpanded = isPrimary || !!hasDockerApp;
+  const isNommu = criteria.architecture === 'nommu';
 
   const innerContent = `
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 min-w-0">
@@ -101,6 +136,17 @@ export function renderDockerServiceSuite(criteria: UserCriteria, isPrimary: bool
       ` : ''}
     </div>
 
+    ${
+      isNommu
+        ? `
+      <div class="p-3 mb-4 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-300 text-xs flex items-center gap-2.5">
+        <span class="text-base shrink-0">⚠️</span>
+        <span>Docker containers require a hardware Memory Management Unit (MMU) and Linux cgroups/namespaces, which are not available on NOMMU microcontrollers.</span>
+      </div>
+    `
+        : ''
+    }
+
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs min-w-0">
       
       <!-- None / Pure Minimal OS Card -->
@@ -120,19 +166,37 @@ export function renderDockerServiceSuite(criteria: UserCriteria, isPrimary: bool
 
       ${DOCKER_APPS_REGISTRY.map((app) => {
         const isSelected = criteria.dockerApp === app.id;
+        const compat = checkDockerAppCompatibility(app, criteria);
+        const hasWarning = compat.compatible && compat.warnings.length > 0;
+
         return `
-          <div data-docker-id="${app.id}" class="btn-select-docker-app p-3 rounded-xl border cursor-pointer select-none transition-all flex flex-col justify-between min-w-0 ${isSelected ? 'bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30' : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'}">
+          <div data-docker-id="${app.id}" ${compat.blocker ? `data-incompatible-reason="${compat.blocker}"` : ''} class="btn-select-docker-app p-3 rounded-xl border select-none transition-all flex flex-col justify-between min-w-0 ${
+            !compat.compatible
+              ? 'opacity-50 cursor-not-allowed bg-slate-950/40 border-slate-900'
+              : isSelected
+              ? 'cursor-pointer bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30'
+              : 'cursor-pointer bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
+          }">
             <div>
               <div class="flex items-center justify-between mb-1 gap-1.5">
                 <span class="text-xl shrink-0">${app.icon}</span>
-                ${isSelected ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>` : `<span class="text-[10px] text-slate-500 font-mono">Port ${app.defaultPort}</span>`}
+                <div class="flex items-center gap-1 shrink-0">
+                  ${
+                    !compat.compatible
+                      ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30" title="${compat.blocker}">N/A</span>`
+                      : hasWarning
+                      ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30" title="${compat.warnings[0]}">⚠️ ${app.minRamMb >= 1024 ? `${(app.minRamMb / 1024).toFixed(0)}G` : `${app.minRamMb}M`}</span>`
+                      : ''
+                  }
+                  ${isSelected ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>` : `<span class="text-[10px] text-slate-500 font-mono">Port ${app.defaultPort}</span>`}
+                </div>
               </div>
               <h4 class="font-bold text-slate-200 text-xs">${app.name}</h4>
               <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${app.description}</p>
             </div>
-            <div class="mt-3 pt-2 border-t border-slate-800/80 text-[10px] ${isSelected ? 'text-emerald-400 font-bold' : 'text-slate-500'} font-mono flex items-center justify-between">
-              <span>${isSelected ? '✓ In docker-compose.yml' : '+ Deploy with Docker'}</span>
-              <span>↗</span>
+            <div class="mt-3 pt-2 border-t border-slate-800/80 text-[10px] ${!compat.compatible ? 'text-slate-600' : isSelected ? 'text-emerald-400 font-bold' : 'text-slate-500'} font-mono flex items-center justify-between">
+              <span>${!compat.compatible ? 'Unsupported Hardware' : isSelected ? '✓ In docker-compose.yml' : '+ Deploy with Docker'}</span>
+              <span>${!compat.compatible ? '🚫' : '↗'}</span>
             </div>
           </div>
         `;

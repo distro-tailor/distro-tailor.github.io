@@ -245,7 +245,14 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
   // 1-Click Desktop Apps
   document.querySelectorAll<HTMLElement>('.btn-toggle-desktop-app').forEach((card) => {
     card.addEventListener('click', (e) => {
-      const appId = (e.currentTarget as HTMLElement).getAttribute('data-app-id') as DesktopAppId;
+      const target = e.currentTarget as HTMLElement;
+      const blocker = target.getAttribute('data-incompatible-reason');
+      if (blocker) {
+        showToast(blocker, '🚫');
+        return;
+      }
+
+      const appId = target.getAttribute('data-app-id') as DesktopAppId;
       const list = store.getState().criteria.desktopApps || [];
       const newList = list.includes(appId) ? list.filter((id) => id !== appId) : [...list, appId];
       store.update({
@@ -264,7 +271,14 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
   // Turnkey Docker App Layer
   document.querySelectorAll<HTMLElement>('.btn-select-docker-app').forEach((card) => {
     card.addEventListener('click', (e) => {
-      const appId = (e.currentTarget as HTMLElement).getAttribute('data-docker-id') as DockerAppId;
+      const target = e.currentTarget as HTMLElement;
+      const blocker = target.getAttribute('data-incompatible-reason');
+      if (blocker) {
+        showToast(blocker, '🚫');
+        return;
+      }
+
+      const appId = target.getAttribute('data-docker-id') as DockerAppId;
       if (appId === 'none' || store.getState().criteria.dockerApp === appId) {
         store.update({
           criteria: { ...store.getState().criteria, dockerApp: undefined },

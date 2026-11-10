@@ -51,3 +51,12 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     Then the engine should recommend "Proxmox Virtual Environment (PVE)" with 100% compatibility
     And the recommendation should feature IPMI fan silencing scripts ("ipmitool") and Ceph clustering
     And for multi-bay storage arrays, it should suggest "TrueNAS SCALE" with IT-mode HBA flashing guides
+
+  Scenario: 1-Click Apps and Services enforce CPU architecture and RAM budget constraints
+    Given a user selects a microcontroller target with architecture "nommu"
+    When the Turnkey Docker Services and 1-Click Desktop Apps render
+    Then Docker container services must be gated with an explanation that microcontrollers lack an MMU
+    And GUI desktop applications must be gated or hidden because NOMMU devices lack display compositors
+    And given a user configures a target system with only 512 MB RAM
+    When viewing high-memory applications like "Immich" or "Chromium"
+    Then the UI must display a clear RAM constraint warning indicating the application exceeds the hardware budget

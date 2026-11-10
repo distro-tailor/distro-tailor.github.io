@@ -1,4 +1,4 @@
-import { DesktopAppId, UserCriteria } from '../types.js';
+import { CpuArchitecture, DesktopAppId, UserCriteria } from '../types.js';
 
 export interface DesktopAppDefinition {
   id: DesktopAppId;
@@ -6,9 +6,53 @@ export interface DesktopAppDefinition {
   category: 'browsers' | 'development' | 'media' | 'productivity' | 'utilities';
   icon: string;
   description: string;
+  minRamMb: number;
+  architectures: CpuArchitecture[];
   aptPackages?: string[];
   flatpakId?: string;
   apkPackages?: string[];
+}
+
+export interface DesktopAppCompatibility {
+  compatible: boolean;
+  warnings: string[];
+  blocker?: string;
+}
+
+export function checkDesktopAppCompatibility(
+  app: DesktopAppDefinition,
+  criteria: UserCriteria
+): DesktopAppCompatibility {
+  const warnings: string[] = [];
+
+  // Hard blocker 1: NOMMU / Microcontrollers
+  if (criteria.architecture === 'nommu') {
+    return {
+      compatible: false,
+      warnings: [],
+      blocker: 'Microcontrollers (NOMMU) cannot run desktop graphical environments.'
+    };
+  }
+
+  // Hard blocker 2: Architecture compatibility
+  if (criteria.architecture && !app.architectures.includes(criteria.architecture)) {
+    return {
+      compatible: false,
+      warnings: [],
+      blocker: `${app.name} does not provide prebuilt binaries for ${criteria.architecture}.`
+    };
+  }
+
+  // Soft warning: RAM budget
+  if (criteria.maxRamMb && criteria.maxRamMb < app.minRamMb) {
+    const formatted = app.minRamMb >= 1024 ? `${(app.minRamMb / 1024).toFixed(0)} GB` : `${app.minRamMb} MB`;
+    warnings.push(`Exceeds your ${criteria.maxRamMb} MB budget (requires ~${formatted} RAM).`);
+  }
+
+  return {
+    compatible: true,
+    warnings
+  };
 }
 
 export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
@@ -19,6 +63,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'browsers',
     icon: '🦊',
     description: 'Fast, private, open-source web browser by Mozilla.',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['firefox-esr'],
     flatpakId: 'org.mozilla.firefox',
     apkPackages: ['firefox']
@@ -29,6 +75,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'browsers',
     icon: '🌐',
     description: 'Open-source foundation behind Google Chrome.',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
     aptPackages: ['chromium'],
     flatpakId: 'org.chromium.Chromium',
     apkPackages: ['chromium']
@@ -39,6 +87,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'browsers',
     icon: '🦁',
     description: 'Privacy-first browser with built-in ad & tracker blocking.',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
     flatpakId: 'com.brave.Browser'
   },
 
@@ -49,6 +99,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'development',
     icon: '💻',
     description: 'Modern code editor with Git, debugging & extensions ecosystem.',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
     flatpakId: 'com.visualstudio.code'
   },
   {
@@ -57,6 +109,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'development',
     icon: '🛠️',
     description: 'Essential compilers & tooling: git, build-essential, curl, jq, make.',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['git', 'build-essential', 'curl', 'wget', 'jq', 'tar', 'unzip'],
     apkPackages: ['git', 'build-base', 'curl', 'jq']
   },
@@ -66,6 +120,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'development',
     icon: '⚡',
     description: 'Hyperextensible Vim-based modern terminal text editor.',
+    minRamMb: 128,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['neovim'],
     flatpakId: 'io.neovim.nvim',
     apkPackages: ['neovim']
@@ -76,6 +132,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'development',
     icon: '🟢',
     description: 'Node.js JavaScript runtime engine with npm package manager.',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['nodejs', 'npm'],
     apkPackages: ['nodejs', 'npm']
   },
@@ -85,6 +143,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'development',
     icon: '🐍',
     description: 'Python 3, pip package manager, virtualenv, and build headers.',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['python3', 'python3-pip', 'python3-venv', 'python3-dev'],
     apkPackages: ['python3', 'py3-pip']
   },
@@ -96,6 +156,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'media',
     icon: '🎬',
     description: 'Plays all video/audio formats and DVDs with zero extra codecs needed.',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['vlc'],
     flatpakId: 'org.videolan.VLC',
     apkPackages: ['vlc']
@@ -106,6 +168,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'media',
     icon: '📹',
     description: 'Free & open-source live streaming and screen recording software.',
+    minRamMb: 4096,
+    architectures: ['x86_64', 'arm64'],
     flatpakId: 'com.obsproject.Studio'
   },
   {
@@ -114,6 +178,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'media',
     icon: '🎨',
     description: 'Advanced image editing and photo retouching (Photoshop alternative).',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['gimp'],
     flatpakId: 'org.gimp.GIMP'
   },
@@ -123,6 +189,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'media',
     icon: '🧊',
     description: 'Complete 3D creation suite: modeling, rigging, animation, rendering.',
+    minRamMb: 4096,
+    architectures: ['x86_64', 'arm64'],
     flatpakId: 'org.blender.Blender'
   },
   {
@@ -131,6 +199,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'media',
     icon: '🎵',
     description: 'Stream millions of songs and podcasts from your desktop.',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64'],
     flatpakId: 'com.spotify.Client'
   },
 
@@ -141,6 +211,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'productivity',
     icon: '📄',
     description: 'Full office productivity suite: Writer, Calc, Impress (MS Office compatible).',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['libreoffice'],
     flatpakId: 'org.libreoffice.LibreOffice'
   },
@@ -150,6 +222,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'productivity',
     icon: '💬',
     description: 'All-in-one voice and text chat for communities, gaming, and friends.',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
     flatpakId: 'com.discordapp.Discord'
   },
   {
@@ -158,6 +232,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'productivity',
     icon: '📓',
     description: 'Sharpen your thinking with private, local-first Markdown knowledge base.',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64'],
     flatpakId: 'md.obsidian.Obsidian'
   },
   {
@@ -166,6 +242,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'productivity',
     icon: '✈️',
     description: 'Fast and secure desktop messaging app with cloud sync.',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['telegram-desktop'],
     flatpakId: 'org.telegram.desktop'
   },
@@ -177,6 +255,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'utilities',
     icon: '📊',
     description: 'Modern, gorgeous terminal activity monitor for CPU, RAM, disks & network.',
+    minRamMb: 64,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['btop'],
     apkPackages: ['btop']
   },
@@ -186,6 +266,8 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     category: 'utilities',
     icon: 'ℹ️',
     description: 'Blazing fast system information terminal display with distro logo.',
+    minRamMb: 32,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['fastfetch'],
     apkPackages: ['fastfetch']
   }
