@@ -33,6 +33,13 @@ Welcome to the central documentation index for **DistroTailor**—the 20-Questio
   - Matcher & UX enhancements (RAM budget evaluation, hard arch gates, circuit breaker resilience)
   - Step-by-step remediation tracking dashboard
 
+- **[Contributing Guidelines](../CONTRIBUTING.md)**
+  - The 3 Pillars of Contribution (Feature Spec, Client-Side MVC, 100% Automated Tests)
+  - Monorepo package responsibilities and zero-hardcoding rules
+
+- **[AI Agent Instructions & Invariants](../AGENTS.md)**
+  - System rules for AI coding assistants (Antigravity, Claude, Cursor, Copilot)
+
 ---
 
 ## 🥒 Behavior-Driven Living Specifications (`specs/`)
@@ -44,14 +51,16 @@ All functional behaviors, persona flows, and UX invariants are specified in Gher
 3. **[03-modularity-and-frankenstein-hybrids.feature](../specs/03-modularity-and-frankenstein-hybrids.feature):** Multi-distro mixing via Distrobox (Arch AUR on Debian), desktop switching (Cage, XFCE, KDE), and Nix/Flatpak sandboxing.
 4. **[04-gpu-specialized-workloads.feature](../specs/04-gpu-specialized-workloads.feature):** Pop!_OS for AI/LLM/Data Science and HiveOS for multi-GPU mining/compute.
 5. **[05-recipe-generation-and-build.feature](../specs/05-recipe-generation-and-build.feature):** Makefiles, defconfigs, hybrid ISOs, and QEMU test verification.
+6. **[06-url-sharing-and-state-persistence.feature](../specs/06-url-sharing-and-state-persistence.feature):** Real-time URL query encoding, schema migrations, and deep permalinks.
 
 ---
 
 ## 🧪 Verification & Test Suite
 
-The core package contains 16 automated tests covering the entire matching matrix:
+The monorepo contains 56 automated unit tests covering the core matching matrix, recipe generators, reactive store, and web MVC views:
 
 ```bash
-# Run the test suite
+# Run the complete test suite across all packages
+npm test
 npm test
 ```

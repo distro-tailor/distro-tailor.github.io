@@ -29,6 +29,8 @@ DistroTailor is built as a hybrid modular monorepo:
 - **[Architecture & System Design](docs/02-architecture.md)**: Matching engine math, recipe generators, and bootloader topologies.
 - **[Documentation Portal](docs/README.md)**: Central documentation index.
 - **[Living Specifications (Gherkin)](specs/)**: Behavior-driven `.feature` files covering all functional flows.
+- **[Contributing Guide](CONTRIBUTING.md)**: Guidelines for human contributors, architectural standards, and testing rules.
+- **[AI Agent Instructions](AGENTS.md)**: Mandatory rules and invariants for AI coding assistants.
 
 ---
 
