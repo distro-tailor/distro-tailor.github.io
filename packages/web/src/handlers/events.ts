@@ -11,6 +11,7 @@ import {
 } from '@distro-tailor/core';
 import { getAddonCombos } from '../components/app-suites.js';
 import { triggerDeviceShare } from '../components/share-modal.js';
+import { EXPERT_FIELDS } from '../data/expert-options.js';
 import { router } from '../state/router.js';
 import { store } from '../state/store.js';
 import { EventBinder } from '../types.js';
@@ -342,12 +343,9 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
     });
   };
 
-  bindExpertSelect('expert-arch', 'architecture');
-  bindExpertSelect('expert-footprint', 'footprint');
-  bindExpertSelect('expert-init', 'initPreference');
-  bindExpertSelect('expert-clib', 'cLibPreference');
-  bindExpertSelect('expert-state', 'statePreference');
-  bindExpertSelect('expert-role', 'useCase');
+  EXPERT_FIELDS.forEach((field) => {
+    bindExpertSelect(field.id, field.criteriaKey);
+  });
 
   const closeExpertMatrix = () => {
     store.setTab('wizard');

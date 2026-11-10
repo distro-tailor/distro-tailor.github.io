@@ -2,29 +2,14 @@ import { DesktopEnvId, RecommendationOutput } from '@distro-tailor/core';
 import { getAddonCombos, renderDesktopAppSuite, renderDockerServiceSuite } from '../components/app-suites.js';
 import { renderDecidingFactorsAndHeadToHead } from '../components/head-to-head.js';
 import { AppState } from '../state/store.js';
+import { isServerContext, SUPPORTED_DESKTOP_ENVS } from '../utils/context-detector.js';
 import { escapeHtml } from '../utils/dom.js';
 
 export function renderResultsView(evaluation: RecommendationOutput, state: AppState): string {
   const best = evaluation.bestMatch;
   const recipe = evaluation.recommendedRecipe;
   const combos = getAddonCombos(best.distro.id);
-
-  const isServerContext =
-    state.criteria.platform === 'server' ||
-    state.criteria.platform === 'vm' ||
-    state.criteria.platform === 'container' ||
-    state.criteria.platform === 'k8s-node' ||
-    state.criteria.platform === 'router-firewall' ||
-    state.criteria.platform === 'microcontroller' ||
-    state.criteria.useCase === 'server' ||
-    state.criteria.useCase === 'nas-storage' ||
-    state.criteria.useCase === 'smart-home' ||
-    state.criteria.useCase === 'hypervisor-vms' ||
-    state.criteria.useCase === 'k8s-cluster' ||
-    state.criteria.useCase === 'container-base' ||
-    state.criteria.useCase === 'router-networking' ||
-    state.criteria.useCase === 'iot-embedded' ||
-    state.criteria.prefersGui === false;
+  const isServer = isServerContext(state.criteria);
 
   return `
     <div class="space-y-6 min-w-0 max-w-full overflow-hidden">
@@ -191,7 +176,7 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
               </p>
             </div>
             <div class="grid grid-cols-3 gap-1.5">
-              ${(['none', 'cage', 'xfce', 'kde', 'gnome'] as DesktopEnvId[])
+              ${SUPPORTED_DESKTOP_ENVS
                 .map(
                   (env) => `
                 <button data-desktop-env="${env}" class="btn-select-desktop-env py-1.5 px-1 rounded text-[10px] font-mono font-medium transition-all text-center cursor-pointer ${
@@ -251,7 +236,7 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
 
       <!-- 📦 Applications & Turnkey Services Suite (Context-Aware) -->
       ${
-        isServerContext
+        isServer
           ? `
         ${renderDockerServiceSuite(state.criteria, true)}
         ${renderDesktopAppSuite(state.criteria, false)}
