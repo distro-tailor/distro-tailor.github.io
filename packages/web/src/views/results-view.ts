@@ -63,8 +63,8 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
       
       <!-- Top Match Winner Banner -->
       <div class="bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-950 border border-emerald-500/30 rounded-2xl p-4 sm:p-8 relative overflow-hidden shadow-2xl min-w-0">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 min-w-0">
-          <div class="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 w-full sm:w-auto">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4 min-w-0">
+          <div class="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 flex-1">
             <span class="text-3xl sm:text-5xl p-2 rounded-2xl bg-slate-900 border border-slate-700/60 shrink-0">${best.distro.logoEmoji || '🐧'}</span>
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
@@ -77,14 +77,14 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
             </div>
           </div>
 
-          <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-            <button id="btn-modify-answers" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-500 transition-all flex items-center gap-1.5 shadow-md cursor-pointer" title="Return to questions to review or adjust choices">
+          <div class="flex items-center gap-2 w-full lg:w-auto flex-wrap shrink-0 justify-start sm:justify-end">
+            <button id="btn-modify-answers" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-500 transition-all flex items-center gap-1.5 shadow-md cursor-pointer whitespace-nowrap" title="Return to questions to review or adjust choices">
               <span>←</span> Modify Choices
             </button>
-            <button id="btn-share-match" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 transition-all flex items-center gap-1.5 shadow-md cursor-pointer" title="Share this tailored match permalink">
+            <button id="btn-share-match" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 transition-all flex items-center gap-1.5 shadow-md cursor-pointer whitespace-nowrap" title="Share this tailored match permalink">
               <span>🔗</span> Share Match
             </button>
-            <a href="${best.distro.website}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-950/40">
+            <a href="${best.distro.website}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 whitespace-nowrap">
               Official Site ↗
             </a>
           </div>
@@ -471,11 +471,11 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 min-w-0">
               <p class="text-xs text-slate-400 break-words">${recipe.summary}</p>
               
-              <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-                <button id="btn-share-recipe" class="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer" title="Share this build recipe permalink">
+              <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap shrink-0">
+                <button id="btn-share-recipe" class="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Share this build recipe permalink">
                   <span>🔗</span> Share
                 </button>
-                <button id="btn-copy-recipe" class="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer">
+                <button id="btn-copy-recipe" class="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
                   <span>📋</span> Copy File
                 </button>
               </div>
