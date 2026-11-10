@@ -6,7 +6,14 @@ import {
   RecommendationOutput,
   DISTRO_REGISTRY,
   CURRENT_SCHEMA_VERSION,
-  migrateUrlParameters
+  migrateUrlParameters,
+  DOCKER_APPS_REGISTRY,
+  DESKTOP_APPS_REGISTRY,
+  getDockerApp,
+  getDesktopApp,
+  DockerAppId,
+  DesktopEnvId,
+  DesktopAppId
 } from '@distro-tailor/core';
 
 interface AppState {
@@ -120,7 +127,13 @@ function loadStateFromUrl(): void {
     'experienceLevel',
     'maxRamMb',
     'prefersGui',
-    'requiresCustomBuild'
+    'requiresCustomBuild',
+    'desktopEnv',
+    'enableDistrobox',
+    'enableNix',
+    'enableFlatpak',
+    'dockerApp',
+    'desktopApps'
   ];
 
   for (const key of knownCriteriaKeys) {
@@ -128,8 +141,16 @@ function loadStateFromUrl(): void {
     if (val !== undefined && val !== null) {
       if (key === 'maxRamMb') {
         state.criteria[key] = Number(val);
-      } else if (key === 'prefersGui' || key === 'requiresCustomBuild') {
-        state.criteria[key] = val === 'true';
+      } else if (key === 'desktopApps') {
+        state.criteria[key] = val.split(',').filter(Boolean) as DesktopAppId[];
+      } else if (
+        key === 'prefersGui' ||
+        key === 'requiresCustomBuild' ||
+        key === 'enableDistrobox' ||
+        key === 'enableNix' ||
+        key === 'enableFlatpak'
+      ) {
+        state.criteria[key] = val === 'true' || val === '1';
       } else {
         (state.criteria as any)[key] = val;
       }
@@ -320,6 +341,26 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
   }
   if (key === 'requiresCustomBuild') {
     return { label: value ? 'Custom Build Recipe Required' : 'Prebuilt ISO Preferred', icon: '🛠️' };
+  }
+  if (key === 'dockerApp') {
+    const app = getDockerApp(value);
+    return { label: app ? `Docker: ${app.name}` : `Docker: ${value}`, icon: app ? app.icon : '🐳' };
+  }
+  if (key === 'desktopApps') {
+    const list = Array.isArray(value) ? value : String(value).split(',').filter(Boolean);
+    return { label: `Desktop Apps: ${list.length} selected`, icon: '📦' };
+  }
+  if (key === 'desktopEnv') {
+    return { label: `Desktop: ${String(value).toUpperCase()}`, icon: '🖼️' };
+  }
+  if (key === 'enableDistrobox') {
+    return { label: value ? 'Distrobox (Arch AUR)' : 'Native Only', icon: '🏛️' };
+  }
+  if (key === 'enableNix') {
+    return { label: value ? 'Nix Package Layer' : 'No Nix', icon: '❄️' };
+  }
+  if (key === 'enableFlatpak') {
+    return { label: value ? 'Flatpak Sandbox' : 'No Flatpak', icon: '📦' };
   }
 
   if (map[key] && map[key][value]) {
@@ -617,7 +658,17 @@ function renderPrimarySection(
   `;
 }
 
-function getAddonCombos(distroId: string): { title: string; icon: string; description: string; howTo: string }[] {
+interface AddonCombo {
+  title: string;
+  icon: string;
+  description: string;
+  howTo: string;
+  appliesDockerApp?: DockerAppId;
+  appliesDesktopEnv?: DesktopEnvId;
+  appliesDistrobox?: boolean;
+}
+
+function getAddonCombos(distroId: string): AddonCombo[] {
   switch (distroId) {
     case 'libreelec':
       return [
@@ -631,7 +682,8 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           title: 'Stream From Home Storage (NAS / Jellyfin)',
           icon: '📦',
           description: 'Access family photos, home videos, and movies stored on your home server or NAS.',
-          howTo: 'Add network folder via SMB/NFS, or install the official Jellyfin / Plex add-on from Kodi repository.'
+          howTo: 'Add network folder via SMB/NFS, or install the official Jellyfin / Plex add-on from Kodi repository.',
+          appliesDockerApp: 'jellyfin'
         }
       ];
     case 'openmediavault':
@@ -640,19 +692,22 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           title: 'Smart Home Hub (Home Assistant)',
           icon: '🏡',
           description: 'Run your local private smart home hub alongside family file storage on the same PC.',
-          howTo: 'Install "omv-extras" plugin → enable Compose / Docker → 1-click launch Home Assistant container.'
+          howTo: 'Install "omv-extras" plugin → enable Compose / Docker → 1-click launch Home Assistant container.',
+          appliesDockerApp: 'home-assistant'
         },
         {
           title: 'Private Family Photo Cloud (Immich)',
           icon: '📸',
           description: 'Auto-backup phone photos and replace Google Photos / iCloud with AI face & map search.',
-          howTo: 'Deploy the Immich Docker Compose template directly inside the OMV web interface.'
+          howTo: 'Deploy the Immich Docker Compose template directly inside the OMV web interface.',
+          appliesDockerApp: 'immich'
         },
         {
           title: 'Network-Wide Ad Blocker (Pi-hole)',
           icon: '🛡️',
           description: 'Block ads and tracking for every phone, laptop, and smart TV connected to your Wi-Fi.',
-          howTo: 'Launch a Pi-hole container and point your home Wi-Fi router DNS to your OMV box IP address.'
+          howTo: 'Launch a Pi-hole container and point your home Wi-Fi router DNS to your OMV box IP address.',
+          appliesDockerApp: 'pihole'
         }
       ];
     case 'home-assistant-os':
@@ -673,7 +728,8 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           title: 'Family Music & Media Server',
           icon: '🎵',
           description: 'Stream music to smart speakers throughout the house with synchronized multi-room audio.',
-          howTo: 'Install Music Assistant or Jellyfin from the Home Assistant Community Add-on Store.'
+          howTo: 'Install Music Assistant or Jellyfin from the Home Assistant Community Add-on Store.',
+          appliesDockerApp: 'jellyfin'
         }
       ];
     case 'cage-appliance':
@@ -689,7 +745,8 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           title: 'Touchscreen Calibration & Virtual Keyboard',
           icon: '📱',
           description: 'Turn into an interactive retail POS, product kiosk, or wall control panel.',
-          howTo: 'Cage automatically binds to libinput; enable onboard or wvkbd for on-screen touch typing.'
+          howTo: 'Cage automatically binds to libinput; enable onboard or wvkbd for on-screen touch typing.',
+          appliesDesktopEnv: 'cage'
         }
       ];
     case 'batocera':
@@ -713,7 +770,8 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           title: 'Local AI LLM Assistant (Ollama + Open-WebUI)',
           icon: '🤖',
           description: 'Run DeepSeek, Llama 3, or Mistral 100% locally on your NVIDIA GPU with private ChatGPT web UI.',
-          howTo: 'Run `curl -fsSL https://ollama.com/install.sh | sh` then `ollama run llama3`.'
+          howTo: 'Run `curl -fsSL https://ollama.com/install.sh | sh` then `ollama run llama3`.',
+          appliesDockerApp: 'ollama'
         },
         {
           title: 'PyTorch & Data Science Environment',
@@ -779,7 +837,8 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           title: 'Isolated Developer Containers (Podman & Toolbx)',
           icon: '📦',
           description: 'Run multiple Python, Node.js, and Rust toolchain versions in isolated containers without polluting your host workstation.',
-          howTo: 'Spin up a containerized dev environment instantly with `toolbox create` and `toolbox enter`.'
+          howTo: 'Spin up a containerized dev environment instantly with `toolbox create` and `toolbox enter`.',
+          appliesDistrobox: true
         }
       ];
     case 'ubuntu-studio':
@@ -818,7 +877,8 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           title: 'Nextcloud Private Family Cloud',
           icon: '☁️',
           description: 'Self-hosted Google Drive / Dropbox replacement with mobile auto-upload, calendar, and contacts.',
-          howTo: 'Install the official Nextcloud app from the TrueNAS SCALE Apps catalog with one click.'
+          howTo: 'Install the official Nextcloud app from the TrueNAS SCALE Apps catalog with one click.',
+          appliesDockerApp: 'nextcloud'
         },
         {
           title: 'ZFS Scrub & SMART Disk Health Alerts',
@@ -833,13 +893,15 @@ function getAddonCombos(distroId: string): { title: string; icon: string; descri
           title: 'Containerize Any Service (Docker & Compose)',
           icon: '🐳',
           description: 'Run media servers, ad-blockers, smart home, and coding sandboxes in isolated containers.',
-          howTo: 'Install Docker with one command (curl -fsSL https://get.docker.com | sh) and run any homelab app.'
+          howTo: 'Install Docker with one command (curl -fsSL https://get.docker.com | sh) and run any homelab app.',
+          appliesDockerApp: 'immich'
         },
         {
           title: 'Secure Remote Access (Tailscale VPN)',
           icon: '🔒',
           description: 'Access your machine securely from anywhere outside the house without opening router ports.',
-          howTo: 'Install Tailscale to join your personal private mesh network in 30 seconds.'
+          howTo: 'Install Tailscale to join your personal private mesh network in 30 seconds.',
+          appliesDockerApp: 'tailscale'
         }
       ];
   }
@@ -948,7 +1010,186 @@ function renderResultsView(evaluation: RecommendationOutput): string {
 
       </div>
 
-      <!-- Mix & Match Hybrid Combos -->
+      <!-- 🧪 The Frankenstein Spectrum: Interactive Base OS Modifiers -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
+        <div class="mb-4 min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-xl shrink-0">🧪</span>
+            <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">The "Frankenstein" Spectrum: Interactive Base OS Modifiers</h3>
+          </div>
+          <p class="text-xs text-slate-400 mt-1 break-words">
+            Linux distribution names are starting points. Click below to inject userspace subsystems, compositors, and package managers directly into your Makefile:
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-3.5 text-xs min-w-0">
+          
+          <!-- Distrobox Card -->
+          <div class="p-3.5 rounded-xl border flex flex-col justify-between min-w-0 transition-all ${state.criteria.enableDistrobox ? 'bg-emerald-950/20 border-emerald-500/60 shadow-lg shadow-emerald-950/30' : 'bg-slate-950/80 border-slate-800'}">
+            <div>
+              <div class="flex items-center justify-between mb-1.5 gap-1.5">
+                <span class="font-semibold text-slate-200 flex items-center gap-1.5 break-words">
+                  <span>🏛️ ⇄ 🏹</span> Debian Base + Arch AUR
+                </span>
+                ${state.criteria.enableDistrobox ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>` : ''}
+              </div>
+              <p class="text-slate-400 leading-relaxed text-[11px] mb-3 break-words">
+                Run Arch's <code class="text-emerald-400">pacman</code> and AUR packages directly on this host base via Distrobox container pods.
+              </p>
+            </div>
+            <button id="btn-toggle-distrobox" class="w-full py-2 px-3 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${state.criteria.enableDistrobox ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-emerald-400 border border-slate-700'}">
+              <span>${state.criteria.enableDistrobox ? '✓ Distrobox In Makefile' : '+ Enable Distrobox in Makefile'}</span>
+            </button>
+          </div>
+
+          <!-- Desktop Environment / Compositor Card -->
+          <div class="p-3.5 rounded-xl border flex flex-col justify-between min-w-0 transition-all bg-slate-950/80 border-slate-800">
+            <div>
+              <div class="flex items-center justify-between mb-1.5 gap-1.5">
+                <span class="font-semibold text-slate-200 flex items-center gap-1.5 break-words">
+                  <span>🖼️</span> Desktop Compositor
+                </span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700 shrink-0 uppercase">
+                  ${state.criteria.desktopEnv || (state.criteria.prefersGui ? 'cage' : 'none')}
+                </span>
+              </div>
+              <p class="text-slate-400 leading-relaxed text-[11px] mb-3 break-words">
+                Select your display server or compositor. Updates <code class="text-emerald-400">DESKTOP_ENV</code> in the Makefile:
+              </p>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5">
+              ${(['none', 'cage', 'xfce', 'kde', 'gnome'] as DesktopEnvId[]).map(env => `
+                <button data-desktop-env="${env}" class="btn-select-desktop-env py-1.5 px-1 rounded text-[10px] font-mono font-medium transition-all text-center cursor-pointer ${ (state.criteria.desktopEnv || (state.criteria.prefersGui ? 'cage' : 'none')) === env ? 'bg-emerald-500 text-slate-950 font-bold shadow' : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800' }">
+                  ${env}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Universal Package Layers Card -->
+          <div class="p-3.5 rounded-xl border flex flex-col justify-between min-w-0 transition-all ${(state.criteria.enableNix || state.criteria.enableFlatpak) ? 'bg-emerald-950/20 border-emerald-500/60 shadow-lg shadow-emerald-950/30' : 'bg-slate-950/80 border-slate-800'}">
+            <div>
+              <div class="flex items-center justify-between mb-1.5 gap-1.5">
+                <span class="font-semibold text-slate-200 flex items-center gap-1.5 break-words">
+                  <span>❄️ ⇄ 📦</span> Universal Packages
+                </span>
+                ${(state.criteria.enableNix || state.criteria.enableFlatpak) ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>` : ''}
+              </div>
+              <p class="text-slate-400 leading-relaxed text-[11px] mb-3 break-words">
+                Keep the rootfs immutable. Layer user apps via Nix package manager or Flatpak sandboxes:
+              </p>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button id="btn-toggle-nix" class="py-2 px-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer ${state.criteria.enableNix ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'}">
+                <span>${state.criteria.enableNix ? '✓ Nix ON' : '+ Nix'}</span>
+              </button>
+              <button id="btn-toggle-flatpak" class="py-2 px-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1 cursor-pointer ${state.criteria.enableFlatpak ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'}">
+                <span>${state.criteria.enableFlatpak ? '✓ Flatpak ON' : '+ Flatpak'}</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 📦 Ninite-Style Desktop Application Suite -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 min-w-0">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span class="text-xl shrink-0">📦</span>
+              <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">1-Click Desktop App Suite (Ninite for Linux)</h3>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 break-words">
+              Select popular GUI applications and developer tools. DistroTailor generates an automated unattended <code class="text-emerald-400">bootstrap-apps.sh</code> script (via APT & Flatpak):
+            </p>
+          </div>
+          <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0 self-start sm:self-auto">
+            ${(state.criteria.desktopApps || []).length} Selected
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 text-xs min-w-0">
+          ${DESKTOP_APPS_REGISTRY.map(app => {
+            const isSelected = (state.criteria.desktopApps || []).includes(app.id);
+            return `
+              <div data-app-id="${app.id}" class="btn-toggle-desktop-app p-2.5 rounded-xl border cursor-pointer select-none transition-all flex flex-col justify-between min-w-0 ${isSelected ? 'bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30' : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'}">
+                <div class="flex items-center justify-between mb-1.5 gap-1.5 min-w-0">
+                  <span class="text-xl shrink-0">${app.icon}</span>
+                  <div class="w-4 h-4 rounded border flex items-center justify-center text-[10px] font-bold ${isSelected ? 'bg-emerald-400 border-emerald-400 text-slate-950' : 'border-slate-700 bg-slate-900'}">
+                    ${isSelected ? '✓' : ''}
+                  </div>
+                </div>
+                <div class="min-w-0">
+                  <span class="font-bold text-slate-200 block truncate text-xs">${app.name}</span>
+                  <span class="text-[10px] text-slate-400 block truncate">${app.category}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- 🐳 PuPHPet-Style Turnkey Service Layer (Docker Compose) -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 min-w-0">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span class="text-xl shrink-0">🐳</span>
+              <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">PuPHPet-Style Turnkey Service Layer (Docker Compose)</h3>
+            </div>
+            <p class="text-xs text-slate-400 mt-1 break-words">
+              Deploy a turnkey self-hosted containerized app. Injects <code class="text-emerald-400">docker-compose.yml</code> and Makefile targets (<code class="text-emerald-400">make app-up</code>):
+            </p>
+          </div>
+          ${state.criteria.dockerApp && state.criteria.dockerApp !== 'none' ? `
+            <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0 self-start sm:self-auto">
+              ${getDockerApp(state.criteria.dockerApp)?.name} Configured
+            </span>
+          ` : ''}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs min-w-0">
+          
+          <!-- None / Pure Minimal OS Card -->
+          <div data-docker-id="none" class="btn-select-docker-app p-3 rounded-xl border cursor-pointer select-none transition-all flex flex-col justify-between min-w-0 ${(!state.criteria.dockerApp || state.criteria.dockerApp === 'none') ? 'bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30' : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'}">
+            <div>
+              <div class="flex items-center justify-between mb-1 gap-1.5">
+                <span class="text-xl shrink-0">🚫</span>
+                ${(!state.criteria.dockerApp || state.criteria.dockerApp === 'none') ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>` : ''}
+              </div>
+              <h4 class="font-bold text-slate-200 text-xs">None (Pure OS Minimal)</h4>
+              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">No extra background containers. Keep the OS footprint ultra-lean.</p>
+            </div>
+            <div class="mt-3 pt-2 border-t border-slate-800/80 text-[10px] text-slate-500 font-mono">
+              Pure Native Host
+            </div>
+          </div>
+
+          ${DOCKER_APPS_REGISTRY.map(app => {
+            const isSelected = state.criteria.dockerApp === app.id;
+            return `
+              <div data-docker-id="${app.id}" class="btn-select-docker-app p-3 rounded-xl border cursor-pointer select-none transition-all flex flex-col justify-between min-w-0 ${isSelected ? 'bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30' : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'}">
+                <div>
+                  <div class="flex items-center justify-between mb-1 gap-1.5">
+                    <span class="text-xl shrink-0">${app.icon}</span>
+                    ${isSelected ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>` : `<span class="text-[10px] text-slate-500 font-mono">Port ${app.defaultPort}</span>`}
+                  </div>
+                  <h4 class="font-bold text-slate-200 text-xs">${app.name}</h4>
+                  <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${app.description}</p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-800/80 text-[10px] ${isSelected ? 'text-emerald-400 font-bold' : 'text-slate-500'} font-mono flex items-center justify-between">
+                  <span>${isSelected ? '✓ In docker-compose.yml' : '+ Deploy with Docker'}</span>
+                  <span>↗</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+
+        </div>
+      </div>
+
+      <!-- 🧩 Mix & Match Hybrid Combos -->
       <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
         <div class="mb-5 min-w-0">
           <div class="flex items-center gap-2">
@@ -956,25 +1197,39 @@ function renderResultsView(evaluation: RecommendationOutput): string {
             <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">Mix & Match: Popular Combos for ${best.distro.name}</h3>
           </div>
           <p class="text-xs text-slate-400 mt-1 break-words">
-            Linux is modular. You don't have to choose just one thing! Start with ${best.distro.name} as your core foundation, then layer on these add-on capabilities:
+            Linux is modular. Click any combo below to immediately wire its configuration into your build recipe:
           </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 min-w-0">
-          ${combos.map(combo => `
-            <div class="p-3.5 sm:p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between min-w-0">
-              <div>
-                <div class="flex items-center gap-2.5 mb-2 min-w-0">
-                  <span class="text-2xl shrink-0">${combo.icon}</span>
-                  <h4 class="text-sm font-semibold text-slate-200 break-words">${combo.title}</h4>
+          ${combos.map((combo, idx) => {
+            const isApplied = (combo.appliesDockerApp && state.criteria.dockerApp === combo.appliesDockerApp) ||
+                              (combo.appliesDesktopEnv && (state.criteria.desktopEnv || (state.criteria.prefersGui ? 'cage' : 'none')) === combo.appliesDesktopEnv) ||
+                              (combo.appliesDistrobox && state.criteria.enableDistrobox);
+
+            return `
+              <div class="p-3.5 sm:p-4 rounded-xl border flex flex-col justify-between min-w-0 transition-all ${isApplied ? 'bg-emerald-950/20 border-emerald-500/60 shadow-lg shadow-emerald-950/30' : 'bg-slate-950/80 border-slate-800'}">
+                <div>
+                  <div class="flex items-center justify-between mb-2 gap-2 min-w-0">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <span class="text-2xl shrink-0">${combo.icon}</span>
+                      <h4 class="text-sm font-semibold text-slate-200 break-words">${combo.title}</h4>
+                    </div>
+                    ${isApplied ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">INCLUDED</span>` : ''}
+                  </div>
+                  <p class="text-xs text-slate-400 leading-relaxed mb-3 break-words">${combo.description}</p>
                 </div>
-                <p class="text-xs text-slate-400 leading-relaxed mb-3 break-words">${combo.description}</p>
+                <div class="pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2 min-w-0">
+                  <span class="text-[11px] text-slate-400 font-mono truncate">👉 ${combo.howTo}</span>
+                  ${(combo.appliesDockerApp || combo.appliesDesktopEnv || combo.appliesDistrobox) ? `
+                    <button data-combo-idx="${idx}" class="btn-toggle-combo px-2.5 py-1 rounded text-[11px] font-semibold transition-all shrink-0 cursor-pointer ${isApplied ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-700'}">
+                      ${isApplied ? '✓ Active' : '+ Apply'}
+                    </button>
+                  ` : ''}
+                </div>
               </div>
-              <div class="pt-2.5 border-t border-slate-800/80 text-[11px] text-emerald-400 font-mono break-all">
-                👉 ${combo.howTo}
-              </div>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       </div>
 
@@ -1088,60 +1343,6 @@ function renderResultsView(evaluation: RecommendationOutput): string {
             <p class="text-slate-400 text-[11px] leading-relaxed break-words">
               When building on PCPartPicker, you choose <strong>ONE</strong> motherboard NIC, <strong>ONE</strong> Wi-Fi card, and <strong>ONE</strong> GPU. A generic ISO must bundle drivers for every component ever listed on PCPartPicker! DistroTailor's recipe isolates your active manifest, pruning the thousands of parts you didn't buy.
             </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Frankenstein / Hybrid Modularity Card -->
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
-        <div class="mb-4 min-w-0">
-          <div class="flex items-center gap-2">
-            <span class="text-xl shrink-0">🧪</span>
-            <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">The "Frankenstein" Spectrum: Linux is 100% Modular</h3>
-          </div>
-          <p class="text-xs text-slate-400 mt-1 break-words">
-            In Linux, distribution names are just starting points. If you are an expert or power user, you can mix and match parts from across the entire ecosystem:
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-3.5 text-xs min-w-0">
-          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-0 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1.5">
-                <span class="shrink-0">🏛️ ⇄ 🏹</span>
-                <span class="break-words">Debian Base + Arch AUR</span>
-              </div>
-              <p class="text-slate-400 leading-relaxed text-[11px] mb-2.5 break-words">
-                Want Debian's rock-solid server base, but need bleeding-edge packages? Use <strong>Distrobox</strong> to run Arch's <code class="text-emerald-400">pacman</code> and AUR directly on this host without conflict.
-              </p>
-            </div>
-            <span class="text-[10px] text-emerald-400 font-mono break-all bg-slate-900 p-1.5 rounded border border-slate-800/80 block">distrobox create --image archlinux</span>
-          </div>
-
-          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-0 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1.5">
-                <span class="shrink-0">🖼️</span>
-                <span class="break-words">GNOME vs. KDE vs. Cage</span>
-              </div>
-              <p class="text-slate-400 leading-relaxed text-[11px] mb-2.5 break-words">
-                Desktop environments are just interchangeable userspace programs. Swap heavy GNOME for KDE Plasma, lightweight XFCE, or the ultra-lean <strong>Cage Wayland</strong> kiosk compositor in the generated Makefile.
-              </p>
-            </div>
-            <span class="text-[10px] text-emerald-400 font-mono break-all bg-slate-900 p-1.5 rounded border border-slate-800/80 block">make DESKTOP_ENV=cage</span>
-          </div>
-
-          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-0 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1.5">
-                <span class="shrink-0">❄️ ⇄ 📦</span>
-                <span class="break-words">Universal Nix & Flatpak</span>
-              </div>
-              <p class="text-slate-400 leading-relaxed text-[11px] mb-2.5 break-words">
-                Keep your core OS rootfs read-only and immutable. Layer user applications via <strong>Nix package manager</strong> or <strong>Flatpak</strong> so zero app dependencies pollute the base system.
-              </p>
-            </div>
-            <span class="text-[10px] text-emerald-400 font-mono break-all bg-slate-900 p-1.5 rounded border border-slate-800/80 block">nix-env -iA nixpkgs.myApp</span>
           </div>
         </div>
       </div>
@@ -1704,6 +1905,107 @@ function attachEventHandlers(
       const idx = Number(tab.getAttribute('data-file-idx'));
       state.activeFileIndex = idx;
       render();
+    });
+  });
+
+  // Action Cards: Frankenstein Distrobox Toggle
+  document.getElementById('btn-toggle-distrobox')?.addEventListener('click', () => {
+    state.criteria.enableDistrobox = !state.criteria.enableDistrobox;
+    saveStateToUrl();
+    render();
+    showToast(
+      state.criteria.enableDistrobox ? '✨ Distrobox enabled in Makefile!' : 'Distrobox disabled in Makefile',
+      '🏛️'
+    );
+  });
+
+  // Action Cards: Desktop Compositor Selection
+  document.querySelectorAll<HTMLButtonElement>('.btn-select-desktop-env').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const env = (e.currentTarget as HTMLElement).getAttribute('data-desktop-env') as DesktopEnvId;
+      state.criteria.desktopEnv = env;
+      saveStateToUrl();
+      render();
+      showToast(`✨ Desktop compositor set to ${env.toUpperCase()} in Makefile!`, '🖼️');
+    });
+  });
+
+  // Action Cards: Nix & Flatpak Toggles
+  document.getElementById('btn-toggle-nix')?.addEventListener('click', () => {
+    state.criteria.enableNix = !state.criteria.enableNix;
+    saveStateToUrl();
+    render();
+    showToast(state.criteria.enableNix ? '✨ Nix package manager layer enabled!' : 'Nix package layer disabled', '❄️');
+  });
+
+  document.getElementById('btn-toggle-flatpak')?.addEventListener('click', () => {
+    state.criteria.enableFlatpak = !state.criteria.enableFlatpak;
+    saveStateToUrl();
+    render();
+    showToast(state.criteria.enableFlatpak ? '✨ Flatpak sandbox layer enabled!' : 'Flatpak disabled', '📦');
+  });
+
+  // Action Cards: Ninite-Style Desktop Apps
+  document.querySelectorAll<HTMLElement>('.btn-toggle-desktop-app').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      const appId = (e.currentTarget as HTMLElement).getAttribute('data-app-id') as DesktopAppId;
+      const list = state.criteria.desktopApps || [];
+      if (list.includes(appId)) {
+        state.criteria.desktopApps = list.filter((id) => id !== appId);
+        showToast(`Removed ${appId} from bootstrap-apps.sh`, '📦');
+      } else {
+        state.criteria.desktopApps = [...list, appId];
+        const app = getDesktopApp(appId);
+        showToast(`✨ Added ${app?.name || appId} to bootstrap-apps.sh!`, app?.icon || '📦');
+      }
+      saveStateToUrl();
+      render();
+    });
+  });
+
+  // Action Cards: PuPHPet-Style Turnkey Docker App Layer
+  document.querySelectorAll<HTMLElement>('.btn-select-docker-app').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      const appId = (e.currentTarget as HTMLElement).getAttribute('data-docker-id') as DockerAppId;
+      if (appId === 'none' || state.criteria.dockerApp === appId) {
+        state.criteria.dockerApp = undefined;
+        state.activeFileIndex = 0;
+        showToast('Set to pure minimal OS (no background containers)', '🚫');
+      } else {
+        state.criteria.dockerApp = appId;
+        const appDef = getDockerApp(appId);
+        showToast(`✨ Configured ${appDef?.name || appId} in Makefile & docker-compose.yml!`, appDef?.icon || '🐳');
+        // Switch to the newly generated docker-compose.yml tab
+        state.activeFileIndex = 1;
+      }
+      saveStateToUrl();
+      render();
+    });
+  });
+
+  // Action Cards: Mix & Match Combos
+  const combos = getAddonCombos(evaluation.bestMatch.distro.id);
+  document.querySelectorAll<HTMLButtonElement>('.btn-toggle-combo').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const idx = Number((e.currentTarget as HTMLElement).getAttribute('data-combo-idx'));
+      const combo = combos[idx];
+      if (!combo) return;
+
+      if (combo.appliesDockerApp) {
+        state.criteria.dockerApp =
+          state.criteria.dockerApp === combo.appliesDockerApp ? undefined : combo.appliesDockerApp;
+        state.activeFileIndex = state.criteria.dockerApp ? 1 : 0;
+      }
+      if (combo.appliesDesktopEnv) {
+        state.criteria.desktopEnv =
+          state.criteria.desktopEnv === combo.appliesDesktopEnv ? undefined : combo.appliesDesktopEnv;
+      }
+      if (combo.appliesDistrobox) {
+        state.criteria.enableDistrobox = !state.criteria.enableDistrobox;
+      }
+      saveStateToUrl();
+      render();
+      showToast(`✨ Updated build recipe with ${combo.title}!`, combo.icon || '🧩');
     });
   });
 

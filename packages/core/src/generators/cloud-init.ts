@@ -1,8 +1,10 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
+import { getDockerApp } from './docker-apps.js';
 
 export function generateCloudInitRecipe(criteria: UserCriteria): GeneratedRecipe {
   const arch = criteria.architecture || 'x86_64';
   const vmName = 'distro-tailor-cloud';
+  const dockerAppDef = getDockerApp(criteria.dockerApp);
 
   const userConfigYaml = `#cloud-config
 hostname: ${vmName}
@@ -25,11 +27,16 @@ packages:
   - qemu-guest-agent
   - curl
   - htop
-  - net-tools
+  - net-tools${dockerAppDef ? `
+  - docker.io
+  - docker-compose-v2` : ''}
 
 runcmd:
   - systemctl enable --now qemu-guest-agent
-  - echo "DistroTailor Cloud-Init VM initialized successfully!" > /etc/motd
+  - echo "DistroTailor Cloud-Init VM initialized successfully!" > /etc/motd${dockerAppDef ? `
+  - systemctl enable --now docker
+  - mkdir -p /opt/${criteria.dockerApp}
+  - cd /opt/${criteria.dockerApp} && docker compose up -d` : ''}
 `;
 
   const metaDataYaml = `instance-id: distro-tailor-001
@@ -139,40 +146,61 @@ ssh -p 2222 tailor@localhost
 Default credentials: \`tailor\` / \`tailor\`
 `;
 
+  const files = [
+    {
+      filename: 'Makefile',
+      description: 'Build automation target to bootstrap rootfs and generate QCOW2 image',
+      content: makefileContent
+    },
+    {
+      filename: 'user-data',
+      description: 'Cloud-config declaration for tailor user, SSH keys, and packages',
+      content: userConfigYaml
+    },
+    {
+      filename: 'meta-data',
+      description: 'Instance ID and hostname metadata',
+      content: metaDataYaml
+    }
+  ];
+
+  if (dockerAppDef) {
+    files.push({
+      filename: 'docker-compose.yml',
+      description: `Turnkey Docker Compose configuration for ${dockerAppDef.name} (${dockerAppDef.tagline})`,
+      content: dockerAppDef.generateCompose(criteria)
+    });
+  }
+
+  files.push({
+    filename: 'README.md',
+    description: 'Proxmox VE import and QEMU testing instructions',
+    content: readmeContent
+  });
+
+  const quickstartCommands = [
+    'sudo apt-get install -y qemu-utils debootstrap libguestfs-tools',
+    'make'
+  ];
+
+  if (dockerAppDef) {
+    quickstartCommands.push(`docker compose up -d  # Launch ${dockerAppDef.name} at ${dockerAppDef.webUrl}`);
+  } else {
+    quickstartCommands.push(`qm importdisk 9000 output/${vmName}.qcow2 local-zfs  # (Proxmox VE import)`);
+  }
+
   return {
     id: 'cloud-init-qcow2',
-    title: 'Cloud-Init QCOW2 Virtual Machine Disk',
-    summary:
-      'Builds a sparse QCOW2 virtual disk image configured with cloud-init and QEMU guest agent for Proxmox VE, KVM, and OpenStack.',
+    title: dockerAppDef
+      ? `Cloud-Init QCOW2 + ${dockerAppDef.name} Appliance`
+      : 'Cloud-Init QCOW2 Virtual Machine Disk',
+    summary: dockerAppDef
+      ? `Builds a Proxmox/KVM cloud-init virtual disk configured with Docker and pre-seeded with ${dockerAppDef.name} (${dockerAppDef.tagline}).`
+      : 'Builds a sparse QCOW2 virtual disk image configured with cloud-init and QEMU guest agent for Proxmox VE, KVM, and OpenStack.',
     targetFormat: 'qcow2',
     estimatedBuildTimeMinutes: 4,
     hostDependencies: ['qemu-img', 'debootstrap', 'libguestfs-tools'],
-    files: [
-      {
-        filename: 'Makefile',
-        description: 'Build automation target to bootstrap rootfs and generate QCOW2 image',
-        content: makefileContent
-      },
-      {
-        filename: 'user-data',
-        description: 'Cloud-config declaration for tailor user, SSH keys, and packages',
-        content: userConfigYaml
-      },
-      {
-        filename: 'meta-data',
-        description: 'Instance ID and hostname metadata',
-        content: metaDataYaml
-      },
-      {
-        filename: 'README.md',
-        description: 'Proxmox VE import and QEMU testing instructions',
-        content: readmeContent
-      }
-    ],
-    quickstartCommands: [
-      'sudo apt-get install -y qemu-utils debootstrap libguestfs-tools',
-      'make',
-      `qm importdisk 9000 output/${vmName}.qcow2 local-zfs  # (Proxmox VE import)`
-    ]
+    files,
+    quickstartCommands
   };
 }

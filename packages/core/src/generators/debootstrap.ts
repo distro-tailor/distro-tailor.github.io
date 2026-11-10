@@ -1,8 +1,17 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
+import { getDockerApp } from './docker-apps.js';
+import { generateBootstrapAppsScript } from './desktop-apps.js';
 
 export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedRecipe {
   const arch = criteria.architecture === 'arm64' ? 'arm64' : 'amd64';
   const distroName = 'TailoredDebian';
+  const dockerAppDef = getDockerApp(criteria.dockerApp);
+  const desktopApps = criteria.desktopApps || [];
+  const desktopEnv = criteria.desktopEnv || (criteria.prefersGui ? 'cage' : 'none');
+  const enableDistrobox = criteria.enableDistrobox ? '1' : '0';
+  const enableNix = criteria.enableNix ? '1' : '0';
+  const enableFlatpak = criteria.enableFlatpak ? '1' : '0';
+  const dockerApp = criteria.dockerApp && criteria.dockerApp !== 'none' ? criteria.dockerApp : 'none';
 
   const makefileContent = `# ==============================================================================
 # DistroTailor: Debootstrap Minimal Linux Builder
@@ -22,9 +31,16 @@ HARDWARE_TARGET ?= generic-x86
 # PRUNE_FIRMWARE: 1 = Strips 1.8GB of unused vendor blobs, keeps only essential free firmware
 PRUNE_FIRMWARE  ?= 1
 # DESKTOP_ENV: none (headless) | cage (wayland kiosk) | xfce | kde | gnome
-DESKTOP_ENV     ?= none
+DESKTOP_ENV     ?= ${desktopEnv}
 # FRANKENSTEIN_HYBRID: 1 = Pre-installs Distrobox to run Arch AUR / Fedora packages on this Debian base!
-ENABLE_DISTROBOX ?= 0
+ENABLE_DISTROBOX ?= ${enableDistrobox}
+# UNIVERSAL_PACKAGES: Nix package manager & Flatpak layers
+ENABLE_NIX       ?= ${enableNix}
+ENABLE_FLATPAK   ?= ${enableFlatpak}
+
+# --- TURNKEY 1-CLICK DOCKER APPLICATION (PuPHPet Style) ---
+# DOCKER_APP: none | immich | home-assistant | jellyfin | pihole | ollama | nextcloud | lamp-wordpress | tailscale | uptime-kuma
+DOCKER_APP       ?= ${dockerApp}
 
 BUILD_DIR   ?= ./build
 ROOTFS_DIR  ?= $(BUILD_DIR)/rootfs
@@ -36,7 +52,7 @@ DEBOOTSTRAP ?= debootstrap
 GENISOIMAGE ?= genisoimage
 MKSQUASHFS  ?= mksquashfs
 
-.PHONY: all clean check-root prepare rootfs configure iso detect-hardware
+.PHONY: all clean check-root prepare rootfs configure iso detect-hardware app-up app-down app-logs
 
 all: detect-hardware clean prepare rootfs configure iso
 	@echo "===================================================="
@@ -44,6 +60,8 @@ all: detect-hardware clean prepare rootfs configure iso
 	@echo " Hardware Profile:      $(HARDWARE_TARGET)"
 	@echo " Firmware Pruning:      $(if $(filter 1,$(PRUNE_FIRMWARE)),ENABLED (-1.8GB bloat stripped),DISABLED)"
 	@echo " Desktop Environment:   $(DESKTOP_ENV)"
+	@echo " Distrobox Hybrid:      $(if $(filter 1,$(ENABLE_DISTROBOX)),ENABLED (Arch AUR / Podman),DISABLED)"
+	@echo " Turnkey Docker App:    $(DOCKER_APP)"
 	@echo "===================================================="
 
 detect-hardware:
@@ -92,7 +110,7 @@ configure: rootfs
 			ca-certificates \\
 			curl && \\
 		\\
-		# Optional Desktop Injection \\
+		# Desktop Environment Injection \\
 		if [ '$(DESKTOP_ENV)' = 'cage' ]; then \\
 			apt-get install -y --no-install-recommends cage xwayland libgl1-mesa-dri; \\
 		elif [ '$(DESKTOP_ENV)' = 'xfce' ]; then \\
@@ -108,10 +126,31 @@ configure: rootfs
 			apt-get install -y --no-install-recommends podman distrobox; \\
 		fi && \\
 		\\
+		# Universal Package Layers (Nix & Flatpak) \\
+		if [ '$(ENABLE_FLATPAK)' = '1' ]; then \\
+			apt-get install -y --no-install-recommends flatpak; \\
+		fi && \\
+		if [ '$(ENABLE_NIX)' = '1' ]; then \\
+			apt-get install -y --no-install-recommends xz-utils sudo; \\
+		fi && \\
+		\\
+		# Turnkey 1-Click Docker Application Layer (PuPHPet Style) \\
+		if [ '$(DOCKER_APP)' != 'none' ]; then \\
+			apt-get install -y --no-install-recommends docker.io docker-compose-v2 && \\
+			systemctl enable docker && \\
+			mkdir -p /opt/$(DOCKER_APP); \\
+		fi && \\
+		\\
 		echo '${distroName}' > /etc/hostname && \\
 		echo 'root:tailor' | chpasswd && \\
 		apt-get clean && \\
 		rm -rf /var/lib/apt/lists/*"
+
+	# If a Docker application is configured, stage its compose file
+	@if [ '$(DOCKER_APP)' != 'none' ] && [ -f docker-compose.yml ]; then \\
+		cp docker-compose.yml $(ROOTFS_DIR)/opt/$(DOCKER_APP)/docker-compose.yml; \\
+		echo "[+] Bundled docker-compose.yml into /opt/$(DOCKER_APP)/"; \\
+	fi
 
 	# Safe unmount
 	umount -l $(ROOTFS_DIR)/dev/pts || true
@@ -135,6 +174,21 @@ iso: configure
 	grub-mkrescue -o $(OUTPUT_DIR)/$(ISO_NAME) $(BUILD_DIR)/iso
 	@echo "[+] Generated: $(OUTPUT_DIR)/$(ISO_NAME)"
 
+# Docker App Management Targets
+app-up:
+	@if [ '$(DOCKER_APP)' = 'none' ]; then \\
+		echo "[-] No turnkey Docker app selected."; \\
+	else \\
+		echo "[+] Launching $(DOCKER_APP) via Docker Compose..."; \\
+		docker compose -f docker-compose.yml up -d; \\
+	fi
+
+app-down:
+	@docker compose -f docker-compose.yml down
+
+app-logs:
+	@docker compose -f docker-compose.yml logs -f
+
 clean:
 	@echo "[+] Cleaning artifacts..."
 	umount -l $(ROOTFS_DIR)/dev/pts 2>/dev/null || true
@@ -146,7 +200,14 @@ clean:
 
   const readmeContent = `# ${distroName} Build Instructions
 
-This recipe builds a bare-metal bootable ISO based on a stripped Debian \`minbase\` core.
+This recipe builds a bare-metal bootable ISO based on a stripped Debian \`minbase\` core with custom modular layers.
+
+## Configured Layers:
+* **Architecture:** \`${arch}\`
+* **Desktop Environment:** \`${desktopEnv}\`
+* **Distrobox Hybrid:** \`${enableDistrobox === '1' ? 'Enabled (Arch AUR on Debian)' : 'Disabled'}\`
+* **Nix Package Layer:** \`${enableNix === '1' ? 'Enabled' : 'Disabled'}\`
+* **Turnkey Docker App:** \`${dockerAppDef ? `${dockerAppDef.name} (${dockerAppDef.tagline})` : 'None (Pure Minimal OS)'}\`
 
 ## Prerequisites
 On your host Debian/Ubuntu system, install the required build tools:
@@ -155,79 +216,90 @@ sudo apt-get update
 sudo apt-get install -y debootstrap genisoimage grub-pc-bin grub-efi-amd64-bin mtools libisoburn
 \`\`\`
 
-## Hardware Manifest Audit (PCPartPicker / Custom Rig)
-Before building, you can audit your machine's active hardware components to preview which drivers will be retained:
-\`\`\`bash
-make detect-hardware
-\`\`\`
-This isolates your motherboard's specific NIC, Wi-Fi, audio, and GPU controllers, allowing the build process to strip ~1.8GB of universal driver bloat.
-
 ## Build
-Run with root permissions (hardware detection runs automatically on build):
+Run with root permissions:
 \`\`\`bash
 sudo make
 \`\`\`
 
-## 🧪 3-Tier Verification & Testing Ladder
-
-### Tier 1: In-Browser Instant Sandbox (Zero Risk)
-If testing in-browser WebAssembly payloads, open the generated HTML file in Chrome/Firefox or launch the DistroTailor WebVM to interact with the shell without touching your filesystem.
-
-### Tier 2: Safe VM Sandbox (QEMU / VirtualBox / UTM)
-Run the built ISO inside a local hypervisor before touching physical drives:
+${dockerAppDef ? `
+## Turnkey 1-Click App: ${dockerAppDef.name}
+To spin up ${dockerAppDef.name} immediately on any Docker host using the included \`docker-compose.yml\`:
 \`\`\`bash
-# Linux (with KVM hardware acceleration):
-qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable-kvm
-
-# macOS (with Apple Hypervisor acceleration):
-qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -accel hvf
+docker compose up -d
 \`\`\`
-* **VirtualBox / UTM:** Create a new Linux VM, mount \`output/${distroName}-1.0.0-${arch}.iso\` as an optical drive, and boot.
-* **Default credentials:** \`root\` / \`tailor\`
+* **Access URL:** ${dockerAppDef.webUrl}
+* **Default Port:** ${dockerAppDef.defaultPort}
+* **Description:** ${dockerAppDef.description}
+` : ''}
 
-### Tier 3: Direct Bare-Metal Hardware (Live USB / Machine Boot)
-Test directly on your physical PC, laptop, or server rack:
-1. **Flash to USB Flash Drive:**
-   - **GUI (Cross-Platform):** Use **BalenaEtcher**, **Raspberry Pi Imager**, or **Rufus** (select DD Image Mode).
-   - **CLI (Linux/macOS):**
-     \`\`\`bash
-     # Verify your USB target device with lsblk or diskutil list before running:
-     sudo dd if=output/${distroName}-1.0.0-${arch}.iso of=/dev/sdX bs=4M status=progress oflag=sync
-     \`\`\`
-2. **Boot Your Physical Machine:**
-   - Plug the USB into the target machine, power on, and tap the boot selection key:
-     - **F12:** Dell, Lenovo, Alienware
-     - **F11 / F12:** HP, Acer, MSI
-     - **F8 / Del:** ASUS motherboards
-     - **Option (⌥) held down:** Intel MacBooks & Mac Minis
-   - Select the USB UEFI boot partition to test live without touching internal storage.
+## 🧪 3-Tier Verification & Testing Ladder
+\`\`\`bash
+# Safe VM Sandbox (QEMU):
+qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable-kvm
+\`\`\`
+* **Default credentials:** \`root\` / \`tailor\`
 `;
+
+  const files: GeneratedRecipe['files'] = [
+    {
+      filename: 'Makefile',
+      description: 'Complete build automation target for rootfs bootstrapping, desktop environment, and Docker configuration',
+      content: makefileContent
+    }
+  ];
+
+  if (dockerAppDef) {
+    files.push({
+      filename: 'docker-compose.yml',
+      description: `Turnkey Docker Compose configuration for ${dockerAppDef.name} (${dockerAppDef.tagline})`,
+      content: dockerAppDef.generateCompose(criteria)
+    });
+  }
+
+  if (desktopApps.length > 0) {
+    files.push({
+      filename: 'bootstrap-apps.sh',
+      description: `1-Click Ninite-style unattended installer for ${desktopApps.length} desktop application(s)`,
+      content: generateBootstrapAppsScript(desktopApps, criteria),
+      executable: true
+    });
+  }
+
+  files.push({
+    filename: 'README.md',
+    description: 'Step-by-step build instructions, app quickstart, and QEMU test guide',
+    content: readmeContent
+  });
+
+  const quickstartCommands = [
+    'sudo apt-get install -y debootstrap genisoimage grub-pc-bin libisoburn',
+    'make detect-hardware  # (Optional: audit active NIC, Wi-Fi & GPU inventory)',
+    'sudo make             # Automatically audits & builds custom zero-bloat ISO'
+  ];
+
+  if (desktopApps.length > 0) {
+    quickstartCommands.push(`sudo bash bootstrap-apps.sh  # 1-Click install ${desktopApps.length} desktop app(s) (Ninite style)`);
+  }
+
+  if (dockerAppDef) {
+    quickstartCommands.push(`docker compose up -d  # Launch ${dockerAppDef.name} at ${dockerAppDef.webUrl}`);
+  } else if (desktopApps.length === 0) {
+    quickstartCommands.push(`qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 1024`);
+  }
 
   return {
     id: 'debootstrap-debian',
-    title: 'Custom Minimal Debian Appliance (Debootstrap)',
-    summary:
-      'Compiles a lean, standalone Debian distribution (~250MB) with a tailored kernel, systemd, and bootable GRUB ISO.',
+    title: dockerAppDef
+      ? `Tailored Debian + ${dockerAppDef.name} Appliance`
+      : 'Custom Minimal Debian Appliance (Debootstrap)',
+    summary: dockerAppDef
+      ? `Compiles a lean Debian base (~250MB) and bundles a production-ready ${dockerAppDef.name} (${dockerAppDef.tagline}) Docker stack.`
+      : 'Compiles a lean, standalone Debian distribution (~250MB) with a tailored kernel, systemd, and bootable GRUB ISO.',
     targetFormat: 'iso',
     estimatedBuildTimeMinutes: 5,
     hostDependencies: ['debootstrap', 'genisoimage', 'grub-pc-bin', 'libisoburn'],
-    files: [
-      {
-        filename: 'Makefile',
-        description: 'Complete build automation target for rootfs bootstrapping, configuration, and ISO creation',
-        content: makefileContent
-      },
-      {
-        filename: 'README.md',
-        description: 'Step-by-step build, requirements, and QEMU test guide',
-        content: readmeContent
-      }
-    ],
-    quickstartCommands: [
-      'sudo apt-get install -y debootstrap genisoimage grub-pc-bin libisoburn',
-      'make detect-hardware  # (Optional: audit active NIC, Wi-Fi & GPU inventory)',
-      'sudo make             # Automatically audits & builds custom zero-bloat ISO',
-      `qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 1024`
-    ]
+    files,
+    quickstartCommands
   };
 }

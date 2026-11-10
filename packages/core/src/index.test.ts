@@ -280,6 +280,78 @@ test('Recipe Generators: Generates Proxmox LXC system container template recipe'
   assert.ok(result.recommendedRecipe.files.some(f => f.filename === 'lxc-create.sh'));
 });
 
+test('Recipe Modifiers: Frankenstein cards alter Makefile desktop, Distrobox and package layers', () => {
+  const result = evaluateCriteria({
+    useCase: 'desktop',
+    platform: 'bare-metal',
+    desktopEnv: 'cage',
+    enableDistrobox: true,
+    enableNix: true
+  });
+
+  assert.ok(result.recommendedRecipe);
+  const makefile = result.recommendedRecipe.files.find(f => f.filename === 'Makefile');
+  assert.ok(makefile);
+  assert.ok(makefile.content.includes('DESKTOP_ENV     ?= cage'));
+  assert.ok(makefile.content.includes('ENABLE_DISTROBOX ?= 1'));
+  assert.ok(makefile.content.includes('ENABLE_NIX       ?= 1'));
+});
+
+test('Recipe Modifiers: PuPHPet-style Docker app layer injects docker-compose.yml and updates Makefile', () => {
+  const result = evaluateCriteria({
+    useCase: 'nas-storage',
+    platform: 'bare-metal',
+    dockerApp: 'immich'
+  });
+
+  assert.ok(result.recommendedRecipe);
+  const composeFile = result.recommendedRecipe.files.find(f => f.filename === 'docker-compose.yml');
+  assert.ok(composeFile, 'docker-compose.yml must be generated when dockerApp is set');
+  assert.ok(composeFile.content.includes('immich-server'));
+  assert.ok(composeFile.content.includes('immich-machine-learning'));
+  assert.ok(composeFile.content.includes('2283:2283'));
+
+  const makefile = result.recommendedRecipe.files.find(f => f.filename === 'Makefile');
+  assert.ok(makefile);
+  assert.ok(makefile.content.includes('DOCKER_APP       ?= immich'));
+  assert.ok(makefile.content.includes('docker compose -f docker-compose.yml up -d'));
+});
+
+test('Recipe Modifiers: PuPHPet-style Docker app integrates into Cloud-Init recipe', () => {
+  const result = evaluateCriteria({
+    useCase: 'server',
+    platform: 'vm',
+    dockerApp: 'home-assistant'
+  });
+
+  assert.ok(result.recommendedRecipe);
+  const composeFile = result.recommendedRecipe.files.find(f => f.filename === 'docker-compose.yml');
+  assert.ok(composeFile);
+  assert.ok(composeFile.content.includes('homeassistant'));
+
+  const userData = result.recommendedRecipe.files.find(f => f.filename === 'user-data');
+  assert.ok(userData);
+  assert.ok(userData.content.includes('docker.io'));
+  assert.ok(userData.content.includes('cd /opt/home-assistant && docker compose up -d'));
+});
+
+test('Recipe Modifiers: Ninite-style desktop apps layer injects bootstrap-apps.sh with unattended installer', () => {
+  const result = evaluateCriteria({
+    useCase: 'desktop',
+    platform: 'bare-metal',
+    desktopApps: ['firefox', 'vscode', 'vlc']
+  });
+
+  assert.ok(result.recommendedRecipe);
+  const bootstrapFile = result.recommendedRecipe.files.find(f => f.filename === 'bootstrap-apps.sh');
+  assert.ok(bootstrapFile, 'bootstrap-apps.sh must be generated when desktopApps are selected');
+  assert.ok(bootstrapFile.content.includes('Firefox'));
+  assert.ok(bootstrapFile.content.includes('VS Code'));
+  assert.ok(bootstrapFile.content.includes('VLC'));
+  assert.ok(bootstrapFile.content.includes('flatpak install -y --noninteractive flathub com.visualstudio.code'));
+  assert.ok(result.recommendedRecipe.quickstartCommands.some(c => c.includes('bootstrap-apps.sh')));
+});
+
 test('QuestionFlow: Dynamically tailors questions for beginners (hides init and libc jargon)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const beginnerEligible = flow.getEligibleQuestions({ experienceLevel: 'beginner' });

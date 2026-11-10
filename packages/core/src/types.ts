@@ -127,6 +127,46 @@ export type RecipeGeneratorId =
   | 'wsl2-debian'
   | 'proxmox-lxc';
 
+export type DesktopAppId =
+  | 'firefox'
+  | 'chromium'
+  | 'brave'
+  | 'vscode'
+  | 'git-dev'
+  | 'neovim'
+  | 'nodejs'
+  | 'python'
+  | 'vlc'
+  | 'obs'
+  | 'gimp'
+  | 'blender'
+  | 'spotify'
+  | 'libreoffice'
+  | 'discord'
+  | 'obsidian'
+  | 'telegram'
+  | 'btop'
+  | 'fastfetch';
+
+export type DesktopEnvId =
+  | 'none'
+  | 'cage'
+  | 'xfce'
+  | 'kde'
+  | 'gnome';
+
+export type DockerAppId =
+  | 'none'
+  | 'immich'
+  | 'home-assistant'
+  | 'jellyfin'
+  | 'pihole'
+  | 'ollama'
+  | 'nextcloud'
+  | 'lamp-wordpress'
+  | 'tailscale'
+  | 'uptime-kuma';
+
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
   platform?: PlatformTarget;
@@ -139,6 +179,14 @@ export interface UserCriteria {
   experienceLevel?: ExperienceLevel;
   prefersGui?: boolean;
   requiresCustomBuild?: boolean;
+
+  // Interactive Recipe Modifiers (PuPHPet & Ninite Style Action Cards)
+  desktopEnv?: DesktopEnvId;
+  enableDistrobox?: boolean;
+  enableNix?: boolean;
+  enableFlatpak?: boolean;
+  dockerApp?: DockerAppId;
+  desktopApps?: DesktopAppId[];
 }
 
 export interface QuestionOption {

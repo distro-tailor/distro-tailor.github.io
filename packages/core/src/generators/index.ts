@@ -9,6 +9,9 @@ import { generateCloudInitRecipe } from './cloud-init.js';
 import { generateWslRecipe } from './wsl.js';
 import { generateLxcRecipe } from './lxc.js';
 
+export * from './docker-apps.js';
+export * from './desktop-apps.js';
+
 export function resolveRecipeGenerator(
   generatorId: RecipeGeneratorId,
   criteria: UserCriteria
