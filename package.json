@@ -18,6 +18,7 @@
     "cli": "npm run -w @distro-tailor/cli start --"
   },
   "devDependencies": {
+    "tsx": "^4.23.15",
     "typescript": "^5.7.3"
   }
 }
