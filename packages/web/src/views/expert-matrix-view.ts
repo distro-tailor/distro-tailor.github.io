@@ -3,9 +3,15 @@ import { AppState } from '../state/store.js';
 export function renderExpertMatrix(state: AppState): string {
   return `
     <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-8 backdrop-blur space-y-6 shadow-xl min-w-0 max-w-full overflow-hidden">
-      <div>
-        <h2 class="text-lg sm:text-xl font-bold text-slate-100 mb-1 break-words">🛠️ Expert Constraint Matrix</h2>
-        <p class="text-xs text-slate-400 break-words">Directly set exact architecture, init system, C library, and footprint flags.</p>
+      <div class="flex items-start justify-between gap-4 pb-4 border-b border-slate-800/80">
+        <div class="min-w-0">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-100 mb-1 break-words">🛠️ Expert Constraint Matrix</h2>
+          <p class="text-xs text-slate-400 break-words">Directly set exact architecture, init system, C library, and footprint flags.</p>
+        </div>
+        <button id="btn-close-expert" class="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors shrink-0 cursor-pointer flex items-center gap-1.5 text-xs font-medium" title="Close and return to Wizard (Esc)">
+          <span class="text-base leading-none">✕</span>
+          <span class="hidden sm:inline text-xs font-mono text-slate-500">Esc</span>
+        </button>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs min-w-0">
@@ -91,7 +97,10 @@ export function renderExpertMatrix(state: AppState): string {
 
       </div>
 
-      <div class="pt-4 border-t border-slate-800 flex justify-end">
+      <div class="pt-4 border-t border-slate-800 flex items-center justify-between gap-3 flex-wrap">
+        <button id="btn-cancel-expert" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 rounded-xl transition-all cursor-pointer flex items-center gap-1.5">
+          <span>← Back to 20 Questions</span>
+        </button>
         <button id="btn-apply-expert" class="w-full sm:w-auto px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all cursor-pointer shadow-lg shadow-emerald-950/40 text-center">
           Apply Constraints & View Results →
         </button>

@@ -349,6 +349,14 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
   bindExpertSelect('expert-state', 'statePreference');
   bindExpertSelect('expert-role', 'useCase');
 
+  const closeExpertMatrix = () => {
+    store.setTab('wizard');
+    router.saveStateToUrl(store.getState(), true);
+  };
+
+  document.getElementById('btn-close-expert')?.addEventListener('click', closeExpertMatrix);
+  document.getElementById('btn-cancel-expert')?.addEventListener('click', closeExpertMatrix);
+
   document.getElementById('btn-apply-expert')?.addEventListener('click', () => {
     store.setTab('results');
     router.saveStateToUrl(store.getState(), true);
@@ -391,8 +399,15 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
         }
       }
 
-      if (e.key === 'Escape' && currentState.showShareModal) {
-        store.setShareModal(false);
+      if (e.key === 'Escape') {
+        if (currentState.showShareModal) {
+          store.setShareModal(false);
+          return;
+        }
+        if (currentState.activeTab === 'expert') {
+          closeExpertMatrix();
+          return;
+        }
       }
     });
     keyboardHandlerRegistered = true;
