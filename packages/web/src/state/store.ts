@@ -1,19 +1,7 @@
 import { UserCriteria, QUESTIONS } from '@distro-tailor/core';
+import { AppState, AppTab, FlowMode, IAppStore } from '../types.js';
 
-export type AppTab = 'wizard' | 'expert' | 'results';
-export type FlowMode = 'smart' | 'expert';
-
-export interface AppState {
-  criteria: UserCriteria;
-  answeredQuestionIds: Set<string>;
-  activeTab: AppTab;
-  activeFileIndex: number;
-  unsupportedSchemaNotice?: string;
-  isSharedView: boolean;
-  history: Array<{ criteria: UserCriteria; answeredQuestionIds: Set<string> }>;
-  flowMode: FlowMode;
-  showShareModal: boolean;
-}
+export type { AppState, AppTab, FlowMode, IAppStore };
 
 export function createDefaultState(): AppState {
   return {
@@ -33,7 +21,7 @@ export function createDefaultState(): AppState {
  * Reactive application store extending standard W3C EventTarget.
  * Dispatches 'statechange' CustomEvents upon state transitions.
  */
-export class AppStore extends EventTarget {
+export class AppStore extends EventTarget implements IAppStore {
   private _state: AppState;
 
   constructor(initialState?: Partial<AppState>) {

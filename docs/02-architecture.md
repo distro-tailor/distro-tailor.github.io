@@ -29,9 +29,15 @@ distro-tailor/
 │   │   │       └── wasm.ts            # Browser WebVM (v86) assembler
 │   │   └── src/index.test.ts  # Node.js native test runner test suite (16 tests)
 │   │
-│   ├── web/                   # Client-side SPA (Vite + Tailwind CSS)
+│   ├── web/                   # Client-side SPA (Vite + Tailwind CSS + Web Standards MVC)
 │   │   ├── src/
-│   │   │   ├── main.ts        # Reactive UI, keyboard navigation, HMR
+│   │   │   ├── types.ts       # Web MVC contracts (IAppStore, IAppRouter, ViewRenderer, EventBinder)
+│   │   │   ├── state/         # [MODEL] Reactive AppStore (EventTarget) & AppRouter
+│   │   │   ├── utils/         # [HELPERS] DOM sanitizer (XSS protection) & formatters
+│   │   │   ├── components/    # [VIEW PARTICLES] Reusable layout, chips, app suites, head-to-head
+│   │   │   ├── views/         # [SCREENS] Pure HTML view renderers (wizard, results, expert matrix)
+│   │   │   ├── handlers/      # [CONTROLLER] User actions & centralized event delegation
+│   │   │   ├── main.ts        # Composition root & initial mount (~165 lines)
 │   │   │   └── style.css      # Dark-mode styling and micro-interactions
 │   │   └── vite.config.ts     # Aliased to core/src for instant HMR
 │   │
@@ -122,3 +128,72 @@ DistroTailor persists all criteria, flow progress, and active views directly int
 2. **Deploy-Gated Breaking Changes Only:** The schema version (`CURRENT_SCHEMA_VERSION`) is strictly updated **only upon official deployment** AND **only when a breaking change occurs** to parameter keys, removed taxonomy options, or incompatible criteria structures.
 3. **Automated Migration Pipeline:** When a breaking change is deployed, a new migration step is registered in `SCHEMA_MIGRATIONS[oldVer]`. Old links arriving at the site are automatically upgraded, their address bar updated via `history.replaceState`, and the user's progress preserved.
 4. **Graceful Fallback for Deprecated or Future Links:** If an incoming link uses an obsolete schema (`v < MINIMUM_SUPPORTED_SCHEMA_VERSION`) or a newer future schema (`v > CURRENT_SCHEMA_VERSION`), the application intercepts it before evaluation and renders a friendly Fallback Card with "Start Fresh" and "Browse All Distros" actions, guaranteeing zero white-screen crashes.
+
+---
+
+## 🏛️ Web Client Architecture & MVC Contracts (`packages/web`)
+
+The single-page web client (`@distro-tailor/web`) implements a **zero-framework, client-side MVC architecture** built exclusively on standard W3C and ECMAScript specifications (`EventTarget`, `CustomEvent`, `URLSearchParams`, TypeScript generics).
+
+### 1. Architectural Contracts (`packages/web/src/types.ts`)
+
+To avoid "architectural drift" and maintain strict separation of concerns, the frontend explicitly defines and implements interfaces:
+
+```typescript
+// [MODEL CONTRACT]
+export interface IAppStore {
+  getState(): Readonly<AppState>;
+  subscribe(listener: (state: Readonly<AppState>) => void): () => void;
+  update(patch: Partial<AppState>): void;
+  answerQuestion<K extends keyof UserCriteria>(questionId: string, answerKey: K, answerValue: UserCriteria[K]): void;
+  removeChoice(criteriaKey: string): void;
+  setFlowMode(mode: FlowMode): void;
+  setTab(tab: AppTab): void;
+  setActiveFileIndex(index: number): void;
+  setShareModal(show: boolean): void;
+  reset(cleanCriteria?: UserCriteria): void;
+  pushHistory(): void;
+  popHistory(): boolean;
+}
+
+// [ROUTER CONTRACT]
+export interface IAppRouter {
+  readonly inAppHistoryDepth: number;
+  readonly isSyncing: boolean;
+  checkLoopSafeguard(): boolean;
+  resetLoopGuard(): void;
+  saveStateToUrl(state: AppState, push?: boolean): void;
+  stepBack(onFallbackStep: () => void): void;
+}
+
+// [VIEW CONTRACT]
+export type ViewRenderer<TProps> = (props: TProps) => string;
+
+// [CONTROLLER / EVENT BINDER CONTRACT]
+export type EventBinder = (
+  nextQuestion: Question | null | undefined,
+  evaluation: RecommendationOutput,
+  flow: QuestionFlow
+) => void;
+```
+
+### 2. Unidirectional Reactive Data Flow
+
+```mermaid
+flowchart LR
+    User["User Interaction\n(Click, Keydown, Input)"] --> Controller["Event Binder\n(handlers/events.ts)"]
+    Controller --> Store["IAppStore (Model)\n(state/store.ts)"]
+    Controller --> Router["IAppRouter\n(state/router.ts)"]
+    Router -.->|"saveStateToUrl"| URL["Browser URL\n(?v=1&...)"]
+    Store -->|"dispatchEvent('statechange')"| Main["Composition Root\n(main.ts)"]
+    Main --> Engine["Decision Engine\n(evaluateCriteria)"]
+    Main --> Views["Pure Views\n(wizard, results, matrix)"]
+    Views --> DOM["Sanitized DOM Update\n(innerHTML)"]
+```
+
+### 3. Layer Separation Guarantees
+1. **Model (`state/store.ts`):** Single source of truth. Inherits `EventTarget`. Zero DOM references.
+2. **Router (`state/router.ts`):** Isolates `window.history`, parameter parsing, and circuit-breaker loop safeguards.
+3. **Views (`views/` & `components/`):** Pure HTML functions. Zero side-effects, zero event binding, 100% XSS-sanitized via `escapeHtml()`.
+4. **Controller (`handlers/events.ts`):** Centralizes all UI interactions, hotkeys (numbers 1-9, Backspace, Escape), and dispatches typed actions to Store and Router.
+5. **Entrypoint (`main.ts`):** Lightweight orchestrator (~165 lines) that connects Store events to top-level view rendering.

@@ -4,20 +4,12 @@ import {
   migrateUrlParameters,
   UserCriteria
 } from '@distro-tailor/core';
-import { AppState, AppTab } from './store.js';
+import { AppState, AppTab, IAppRouter, ParsedUrlResult } from '../types.js';
+
+export type { ParsedUrlResult, IAppRouter };
 
 export const LOOP_WINDOW_MS = 2000;
 export const MAX_TRANSITIONS_IN_WINDOW = 50;
-
-export interface ParsedUrlResult {
-  supported: boolean;
-  criteria: UserCriteria;
-  answeredQuestionIds: Set<string>;
-  activeTab: AppTab;
-  activeFileIndex: number;
-  unsupportedNotice?: string;
-  isSharedView: boolean;
-}
 
 /**
  * Serializes application state into URL search parameters.
@@ -119,7 +111,7 @@ export function parseRawUrlParams(rawInput: string): ParsedUrlResult {
 /**
  * Stateful browser router managing window.history, in-app history depth, and loop protection.
  */
-export class AppRouter {
+export class AppRouter implements IAppRouter {
   private transitionTimestamps: number[] = [];
   public inAppHistoryDepth = 0;
   public isSyncing = false;

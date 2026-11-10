@@ -13,16 +13,13 @@ import { getAddonCombos } from '../components/app-suites.js';
 import { triggerDeviceShare } from '../components/share-modal.js';
 import { router } from '../state/router.js';
 import { store } from '../state/store.js';
+import { EventBinder } from '../types.js';
 import { copyToClipboard, scrollToQuestionCard, showToast } from '../utils/dom.js';
 import { generateMarkdownSummary } from '../utils/formatters.js';
 
 let keyboardHandlerRegistered = false;
 
-export function attachEventHandlers(
-  nextQuestion: Question | null | undefined,
-  evaluation: RecommendationOutput,
-  flow: QuestionFlow
-): void {
+export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow) => {
   const state = store.getState();
 
   const resetAll = (notice?: string) => {
