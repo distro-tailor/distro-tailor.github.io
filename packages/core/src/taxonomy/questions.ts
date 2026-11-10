@@ -489,14 +489,14 @@ export const QUESTIONS: Question[] = [
         label: 'Modest (2 GB to 4 GB RAM)',
         description: 'Typical older laptop or basic office PC',
         icon: '⚡',
-        appliesCriteria: { footprint: 'lean', maxRamMb: 4096 }
+        appliesCriteria: { maxRamMb: 4096 }
       },
       {
         id: 'plenty',
         label: 'Plenty (8 GB RAM or more)',
         description: 'Modern desktop, gaming PC, or workstation',
         icon: '🚀',
-        appliesCriteria: { footprint: 'standard', maxRamMb: 8192 }
+        appliesCriteria: { maxRamMb: 8192 }
       }
     ]
   },

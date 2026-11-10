@@ -52,11 +52,54 @@ export function evaluateCriteria(
           explanation: `Specifically built or recognized for ${criteria.useCase}.`
         });
       } else {
-        reasons.push({
-          feature: 'Use Case',
-          matched: false,
-          explanation: `Not primarily designed for ${criteria.useCase}.`
-        });
+        const desktopUseCases = [
+          'education-kids',
+          'home-office',
+          'creative-studio',
+          'gaming',
+          'desktop'
+        ];
+        const singlePurposeAppliances = [
+          'kiosk-signage',
+          'home-router',
+          'smart-home',
+          'media-center',
+          'nas-storage',
+          'hypervisor-vms',
+          'k8s-cluster',
+          'browser-wasm'
+        ];
+
+        // Is the candidate a dedicated single-purpose appliance?
+        const isDedicatedAppliance = distro.primaryUseCases.every((uc) =>
+          singlePurposeAppliances.includes(uc)
+        );
+
+        if (isDedicatedAppliance) {
+          earned -= 25; // Severe penalty: dedicated appliance completely incompatible with target use case
+          reasons.push({
+            feature: 'Use Case',
+            matched: false,
+            explanation: `Dedicated appliance (${distro.primaryUseCases.join(', ')}) not suitable for ${criteria.useCase}.`
+          });
+        } else if (
+          desktopUseCases.includes(criteria.useCase) &&
+          distro.primaryUseCases.includes('desktop')
+        ) {
+          earned += 8; // Capable desktop fallback (e.g. Mint, Debian, Arch, Fedora)
+          reasons.push({
+            feature: 'Use Case',
+            matched: true,
+            explanation: `Versatile desktop distribution capable of ${criteria.useCase}.`
+          });
+        } else {
+          earned -= 10; // Moderate deduction for generic mismatch
+          reasons.push({
+            feature: 'Use Case',
+            matched: false,
+            explanation: `Not primarily designed for ${criteria.useCase}.`
+          });
+        }
       }
     }
 
@@ -117,7 +160,12 @@ export function evaluateCriteria(
           explanation: `Fits within your ${criteria.footprint} size budget.`
         });
       } else {
-        earned -= 15;
+        // If distro is larger than target footprint:
+        // If machine has sufficient RAM (minRamMb <= maxRamMb), scale penalty proportionally
+        const tierDiff = distroIdx - targetIdx;
+        const ramFits = !criteria.maxRamMb || distro.minRamMb <= criteria.maxRamMb;
+        const penalty = ramFits ? Math.min(15, tierDiff * 5) : 15;
+        earned -= penalty;
         reasons.push({
           feature: 'Footprint',
           matched: false,
@@ -152,6 +200,13 @@ export function evaluateCriteria(
           feature: 'State Model',
           matched: true,
           explanation: `Employs ${criteria.statePreference} state model.`
+        });
+      } else {
+        earned -= 10;
+        reasons.push({
+          feature: 'State Model',
+          matched: false,
+          explanation: `Uses ${distro.stateModel} rather than ${criteria.statePreference} architecture.`
         });
       }
     }
@@ -231,7 +286,11 @@ export function evaluateCriteria(
 
     // 9. GUI vs Headless Interface (Weight: 10)
     if (criteria.prefersGui !== undefined) {
-      const isGuiDistro = distro.platforms.includes('desktop') || distro.platforms.includes('kiosk');
+      const isGuiDistro =
+        distro.platforms.includes('desktop') ||
+        distro.platforms.includes('kiosk') ||
+        distro.id === 'batocera' ||
+        distro.id === 'libreelec';
       if (criteria.prefersGui && isGuiDistro) {
         earned += 10;
         reasons.push({

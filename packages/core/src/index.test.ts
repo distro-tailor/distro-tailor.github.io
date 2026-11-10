@@ -121,6 +121,27 @@ test('Core Matcher: Pinpoints Endless OS for kids school and education', () => {
   assert.ok(result.bestMatch.score >= 80);
 });
 
+test('Core Matcher: Pinpoints Endless OS on older MacBook laptop with 4GB RAM (never Porteus Kiosk)', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'beginner',
+    useCase: 'education-kids',
+    platform: 'bare-metal',
+    architecture: 'x86_64',
+    maxRamMb: 4096,
+    prefersGui: true,
+    releaseCadence: 'standard',
+    driverPhilosophy: 'no-preference',
+    bootMedium: 'nvme-ssd',
+    realtimeAudio: false
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'endless-os');
+  assert.ok(result.bestMatch.score >= 90);
+  const porteus = result.allMatches.find(m => m.distro.id === 'porteus-kiosk');
+  assert.ok(porteus);
+  assert.ok(porteus.score < 65, 'Porteus Kiosk must not score high on an educational desktop');
+});
+
 test('Core Matcher: Pinpoints OpenMediaVault for family NAS and photo backups', () => {
   const result = evaluateCriteria({
     experienceLevel: 'beginner',

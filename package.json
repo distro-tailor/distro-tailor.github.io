@@ -15,7 +15,8 @@
     "lint": "npm run --workspaces --if-present lint",
     "dev:cli": "npm run -w @distro-tailor/cli dev",
     "dev:web": "npm run -w @distro-tailor/web dev",
-    "cli": "npm run -w @distro-tailor/cli start --"
+    "cli": "npm run -w @distro-tailor/cli start --",
+    "audit:matrix": "tsx scripts/audit-matrix.ts"
   },
   "devDependencies": {
     "tsx": "^4.23.15",
