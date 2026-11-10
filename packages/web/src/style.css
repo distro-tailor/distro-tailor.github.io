@@ -36,4 +36,42 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Mobile Question Transitions (GPU accelerated) */
+  @keyframes questionSlideInRight {
+    from {
+      opacity: 0;
+      transform: translate3d(20px, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes questionSlideInLeft {
+    from {
+      opacity: 0;
+      transform: translate3d(-20px, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .animate-question-forward {
+    animation: questionSlideInRight 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: transform, opacity;
+  }
+
+  .animate-question-backward {
+    animation: questionSlideInLeft 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: transform, opacity;
+  }
+
+  /* Tactile feedback on touch devices */
+  .option-btn:active {
+    transform: scale(0.985);
+  }
 }

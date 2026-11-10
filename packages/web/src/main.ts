@@ -25,6 +25,7 @@ interface AppState {
   isSharedView: boolean;
   showShareModal: boolean;
   unsupportedSchemaNotice?: string;
+  transitionDirection: 'forward' | 'backward';
 }
 
 const state: AppState = {
@@ -35,7 +36,8 @@ const state: AppState = {
   activeFileIndex: 0,
   isSharedView: false,
   showShareModal: false,
-  unsupportedSchemaNotice: undefined
+  unsupportedSchemaNotice: undefined,
+  transitionDirection: 'forward'
 };
 
 const flow = new QuestionFlow(QUESTIONS);
@@ -369,6 +371,24 @@ function formatConstraint(key: string, value: any): { label: string; icon: strin
   return { label: `${key}: ${value}`, icon: '📌' };
 }
 
+function scrollToQuestionCard(): void {
+  // Wait for the next animation frame so DOM is hydrated
+  requestAnimationFrame(() => {
+    const card = document.getElementById('wizard-question-card');
+    if (card) {
+      const rect = card.getBoundingClientRect();
+      const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+      const targetY = Math.max(0, currentScroll + rect.top - 16);
+      window.scrollTo({
+        top: targetY,
+        behavior: 'smooth'
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  });
+}
+
 function render() {
   saveStateToUrl();
   const app = getAppElement();
@@ -577,7 +597,7 @@ function renderPrimarySection(
     : 'grid grid-cols-1 sm:grid-cols-2 gap-4';
 
   return `
-    <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-8 backdrop-blur shadow-xl min-w-0 max-w-full overflow-hidden">
+    <div id="wizard-question-card" class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-8 backdrop-blur shadow-xl min-w-0 max-w-full overflow-hidden scroll-mt-6 ${state.transitionDirection === 'backward' ? 'animate-question-backward' : 'animate-question-forward'}">
       
       <!-- Round & Step Indicator with Flow Mode Toggle -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-slate-800/80 gap-3">
@@ -1912,16 +1932,24 @@ function attachEventHandlers(
     render();
   });
 
-  // Wizard Option Buttons
+  // Wizard Option Buttons (with tactile tap feedback on touch & smooth directional transition)
   document.querySelectorAll<HTMLButtonElement>('.option-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       const optId = btn.getAttribute('data-option-id');
       const opt = nextQuestion?.options.find((o) => o.id === optId);
       if (opt && nextQuestion) {
-        state.history.push({ ...state.criteria });
-        Object.assign(state.criteria, opt.appliesCriteria);
-        state.answeredQuestionIds.add(nextQuestion.id);
-        render();
+        // Instant visual feedback for touch & click
+        btn.classList.remove('bg-slate-950/70', 'border-slate-700/60');
+        btn.classList.add('bg-emerald-500/20', 'border-emerald-400', 'ring-2', 'ring-emerald-400', 'scale-[0.985]');
+
+        setTimeout(() => {
+          state.history.push({ ...state.criteria });
+          Object.assign(state.criteria, opt.appliesCriteria);
+          state.answeredQuestionIds.add(nextQuestion.id);
+          state.transitionDirection = 'forward';
+          render();
+          scrollToQuestionCard();
+        }, 80);
       }
     });
   });
@@ -1942,7 +1970,9 @@ function attachEventHandlers(
               state.history.push({ ...state.criteria });
               Object.assign(state.criteria, opt.appliesCriteria);
               state.answeredQuestionIds.add(currentNext.id);
+              state.transitionDirection = 'forward';
               render();
+              scrollToQuestionCard();
               return;
             }
           }
@@ -1955,7 +1985,9 @@ function attachEventHandlers(
             state.criteria = prev || {};
             const lastAnswered = Array.from(state.answeredQuestionIds).pop();
             if (lastAnswered) state.answeredQuestionIds.delete(lastAnswered);
+            state.transitionDirection = 'backward';
             render();
+            scrollToQuestionCard();
           }
         }
       }
@@ -1970,7 +2002,9 @@ function attachEventHandlers(
       state.criteria = prev || {};
       const lastAnswered = Array.from(state.answeredQuestionIds).pop();
       if (lastAnswered) state.answeredQuestionIds.delete(lastAnswered);
+      state.transitionDirection = 'backward';
       render();
+      scrollToQuestionCard();
     }
   });
 
@@ -1979,7 +2013,9 @@ function attachEventHandlers(
     if (nextQuestion) {
       state.history.push({ ...state.criteria });
       state.answeredQuestionIds.add(nextQuestion.id);
+      state.transitionDirection = 'forward';
       render();
+      scrollToQuestionCard();
     }
   });
 
