@@ -346,39 +346,39 @@ function render() {
 
   app.innerHTML = `
     <!-- Top Header Navigation -->
-    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-50 px-6 py-3.5">
-      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-50 px-3.5 sm:px-6 py-2.5 sm:py-3.5 max-w-full overflow-hidden">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
         
         <!-- Brand Identity -->
-        <div class="flex items-center gap-3 cursor-pointer select-none" id="nav-brand">
-          <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700/60 flex items-center justify-center text-2xl shadow-inner">
+        <div class="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none min-w-0 w-full sm:w-auto justify-start" id="nav-brand">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900 border border-slate-700/60 flex items-center justify-center text-xl sm:text-2xl shadow-inner shrink-0">
             🐧
           </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-lg font-bold tracking-tight text-slate-100">DistroTailor</span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">20 Questions</span>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-base sm:text-lg font-bold tracking-tight text-slate-100">DistroTailor</span>
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">20 Questions</span>
             </div>
-            <p class="text-xs text-slate-400">Think of a project. In 20 questions or fewer, find your dream Linux match.</p>
+            <p class="text-[11px] sm:text-xs text-slate-400 truncate sm:whitespace-normal">Think of a project. Find your dream Linux match.</p>
           </div>
         </div>
 
         <!-- Mode Buttons -->
-        <div class="flex items-center gap-2">
-          <button id="btn-toggle-wizard" class="px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all ${state.activeTab === 'wizard' ? 'bg-slate-100 text-slate-950 font-semibold shadow' : 'text-slate-300 hover:bg-slate-800/70 border border-transparent'}">
-            20 Questions Game
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center sm:justify-end w-full sm:w-auto">
+          <button id="btn-toggle-wizard" class="px-2.5 sm:px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all ${state.activeTab === 'wizard' ? 'bg-slate-100 text-slate-950 font-semibold shadow' : 'text-slate-300 hover:bg-slate-800/70 border border-transparent'}">
+            20 Questions
           </button>
-          <button id="btn-toggle-expert" class="px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all ${state.activeTab === 'expert' ? 'bg-slate-100 text-slate-950 font-semibold shadow' : 'text-slate-300 hover:bg-slate-800/70 border border-transparent'}">
+          <button id="btn-toggle-expert" class="px-2.5 sm:px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all ${state.activeTab === 'expert' ? 'bg-slate-100 text-slate-950 font-semibold shadow' : 'text-slate-300 hover:bg-slate-800/70 border border-transparent'}">
             Expert Matrix
           </button>
           ${Object.keys(state.criteria).length > 0 ? `
-            <button id="btn-view-results" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${state.activeTab === 'results' ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-950/40' : 'bg-emerald-950/60 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900/60'}">
-              🎯 View Match (${evaluation.bestMatch.score}%)
+            <button id="btn-view-results" class="px-2.5 sm:px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${state.activeTab === 'results' ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-950/40' : 'bg-emerald-950/60 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900/60'}">
+              🎯 Match (${evaluation.bestMatch.score}%)
             </button>
-            <button id="btn-share-header" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 flex items-center gap-1.5 transition-all shadow-sm" title="Share this configuration via link">
+            <button id="btn-share-header" class="px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 flex items-center gap-1 transition-all shadow-sm shrink-0" title="Share this configuration via link">
               <span>🔗</span> Share
             </button>
-            <button id="btn-reset" class="px-2.5 py-1.5 text-xs text-slate-400 hover:text-red-400 transition-colors" title="Start over">
+            <button id="btn-reset" class="px-2 py-1.5 text-xs text-slate-400 hover:text-red-400 transition-colors shrink-0" title="Start over">
               Restart
             </button>
           ` : ''}
@@ -387,22 +387,22 @@ function render() {
     </header>
 
     <!-- Main Workspace -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3.5 py-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 min-w-0 max-w-full overflow-hidden">
       
       <!-- Primary Left Column: Wizard Cards or Results -->
-      <section class="lg:col-span-8 flex flex-col gap-6">
+      <section class="lg:col-span-8 flex flex-col gap-6 min-w-0 w-full max-w-full overflow-hidden">
         ${renderPrimarySection(nextQuestion, progress, evaluation)}
       </section>
 
       <!-- Right Column: Live Standings Leaderboard -->
-      <aside class="lg:col-span-4 flex flex-col gap-4">
-        <div class="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-5 sticky top-24 shadow-xl">
-          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
-            <div>
-              <h3 class="text-sm font-bold text-slate-200">The Contenders</h3>
-              <p class="text-[11px] text-slate-400">Updates live as you answer</p>
+      <aside class="lg:col-span-4 flex flex-col gap-4 min-w-0 w-full max-w-full">
+        <div class="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-4 sm:p-5 sticky top-24 shadow-xl min-w-0 overflow-hidden">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80 gap-2">
+            <div class="min-w-0">
+              <h3 class="text-sm font-bold text-slate-200 truncate">The Contenders</h3>
+              <p class="text-[11px] text-slate-400 truncate">Updates live as you answer</p>
             </div>
-            <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300">
+            <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300 shrink-0">
               ${DISTRO_REGISTRY.length} distros
             </span>
           </div>
@@ -410,13 +410,13 @@ function render() {
           <!-- Top Contender Cards -->
           <div class="space-y-2.5">
             ${evaluation.topMatches.slice(0, 6).map((m) => `
-              <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 hover:border-slate-700 transition-all">
-                <div class="flex items-center justify-between text-sm mb-1.5">
-                  <div class="flex items-center gap-2 font-medium text-slate-200">
-                    <span class="text-base">${m.distro.logoEmoji || '🐧'}</span>
-                    <span>${m.distro.name}</span>
+              <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 hover:border-slate-700 transition-all min-w-0">
+                <div class="flex items-center justify-between text-sm mb-1.5 gap-2">
+                  <div class="flex items-center gap-2 font-medium text-slate-200 min-w-0 flex-1">
+                    <span class="text-base shrink-0">${m.distro.logoEmoji || '🐧'}</span>
+                    <span class="truncate">${m.distro.name}</span>
                   </div>
-                  <span class="font-mono text-xs font-bold ${m.score >= 80 ? 'text-emerald-400' : m.score >= 50 ? 'text-yellow-400' : 'text-slate-500'}">
+                  <span class="font-mono text-xs font-bold shrink-0 ${m.score >= 80 ? 'text-emerald-400' : m.score >= 50 ? 'text-yellow-400' : 'text-slate-500'}">
                     ${m.score}%
                   </span>
                 </div>
@@ -426,7 +426,7 @@ function render() {
                   <div class="h-1.5 rounded-full transition-all duration-300 ${m.score >= 80 ? 'bg-emerald-400' : m.score >= 50 ? 'bg-yellow-400' : 'bg-slate-600'}" style="width: ${m.score}%"></div>
                 </div>
 
-                <p class="text-[11px] text-slate-400 mt-2 line-clamp-1">${m.distro.tagline}</p>
+                <p class="text-[11px] text-slate-400 mt-2 line-clamp-1 break-words">${m.distro.tagline}</p>
               </div>
             `).join('')}
           </div>
@@ -444,14 +444,14 @@ function render() {
             ${Object.keys(state.criteria).length === 0 ? `
               <p class="text-xs text-slate-500 italic">No constraints yet. Select an option to start narrowing down!</p>
             ` : `
-              <div class="flex flex-wrap gap-1.5">
+              <div class="flex flex-wrap gap-1.5 min-w-0">
                 ${Object.entries(state.criteria).map(([k, v]) => {
                   const c = formatConstraint(k, v);
                   return `
-                    <span class="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-lg text-xs bg-slate-800 text-slate-200 border border-slate-700/60 shadow-sm group hover:border-slate-600 transition-colors">
-                      <span>${c.icon}</span>
-                      <span>${c.label}</span>
-                      <button data-remove-key="${k}" class="btn-remove-choice text-slate-500 hover:text-red-400 p-0.5 rounded transition-colors text-[10px] leading-none" title="Remove this choice">✕</button>
+                    <span class="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-lg text-xs bg-slate-800 text-slate-200 border border-slate-700/60 shadow-sm group hover:border-slate-600 transition-colors max-w-full min-w-0">
+                      <span class="shrink-0">${c.icon}</span>
+                      <span class="truncate">${c.label}</span>
+                      <button data-remove-key="${k}" class="btn-remove-choice text-slate-500 hover:text-red-400 p-0.5 rounded transition-colors text-[10px] leading-none shrink-0" title="Remove this choice">✕</button>
                     </span>
                   `;
                 }).join('')}
@@ -477,29 +477,29 @@ function render() {
 
 function renderUnsupportedSchemaFallback(notice: string): string {
   return `
-    <div class="bg-slate-900/80 border border-amber-500/40 rounded-2xl p-6 sm:p-10 backdrop-blur shadow-2xl text-center max-w-2xl mx-auto my-6">
-      <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner">
+    <div class="bg-slate-900/80 border border-amber-500/40 rounded-2xl p-4 sm:p-10 backdrop-blur shadow-2xl text-center max-w-2xl mx-auto my-4 sm:my-6 min-w-0 max-w-full overflow-hidden">
+      <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl sm:text-3xl mx-auto mb-4 shadow-inner">
         🕰️
       </div>
-      <h2 class="text-2xl font-extrabold text-slate-100 mb-2">Unsupported Link Schema</h2>
-      <p class="text-sm text-slate-300 leading-relaxed mb-6">
+      <h2 class="text-xl sm:text-2xl font-extrabold text-slate-100 mb-2 break-words">Unsupported Link Schema</h2>
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6 break-words">
         ${notice}
       </p>
 
-      <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-400 mb-8 text-left space-y-2">
+      <div class="p-3.5 sm:p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-400 mb-6 sm:mb-8 text-left space-y-2 min-w-0">
         <p class="font-semibold text-slate-200 flex items-center gap-1.5">
           <span>💡</span> Why did this happen?
         </p>
-        <p class="leading-relaxed">
+        <p class="leading-relaxed break-words">
           DistroTailor continuously refines hardware targeting, Linux distros, and question taxonomy. When a link from a deprecated or incompatible schema is opened, we protect you from invalid recipes and allow you to restart cleanly.
         </p>
       </div>
 
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-        <button id="btn-fallback-fresh" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/40 transition-all cursor-pointer">
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 w-full">
+        <button id="btn-fallback-fresh" class="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/40 transition-all cursor-pointer text-center">
           Start Fresh 20 Questions
         </button>
-        <button id="btn-fallback-expert" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-xs transition-all cursor-pointer">
+        <button id="btn-fallback-expert" class="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-xs transition-all cursor-pointer text-center">
           Browse Contenders (Expert Matrix)
         </button>
       </div>
@@ -536,32 +536,32 @@ function renderPrimarySection(
     : 'grid grid-cols-1 sm:grid-cols-2 gap-4';
 
   return `
-    <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur shadow-xl">
+    <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-8 backdrop-blur shadow-xl min-w-0 max-w-full overflow-hidden">
       
       <!-- Round & Step Indicator with Flow Mode Toggle -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-slate-800/80 gap-3">
-        <div class="flex items-center gap-3">
-          <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
             Question ${progress.current + 1} of ${progress.total}
           </span>
-          <button id="btn-toggle-flow-mode" class="px-2.5 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${isBeginner ? 'bg-slate-800/90 text-slate-300 hover:text-emerald-300 hover:border-emerald-500/40 border border-slate-700/60' : 'bg-indigo-950/60 text-indigo-300 hover:text-indigo-200 hover:border-indigo-500/50 border border-indigo-700/60'}" title="Switch between Goal-Oriented Mode and Low-Level Technical Mode">
+          <button id="btn-toggle-flow-mode" class="px-2.5 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${isBeginner ? 'bg-slate-800/90 text-slate-300 hover:text-emerald-300 hover:border-emerald-500/40 border border-slate-700/60' : 'bg-indigo-950/60 text-indigo-300 hover:text-indigo-200 hover:border-indigo-500/50 border border-indigo-700/60'}" title="Switch between Goal-Oriented Mode and Low-Level Technical Mode">
             <span>${isBeginner ? '🌱 Goal Mode' : '⚙️ Technical Mode'}</span>
             <span class="text-[10px] text-slate-400 font-mono">⇄ switch</span>
           </button>
         </div>
         
         <!-- Segmented Step Dots -->
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1 overflow-x-auto max-w-full py-1 no-scrollbar shrink-0">
           ${Array.from({ length: progress.total }).map((_, i) => `
-            <div class="h-2 rounded-full transition-all duration-300 ${i < progress.current ? 'w-6 bg-emerald-400' : i === progress.current ? 'w-8 bg-emerald-400 ring-2 ring-emerald-400/30' : 'w-2 bg-slate-800'}"></div>
+            <div class="h-1.5 sm:h-2 rounded-full transition-all duration-300 ${i < progress.current ? 'w-4 sm:w-6 bg-emerald-400' : i === progress.current ? 'w-6 sm:w-8 bg-emerald-400 ring-2 ring-emerald-400/30' : 'w-1.5 sm:w-2 bg-slate-800'}"></div>
           `).join('')}
         </div>
       </div>
 
       <!-- Question Prompt -->
-      <div class="mb-7">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight mb-2">${nextQuestion.prompt}</h2>
-        ${nextQuestion.subtext ? `<p class="text-sm text-slate-400 leading-relaxed">${nextQuestion.subtext}</p>` : ''}
+      <div class="mb-6 sm:mb-7 min-w-0">
+        <h2 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-100 tracking-tight mb-2 break-words">${nextQuestion.prompt}</h2>
+        ${nextQuestion.subtext ? `<p class="text-xs sm:text-sm text-slate-400 leading-relaxed break-words">${nextQuestion.subtext}</p>` : ''}
       </div>
 
       <!-- Option Cards -->
@@ -574,16 +574,16 @@ function renderPrimarySection(
           const spanClass = isSpanFull ? 'sm:col-span-2' : '';
 
           return `
-            <button data-option-id="${opt.id}" class="option-btn group relative text-left p-5 rounded-xl border border-slate-700/60 bg-slate-950/70 hover:bg-slate-800/90 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-950/40 transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 ${spanClass}">
-              <div>
+            <button data-option-id="${opt.id}" class="option-btn group relative text-left p-4 sm:p-5 rounded-xl border border-slate-700/60 bg-slate-950/70 hover:bg-slate-800/90 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-950/40 transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 min-w-0 w-full overflow-hidden ${spanClass}">
+              <div class="min-w-0 w-full">
                 <div class="flex items-start justify-between gap-3 mb-3">
-                  <span class="text-3xl p-2 rounded-xl bg-slate-900 border border-slate-700/60 group-hover:scale-110 transition-transform">${opt.icon || '👉'}</span>
+                  <span class="text-2xl sm:text-3xl p-2 rounded-xl bg-slate-900 border border-slate-700/60 group-hover:scale-110 transition-transform shrink-0">${opt.icon || '👉'}</span>
                   ${keyNum <= 9 ? `
-                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-slate-800/80 text-slate-400 border border-slate-700/50 group-hover:text-emerald-300 group-hover:border-emerald-500/40 transition-colors">Press [${keyNum}]</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] sm:text-[11px] font-mono font-semibold bg-slate-800/80 text-slate-400 border border-slate-700/50 group-hover:text-emerald-300 group-hover:border-emerald-500/40 transition-colors shrink-0">Press [${keyNum}]</span>
                   ` : ''}
                 </div>
-                <h3 class="text-base font-semibold text-slate-100 group-hover:text-emerald-300 transition-colors mb-1.5 leading-snug">${cleanLabel}</h3>
-                ${opt.description ? `<p class="text-xs text-slate-400 leading-relaxed">${opt.description}</p>` : ''}
+                <h3 class="text-sm sm:text-base font-semibold text-slate-100 group-hover:text-emerald-300 transition-colors mb-1.5 leading-snug break-words">${cleanLabel}</h3>
+                ${opt.description ? `<p class="text-xs text-slate-400 leading-relaxed break-words">${opt.description}</p>` : ''}
               </div>
             </button>
           `;
@@ -592,13 +592,13 @@ function renderPrimarySection(
 
       <!-- Contextual Linux Pro-Tip Box -->
       ${nextQuestion.tip ? `
-        <div class="mt-6 p-4 rounded-xl bg-slate-950/70 border border-slate-800 flex items-start gap-3.5 text-xs">
-          <span class="text-xl p-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
+        <div class="mt-6 p-3.5 sm:p-4 rounded-xl bg-slate-950/70 border border-slate-800 flex items-start gap-3 text-xs min-w-0 overflow-hidden">
+          <span class="text-lg sm:text-xl p-1 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
             ${nextQuestion.tip.icon || '💡'}
           </span>
-          <div>
-            <h4 class="font-semibold text-slate-200 mb-0.5">${nextQuestion.tip.title}</h4>
-            <p class="text-slate-400 leading-relaxed">${nextQuestion.tip.text}</p>
+          <div class="min-w-0 flex-1">
+            <h4 class="font-semibold text-slate-200 mb-0.5 break-words">${nextQuestion.tip.title}</h4>
+            <p class="text-slate-400 leading-relaxed break-words">${nextQuestion.tip.text}</p>
           </div>
         </div>
       ` : ''}
@@ -851,27 +851,27 @@ function renderResultsView(evaluation: RecommendationOutput): string {
   const combos = getAddonCombos(best.distro.id);
 
   return `
-    <div class="space-y-6">
+    <div class="space-y-6 min-w-0 max-w-full overflow-hidden">
 
       <!-- Shared Configuration Notice Banner -->
       ${state.isSharedView ? `
-        <div class="bg-indigo-950/40 border border-indigo-700/50 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs shadow-xl animate-in fade-in">
-          <div class="flex items-center gap-3.5">
+        <div class="bg-indigo-950/40 border border-indigo-700/50 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs shadow-xl animate-in fade-in min-w-0 overflow-hidden">
+          <div class="flex items-center gap-3.5 min-w-0">
             <div class="w-10 h-10 rounded-xl bg-indigo-900/60 border border-indigo-600/40 flex items-center justify-center text-xl shrink-0">
               🔗
             </div>
-            <div>
-              <h4 class="font-bold text-indigo-100 text-sm">You are viewing a shared tailored Linux build!</h4>
-              <p class="text-slate-400 text-[11px] mt-0.5">
+            <div class="min-w-0 flex-1">
+              <h4 class="font-bold text-indigo-100 text-sm break-words">You are viewing a shared tailored Linux build!</h4>
+              <p class="text-slate-400 text-[11px] mt-0.5 break-words">
                 Configured with <strong>${Object.keys(state.criteria).length} tailored criteria</strong>. You can inspect the recipe, tweak any choice, or start your own build.
               </p>
             </div>
           </div>
-          <div class="flex items-center gap-2 whitespace-nowrap self-end sm:self-auto">
-            <button id="btn-tweak-shared" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-all shadow-md">
+          <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto justify-end">
+            <button id="btn-tweak-shared" class="flex-1 sm:flex-none px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-all shadow-md">
               Tweak Choices
             </button>
-            <button id="btn-start-fresh" class="px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 font-medium transition-all">
+            <button id="btn-start-fresh" class="flex-1 sm:flex-none px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 font-medium transition-all">
               Start Fresh
             </button>
           </div>
@@ -879,69 +879,69 @@ function renderResultsView(evaluation: RecommendationOutput): string {
       ` : ''}
       
       <!-- Top Match Winner Banner -->
-      <div class="bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-950 border border-emerald-500/30 rounded-2xl p-6 sm:p-8 relative overflow-hidden shadow-2xl">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-          <div class="flex items-center gap-4">
-            <span class="text-5xl p-2 rounded-2xl bg-slate-900 border border-slate-700/60">${best.distro.logoEmoji || '🐧'}</span>
-            <div>
-              <div class="flex items-center gap-3">
-                <h2 class="text-3xl font-extrabold text-slate-100">${best.distro.name}</h2>
-                <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+      <div class="bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-slate-950 border border-emerald-500/30 rounded-2xl p-4 sm:p-8 relative overflow-hidden shadow-2xl min-w-0">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 min-w-0">
+          <div class="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 w-full sm:w-auto">
+            <span class="text-3xl sm:text-5xl p-2 rounded-2xl bg-slate-900 border border-slate-700/60 shrink-0">${best.distro.logoEmoji || '🐧'}</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <h2 class="text-xl sm:text-3xl font-extrabold text-slate-100 break-words">${best.distro.name}</h2>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shrink-0">
                   ${best.score}% Match
                 </span>
               </div>
-              <p class="text-sm text-emerald-300 font-medium mt-1">${best.distro.tagline}</p>
+              <p class="text-xs sm:text-sm text-emerald-300 font-medium mt-1 break-words">${best.distro.tagline}</p>
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
-            <button id="btn-share-match" class="px-4 py-2.5 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 transition-all flex items-center gap-1.5 shadow-md cursor-pointer" title="Share this tailored match permalink">
+          <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+            <button id="btn-share-match" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 transition-all flex items-center gap-1.5 shadow-md cursor-pointer" title="Share this tailored match permalink">
               <span>🔗</span> Share Match
             </button>
-            <a href="${best.distro.website}" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-950/40">
-              Official Website ↗
+            <a href="${best.distro.website}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-950/40">
+              Official Site ↗
             </a>
           </div>
         </div>
 
-        <p class="text-sm text-slate-300 leading-relaxed mb-6">${best.distro.description}</p>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-5 break-words">${best.distro.description}</p>
 
         <!-- Technical Attributes Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-6">
-          <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-            <span class="text-slate-500 block text-[11px] uppercase font-semibold">Typical Footprint</span>
-            <span class="font-medium text-slate-200 capitalize mt-0.5 block">${best.distro.footprint}</span>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs mb-6 min-w-0">
+          <div class="bg-slate-950/80 p-2.5 sm:p-3 rounded-xl border border-slate-800 min-w-0 overflow-hidden">
+            <span class="text-slate-500 block text-[10px] sm:text-[11px] uppercase font-semibold">Typical Footprint</span>
+            <span class="font-medium text-slate-200 capitalize mt-0.5 block truncate">${best.distro.footprint}</span>
           </div>
-          <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-            <span class="text-slate-500 block text-[11px] uppercase font-semibold">Init System</span>
-            <span class="font-medium text-slate-200 mt-0.5 block">${best.distro.initSystems.join(', ')}</span>
+          <div class="bg-slate-950/80 p-2.5 sm:p-3 rounded-xl border border-slate-800 min-w-0 overflow-hidden">
+            <span class="text-slate-500 block text-[10px] sm:text-[11px] uppercase font-semibold">Init System</span>
+            <span class="font-medium text-slate-200 mt-0.5 block truncate" title="${best.distro.initSystems.join(', ')}">${best.distro.initSystems.join(', ')}</span>
           </div>
-          <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-            <span class="text-slate-500 block text-[11px] uppercase font-semibold">C Standard Library</span>
-            <span class="font-medium text-slate-200 mt-0.5 block">${best.distro.cLibraries.join(', ')}</span>
+          <div class="bg-slate-950/80 p-2.5 sm:p-3 rounded-xl border border-slate-800 min-w-0 overflow-hidden">
+            <span class="text-slate-500 block text-[10px] sm:text-[11px] uppercase font-semibold">C Library</span>
+            <span class="font-medium text-slate-200 mt-0.5 block truncate" title="${best.distro.cLibraries.join(', ')}">${best.distro.cLibraries.join(', ')}</span>
           </div>
-          <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-            <span class="text-slate-500 block text-[11px] uppercase font-semibold">State Model</span>
-            <span class="font-medium text-slate-200 capitalize mt-0.5 block">${best.distro.stateModel}</span>
+          <div class="bg-slate-950/80 p-2.5 sm:p-3 rounded-xl border border-slate-800 min-w-0 overflow-hidden">
+            <span class="text-slate-500 block text-[10px] sm:text-[11px] uppercase font-semibold">State Model</span>
+            <span class="font-medium text-slate-200 capitalize mt-0.5 block truncate" title="${best.distro.stateModel}">${best.distro.stateModel}</span>
           </div>
         </div>
 
         <!-- Strengths vs Tradeoffs -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-          <div class="bg-emerald-950/30 border border-emerald-900/40 rounded-xl p-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs min-w-0">
+          <div class="bg-emerald-950/30 border border-emerald-900/40 rounded-xl p-3.5 sm:p-4 min-w-0">
             <h4 class="font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
               <span>✨</span> Key Strengths
             </h4>
             <ul class="space-y-1.5 text-slate-300">
-              ${best.distro.highlights.map((h) => `<li>• ${h}</li>`).join('')}
+              ${best.distro.highlights.map((h) => `<li class="break-words">• ${h}</li>`).join('')}
             </ul>
           </div>
-          <div class="bg-amber-950/20 border border-amber-900/40 rounded-xl p-4">
+          <div class="bg-amber-950/20 border border-amber-900/40 rounded-xl p-3.5 sm:p-4 min-w-0">
             <h4 class="font-bold text-amber-400 mb-2 flex items-center gap-1.5">
               <span>⚖️</span> Trade-offs
             </h4>
             <ul class="space-y-1.5 text-slate-300">
-              ${best.distro.tradeoffs.map((t) => `<li>• ${t}</li>`).join('')}
+              ${best.distro.tradeoffs.map((t) => `<li class="break-words">• ${t}</li>`).join('')}
             </ul>
           </div>
         </div>
@@ -949,28 +949,28 @@ function renderResultsView(evaluation: RecommendationOutput): string {
       </div>
 
       <!-- Mix & Match Hybrid Combos -->
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
-        <div class="mb-5">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
+        <div class="mb-5 min-w-0">
           <div class="flex items-center gap-2">
-            <span class="text-xl">🧩</span>
-            <h3 class="text-lg font-bold text-slate-100">Mix & Match: Popular Combos for ${best.distro.name}</h3>
+            <span class="text-xl shrink-0">🧩</span>
+            <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">Mix & Match: Popular Combos for ${best.distro.name}</h3>
           </div>
-          <p class="text-xs text-slate-400 mt-1">
+          <p class="text-xs text-slate-400 mt-1 break-words">
             Linux is modular. You don't have to choose just one thing! Start with ${best.distro.name} as your core foundation, then layer on these add-on capabilities:
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 min-w-0">
           ${combos.map(combo => `
-            <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between">
+            <div class="p-3.5 sm:p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between min-w-0">
               <div>
-                <div class="flex items-center gap-2.5 mb-2">
-                  <span class="text-2xl">${combo.icon}</span>
-                  <h4 class="text-sm font-semibold text-slate-200">${combo.title}</h4>
+                <div class="flex items-center gap-2.5 mb-2 min-w-0">
+                  <span class="text-2xl shrink-0">${combo.icon}</span>
+                  <h4 class="text-sm font-semibold text-slate-200 break-words">${combo.title}</h4>
                 </div>
-                <p class="text-xs text-slate-400 leading-relaxed mb-3">${combo.description}</p>
+                <p class="text-xs text-slate-400 leading-relaxed mb-3 break-words">${combo.description}</p>
               </div>
-              <div class="pt-2.5 border-t border-slate-800/80 text-[11px] text-emerald-400 font-mono">
+              <div class="pt-2.5 border-t border-slate-800/80 text-[11px] text-emerald-400 font-mono break-all">
                 👉 ${combo.howTo}
               </div>
             </div>
@@ -979,113 +979,113 @@ function renderResultsView(evaluation: RecommendationOutput): string {
       </div>
 
       <!-- Zero-Bloat Hardware Optimization Comparison -->
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
-          <div>
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 min-w-0">
+          <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2">
-              <span class="text-xl">🪶</span>
-              <h3 class="text-lg font-bold text-slate-100">Zero-Bloat Hardware Optimization</h3>
+              <span class="text-xl shrink-0">🪶</span>
+              <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">Zero-Bloat Hardware Optimization</h3>
             </div>
-            <p class="text-xs text-slate-400 mt-1">
+            <p class="text-xs text-slate-400 mt-1 break-words">
               <span class="text-amber-400 font-semibold">⚠️ Note:</span> Prebuilt official ISOs from distros must support all PCs on Earth and still carry generic bloat. The ultra-lean footprint below is achieved when building with DistroTailor's <strong>custom Makefile / build recipe</strong>!
             </p>
           </div>
-          <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
+          <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0 self-start sm:self-auto">
             ~92% Bloat Eliminated
           </span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 min-w-0">
           <!-- Generic Prebuilt Distro -->
-          <div class="p-4 rounded-xl bg-slate-950/70 border border-red-950/40 text-xs">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
-              <div>
-                <span class="font-bold text-slate-300 block">Off-The-Shelf Prebuilt ISO</span>
-                <span class="text-[11px] text-slate-500">Direct download from distro website</span>
+          <div class="p-3.5 sm:p-4 rounded-xl bg-slate-950/70 border border-red-950/40 text-xs min-w-0 overflow-hidden">
+            <div class="flex items-start justify-between pb-3 mb-3 border-b border-slate-800/80 gap-2">
+              <div class="min-w-0 flex-1">
+                <span class="font-bold text-slate-300 block truncate">Off-The-Shelf Prebuilt ISO</span>
+                <span class="text-[11px] text-slate-500 block truncate">Direct download from distro website</span>
               </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-950/60 text-red-400 border border-red-900/40">Generic Driver Bloat</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-950/60 text-red-400 border border-red-900/40 shrink-0">Generic Bloat</span>
             </div>
-            <ul class="space-y-2 text-slate-400">
-              <li class="flex items-center justify-between">
-                <span>📦 Total Install Size:</span>
-                <span class="font-mono text-slate-200">~4.5 GB – 6 GB</span>
+            <ul class="space-y-2.5 text-slate-400 min-w-0">
+              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
+                <span class="break-words">📦 Total Install Size:</span>
+                <span class="font-mono text-slate-200 font-medium">~4.5 GB – 6 GB</span>
               </li>
-              <li class="flex items-center justify-between">
-                <span>🚗 Firmware Blobs (<code class="text-[10px] text-red-400">linux-firmware</code>):</span>
-                <span class="font-mono text-red-300">~1.8 GB (10,000 unused chips)</span>
+              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
+                <span class="break-words">🚗 Firmware Blobs (<code class="text-[10px] text-red-400">linux-firmware</code>):</span>
+                <span class="font-mono text-red-300 font-medium">~1.8 GB (10k unused chips)</span>
               </li>
-              <li class="flex items-center justify-between">
-                <span>⚙️ Kernel Modules:</span>
-                <span class="font-mono text-slate-200">4,500+ drivers (SCSI, ancient RAID)</span>
+              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
+                <span class="break-words">⚙️ Kernel Modules:</span>
+                <span class="font-mono text-slate-200 font-medium">4,500+ drivers</span>
               </li>
-              <li class="flex items-center justify-between">
-                <span>⚡ Idle RAM Consumption:</span>
-                <span class="font-mono text-slate-200">~800 MB – 1.2 GB</span>
+              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
+                <span class="break-words">⚡ Idle RAM Consumption:</span>
+                <span class="font-mono text-slate-200 font-medium">~800 MB – 1.2 GB</span>
               </li>
-              <li class="flex items-center justify-between">
-                <span>⏱️ Cold Boot Duration:</span>
-                <span class="font-mono text-slate-200">25 – 45 seconds</span>
+              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
+                <span class="break-words">⏱️ Cold Boot Duration:</span>
+                <span class="font-mono text-slate-200 font-medium">25 – 45 seconds</span>
               </li>
             </ul>
           </div>
 
           <!-- DistroTailor Custom Makefile Build -->
-          <div class="p-4 rounded-xl bg-emerald-950/20 border border-emerald-800/40 text-xs flex flex-col justify-between">
+          <div class="p-3.5 sm:p-4 rounded-xl bg-emerald-950/20 border border-emerald-800/40 text-xs flex flex-col justify-between min-w-0 overflow-hidden">
             <div>
-              <div class="flex items-center justify-between pb-3 mb-3 border-b border-emerald-900/30">
-                <div>
-                  <span class="font-bold text-emerald-300 block">DistroTailor Custom Makefile Build</span>
-                  <span class="text-[11px] text-emerald-400/70">Built via recipe generator below</span>
+              <div class="flex items-start justify-between pb-3 mb-3 border-b border-emerald-900/30 gap-2">
+                <div class="min-w-0 flex-1">
+                  <span class="font-bold text-emerald-300 block truncate">DistroTailor Custom Build</span>
+                  <span class="text-[11px] text-emerald-400/70 block truncate">Built via recipe generator below</span>
                 </div>
-                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Hardware-Tailored</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">Tailored</span>
               </div>
-              <ul class="space-y-2 text-slate-300">
-                <li class="flex items-center justify-between">
-                  <span>📦 Total Footprint:</span>
+              <ul class="space-y-2.5 text-slate-300 min-w-0">
+                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
+                  <span class="break-words">📦 Total Footprint:</span>
                   <span class="font-mono font-bold text-emerald-400">~150 MB – 350 MB (-93%)</span>
                 </li>
-                <li class="flex items-center justify-between">
-                  <span>🚗 Firmware Blobs:</span>
-                  <span class="font-mono text-emerald-300">&lt; 15 MB (only your specific chip)</span>
+                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
+                  <span class="break-words">🚗 Firmware Blobs:</span>
+                  <span class="font-mono text-emerald-300 font-medium">&lt; 15 MB (active chips only)</span>
                 </li>
-                <li class="flex items-center justify-between">
-                  <span>⚙️ Kernel Drivers:</span>
-                  <span class="font-mono text-emerald-300">Targeted via localmodconfig</span>
+                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
+                  <span class="break-words">⚙️ Kernel Drivers:</span>
+                  <span class="font-mono text-emerald-300 font-medium">Targeted via localmodconfig</span>
                 </li>
-                <li class="flex items-center justify-between">
-                  <span>⚡ Idle RAM Consumption:</span>
-                  <span class="font-mono text-emerald-300">~60 MB – 150 MB</span>
+                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
+                  <span class="break-words">⚡ Idle RAM Consumption:</span>
+                  <span class="font-mono text-emerald-300 font-medium">~60 MB – 150 MB</span>
                 </li>
-                <li class="flex items-center justify-between">
-                  <span>⏱️ Cold Boot Duration:</span>
+                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
+                  <span class="break-words">⏱️ Cold Boot Duration:</span>
                   <span class="font-mono font-bold text-emerald-400">&lt; 2 – 4 seconds</span>
                 </li>
               </ul>
             </div>
-            <div class="mt-3 pt-2.5 border-t border-emerald-900/30 text-[11px] text-emerald-400 font-medium">
+            <div class="mt-3 pt-2.5 border-t border-emerald-900/30 text-[11px] text-emerald-400 font-medium break-words">
               👉 To get this lean build, use the <strong>Custom Build Recipe Generator</strong> below!
             </div>
           </div>
         </div>
 
         <!-- The PCPartPicker vs. Fixed Hardware Paradigm Callout -->
-        <div class="mt-4 pt-4 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
-          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+        <div class="mt-4 pt-4 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs min-w-0">
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-0">
             <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1">
-              <span>🍏</span>
-              <span>Fixed Closed Hardware (MacBook / Mac Studio / SBC)</span>
+              <span class="shrink-0">🍏</span>
+              <span class="break-words">Fixed Closed Hardware (MacBook / Mac Studio / SBC)</span>
             </div>
-            <p class="text-slate-400 text-[11px] leading-relaxed">
+            <p class="text-slate-400 text-[11px] leading-relaxed break-words">
               Apple Silicon, Intel MacBooks, and Raspberry Pis have a <strong>100% deterministic, closed chip inventory</strong>. Generic Linux ISOs carry thousands of drivers for PC components that physically cannot exist in that machine. DistroTailor drops 99% of firmware, bundling only the exact Broadcom / Apple silicon blobs.
             </p>
           </div>
 
-          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-0">
             <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1">
-              <span>🛠️</span>
-              <span>The "PCPartPicker" Custom Rig (Modular Selection)</span>
+              <span class="shrink-0">🛠️</span>
+              <span class="break-words">The "PCPartPicker" Custom Rig (Modular Selection)</span>
             </div>
-            <p class="text-slate-400 text-[11px] leading-relaxed">
+            <p class="text-slate-400 text-[11px] leading-relaxed break-words">
               When building on PCPartPicker, you choose <strong>ONE</strong> motherboard NIC, <strong>ONE</strong> Wi-Fi card, and <strong>ONE</strong> GPU. A generic ISO must bundle drivers for every component ever listed on PCPartPicker! DistroTailor's recipe isolates your active manifest, pruning the thousands of parts you didn't buy.
             </p>
           </div>
@@ -1093,66 +1093,72 @@ function renderResultsView(evaluation: RecommendationOutput): string {
       </div>
 
       <!-- Frankenstein / Hybrid Modularity Card -->
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
-        <div class="mb-4">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
+        <div class="mb-4 min-w-0">
           <div class="flex items-center gap-2">
-            <span class="text-xl">🧪</span>
-            <h3 class="text-lg font-bold text-slate-100">The "Frankenstein" Spectrum: Linux is 100% Modular</h3>
+            <span class="text-xl shrink-0">🧪</span>
+            <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">The "Frankenstein" Spectrum: Linux is 100% Modular</h3>
           </div>
-          <p class="text-xs text-slate-400 mt-1">
+          <p class="text-xs text-slate-400 mt-1 break-words">
             In Linux, distribution names are just starting points. If you are an expert or power user, you can mix and match parts from across the entire ecosystem:
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 text-xs">
-          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
-            <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1.5">
-              <span>🏛️ ⇄ 🏹</span>
-              <span>Debian Base + Arch AUR</span>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-3.5 text-xs min-w-0">
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-0 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1.5">
+                <span class="shrink-0">🏛️ ⇄ 🏹</span>
+                <span class="break-words">Debian Base + Arch AUR</span>
+              </div>
+              <p class="text-slate-400 leading-relaxed text-[11px] mb-2.5 break-words">
+                Want Debian's rock-solid server base, but need bleeding-edge packages? Use <strong>Distrobox</strong> to run Arch's <code class="text-emerald-400">pacman</code> and AUR directly on this host without conflict.
+              </p>
             </div>
-            <p class="text-slate-400 leading-relaxed text-[11px] mb-2.5">
-              Want Debian's rock-solid server base, but need bleeding-edge packages? Use <strong>Distrobox</strong> to run Arch's <code class="text-emerald-400">pacman</code> and AUR directly on this host without conflict.
-            </p>
-            <span class="text-[10px] text-emerald-400 font-mono">distrobox create --image archlinux</span>
+            <span class="text-[10px] text-emerald-400 font-mono break-all bg-slate-900 p-1.5 rounded border border-slate-800/80 block">distrobox create --image archlinux</span>
           </div>
 
-          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
-            <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1.5">
-              <span>🖼️</span>
-              <span>GNOME vs. KDE vs. Cage</span>
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-0 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1.5">
+                <span class="shrink-0">🖼️</span>
+                <span class="break-words">GNOME vs. KDE vs. Cage</span>
+              </div>
+              <p class="text-slate-400 leading-relaxed text-[11px] mb-2.5 break-words">
+                Desktop environments are just interchangeable userspace programs. Swap heavy GNOME for KDE Plasma, lightweight XFCE, or the ultra-lean <strong>Cage Wayland</strong> kiosk compositor in the generated Makefile.
+              </p>
             </div>
-            <p class="text-slate-400 leading-relaxed text-[11px] mb-2.5">
-              Desktop environments are just interchangeable userspace programs. Swap heavy GNOME for KDE Plasma, lightweight XFCE, or the ultra-lean <strong>Cage Wayland</strong> kiosk compositor in the generated Makefile.
-            </p>
-            <span class="text-[10px] text-emerald-400 font-mono">make DESKTOP_ENV=cage</span>
+            <span class="text-[10px] text-emerald-400 font-mono break-all bg-slate-900 p-1.5 rounded border border-slate-800/80 block">make DESKTOP_ENV=cage</span>
           </div>
 
-          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
-            <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1.5">
-              <span>❄️ ⇄ 📦</span>
-              <span>Universal Nix & Flatpak</span>
+          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-0 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1.5">
+                <span class="shrink-0">❄️ ⇄ 📦</span>
+                <span class="break-words">Universal Nix & Flatpak</span>
+              </div>
+              <p class="text-slate-400 leading-relaxed text-[11px] mb-2.5 break-words">
+                Keep your core OS rootfs read-only and immutable. Layer user applications via <strong>Nix package manager</strong> or <strong>Flatpak</strong> so zero app dependencies pollute the base system.
+              </p>
             </div>
-            <p class="text-slate-400 leading-relaxed text-[11px] mb-2.5">
-              Keep your core OS rootfs read-only and immutable. Layer user applications via <strong>Nix package manager</strong> or <strong>Flatpak</strong> so zero app dependencies pollute the base system.
-            </p>
-            <span class="text-[10px] text-emerald-400 font-mono">nix-env -iA nixpkgs.myApp</span>
+            <span class="text-[10px] text-emerald-400 font-mono break-all bg-slate-900 p-1.5 rounded border border-slate-800/80 block">nix-env -iA nixpkgs.myApp</span>
           </div>
         </div>
       </div>
 
       <!-- Turnkey Prebuilt Download or Custom Recipe -->
       ${best.distro.prebuiltImage ? `
-        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
-                <span>🚀</span> Ready-To-Flash Official Image
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 min-w-0">
+            <div class="min-w-0 flex-1">
+              <h3 class="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-2">
+                <span class="shrink-0">🚀</span> <span class="break-words">Ready-To-Flash Official Image</span>
               </h3>
-              <p class="text-xs text-slate-400 mt-1">
+              <p class="text-xs text-slate-400 mt-1 break-words">
                 You can download the official turnkey image directly and flash it to a USB drive using free tools like BalenaEtcher or Raspberry Pi Imager.
               </p>
             </div>
-            <a href="${best.distro.prebuiltImage.downloadUrl}" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-md">
+            <a href="${best.distro.prebuiltImage.downloadUrl}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-md">
               Download ${best.distro.name} Image ↗
             </a>
           </div>
@@ -1161,83 +1167,83 @@ function renderResultsView(evaluation: RecommendationOutput): string {
 
       <!-- Custom Build Recipe Generator Section -->
       ${recipe ? `
-        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-            <div>
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 min-w-0">
+            <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2">
-                <span class="text-xl">🛠️</span>
-                <h3 class="text-lg font-bold text-slate-100">${recipe.title}</h3>
+                <span class="text-xl shrink-0">🛠️</span>
+                <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">${recipe.title}</h3>
               </div>
-              <p class="text-xs text-slate-400 mt-1">${recipe.summary}</p>
+              <p class="text-xs text-slate-400 mt-1 break-words">${recipe.summary}</p>
             </div>
             
-            <div class="flex items-center gap-2">
-              <button id="btn-share-recipe" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer" title="Share this build recipe permalink">
-                <span>🔗</span> Share Recipe
+            <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+              <button id="btn-share-recipe" class="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer" title="Share this build recipe permalink">
+                <span>🔗</span> Share
               </button>
-              <button id="btn-copy-recipe" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5">
-                <span>📋</span> Copy Active File
+              <button id="btn-copy-recipe" class="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer">
+                <span>📋</span> Copy File
               </button>
             </div>
           </div>
 
           <!-- Dependencies & Build Info -->
-          <div class="flex flex-wrap gap-2 text-xs mb-4">
-            <span class="px-2.5 py-1 rounded bg-slate-950 text-slate-300 border border-slate-800">
+          <div class="flex flex-wrap gap-2 text-xs mb-4 min-w-0">
+            <span class="px-2.5 py-1 rounded bg-slate-950 text-slate-300 border border-slate-800 break-words">
               ⏱️ Build Time: ~${recipe.estimatedBuildTimeMinutes} mins
             </span>
-            <span class="px-2.5 py-1 rounded bg-slate-950 text-slate-300 border border-slate-800">
+            <span class="px-2.5 py-1 rounded bg-slate-950 text-slate-300 border border-slate-800 break-words">
               📦 Dependencies: ${recipe.hostDependencies.join(', ')}
             </span>
           </div>
 
           <!-- File Tabs -->
-          <div class="flex items-center gap-2 border-b border-slate-800 mb-0">
+          <div class="flex items-center gap-1.5 sm:gap-2 border-b border-slate-800 mb-0 overflow-x-auto max-w-full pb-0.5 no-scrollbar">
             ${recipe.files.map((file, idx) => `
-              <button data-file-idx="${idx}" class="recipe-tab px-3 py-2 text-xs font-mono font-medium rounded-t-lg border-b-2 transition-all ${state.activeFileIndex === idx ? 'border-emerald-500 text-emerald-400 bg-slate-950' : 'border-transparent text-slate-400 hover:text-slate-200'}">
+              <button data-file-idx="${idx}" class="recipe-tab px-3 py-2 text-xs font-mono font-medium rounded-t-lg border-b-2 transition-all whitespace-nowrap shrink-0 ${state.activeFileIndex === idx ? 'border-emerald-500 text-emerald-400 bg-slate-950' : 'border-transparent text-slate-400 hover:text-slate-200'}">
                 ${file.filename}
               </button>
             `).join('')}
           </div>
 
           <!-- Code View -->
-          <div class="relative bg-slate-950 border border-slate-800 rounded-b-xl p-4 overflow-x-auto max-h-96 text-xs font-mono text-slate-300 leading-relaxed">
-            <pre><code>${escapeHtml(recipe.files[state.activeFileIndex]?.content || '')}</code></pre>
+          <div class="relative bg-slate-950 border border-slate-800 rounded-b-xl p-3 sm:p-4 overflow-x-auto max-h-96 text-xs font-mono text-slate-300 leading-relaxed max-w-full">
+            <pre class="overflow-x-auto min-w-0 max-w-full whitespace-pre font-mono"><code>${escapeHtml(recipe.files[state.activeFileIndex]?.content || '')}</code></pre>
           </div>
 
           <!-- Quickstart Snippet -->
-          <div class="mt-4 p-3 bg-slate-950 rounded-lg border border-slate-800/80">
+          <div class="mt-4 p-3 bg-slate-950 rounded-lg border border-slate-800/80 overflow-hidden min-w-0 max-w-full">
             <span class="text-xs text-slate-500 uppercase tracking-wider block mb-1 font-semibold">Quickstart Commands:</span>
-            <pre class="text-xs font-mono text-emerald-400"><code>${recipe.quickstartCommands.join('\n')}</code></pre>
+            <pre class="text-xs font-mono text-emerald-400 overflow-x-auto p-1 max-w-full whitespace-pre"><code>${recipe.quickstartCommands.join('\n')}</code></pre>
           </div>
 
         </div>
       ` : ''}
 
       <!-- 🧪 3-Tier Verification & Testing Ladder -->
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
-        <div class="mb-5">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
+        <div class="mb-5 min-w-0">
           <div class="flex items-center gap-2">
-            <span class="text-xl">🧪</span>
-            <h3 class="text-lg font-bold text-slate-100">3-Tier Verification & Testing Ladder</h3>
+            <span class="text-xl shrink-0">🧪</span>
+            <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">3-Tier Verification & Testing Ladder</h3>
           </div>
-          <p class="text-xs text-slate-400 mt-1">
+          <p class="text-xs text-slate-400 mt-1 break-words">
             Test and verify your tailored build across three levels of hardware access—from zero-risk browser sandboxes to physical silicon.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4 min-w-0">
           <!-- Tier 1: In-Browser Instant Sandbox -->
-          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
             <div>
-              <div class="flex items-center gap-2 mb-2">
-                <span class="text-base">🌐</span>
-                <h4 class="text-sm font-bold text-sky-400">Tier 1: Instant In-Browser</h4>
+              <div class="flex items-center gap-2 mb-2 min-w-0">
+                <span class="text-base shrink-0">🌐</span>
+                <h4 class="text-sm font-bold text-sky-400 break-words">Tier 1: Instant In-Browser</h4>
               </div>
-              <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+              <p class="text-xs text-slate-400 mb-3 leading-relaxed break-words">
                 Zero installation, zero risk. Emulate x86 boot and interactive terminal commands directly in your browser tab via WebAssembly (v86 PC emulator).
               </p>
-              <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300">
+              <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 break-words">
                 <span class="text-slate-500 uppercase tracking-wider block mb-1 text-[10px] font-semibold">How to test:</span>
                 Select WASM in questions or open the generated HTML WebVM file in Chrome/Firefox.
               </div>
@@ -1249,19 +1255,19 @@ function renderResultsView(evaluation: RecommendationOutput): string {
           </div>
 
           <!-- Tier 2: Safe VM Sandbox -->
-          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
             <div>
-              <div class="flex items-center gap-2 mb-2">
-                <span class="text-base">🖧</span>
-                <h4 class="text-sm font-bold text-emerald-400">Tier 2: Safe VM Sandbox</h4>
+              <div class="flex items-center gap-2 mb-2 min-w-0">
+                <span class="text-base shrink-0">🖧</span>
+                <h4 class="text-sm font-bold text-emerald-400 break-words">Tier 2: Safe VM Sandbox</h4>
               </div>
-              <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+              <p class="text-xs text-slate-400 mb-3 leading-relaxed break-words">
                 Safe desktop hypervisor testing before touching physical drives. Test GUI desktop, networking, and systemd services in complete isolation.
               </p>
-              <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 space-y-1.5 overflow-x-auto">
+              <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 space-y-1.5 overflow-x-auto min-w-0 max-w-full">
                 <span class="text-slate-500 uppercase tracking-wider block text-[10px] font-semibold">QEMU Command:</span>
-                <code class="text-emerald-400 block text-[10px]">qemu-system-x86_64 -cdrom output/*.iso -m 2048 -enable-kvm</code>
-                <span class="text-slate-500 block text-[10px]">macOS: replace -enable-kvm with -accel hvf</span>
+                <pre class="text-emerald-400 block text-[10px] overflow-x-auto p-0.5 max-w-full whitespace-pre font-mono"><code>qemu-system-x86_64 -cdrom output/*.iso -m 2048 -enable-kvm</code></pre>
+                <span class="text-slate-500 block text-[10px] break-words">macOS: replace -enable-kvm with -accel hvf</span>
               </div>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
@@ -1271,19 +1277,19 @@ function renderResultsView(evaluation: RecommendationOutput): string {
           </div>
 
           <!-- Tier 3: Direct Bare-Metal Hardware -->
-          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between min-w-0">
             <div>
-              <div class="flex items-center gap-2 mb-2">
-                <span class="text-base">⚡</span>
-                <h4 class="text-sm font-bold text-amber-400">Tier 3: Bare-Metal Live USB</h4>
+              <div class="flex items-center gap-2 mb-2 min-w-0">
+                <span class="text-base shrink-0">⚡</span>
+                <h4 class="text-sm font-bold text-amber-400 break-words">Tier 3: Bare-Metal Live USB</h4>
               </div>
-              <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+              <p class="text-xs text-slate-400 mb-3 leading-relaxed break-words">
                 Flash bootable ISO to physical USB. Boot real silicon to verify Wi-Fi, GPU acceleration, and pro audio with zero hard drive changes.
               </p>
-              <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 space-y-1">
+              <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 space-y-1 min-w-0">
                 <span class="text-slate-500 uppercase tracking-wider block text-[10px] font-semibold">Flash & Boot Keys:</span>
-                <span class="block text-slate-300">1. Flash via <strong>BalenaEtcher</strong> or <strong>Rufus</strong></span>
-                <span class="block text-slate-300">2. Boot: Tap <strong>F12</strong> (Dell/Lenovo), <strong>Del/F8</strong> (Asus), or <strong>Option ⌥</strong> (Mac)</span>
+                <span class="block text-slate-300 break-words">1. Flash via <strong>BalenaEtcher</strong> or <strong>Rufus</strong></span>
+                <span class="block text-slate-300 break-words">2. Boot: Tap <strong>F12</strong> (Dell/Lenovo), <strong>Del/F8</strong> (Asus), or <strong>Option ⌥</strong> (Mac)</span>
               </div>
             </div>
             <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
@@ -1300,18 +1306,18 @@ function renderResultsView(evaluation: RecommendationOutput): string {
 
 function renderExpertMatrix(): string {
   return `
-    <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur space-y-6 shadow-xl">
+    <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-8 backdrop-blur space-y-6 shadow-xl min-w-0 max-w-full overflow-hidden">
       <div>
-        <h2 class="text-xl font-bold text-slate-100 mb-1">🛠️ Expert Constraint Matrix</h2>
-        <p class="text-xs text-slate-400">Directly set exact architecture, init system, C library, and footprint flags.</p>
+        <h2 class="text-lg sm:text-xl font-bold text-slate-100 mb-1 break-words">🛠️ Expert Constraint Matrix</h2>
+        <p class="text-xs text-slate-400 break-words">Directly set exact architecture, init system, C library, and footprint flags.</p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs min-w-0">
         
         <!-- Architecture -->
-        <div>
+        <div class="min-w-0">
           <label class="block text-slate-400 font-semibold mb-1.5">CPU Architecture</label>
-          <select id="expert-arch" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+          <select id="expert-arch" class="w-full max-w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
             <option value="">Any Architecture</option>
             <option value="x86_64" ${state.criteria.architecture === 'x86_64' ? 'selected' : ''}>x86_64 / AMD64</option>
             <option value="arm64" ${state.criteria.architecture === 'arm64' ? 'selected' : ''}>ARM64 / AArch64</option>
@@ -1322,9 +1328,9 @@ function renderExpertMatrix(): string {
         </div>
 
         <!-- Footprint -->
-        <div>
+        <div class="min-w-0">
           <label class="block text-slate-400 font-semibold mb-1.5">Storage & RAM Footprint</label>
-          <select id="expert-footprint" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+          <select id="expert-footprint" class="w-full max-w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
             <option value="">Any Footprint</option>
             <option value="micro" ${state.criteria.footprint === 'micro' ? 'selected' : ''}>Extreme Micro (<16 MB)</option>
             <option value="minimal" ${state.criteria.footprint === 'minimal' ? 'selected' : ''}>Ultra-Minimal (16-100 MB)</option>
@@ -1335,9 +1341,9 @@ function renderExpertMatrix(): string {
         </div>
 
         <!-- Init System -->
-        <div>
+        <div class="min-w-0">
           <label class="block text-slate-400 font-semibold mb-1.5">Init System Preference</label>
-          <select id="expert-init" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+          <select id="expert-init" class="w-full max-w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
             <option value="">No Preference</option>
             <option value="systemd" ${state.criteria.initPreference === 'systemd' ? 'selected' : ''}>systemd</option>
             <option value="openrc" ${state.criteria.initPreference === 'openrc' ? 'selected' : ''}>OpenRC</option>
@@ -1347,9 +1353,9 @@ function renderExpertMatrix(): string {
         </div>
 
         <!-- C Library -->
-        <div>
+        <div class="min-w-0">
           <label class="block text-slate-400 font-semibold mb-1.5">C Standard Library</label>
-          <select id="expert-clib" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+          <select id="expert-clib" class="w-full max-w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
             <option value="">No Preference</option>
             <option value="glibc" ${state.criteria.cLibPreference === 'glibc' ? 'selected' : ''}>glibc (GNU C Library)</option>
             <option value="musl" ${state.criteria.cLibPreference === 'musl' ? 'selected' : ''}>musl libc</option>
@@ -1358,9 +1364,9 @@ function renderExpertMatrix(): string {
         </div>
 
         <!-- State Model -->
-        <div>
+        <div class="min-w-0">
           <label class="block text-slate-400 font-semibold mb-1.5">State Management</label>
-          <select id="expert-state" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+          <select id="expert-state" class="w-full max-w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
             <option value="">Any State Model</option>
             <option value="mutable" ${state.criteria.statePreference === 'mutable' ? 'selected' : ''}>Traditional Mutable</option>
             <option value="declarative" ${state.criteria.statePreference === 'declarative' ? 'selected' : ''}>Declarative (NixOS)</option>
@@ -1370,9 +1376,9 @@ function renderExpertMatrix(): string {
         </div>
 
         <!-- Role -->
-        <div>
+        <div class="min-w-0">
           <label class="block text-slate-400 font-semibold mb-1.5">Primary Target Role</label>
-          <select id="expert-role" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
+          <select id="expert-role" class="w-full max-w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200">
             <option value="">Any Role</option>
             <option value="gaming" ${state.criteria.useCase === 'gaming' ? 'selected' : ''}>Gaming & Arcade</option>
             <option value="media-center" ${state.criteria.useCase === 'media-center' ? 'selected' : ''}>Living Room Media Center (Kodi)</option>
@@ -1390,7 +1396,7 @@ function renderExpertMatrix(): string {
       </div>
 
       <div class="pt-4 border-t border-slate-800 flex justify-end">
-        <button id="btn-apply-expert" class="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all cursor-pointer shadow-lg shadow-emerald-950/40">
+        <button id="btn-apply-expert" class="w-full sm:w-auto px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all cursor-pointer shadow-lg shadow-emerald-950/40 text-center">
           Apply Constraints & View Results →
         </button>
       </div>
@@ -1406,63 +1412,65 @@ function renderShareModal(evaluation: RecommendationOutput): string {
   const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
 
   return `
-    <div id="share-modal-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[90] flex items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+    <div id="share-modal-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[90] flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150 min-w-0 max-w-full overflow-hidden my-auto max-h-[90vh] flex flex-col">
         
-        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
-          <div class="flex items-center gap-3">
-            <span class="text-3xl p-2 rounded-xl bg-slate-950 border border-slate-800">${best.distro.logoEmoji || '🐧'}</span>
-            <div>
-              <h3 class="text-base font-bold text-slate-100">Share Tailored Linux Build</h3>
-              <p class="text-xs text-slate-400">${best.distro.name} (${best.score}% Match)</p>
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800 shrink-0 min-w-0 gap-2">
+          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <span class="text-2xl sm:text-3xl p-1.5 sm:p-2 rounded-xl bg-slate-950 border border-slate-800 shrink-0">${best.distro.logoEmoji || '🐧'}</span>
+            <div class="min-w-0">
+              <h3 class="text-sm sm:text-base font-bold text-slate-100 truncate">Share Tailored Linux Build</h3>
+              <p class="text-xs text-slate-400 truncate">${best.distro.name} (${best.score}% Match)</p>
             </div>
           </div>
-          <button id="btn-close-share-modal" class="text-slate-400 hover:text-slate-200 text-lg p-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer" title="Close">
+          <button id="btn-close-share-modal" class="text-slate-400 hover:text-slate-200 text-base sm:text-lg p-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer shrink-0" title="Close">
             ✕
           </button>
         </div>
 
-        <!-- Direct Shareable URL -->
-        <div class="mb-4">
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Direct Shareable Link (Preserves All Criteria)</label>
-          <div class="flex items-center gap-2">
-            <input type="text" readonly id="share-link-input" value="${url}" class="flex-1 bg-slate-950 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-xs font-mono select-all focus:outline-none focus:border-emerald-500" />
-            <button id="btn-copy-share-link" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-colors shrink-0 flex items-center gap-1 cursor-pointer">
-              <span>📋</span> Copy
-            </button>
-          </div>
-          <p class="text-[11px] text-slate-500 mt-1">Anyone opening this link will see your exact tailored recommendation and build recipe.</p>
-        </div>
-
-        <!-- Formatted Markdown for Reddit, Discord, GitHub -->
-        <div class="mb-5">
-          <div class="flex items-center justify-between mb-1.5">
-            <label class="text-xs font-semibold text-slate-300">Forum & Chat Markdown (Reddit, Discord, GitHub)</label>
-            <button id="btn-copy-markdown" class="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer">
-              <span>📋</span> Copy Markdown
-            </button>
-          </div>
-          <textarea readonly id="share-markdown-preview" rows="4" class="w-full bg-slate-950 border border-slate-800 text-slate-400 p-2.5 rounded-lg text-[11px] font-mono select-all focus:outline-none resize-none">${escapeHtml(markdownSummary)}</textarea>
-        </div>
-
-        <!-- Quick Share Destinations -->
-        <div>
-          <span class="block text-xs font-semibold text-slate-400 mb-2">Quick Share</span>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-            ${canNativeShare ? `
-              <button id="btn-native-share" class="col-span-2 sm:col-span-1 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 font-medium transition-colors cursor-pointer">
-                <span>📤</span> Device
+        <div class="overflow-y-auto flex-1 pr-0.5 space-y-4 min-w-0">
+          <!-- Direct Shareable URL -->
+          <div class="min-w-0">
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Direct Shareable Link (Preserves All Criteria)</label>
+            <div class="flex items-center gap-2 min-w-0">
+              <input type="text" readonly id="share-link-input" value="${url}" class="min-w-0 flex-1 bg-slate-950 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-xs font-mono select-all focus:outline-none focus:border-emerald-500" />
+              <button id="btn-copy-share-link" class="px-3 sm:px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-colors shrink-0 flex items-center gap-1 cursor-pointer">
+                <span>📋</span> <span class="hidden sm:inline">Copy</span>
               </button>
-            ` : ''}
-            <a href="https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(`Tailored Linux Distro Match: ${best.distro.name} (${best.score}%)`)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-orange-950/40 hover:bg-orange-900/40 text-orange-300 border border-orange-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors">
-              <span>🤖</span> Reddit
-            </a>
-            <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(`Found my Linux match with DistroTailor: ${best.distro.name} (${best.score}% Match)!`)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-sky-950/40 hover:bg-sky-900/40 text-sky-300 border border-sky-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors">
-              <span>🐦</span> X / Twitter
-            </a>
-            <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out my tailored Linux distro match: ${best.distro.name} (${best.score}%) - ${url}`)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-300 border border-emerald-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors">
-              <span>💬</span> WhatsApp
-            </a>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">Anyone opening this link will see your exact tailored recommendation and build recipe.</p>
+          </div>
+
+          <!-- Formatted Markdown for Reddit, Discord, GitHub -->
+          <div class="min-w-0">
+            <div class="flex items-center justify-between mb-1.5 min-w-0 gap-2">
+              <label class="text-xs font-semibold text-slate-300 truncate">Forum & Chat Markdown</label>
+              <button id="btn-copy-markdown" class="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 cursor-pointer shrink-0">
+                <span>📋</span> Copy
+              </button>
+            </div>
+            <textarea readonly id="share-markdown-preview" rows="4" class="w-full max-w-full bg-slate-950 border border-slate-800 text-slate-400 p-2.5 rounded-lg text-[11px] font-mono select-all focus:outline-none resize-none break-all">${escapeHtml(markdownSummary)}</textarea>
+          </div>
+
+          <!-- Quick Share Destinations -->
+          <div class="min-w-0 shrink-0">
+            <span class="block text-xs font-semibold text-slate-400 mb-2">Quick Share</span>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              ${canNativeShare ? `
+                <button id="btn-native-share" class="col-span-2 sm:col-span-1 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 font-medium transition-colors cursor-pointer">
+                  <span>📤</span> Device
+                </button>
+              ` : ''}
+              <a href="https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(`Tailored Linux Distro Match: ${best.distro.name} (${best.score}%)`)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-orange-950/40 hover:bg-orange-900/40 text-orange-300 border border-orange-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors text-center">
+                <span>🤖</span> Reddit
+              </a>
+              <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(`Found my Linux match with DistroTailor: ${best.distro.name} (${best.score}% Match)!`)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-sky-950/40 hover:bg-sky-900/40 text-sky-300 border border-sky-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors text-center">
+                <span>🐦</span> X
+              </a>
+              <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out my tailored Linux distro match: ${best.distro.name} (${best.score}%) - ${url}`)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-300 border border-emerald-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors text-center">
+                <span>💬</span> WhatsApp
+              </a>
+            </div>
           </div>
         </div>
 

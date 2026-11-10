@@ -2,8 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    -webkit-text-size-adjust: 100%;
+    box-sizing: border-box;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  /* Prevent iOS Safari 16px input zoom while keeping desktop font-size */
+  @media screen and (max-width: 639px) {
+    input[type="text"], textarea {
+      font-size: 16px !important;
+    }
+  }
+}
+
 @layer utilities {
   .text-glow {
     text-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+  }
+
+  /* Smooth horizontal scrolling without ugly scrollbars */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
