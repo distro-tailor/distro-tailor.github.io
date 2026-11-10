@@ -77,8 +77,13 @@ export async function copyToClipboard(
 
 /**
  * Smoothly scrolls the viewport to the active wizard question card.
+ * Clears active button focus to prevent sticky iOS Safari focus/hover state highlights.
  */
 export function scrollToQuestionCard(): void {
+  if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+
   if (typeof requestAnimationFrame === 'undefined' || typeof window === 'undefined') return;
 
   requestAnimationFrame(() => {

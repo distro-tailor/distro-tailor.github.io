@@ -62,6 +62,26 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
     router.saveStateToUrl(store.getState(), true);
   });
 
+  // Return to wizard from results to review or modify choices
+  const returnToWizard = () => {
+    store.setTab('wizard');
+    router.saveStateToUrl(store.getState(), true);
+    scrollToQuestionCard();
+  };
+  document.getElementById('btn-modify-answers')?.addEventListener('click', returnToWizard);
+  document.getElementById('btn-tweak-blueprint')?.addEventListener('click', returnToWizard);
+  document.getElementById('btn-tweak-shared')?.addEventListener('click', returnToWizard);
+
+  // Track download interactions and record client-side metrics counter
+  document.querySelectorAll<HTMLAnchorElement>('a[target="_blank"]').forEach((el) => {
+    el.addEventListener('click', () => {
+      try {
+        const count = Number(localStorage.getItem('dt_downloads_count') || '0') + 1;
+        localStorage.setItem('dt_downloads_count', String(count));
+      } catch {}
+    });
+  });
+
   // Toggle All 31 Contenders in Leaderboard
   document.getElementById('btn-toggle-all-contenders')?.addEventListener('click', () => {
     store.toggleAllContenders();

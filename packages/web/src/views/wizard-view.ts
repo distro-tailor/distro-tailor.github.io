@@ -88,6 +88,11 @@ export function renderWizardQuestion(
           <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
             Question ${progress.current + 1} of ${progress.total}
           </span>
+          ${
+            question.isOptional
+              ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-800 text-slate-400 border border-slate-700/60 shrink-0">Optional</span>`
+              : ''
+          }
           <button id="btn-toggle-flow-mode" class="px-2.5 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
             isBeginner
               ? 'bg-slate-800/90 text-slate-300 hover:text-emerald-300 hover:border-emerald-500/40 border border-slate-700/60'
@@ -133,7 +138,7 @@ export function renderWizardQuestion(
             const spanClass = isSpanFull ? 'sm:col-span-2' : '';
 
             return `
-            <button data-option-id="${opt.id}" class="option-btn group relative text-left p-4 sm:p-5 rounded-xl border border-slate-700/60 bg-slate-950/70 hover:bg-slate-800/90 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-950/40 transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 min-w-0 w-full overflow-hidden ${spanClass}">
+            <button data-option-id="${opt.id}" class="option-btn group relative text-left p-4 sm:p-5 rounded-xl border border-slate-700/60 bg-slate-950/70 [@media(hover:hover)]:hover:bg-slate-800/90 [@media(hover:hover)]:hover:border-emerald-400 [@media(hover:hover)]:hover:shadow-lg [@media(hover:hover)]:hover:shadow-emerald-950/40 active:border-emerald-400 active:bg-slate-800/90 transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 min-w-0 w-full overflow-hidden ${spanClass}">
               <div class="min-w-0 w-full">
                 <div class="flex items-start justify-between gap-3 mb-3">
                   <span class="text-2xl sm:text-3xl p-2 rounded-xl bg-slate-900 border border-slate-700/60 group-hover:scale-110 transition-transform shrink-0">${opt.icon || '👉'}</span>
@@ -179,7 +184,7 @@ export function renderWizardQuestion(
           ← Previous Question
         </button>
         <button id="btn-skip" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 transition-all cursor-pointer">
-          Skip for now →
+          ${question.isOptional ? 'Skip (Use Default) →' : 'Skip for now →'}
         </button>
       </div>
 

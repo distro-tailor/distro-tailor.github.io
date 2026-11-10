@@ -1104,7 +1104,8 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       'Manual DIY installation; user must maintain and troubleshoot package upgrades'
     ],
     prebuiltImage: {
-      downloadUrl: 'https://archlinux.org/download/'
+      downloadUrl: 'https://archlinux.org/download/',
+      quickstartCommand: 'archinstall'
     }
   },
   {

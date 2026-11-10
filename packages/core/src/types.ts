@@ -231,6 +231,7 @@ export interface Question {
   options: QuestionOption[];
   shouldAsk?: (criteriaSoFar: UserCriteria) => boolean;
   tip?: QuestionTip;
+  isOptional?: boolean;
 }
 
 export interface MatchReason {

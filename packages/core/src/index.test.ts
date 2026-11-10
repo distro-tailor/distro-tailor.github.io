@@ -26,6 +26,21 @@ test('Core Matcher: Pinpoints Buildroot for NOMMU microcontrollers', () => {
   }
 });
 
+test('Core Matcher: Arch Linux winner does NOT attach an incompatible Debian debootstrap recipe by default', () => {
+  const result = evaluateCriteria({
+    useCase: 'desktop',
+    releaseCadence: 'rolling',
+    statePreference: 'mutable',
+    cLibPreference: 'glibc',
+    initPreference: 'systemd'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'arch');
+  // Must NOT attach debootstrap-debian recipe to Arch Linux!
+  assert.equal(result.recommendedRecipe, undefined);
+  assert.equal(result.customRecipeAvailable, false);
+});
+
 test('Core Matcher: Identifies Talos Linux for Kubernetes cluster nodes', () => {
   const result = evaluateCriteria({
     useCase: 'k8s-cluster',

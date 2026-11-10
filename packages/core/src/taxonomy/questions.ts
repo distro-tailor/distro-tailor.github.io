@@ -550,6 +550,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 'display_mode',
     order: 5,
+    isOptional: true,
     prompt: 'Do you need a graphical desktop or a headless terminal-only system?',
     subtext: 'A graphical desktop interface (Wayland / X11) vs lightweight headless server operations.',
     category: 'software',
@@ -587,6 +588,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 'release_cadence',
     order: 6,
+    isOptional: true,
     prompt: 'What is your preferred software update and release model?',
     subtext: 'Predictable rock-solid LTS point releases vs continuous bleeding-edge rolling updates.',
     category: 'lifecycle',
@@ -625,6 +627,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 'driver_philosophy',
     order: 7,
+    isOptional: true,
     prompt: 'What is your philosophy on hardware drivers and proprietary software?',
     subtext: 'Zero-effort proprietary drivers (NVIDIA GPUs, Broadcom Wi-Fi) vs 100% Free / Open Source Software.',
     category: 'software',
@@ -666,6 +669,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 'boot_medium',
     order: 8,
+    isOptional: true,
     prompt: 'Where will this Linux system be installed and booted from?',
     subtext: 'Storage drive medium affects filesystem caching, wear reduction, and RAM disk architecture.',
     category: 'hardware',
@@ -707,6 +711,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 'audio_latency',
     order: 9,
+    isOptional: true,
     prompt: 'Will this system be used for pro-audio production or low-latency music creation?',
     subtext: 'Real-time audio processing (DAWs, software synthesizers, MIDI) requires a low-latency realtime Linux kernel.',
     category: 'software',
@@ -743,6 +748,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 'system_immutability',
     order: 10,
+    isOptional: true,
     prompt: 'How should system state and configuration changes be managed?',
     subtext: 'Traditional mutable OSes vs. modern immutable / declarative architectures.',
     category: 'lifecycle',
@@ -788,6 +794,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 'c_library_and_init',
     order: 11,
+    isOptional: true,
     prompt: 'Do you have preferences for C Library and Init System?',
     subtext: 'Standard glibc + systemd vs. lightweight musl + OpenRC / BusyBox init.',
     category: 'software',

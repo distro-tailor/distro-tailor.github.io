@@ -58,3 +58,29 @@ test('Wizard View: suppresses fast-track banner during initial questions (step <
 
   assert.equal(htmlStep1.includes('id="early-guess-banner"'), false, 'Banner should not show on step 1');
 });
+
+test('Wizard View: displays Optional badge and Skip default button for optional questions', () => {
+  const dummyState: AppState = {
+    criteria: { useCase: 'desktop' },
+    answeredQuestionIds: new Set(['q1', 'q2']),
+    activeTab: 'wizard',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+
+  const optionalQuestion = QUESTIONS.find(q => q.isOptional);
+  assert.ok(optionalQuestion, 'There should be optional questions in question bank');
+
+  const html = renderWizardQuestion(
+    optionalQuestion,
+    { current: 5, total: 10 },
+    dummyState
+  );
+
+  assert.ok(html.includes('Optional'));
+  assert.ok(html.includes('Skip (Use Default) →'));
+});

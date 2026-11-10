@@ -345,6 +345,14 @@ export function evaluateCriteria(
 
   // Resolve recipe generator if requested or available
   let recommendedRecipe;
+  const hasExplicitModifiers = !!(
+    criteria.requiresCustomBuild ||
+    criteria.enableDistrobox ||
+    criteria.enableNix ||
+    criteria.dockerApp ||
+    (criteria.desktopApps && criteria.desktopApps.length > 0)
+  );
+
   const targetGeneratorId =
     criteria.platform === 'wsl2'
       ? 'wsl2-debian'
@@ -354,7 +362,11 @@ export function evaluateCriteria(
       ? 'proxmox-lxc'
       : criteria.useCase === 'iot-embedded'
       ? 'buildroot-embedded'
-      : bestMatch.distro.recipeGeneratorId || 'debootstrap-debian';
+      : bestMatch.distro.recipeGeneratorId
+      ? bestMatch.distro.recipeGeneratorId
+      : (hasExplicitModifiers && bestMatch.distro.id !== 'arch'
+          ? 'debootstrap-debian'
+          : undefined);
 
   if (targetGeneratorId) {
     recommendedRecipe = resolveRecipeGenerator(targetGeneratorId, criteria);
