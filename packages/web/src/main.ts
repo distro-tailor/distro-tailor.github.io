@@ -1429,147 +1429,56 @@ function renderResultsView(evaluation: RecommendationOutput): string {
         </div>
       </div>
 
-      <!-- Zero-Bloat Hardware Optimization Comparison -->
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 min-w-0">
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-xl shrink-0">🪶</span>
-              <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">Zero-Bloat Hardware Optimization</h3>
-            </div>
-            <p class="text-xs text-slate-400 mt-1 break-words">
-              <span class="text-amber-400 font-semibold">⚠️ Note:</span> Prebuilt official ISOs from distros must support all PCs on Earth and still carry generic bloat. The ultra-lean footprint below is achieved when building with DistroTailor's <strong>custom Makefile / build recipe</strong>!
-            </p>
-          </div>
-          <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0 self-start sm:self-auto">
-            ~92% Bloat Eliminated
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 min-w-0">
-          <!-- Generic Prebuilt Distro -->
-          <div class="p-3.5 sm:p-4 rounded-xl bg-slate-950/70 border border-red-950/40 text-xs min-w-0 overflow-hidden">
-            <div class="flex items-start justify-between pb-3 mb-3 border-b border-slate-800/80 gap-2">
-              <div class="min-w-0 flex-1">
-                <span class="font-bold text-slate-300 block truncate">Off-The-Shelf Prebuilt ISO</span>
-                <span class="text-[11px] text-slate-500 block truncate">Direct download from distro website</span>
-              </div>
-              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-950/60 text-red-400 border border-red-900/40 shrink-0">Generic Bloat</span>
-            </div>
-            <ul class="space-y-2.5 text-slate-400 min-w-0">
-              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
-                <span class="break-words">📦 Total Install Size:</span>
-                <span class="font-mono text-slate-200 font-medium">~4.5 GB – 6 GB</span>
-              </li>
-              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
-                <span class="break-words">🚗 Firmware Blobs (<code class="text-[10px] text-red-400">linux-firmware</code>):</span>
-                <span class="font-mono text-red-300 font-medium">~1.8 GB (10k unused chips)</span>
-              </li>
-              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
-                <span class="break-words">⚙️ Kernel Modules:</span>
-                <span class="font-mono text-slate-200 font-medium">4,500+ drivers</span>
-              </li>
-              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
-                <span class="break-words">⚡ Idle RAM Consumption:</span>
-                <span class="font-mono text-slate-200 font-medium">~800 MB – 1.2 GB</span>
-              </li>
-              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
-                <span class="break-words">⏱️ Cold Boot Duration:</span>
-                <span class="font-mono text-slate-200 font-medium">25 – 45 seconds</span>
-              </li>
-            </ul>
-          </div>
-
-          <!-- DistroTailor Custom Makefile Build -->
-          <div class="p-3.5 sm:p-4 rounded-xl bg-emerald-950/20 border border-emerald-800/40 text-xs flex flex-col justify-between min-w-0 overflow-hidden">
-            <div>
-              <div class="flex items-start justify-between pb-3 mb-3 border-b border-emerald-900/30 gap-2">
-                <div class="min-w-0 flex-1">
-                  <span class="font-bold text-emerald-300 block truncate">DistroTailor Custom Build</span>
-                  <span class="text-[11px] text-emerald-400/70 block truncate">Built via recipe generator below</span>
-                </div>
-                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">Tailored</span>
-              </div>
-              <ul class="space-y-2.5 text-slate-300 min-w-0">
-                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
-                  <span class="break-words">📦 Total Footprint:</span>
-                  <span class="font-mono font-bold text-emerald-400">~150 MB – 350 MB (-93%)</span>
-                </li>
-                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
-                  <span class="break-words">🚗 Firmware Blobs:</span>
-                  <span class="font-mono text-emerald-300 font-medium">&lt; 15 MB (active chips only)</span>
-                </li>
-                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
-                  <span class="break-words">⚙️ Kernel Drivers:</span>
-                  <span class="font-mono text-emerald-300 font-medium">Targeted via localmodconfig</span>
-                </li>
-                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
-                  <span class="break-words">⚡ Idle RAM Consumption:</span>
-                  <span class="font-mono text-emerald-300 font-medium">~60 MB – 150 MB</span>
-                </li>
-                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2">
-                  <span class="break-words">⏱️ Cold Boot Duration:</span>
-                  <span class="font-mono font-bold text-emerald-400">&lt; 2 – 4 seconds</span>
-                </li>
-              </ul>
-            </div>
-            <div class="mt-3 pt-2.5 border-t border-emerald-900/30 text-[11px] text-emerald-400 font-medium break-words">
-              👉 To get this lean build, use the <strong>Custom Build Recipe Generator</strong> below!
-            </div>
-          </div>
-        </div>
-
-        <!-- The PCPartPicker vs. Fixed Hardware Paradigm Callout -->
-        <div class="mt-4 pt-4 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs min-w-0">
-          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-0">
-            <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1">
-              <span class="shrink-0">🍏</span>
-              <span class="break-words">Fixed Closed Hardware (MacBook / Mac Studio / SBC)</span>
-            </div>
-            <p class="text-slate-400 text-[11px] leading-relaxed break-words">
-              Apple Silicon, Intel MacBooks, and Raspberry Pis have a <strong>100% deterministic, closed chip inventory</strong>. Generic Linux ISOs carry thousands of drivers for PC components that physically cannot exist in that machine. DistroTailor drops 99% of firmware, bundling only the exact Broadcom / Apple silicon blobs.
-            </p>
-          </div>
-
-          <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 min-w-0">
-            <div class="flex items-center gap-2 font-semibold text-slate-200 mb-1">
-              <span class="shrink-0">🛠️</span>
-              <span class="break-words">The "PCPartPicker" Custom Rig (Modular Selection)</span>
-            </div>
-            <p class="text-slate-400 text-[11px] leading-relaxed break-words">
-              When building on PCPartPicker, you choose <strong>ONE</strong> motherboard NIC, <strong>ONE</strong> Wi-Fi card, and <strong>ONE</strong> GPU. A generic ISO must bundle drivers for every component ever listed on PCPartPicker! DistroTailor's recipe isolates your active manifest, pruning the thousands of parts you didn't buy.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Turnkey Prebuilt Download or Custom Recipe -->
+      <!-- Option A: Turnkey Prebuilt Download (Maximum Convenience) -->
       ${best.distro.prebuiltImage ? `
         <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 min-w-0">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 min-w-0">
             <div class="min-w-0 flex-1">
-              <h3 class="text-base sm:text-lg font-bold text-slate-100 flex items-center gap-2">
-                <span class="shrink-0">🚀</span> <span class="break-words">Ready-To-Flash Official Image</span>
-              </h3>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xl shrink-0">🚀</span>
+                <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">Ready-To-Flash Official Image</h3>
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">Maximum Convenience</span>
+              </div>
               <p class="text-xs text-slate-400 mt-1 break-words">
-                You can download the official turnkey image directly and flash it to a USB drive using free tools like BalenaEtcher or Raspberry Pi Imager.
+                Download the official turnkey image directly. Includes universal out-of-the-box hardware drivers and pre-configured defaults—ready to flash in minutes with BalenaEtcher or Raspberry Pi Imager.
               </p>
             </div>
-            <a href="${best.distro.prebuiltImage.downloadUrl}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-md">
+            <a href="${best.distro.prebuiltImage.downloadUrl}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 text-xs font-bold rounded-xl bg-indigo-500 hover:bg-indigo-400 text-slate-950 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-md shrink-0">
               Download ${best.distro.name} Image ↗
             </a>
+          </div>
+
+          <!-- Convenience Attributes Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs pt-3 border-t border-slate-800/80">
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase font-semibold">Workflow</span>
+              <span class="font-medium text-slate-200 mt-0.5 block truncate">Zero-Compile Flash</span>
+            </div>
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase font-semibold">Hardware Support</span>
+              <span class="font-medium text-slate-200 mt-0.5 block truncate">Universal Driver Pool</span>
+            </div>
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase font-semibold">Typical Size</span>
+              <span class="font-medium text-slate-200 mt-0.5 block truncate">Standard Full Image</span>
+            </div>
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase font-semibold">Setup Time</span>
+              <span class="font-medium text-slate-200 mt-0.5 block truncate">&lt; 5 minutes</span>
+            </div>
           </div>
         </div>
       ` : ''}
 
-      <!-- Custom Build Recipe Generator Section -->
+      <!-- Option B: Custom Build Recipe Generator Section (Tailored Hardware Optimization) -->
       ${recipe ? `
         <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 min-w-0">
             <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-xl shrink-0">🛠️</span>
                 <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">${recipe.title}</h3>
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Tailored Hardware Optimization</span>
               </div>
               <p class="text-xs text-slate-400 mt-1 break-words">${recipe.summary}</p>
             </div>
@@ -1581,6 +1490,26 @@ function renderResultsView(evaluation: RecommendationOutput): string {
               <button id="btn-copy-recipe" class="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer">
                 <span>📋</span> Copy File
               </button>
+            </div>
+          </div>
+
+          <!-- Optimization Benefits Bar -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs mb-4">
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase font-semibold">Tailored Footprint</span>
+              <span class="font-medium text-emerald-400 mt-0.5 block truncate">~150MB – 350MB Base</span>
+            </div>
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase font-semibold">Hardware Drivers</span>
+              <span class="font-medium text-emerald-400 mt-0.5 block truncate">Isolated Active Chips</span>
+            </div>
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase font-semibold">Idle RAM</span>
+              <span class="font-medium text-emerald-400 mt-0.5 block truncate">~60MB – 150MB</span>
+            </div>
+            <div class="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800/80">
+              <span class="text-slate-500 block text-[10px] uppercase font-semibold">Cold Boot</span>
+              <span class="font-medium text-emerald-400 mt-0.5 block truncate">&lt; 2 – 4 seconds</span>
             </div>
           </div>
 
