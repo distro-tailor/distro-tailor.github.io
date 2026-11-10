@@ -202,7 +202,7 @@ export function generateBootstrapAppsScript(
   if (!selectedAppIds || selectedAppIds.length === 0) {
     return `#!/usr/bin/env bash
 # ==============================================================================
-# DistroTailor: Desktop Application Suite (Ninite Style)
+# DistroTailor: Desktop Application Suite
 # No desktop applications were selected.
 # ==============================================================================
 echo "[+] DistroTailor: No desktop applications selected."
@@ -227,7 +227,7 @@ exit 0
 
   return `#!/usr/bin/env bash
 # ==============================================================================
-# DistroTailor: 1-Click Desktop Application Suite (Ninite for Linux)
+# DistroTailor: 1-Click Desktop Application Suite
 # Automated unattended setup for ${selectedApps.length} selected desktop application(s):
 ${selectedApps.map(a => `# - ${a.icon} ${a.name} (${a.category})`).join('\n')}
 # ==============================================================================
@@ -242,7 +242,7 @@ fi
 
 echo "===================================================================="
 echo " DistroTailor: Installing ${selectedApps.length} Selected Desktop Application(s)"
-echo " Mode: 100% Unattended / Automated (Ninite Style)"
+echo " Mode: 100% Unattended / Automated"
 echo "===================================================================="
 
 ${aptList.length > 0 ? `

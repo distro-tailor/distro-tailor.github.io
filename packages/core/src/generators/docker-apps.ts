@@ -260,7 +260,7 @@ volumes:
   {
     id: 'lamp-wordpress',
     name: 'LAMP + WordPress',
-    tagline: 'Classic LAMP Stack (PuPHPet Homage)',
+    tagline: 'Classic LAMP Stack (Apache, PHP, MariaDB)',
     description: 'The definitive web development staple: Apache, PHP, MariaDB, and WordPress pre-wired with persistence.',
     icon: '🌐',
     defaultPort: '8000',
@@ -268,7 +268,7 @@ volumes:
     category: 'web',
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Classic LAMP + WordPress Stack
-# Homage to PuPHPet (Apache, PHP 8, MariaDB & WordPress)
+# Web Application Stack (Apache, PHP 8, MariaDB & WordPress)
 # Web Interface: http://localhost:8000 | MySQL: localhost:3306
 # ==============================================================================
 services:

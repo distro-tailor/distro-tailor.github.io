@@ -38,7 +38,7 @@ ENABLE_DISTROBOX ?= ${enableDistrobox}
 ENABLE_NIX       ?= ${enableNix}
 ENABLE_FLATPAK   ?= ${enableFlatpak}
 
-# --- TURNKEY 1-CLICK DOCKER APPLICATION (PuPHPet Style) ---
+# --- TURNKEY 1-CLICK DOCKER APPLICATION LAYER ---
 # DOCKER_APP: none | immich | home-assistant | jellyfin | pihole | ollama | nextcloud | lamp-wordpress | tailscale | uptime-kuma
 DOCKER_APP       ?= ${dockerApp}
 
@@ -134,7 +134,7 @@ configure: rootfs
 			apt-get install -y --no-install-recommends xz-utils sudo; \\
 		fi && \\
 		\\
-		# Turnkey 1-Click Docker Application Layer (PuPHPet Style) \\
+		# Turnkey 1-Click Docker Application Layer \\
 		if [ '$(DOCKER_APP)' != 'none' ]; then \\
 			apt-get install -y --no-install-recommends docker.io docker-compose-v2 && \\
 			systemctl enable docker && \\
@@ -260,7 +260,7 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable
   if (desktopApps.length > 0) {
     files.push({
       filename: 'bootstrap-apps.sh',
-      description: `1-Click Ninite-style unattended installer for ${desktopApps.length} desktop application(s)`,
+      description: `1-Click automated unattended installer for ${desktopApps.length} desktop application(s)`,
       content: generateBootstrapAppsScript(desktopApps, criteria),
       executable: true
     });
@@ -279,7 +279,7 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable
   ];
 
   if (desktopApps.length > 0) {
-    quickstartCommands.push(`sudo bash bootstrap-apps.sh  # 1-Click install ${desktopApps.length} desktop app(s) (Ninite style)`);
+    quickstartCommands.push(`sudo bash bootstrap-apps.sh  # 1-Click install ${desktopApps.length} desktop app(s)`);
   }
 
   if (dockerAppDef) {

@@ -180,7 +180,7 @@ export interface UserCriteria {
   prefersGui?: boolean;
   requiresCustomBuild?: boolean;
 
-  // Interactive Recipe Modifiers (PuPHPet & Ninite Style Action Cards)
+  // Interactive Recipe Modifiers (App Suites & Turnkey Services)
   desktopEnv?: DesktopEnvId;
   enableDistrobox?: boolean;
   enableNix?: boolean;

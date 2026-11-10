@@ -907,7 +907,7 @@ function getAddonCombos(distroId: string): AddonCombo[] {
   }
 }
 
-function renderNiniteDesktopSuite(isPrimary: boolean): string {
+function renderDesktopAppSuite(isPrimary: boolean): string {
   const selectedCount = (state.criteria.desktopApps || []).length;
   const isExpanded = isPrimary || selectedCount > 0;
 
@@ -916,7 +916,7 @@ function renderNiniteDesktopSuite(isPrimary: boolean): string {
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2 flex-wrap">
           <span class="text-xl shrink-0">📦</span>
-          <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">1-Click Desktop App Suite (Ninite for Linux)</h3>
+          <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">1-Click Desktop Application Suite</h3>
           ${isPrimary ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Recommended for Workstations</span>` : ''}
         </div>
         <p class="text-xs text-slate-400 mt-1 break-words">
@@ -962,7 +962,7 @@ function renderNiniteDesktopSuite(isPrimary: boolean): string {
       <summary class="flex items-center justify-between cursor-pointer select-none text-xs font-semibold text-slate-300">
         <span class="flex items-center gap-2 flex-wrap">
           <span class="text-lg">📦</span>
-          <span>Need Desktop GUI Apps on this Server? (Click to view Ninite installer)</span>
+          <span>Need Desktop GUI Apps on this Server? (Click to view desktop app installer)</span>
           ${selectedCount > 0 ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">${selectedCount} active</span>` : ''}
         </span>
         <span class="text-slate-500 group-open:rotate-180 transition-transform text-sm shrink-0">▼</span>
@@ -983,7 +983,7 @@ function renderDockerServiceSuite(isPrimary: boolean): string {
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2 flex-wrap">
           <span class="text-xl shrink-0">🐳</span>
-          <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">PuPHPet-Style Turnkey Service Layer (Docker Compose)</h3>
+          <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">Turnkey Service Layer (Docker Compose)</h3>
           ${isPrimary ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Recommended for Server & Homelab</span>` : ''}
         </div>
         <p class="text-xs text-slate-400 mt-1 break-words">
@@ -1267,9 +1267,9 @@ function renderResultsView(evaluation: RecommendationOutput): string {
       <!-- 📦 Applications & Turnkey Services Suite (Context-Aware) -->
       ${isServerContext ? `
         ${renderDockerServiceSuite(true)}
-        ${renderNiniteDesktopSuite(false)}
+        ${renderDesktopAppSuite(false)}
       ` : `
-        ${renderNiniteDesktopSuite(true)}
+        ${renderDesktopAppSuite(true)}
         ${renderDockerServiceSuite(false)}
       `}
 
@@ -2029,7 +2029,7 @@ function attachEventHandlers(
     showToast(state.criteria.enableFlatpak ? '✨ Flatpak sandbox layer enabled!' : 'Flatpak disabled', '📦');
   });
 
-  // Action Cards: Ninite-Style Desktop Apps
+  // Action Cards: 1-Click Desktop Apps
   document.querySelectorAll<HTMLElement>('.btn-toggle-desktop-app').forEach((card) => {
     card.addEventListener('click', (e) => {
       const appId = (e.currentTarget as HTMLElement).getAttribute('data-app-id') as DesktopAppId;
@@ -2047,7 +2047,7 @@ function attachEventHandlers(
     });
   });
 
-  // Action Cards: PuPHPet-Style Turnkey Docker App Layer
+  // Action Cards: Turnkey Docker App Layer
   document.querySelectorAll<HTMLElement>('.btn-select-docker-app').forEach((card) => {
     card.addEventListener('click', (e) => {
       const appId = (e.currentTarget as HTMLElement).getAttribute('data-docker-id') as DockerAppId;

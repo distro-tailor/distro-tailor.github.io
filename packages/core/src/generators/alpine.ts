@@ -19,7 +19,7 @@ VERSION     ?= 3.20.0
 ARCH        ?= ${arch}
 ALPINE_MIRROR ?= https://dl-cdn.alpinelinux.org/alpine/v3.20
 
-# Turnkey Docker App Layer (PuPHPet style)
+# Turnkey Docker App Layer
 DOCKER_APP  ?= ${dockerApp}
 
 BUILD_DIR   ?= ./build
@@ -125,7 +125,7 @@ clean:
   if (desktopApps.length > 0) {
     files.push({
       filename: 'bootstrap-apps.sh',
-      description: `1-Click Ninite-style unattended installer for ${desktopApps.length} desktop application(s)`,
+      description: `1-Click automated unattended installer for ${desktopApps.length} desktop application(s)`,
       content: generateBootstrapAppsScript(desktopApps, criteria),
       executable: true
     });
@@ -133,7 +133,7 @@ clean:
 
   const quickstartCommands = ['sudo make'];
   if (desktopApps.length > 0) {
-    quickstartCommands.push(`sudo bash bootstrap-apps.sh  # 1-Click install ${desktopApps.length} desktop app(s) (Ninite style)`);
+    quickstartCommands.push(`sudo bash bootstrap-apps.sh  # 1-Click install ${desktopApps.length} desktop app(s)`);
   }
   if (dockerAppDef) {
     quickstartCommands.push(`docker compose up -d  # Launch ${dockerAppDef.name} at ${dockerAppDef.webUrl}`);

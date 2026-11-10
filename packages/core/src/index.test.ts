@@ -297,7 +297,7 @@ test('Recipe Modifiers: Frankenstein cards alter Makefile desktop, Distrobox and
   assert.ok(makefile.content.includes('ENABLE_NIX       ?= 1'));
 });
 
-test('Recipe Modifiers: PuPHPet-style Docker app layer injects docker-compose.yml and updates Makefile', () => {
+test('Recipe Modifiers: Turnkey Docker app layer injects docker-compose.yml and updates Makefile', () => {
   const result = evaluateCriteria({
     useCase: 'nas-storage',
     platform: 'bare-metal',
@@ -317,7 +317,7 @@ test('Recipe Modifiers: PuPHPet-style Docker app layer injects docker-compose.ym
   assert.ok(makefile.content.includes('docker compose -f docker-compose.yml up -d'));
 });
 
-test('Recipe Modifiers: PuPHPet-style Docker app integrates into Cloud-Init recipe', () => {
+test('Recipe Modifiers: Turnkey Docker app integrates into Cloud-Init recipe', () => {
   const result = evaluateCriteria({
     useCase: 'server',
     platform: 'vm',
@@ -335,7 +335,7 @@ test('Recipe Modifiers: PuPHPet-style Docker app integrates into Cloud-Init reci
   assert.ok(userData.content.includes('cd /opt/home-assistant && docker compose up -d'));
 });
 
-test('Recipe Modifiers: Ninite-style desktop apps layer injects bootstrap-apps.sh with unattended installer', () => {
+test('Recipe Modifiers: Desktop apps layer injects bootstrap-apps.sh with unattended installer', () => {
   const result = evaluateCriteria({
     useCase: 'desktop',
     platform: 'bare-metal',
