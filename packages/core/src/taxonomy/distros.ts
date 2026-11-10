@@ -30,6 +30,17 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     tradeoffs: [
       'Dedicated gaming appliance—not meant for general desktop or web browsing'
     ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'RetroPie / Raspberry Pi OS',
+        relation: 'competitor',
+        headline: 'Why Batocera instead of RetroPie?',
+        whyThisInstead:
+          'Batocera is a 100% turnkey, bootable firmware appliance that boots straight into a controller-driven UI with hundreds of emulators pre-configured. RetroPie requires manually configuring a base Debian / Raspberry Pi OS first and manual controller script mapping.',
+        tradeoffNotice:
+          'RetroPie runs on top of a standard Raspberry Pi desktop OS, allowing users to exit to a shell and run arbitrary background utilities.'
+      }
+    ],
     prebuiltImage: {
       downloadUrl: 'https://batocera.org/download'
     }
@@ -62,6 +73,17 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     ],
     tradeoffs: [
       'Appliance design: cannot install generic Linux desktop apps or web browsers outside Kodi add-ons'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Android TV / Fire TV Stick',
+        relation: 'competitor',
+        headline: 'Why LibreELEC instead of an Android TV or Fire Stick?',
+        whyThisInstead:
+          'Zero ads, zero corporate tracking telemetry, and boots in under 3 seconds directly into Kodi. Works with standard TV remotes over HDMI-CEC and effortlessly plays local 4K HDR video files over home Samba/NFS shares without hardware lag.',
+        tradeoffNotice:
+          'Cannot run proprietary DRM-heavy mobile apps like native Netflix or Disney+ apps without third-party Kodi community add-ons.'
+      }
     ],
     prebuiltImage: {
       downloadUrl: 'https://libreelec.tv/downloads/'
@@ -339,6 +361,17 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     tradeoffs: [
       'Heavier workstation footprint (~4GB ISO, requires 4GB+ RAM and dedicated disk space)'
     ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Vanilla Ubuntu',
+        relation: 'fork',
+        headline: 'Why Pop!_OS instead of Vanilla Ubuntu for AI & Gaming?',
+        whyThisInstead:
+          'Pop!_OS ships dedicated NVIDIA ISOs with pre-compiled proprietary GPU drivers and CUDA kernel modules. It provides seamless hybrid graphics switching for laptops, native COSMIC window auto-tiling, and Flatpaks out of the box without Canonical\'s slow Snap sandboxing.',
+        tradeoffNotice:
+          'Vanilla Ubuntu has broader enterprise hardware certification from commercial OEMs like Dell and Lenovo.'
+      }
+    ],
     prebuiltImage: {
       downloadUrl: 'https://pop.system76.com'
     }
@@ -407,6 +440,17 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     tradeoffs: [
       'Visual aesthetic is retro/classic rather than modern translucent eye candy'
     ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Lubuntu / Puppy Linux',
+        relation: 'competitor',
+        headline: 'Why antiX Linux instead of Lubuntu or Puppy Linux?',
+        whyThisInstead:
+          'antiX is completely systemd-free and idles below 80MB of RAM, making 15-to-20-year-old laptops with 512MB-1GB of RAM snappy and responsive. Unlike Puppy Linux, antiX provides a standard multi-user Debian apt repository base.',
+        tradeoffNotice:
+          'Lubuntu provides a more modern Qt/LXQt graphical interface with standard systemd services.'
+      }
+    ],
     prebuiltImage: {
       downloadUrl: 'https://antixlinux.com/download/'
     }
@@ -440,6 +484,17 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     ],
     tradeoffs: [
       'Needs at least 2GB RAM—not suitable for ancient 512MB PCs'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Vanilla Ubuntu',
+        relation: 'fork',
+        headline: 'Why Linux Mint instead of Vanilla Ubuntu for Home / Office?',
+        whyThisInstead:
+          'Mint is built on Ubuntu\'s rock-solid LTS base, but removes Canonical\'s slow Snap desktop packages in favor of fast native .debs and Flatpaks. It provides a familiar Windows-like Cinnamon desktop with zero Ubuntu Pro subscription upsells and includes pre-installed media codecs and Timeshift system rollbacks.',
+        tradeoffNotice:
+          'Vanilla Ubuntu offers 10-year commercial SLA phone support contracts from Canonical for enterprise corporate fleets.'
+      }
     ],
     prebuiltImage: {
       downloadUrl: 'https://linuxmint.com/download.php'
@@ -476,6 +531,17 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       'Rapid 6-month release cadence requires upgrading versions every 6–13 months',
       'Requires enabling third-party RPM Fusion repository for proprietary NVIDIA drivers and patent-encumbered codecs'
     ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Red Hat Enterprise Linux (RHEL)',
+        relation: 'upstream',
+        headline: 'Why Fedora Workstation instead of Red Hat (RHEL)?',
+        whyThisInstead:
+          'Fedora is Red Hat\'s official modern upstream workstation (Linus Torvalds\' personal daily driver). It delivers Red Hat\'s enterprise SELinux security and RPM stability without RHEL\'s commercial subscription paywall, and includes fresh LibreOffice 24.x, smooth Wayland 4K fractional scaling, and modern PipeWire audio routing.',
+        tradeoffNotice:
+          'RHEL provides certified 10-year binary freezes and 24/7 corporate enterprise phone support for corporate data centers.'
+      }
+    ],
     prebuiltImage: {
       downloadUrl: 'https://fedoraproject.org/workstation/download/'
     }
@@ -508,6 +574,17 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     ],
     tradeoffs: [
       'Heavy initial ISO download (~5GB) due to bundling the complete creative application suite'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Standard Ubuntu',
+        relation: 'fork',
+        headline: 'Why Ubuntu Studio instead of Standard Ubuntu?',
+        whyThisInstead:
+          'Standard Ubuntu uses a generic throughput kernel and standard audio. Ubuntu Studio includes the low-latency / realtime Linux kernel, PipeWire-JACK pro audio routing, drawing tablet pressure calibration, and a complete creative suite (Ardour, Krita, Blender, Darktable) configured out of the box.',
+        tradeoffNotice:
+          'Standard Ubuntu has a lighter default install size if you do not perform music, video, or 3D production.'
+      }
     ],
     prebuiltImage: {
       downloadUrl: 'https://ubuntustudio.org/download/'
@@ -605,6 +682,17 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     ],
     tradeoffs: [
       'Optimized for headless SBCs, not desktop gaming'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Raspberry Pi OS (Raspbian)',
+        relation: 'fork',
+        headline: 'Why DietPi instead of Raspberry Pi OS?',
+        whyThisInstead:
+          'DietPi consumes up to 5x less RAM (idles at ~60MB vs ~300MB), moves logs and temp files into RAM (zram) to prevent MicroSD card wear/corruption, and includes the automated dietpi-software menu for 1-click home server deployments.',
+        tradeoffNotice:
+          'Raspberry Pi OS comes with the official Raspberry Pi Foundation desktop GUI and camera module tools pre-installed.'
+      }
     ],
     prebuiltImage: {
       downloadUrl: 'https://dietpi.com/#download'
@@ -773,6 +861,17 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     ],
     tradeoffs: [
       'Exclusively for Kubernetes; cannot run general workloads directly'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Ubuntu Server + K3s',
+        relation: 'competitor',
+        headline: 'Why Talos Linux instead of Ubuntu Server + K3s?',
+        whyThisInstead:
+          'Talos is an immutable, purpose-built Kubernetes appliance with zero SSH, zero bash shell, and zero package manager. Its attack surface is 95% smaller than Ubuntu Server, and node upgrades are atomic and managed entirely via declarative API.',
+        tradeoffNotice:
+          'Cannot SSH in to inspect raw node files or run ad-hoc shell scripts on the host.'
+      }
     ],
     prebuiltImage: {
       downloadUrl: 'https://github.com/siderolabs/talos/releases'

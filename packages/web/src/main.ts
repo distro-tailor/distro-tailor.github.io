@@ -40,7 +40,7 @@ function renderPrimaryContent(
     return renderResultsView(evaluation, state);
   }
 
-  return renderWizardQuestion(nextQuestion, progress, state);
+  return renderWizardQuestion(nextQuestion, progress, state, evaluation);
 }
 
 function render(): void {

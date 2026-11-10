@@ -1,4 +1,5 @@
 import { DesktopEnvId, RecommendationOutput } from '@distro-tailor/core';
+import { renderAlternativeComparisons } from '../components/alternatives.js';
 import { getAddonCombos, renderDesktopAppSuite, renderDockerServiceSuite } from '../components/app-suites.js';
 import { renderDecidingFactorsAndHeadToHead } from '../components/head-to-head.js';
 import { AppState } from '../state/store.js';
@@ -112,6 +113,9 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
         </div>
 
       </div>
+
+      <!-- 💡 Data-Driven Comparison: Why This Over Common Alternatives (e.g. Mint vs Ubuntu, Fedora vs RHEL) -->
+      ${renderAlternativeComparisons(best.distro)}
 
       <!-- 🎯 Transparent Match Attribution & Head-to-Head Comparison -->
       ${renderDecidingFactorsAndHeadToHead(evaluation)}

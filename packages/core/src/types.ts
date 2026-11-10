@@ -77,6 +77,14 @@ export type PrimaryUseCase =
   | 'security-pentest'
   | 'browser-wasm';
 
+export interface AlternativeComparison {
+  popularAlternative: string; // e.g. "Vanilla Ubuntu", "Red Hat Enterprise Linux (RHEL)", "RetroPie"
+  relation: 'upstream' | 'fork' | 'competitor' | 'enterprise-sibling';
+  headline: string; // e.g. "Why Linux Mint instead of Vanilla Ubuntu?"
+  whyThisInstead: string; // Clear, technically sound reason why this tailored choice fits better
+  tradeoffNotice?: string; // Transparent admission of when the alternative might still be preferred
+}
+
 export interface DistroProfile {
   id: string;
   name: string;
@@ -104,6 +112,9 @@ export interface DistroProfile {
   // Strengths & tradeoffs
   highlights: string[];
   tradeoffs: string[];
+
+  // Transparent rationales comparing against common/popular defaults (e.g. Mint vs Ubuntu, Fedora vs RHEL)
+  alternativeComparisons?: AlternativeComparison[];
 
   // Off-the-shelf links
   prebuiltImage?: {

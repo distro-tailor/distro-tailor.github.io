@@ -56,6 +56,12 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
     router.saveStateToUrl(store.getState(), true);
   });
 
+  // Early high-confidence match fast-track button
+  document.getElementById('btn-early-results')?.addEventListener('click', () => {
+    store.setTab('results');
+    router.saveStateToUrl(store.getState(), true);
+  });
+
   // Toggle All 31 Contenders in Leaderboard
   document.getElementById('btn-toggle-all-contenders')?.addEventListener('click', () => {
     store.toggleAllContenders();

@@ -1,4 +1,4 @@
-import { Question } from '@distro-tailor/core';
+import { Question, RecommendationOutput } from '@distro-tailor/core';
 import { AppState } from '../state/store.js';
 import { escapeHtml } from '../utils/dom.js';
 
@@ -37,7 +37,8 @@ export function renderUnsupportedSchemaFallback(notice: string): string {
 export function renderWizardQuestion(
   question: Question,
   progress: { current: number; total: number },
-  state: AppState
+  state: AppState,
+  evaluation?: RecommendationOutput
 ): string {
   const numOptions = question.options.length;
   const isBeginner = state.criteria.experienceLevel === 'beginner' || !state.criteria.experienceLevel;
@@ -45,9 +46,42 @@ export function renderWizardQuestion(
   const gridClass =
     numOptions === 3 ? 'grid grid-cols-1 md:grid-cols-3 gap-4' : 'grid grid-cols-1 sm:grid-cols-2 gap-4';
 
+  const showEarlyGuess =
+    progress.current >= 3 && evaluation && evaluation.bestMatch && evaluation.bestMatch.score >= 85;
+
   return `
     <div id="wizard-question-card" class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-8 backdrop-blur shadow-xl min-w-0 max-w-full overflow-hidden scroll-mt-6 animate-question-forward">
       
+      <!-- 🎯 Early High-Confidence Fast-Track Banner (Classic 20-Questions Quick Match) -->
+      ${
+        showEarlyGuess && evaluation
+          ? `
+        <div id="early-guess-banner" class="mb-6 p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-emerald-950/80 via-slate-900 to-slate-950 border border-emerald-500/40 shadow-lg shadow-emerald-950/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 min-w-0 animate-in fade-in">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="text-xl sm:text-2xl p-1.5 sm:p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 shrink-0">🎯</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-[10px] sm:text-[11px] font-bold font-mono text-emerald-400 uppercase tracking-wider">Fast-Track Match</span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  ${evaluation.bestMatch.score}% Match
+                </span>
+              </div>
+              <p class="text-xs text-slate-200 mt-0.5 leading-snug break-words">
+                Strong recommendation detected: <strong class="text-white">${evaluation.bestMatch.distro.name}</strong> (${evaluation.bestMatch.distro.tagline}).
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
+            <button id="btn-early-results" class="w-full sm:w-auto px-3.5 py-2 rounded-lg text-xs font-bold bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all cursor-pointer shadow-md shadow-emerald-950/40 text-center flex items-center justify-center gap-1.5 shrink-0">
+              <span>View Match Now</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      `
+          : ''
+      }
+
       <!-- Round & Step Indicator with Flow Mode Toggle -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-slate-800/80 gap-3">
         <div class="flex items-center gap-2.5 flex-wrap">

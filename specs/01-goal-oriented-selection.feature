@@ -64,3 +64,18 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And prompt for hardware driver preference (Seamless Proprietary vs 100% Free Software)
     And prompt for boot storage medium (NVMe/SSD vs SD Card/Flash vs Diskless PXE)
     And if multimedia or audio production is targeted, prompt for real-time low-latency audio kernel
+
+  Scenario: Early High-Confidence Match Prediction in 20 Questions
+    Given the user has answered at least 3 questions in the wizard
+    When a single distribution achieves a dominant compatibility score of at least 85%
+    Then the wizard should display an early fast-track prediction banner
+    And offer a one-click action to view the tailored match immediately
+    And still allow the user to continue answering remaining questions to refine further
+
+  Scenario: Transparent Rationale Explaining Tailored Choices Over Popular Alternatives
+    Given the recommendation engine outputs a tailored distribution like Linux Mint or Fedora Workstation
+    When the user inspects the recommendation or contenders
+    Then the system should provide data-driven comparative rationales against household names
+    And explain why Linux Mint is chosen over Vanilla Ubuntu (native packaging, zero Snap overhead, familiar Cinnamon desktop)
+    And explain why Fedora Workstation is chosen over Red Hat Enterprise Linux (official modern upstream workstation, zero subscription paywalls, fresh office productivity tools)
+    And allow additional alternative comparisons to grow dynamically in the data registry
