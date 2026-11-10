@@ -10,7 +10,7 @@ export interface FormattedConstraint {
  * Returns user-friendly human label and emoji icon for any constraint key and value.
  * Safely sanitizes dynamic user-supplied or unknown inputs using escapeHtml.
  */
-export function formatConstraint(key: string, value: any): FormattedConstraint {
+export function formatConstraint(key: string, value: unknown): FormattedConstraint {
   const map: Record<string, Record<string, FormattedConstraint>> = {
     experienceLevel: {
       beginner: { label: 'Beginner / Goal-Oriented', icon: '🌱' },
@@ -93,7 +93,7 @@ export function formatConstraint(key: string, value: any): FormattedConstraint {
     return { label: value ? 'Custom Build Recipe Required' : 'Prebuilt ISO Preferred', icon: '🛠️' };
   }
   if (key === 'dockerApp') {
-    const app = getDockerApp(value);
+    const app = typeof value === 'string' ? getDockerApp(value as any) : undefined;
     return {
       label: app ? `Docker: ${app.name}` : `Docker: ${escapeHtml(String(value))}`,
       icon: app ? app.icon : '🐳'
@@ -116,10 +116,11 @@ export function formatConstraint(key: string, value: any): FormattedConstraint {
     return { label: value ? 'Flatpak Sandbox' : 'No Flatpak', icon: '📦' };
   }
 
-  if (map[key] && map[key][value]) {
-    return map[key][value];
+  const strVal = String(value);
+  if (map[key] && map[key][strVal]) {
+    return map[key][strVal];
   }
-  return { label: escapeHtml(`${key}: ${value}`), icon: '📌' };
+  return { label: escapeHtml(`${key}: ${strVal}`), icon: '📌' };
 }
 
 /**

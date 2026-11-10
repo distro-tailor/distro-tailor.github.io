@@ -320,14 +320,14 @@ export function attachEventHandlers(
   });
 
   // Expert Matrix inputs
-  const bindExpertSelect = (id: string, key: keyof UserCriteria) => {
+  const bindExpertSelect = <K extends keyof UserCriteria>(id: string, key: K) => {
     document.getElementById(id)?.addEventListener('change', (e) => {
       const val = (e.target as HTMLSelectElement).value;
       const newCrit = { ...store.getState().criteria };
       if (val) {
-        (newCrit as any)[key] = val;
+        newCrit[key] = val as UserCriteria[K];
       } else {
-        delete (newCrit as any)[key];
+        delete newCrit[key];
       }
       store.update({ criteria: newCrit });
     });

@@ -18,8 +18,8 @@ export async function triggerDeviceShare(
     try {
       await navigator.share(shareData);
       showToast('Shared successfully!', '🚀');
-    } catch (e: any) {
-      if (e.name !== 'AbortError') {
+    } catch (e: unknown) {
+      if (!(e instanceof Error && e.name === 'AbortError')) {
         copyToClipboard(shareUrl, 'Link copied to clipboard!', '🔗');
       }
     }

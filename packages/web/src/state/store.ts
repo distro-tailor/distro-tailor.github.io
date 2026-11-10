@@ -86,7 +86,11 @@ export class AppStore extends EventTarget {
     return true;
   }
 
-  public answerQuestion(questionId: string, answerKey: keyof UserCriteria, answerValue: any): void {
+  public answerQuestion<K extends keyof UserCriteria>(
+    questionId: string,
+    answerKey: K,
+    answerValue: UserCriteria[K]
+  ): void {
     this.pushHistory();
     this._state.criteria = {
       ...this._state.criteria,
@@ -99,7 +103,7 @@ export class AppStore extends EventTarget {
   public removeChoice(criteriaKey: string): void {
     this.pushHistory();
     const newCriteria = { ...this._state.criteria };
-    delete (newCriteria as any)[criteriaKey];
+    delete newCriteria[criteriaKey as keyof UserCriteria];
     this._state.criteria = newCriteria;
 
     // Remove matching question from answered set
