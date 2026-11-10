@@ -42,9 +42,54 @@ const state: AppState = {
 
 const flow = new QuestionFlow(QUESTIONS);
 
-// --- URL STATE PERSISTENCE & VERSION MIGRATION (GitHub Pages Friendly) ---
+// --- URL STATE PERSISTENCE, SAFEGUARDS & BROWSER HISTORY ---
 
-function saveStateToUrl(): void {
+let isSyncingUrl = false;
+const LOOP_WINDOW_MS = 2000;
+const MAX_TRANSITIONS_IN_WINDOW = 25;
+let transitionTimestamps: number[] = [];
+
+function checkLoopSafeguard(): boolean {
+  const now = Date.now();
+  transitionTimestamps = transitionTimestamps.filter((t) => now - t < LOOP_WINDOW_MS);
+  transitionTimestamps.push(now);
+
+  if (transitionTimestamps.length > MAX_TRANSITIONS_IN_WINDOW) {
+    console.error('[DistroTailor Safeguard] Infinite history/state loop detected. Resetting to clean homepage.');
+    fallbackToHomePage('A rapid state loop was intercepted. Resetting to clean start to protect your browser.');
+    return false;
+  }
+  return true;
+}
+
+function fallbackToHomePage(notice?: string): void {
+  state.criteria = {};
+  state.answeredQuestionIds.clear();
+  state.history = [];
+  state.activeTab = 'wizard';
+  state.activeFileIndex = 0;
+  state.isSharedView = false;
+  state.transitionDirection = 'forward';
+  state.unsupportedSchemaNotice = undefined;
+  transitionTimestamps = [];
+
+  if (notice) {
+    showToast(notice, '⚠️');
+  }
+
+  try {
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState(null, '', cleanUrl);
+  } catch (err) {
+    console.warn('Failed to clean URL on fallback:', err);
+  }
+  render();
+}
+
+function saveStateToUrl(push = false): void {
+  if (isSyncingUrl) return;
+  if (!checkLoopSafeguard()) return;
+
   const params = new URLSearchParams();
 
   // Always write schema version first to guarantee backward-compatibility across releases
@@ -71,111 +116,158 @@ function saveStateToUrl(): void {
 
   const queryString = params.toString();
   const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
-  window.history.replaceState(null, '', newUrl);
+
+  // Don't modify history if URL hasn't changed
+  const currentUrl = window.location.pathname + window.location.search;
+  if (currentUrl === newUrl) {
+    return;
+  }
+
+  try {
+    if (push) {
+      window.history.pushState({ ...state.criteria }, '', newUrl);
+    } else {
+      window.history.replaceState({ ...state.criteria }, '', newUrl);
+    }
+  } catch (err) {
+    console.warn('Failed to update browser history:', err);
+  }
 }
 
 function loadStateFromUrl(): void {
   // Read from query string, or fallback to hash if query is empty (supports both ?... and #...)
-  const rawParams = window.location.search || (window.location.hash.includes('?') ? window.location.hash.slice(window.location.hash.indexOf('?')) : window.location.hash.replace(/^#\/?/, ''));
-  if (!rawParams) return;
+  const rawParams =
+    window.location.search ||
+    (window.location.hash.includes('?')
+      ? window.location.hash.slice(window.location.hash.indexOf('?'))
+      : window.location.hash.replace(/^#\/?/, ''));
 
-  const urlSearchParams = new URLSearchParams(rawParams.startsWith('?') ? rawParams.slice(1) : rawParams);
-  const rawRecord: Record<string, string> = {};
-  for (const [k, v] of urlSearchParams.entries()) {
-    rawRecord[k] = v;
-  }
-
-  // Run URL schema migration to normalize historical, unversioned, or alias parameters
-  const migration = migrateUrlParameters(rawRecord);
-
-  if (!migration.supported) {
-    state.unsupportedSchemaNotice = migration.fallbackNotice;
+  if (!rawParams) {
     state.criteria = {};
     state.answeredQuestionIds.clear();
+    state.activeTab = 'wizard';
+    state.activeFileIndex = 0;
+    state.isSharedView = false;
+    state.unsupportedSchemaNotice = undefined;
     return;
   }
-  state.unsupportedSchemaNotice = undefined;
 
-  const params = new Map(Object.entries(migration.params));
+  try {
+    const urlSearchParams = new URLSearchParams(rawParams.startsWith('?') ? rawParams.slice(1) : rawParams);
+    const rawRecord: Record<string, string> = {};
+    for (const [k, v] of urlSearchParams.entries()) {
+      rawRecord[k] = v;
+    }
 
-  if (migration.migrated && migration.warnings.length > 0) {
-    console.info('[DistroTailor] Migrated URL parameters to schema v' + migration.version, migration.warnings);
-  }
+    // Run URL schema migration to normalize historical, unversioned, or alias parameters
+    const migration = migrateUrlParameters(rawRecord);
 
-  const tab = params.get('tab');
-  if (tab === 'wizard' || tab === 'expert' || tab === 'results') {
-    state.activeTab = tab;
-  }
+    if (!migration.supported) {
+      state.unsupportedSchemaNotice = migration.fallbackNotice;
+      state.criteria = {};
+      state.answeredQuestionIds.clear();
+      return;
+    }
+    state.unsupportedSchemaNotice = undefined;
 
-  const file = params.get('file');
-  if (file && !isNaN(Number(file))) {
-    state.activeFileIndex = Number(file);
-  }
+    const params = new Map(Object.entries(migration.params));
 
-  const ans = params.get('ans');
-  if (ans) {
-    state.answeredQuestionIds.clear();
-    ans.split(',').filter(Boolean).forEach((id) => state.answeredQuestionIds.add(id));
-  }
+    if (migration.migrated && migration.warnings.length > 0) {
+      console.info('[DistroTailor] Migrated URL parameters to schema v' + migration.version, migration.warnings);
+    }
 
-  const knownCriteriaKeys: (keyof UserCriteria)[] = [
-    'useCase',
-    'platform',
-    'architecture',
-    'footprint',
-    'statePreference',
-    'cLibPreference',
-    'initPreference',
-    'experienceLevel',
-    'maxRamMb',
-    'prefersGui',
-    'requiresCustomBuild',
-    'desktopEnv',
-    'enableDistrobox',
-    'enableNix',
-    'enableFlatpak',
-    'dockerApp',
-    'desktopApps'
-  ];
+    const tab = params.get('tab');
+    state.activeTab = tab === 'wizard' || tab === 'expert' || tab === 'results' ? tab : 'wizard';
 
-  for (const key of knownCriteriaKeys) {
-    const val = params.get(key);
-    if (val !== undefined && val !== null) {
-      if (key === 'maxRamMb') {
-        state.criteria[key] = Number(val);
-      } else if (key === 'desktopApps') {
-        state.criteria[key] = val.split(',').filter(Boolean) as DesktopAppId[];
-      } else if (
-        key === 'prefersGui' ||
-        key === 'requiresCustomBuild' ||
-        key === 'enableDistrobox' ||
-        key === 'enableNix' ||
-        key === 'enableFlatpak'
-      ) {
-        state.criteria[key] = val === 'true' || val === '1';
-      } else {
-        (state.criteria as any)[key] = val;
+    const file = params.get('file');
+    state.activeFileIndex = file && !isNaN(Number(file)) ? Number(file) : 0;
+
+    const nextAnswered = new Set<string>();
+    const ans = params.get('ans');
+    if (ans) {
+      ans.split(',').filter(Boolean).forEach((id) => nextAnswered.add(id));
+    }
+
+    const nextCriteria: UserCriteria = {};
+    const knownCriteriaKeys: (keyof UserCriteria)[] = [
+      'useCase',
+      'platform',
+      'architecture',
+      'footprint',
+      'statePreference',
+      'cLibPreference',
+      'initPreference',
+      'experienceLevel',
+      'maxRamMb',
+      'prefersGui',
+      'requiresCustomBuild',
+      'desktopEnv',
+      'enableDistrobox',
+      'enableNix',
+      'enableFlatpak',
+      'dockerApp',
+      'desktopApps'
+    ];
+
+    for (const key of knownCriteriaKeys) {
+      const val = params.get(key);
+      if (val !== undefined && val !== null) {
+        if (key === 'maxRamMb') {
+          nextCriteria[key] = Number(val);
+        } else if (key === 'desktopApps') {
+          nextCriteria[key] = val.split(',').filter(Boolean) as DesktopAppId[];
+        } else if (
+          key === 'prefersGui' ||
+          key === 'requiresCustomBuild' ||
+          key === 'enableDistrobox' ||
+          key === 'enableNix' ||
+          key === 'enableFlatpak'
+        ) {
+          nextCriteria[key] = val === 'true' || val === '1';
+        } else {
+          (nextCriteria as any)[key] = val;
+        }
       }
     }
-  }
 
-  // If criteria are present in URL, mark as shared configuration
-  if (Object.keys(state.criteria).length > 0) {
-    state.isSharedView = true;
-  }
+    state.criteria = nextCriteria;
+    state.answeredQuestionIds = nextAnswered;
+    state.isSharedView = Object.keys(nextCriteria).length > 0;
 
-  // If criteria are present and all questions answered, default to results view unless tab was explicitly set
-  if (Object.keys(state.criteria).length > 0 && !params.has('tab')) {
-    const nextQ = flow.getNextQuestion(state.criteria, state.answeredQuestionIds);
-    if (!nextQ) {
-      state.activeTab = 'results';
+    // If criteria are present and all questions answered, default to results view unless tab was explicitly set
+    if (Object.keys(nextCriteria).length > 0 && !params.has('tab')) {
+      const nextQ = flow.getNextQuestion(nextCriteria, nextAnswered);
+      if (!nextQ) {
+        state.activeTab = 'results';
+      }
     }
+  } catch (err) {
+    console.error('[DistroTailor] Failed to parse URL parameters:', err);
+    fallbackToHomePage('Malformed URL state detected. Returning to start.');
   }
 }
 
 window.addEventListener('popstate', () => {
-  loadStateFromUrl();
-  render();
+  if (isSyncingUrl) return;
+  if (!checkLoopSafeguard()) return;
+
+  isSyncingUrl = true;
+  try {
+    const prevAnsweredCount = state.answeredQuestionIds.size;
+    loadStateFromUrl();
+    const newAnsweredCount = state.answeredQuestionIds.size;
+
+    // Transition smoothly backward if fewer questions answered, otherwise forward
+    state.transitionDirection = newAnsweredCount < prevAnsweredCount ? 'backward' : 'forward';
+
+    render();
+    scrollToQuestionCard();
+  } catch (err) {
+    console.error('Error handling popstate:', err);
+    fallbackToHomePage('Navigation error. Returning to start.');
+  } finally {
+    isSyncingUrl = false;
+  }
 });
 
 function getAppElement(): HTMLElement {
@@ -1791,39 +1883,33 @@ function attachEventHandlers(
   nextQuestion: ReturnType<typeof flow.getNextQuestion>,
   evaluation: RecommendationOutput
 ) {
-  // Brand Click
+  // Brand Click (Fallback to clean home)
   document.getElementById('nav-brand')?.addEventListener('click', () => {
-    state.activeTab = 'wizard';
-    render();
+    fallbackToHomePage();
   });
 
-  // Tab Toggles
+  // Tab Toggles (with history push)
   document.getElementById('btn-toggle-wizard')?.addEventListener('click', () => {
     state.activeTab = 'wizard';
+    saveStateToUrl(true);
     render();
+    scrollToQuestionCard();
   });
 
   document.getElementById('btn-toggle-expert')?.addEventListener('click', () => {
     state.activeTab = 'expert';
+    saveStateToUrl(true);
     render();
   });
 
   document.getElementById('btn-view-results')?.addEventListener('click', () => {
     state.activeTab = 'results';
+    saveStateToUrl(true);
     render();
   });
 
   const resetAll = () => {
-    state.criteria = {};
-    state.answeredQuestionIds.clear();
-    state.history = [];
-    state.activeTab = 'wizard';
-    state.activeFileIndex = 0;
-    state.isSharedView = false;
-    state.showShareModal = false;
-    state.unsupportedSchemaNotice = undefined;
-    saveStateToUrl();
-    render();
+    fallbackToHomePage('Reset to fresh start');
   };
 
   document.getElementById('btn-reset')?.addEventListener('click', resetAll);
@@ -1832,12 +1918,14 @@ function attachEventHandlers(
   document.getElementById('btn-fallback-expert')?.addEventListener('click', () => {
     state.unsupportedSchemaNotice = undefined;
     state.activeTab = 'expert';
+    saveStateToUrl(true);
     render();
   });
 
   // Shared Banner Tweak Button
   document.getElementById('btn-tweak-shared')?.addEventListener('click', () => {
     state.activeTab = 'expert';
+    saveStateToUrl(true);
     render();
   });
 
@@ -1932,7 +2020,7 @@ function attachEventHandlers(
     render();
   });
 
-  // Wizard Option Buttons (with tactile tap feedback on touch & smooth directional transition)
+  // Wizard Option Buttons (with tactile tap feedback on touch, history push & smooth directional transition)
   document.querySelectorAll<HTMLButtonElement>('.option-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       const optId = btn.getAttribute('data-option-id');
@@ -1947,6 +2035,7 @@ function attachEventHandlers(
           Object.assign(state.criteria, opt.appliesCriteria);
           state.answeredQuestionIds.add(nextQuestion.id);
           state.transitionDirection = 'forward';
+          saveStateToUrl(true);
           render();
           scrollToQuestionCard();
         }, 80);
@@ -1971,6 +2060,7 @@ function attachEventHandlers(
               Object.assign(state.criteria, opt.appliesCriteria);
               state.answeredQuestionIds.add(currentNext.id);
               state.transitionDirection = 'forward';
+              saveStateToUrl(true);
               render();
               scrollToQuestionCard();
               return;
@@ -1980,14 +2070,19 @@ function attachEventHandlers(
 
         // Backspace or Left Arrow = Previous
         if (e.key === 'Backspace' || e.key === 'ArrowLeft') {
-          if (state.history.length > 0) {
-            const prev = state.history.pop();
-            state.criteria = prev || {};
-            const lastAnswered = Array.from(state.answeredQuestionIds).pop();
-            if (lastAnswered) state.answeredQuestionIds.delete(lastAnswered);
-            state.transitionDirection = 'backward';
-            render();
-            scrollToQuestionCard();
+          if (state.history.length > 0 || state.answeredQuestionIds.size > 0) {
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              const prev = state.history.pop();
+              state.criteria = prev || {};
+              const lastAnswered = Array.from(state.answeredQuestionIds).pop();
+              if (lastAnswered) state.answeredQuestionIds.delete(lastAnswered);
+              state.transitionDirection = 'backward';
+              saveStateToUrl(false);
+              render();
+              scrollToQuestionCard();
+            }
           }
         }
       }
@@ -1995,16 +2090,21 @@ function attachEventHandlers(
     keyboardHandlerRegistered = true;
   }
 
-  // Back button
+  // Back button (delegates to browser history to keep native and in-app back in sync)
   document.getElementById('btn-back')?.addEventListener('click', () => {
-    if (state.history.length > 0) {
-      const prev = state.history.pop();
-      state.criteria = prev || {};
-      const lastAnswered = Array.from(state.answeredQuestionIds).pop();
-      if (lastAnswered) state.answeredQuestionIds.delete(lastAnswered);
-      state.transitionDirection = 'backward';
-      render();
-      scrollToQuestionCard();
+    if (state.history.length > 0 || state.answeredQuestionIds.size > 0) {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        const prev = state.history.pop();
+        state.criteria = prev || {};
+        const lastAnswered = Array.from(state.answeredQuestionIds).pop();
+        if (lastAnswered) state.answeredQuestionIds.delete(lastAnswered);
+        state.transitionDirection = 'backward';
+        saveStateToUrl(false);
+        render();
+        scrollToQuestionCard();
+      }
     }
   });
 
@@ -2014,6 +2114,7 @@ function attachEventHandlers(
       state.history.push({ ...state.criteria });
       state.answeredQuestionIds.add(nextQuestion.id);
       state.transitionDirection = 'forward';
+      saveStateToUrl(true);
       render();
       scrollToQuestionCard();
     }
