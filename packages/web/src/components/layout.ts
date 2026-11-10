@@ -80,49 +80,47 @@ export function renderNavbar(state: AppState, evaluation: RecommendationOutput):
 
 export function renderLeaderboard(evaluation: RecommendationOutput): string {
   return `
-    <div class="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-4 sm:p-5 sticky top-24 shadow-xl min-w-0 overflow-hidden">
-      <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80 gap-2">
-        <div class="min-w-0">
-          <h3 class="text-sm font-bold text-slate-200 truncate">The Contenders</h3>
-          <p class="text-[11px] text-slate-400 truncate">Updates live as you answer</p>
-        </div>
-        <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300 shrink-0">
-          ${DISTRO_REGISTRY.length} distros
-        </span>
+    <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80 gap-2">
+      <div class="min-w-0">
+        <h3 class="text-sm font-bold text-slate-200 truncate">The Contenders</h3>
+        <p class="text-[11px] text-slate-400 truncate">Updates live as you answer</p>
       </div>
+      <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300 shrink-0">
+        ${DISTRO_REGISTRY.length} distros
+      </span>
+    </div>
 
-      <!-- Top Contender Cards -->
-      <div class="space-y-2.5">
-        ${evaluation.topMatches
-          .slice(0, 6)
-          .map(
-            (m) => `
-          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 hover:border-slate-700 transition-all min-w-0">
-            <div class="flex items-center justify-between text-sm mb-1.5 gap-2">
-              <div class="flex items-center gap-2 font-medium text-slate-200 min-w-0 flex-1">
-                <span class="text-base shrink-0">${m.distro.logoEmoji || '🐧'}</span>
-                <span class="truncate">${m.distro.name}</span>
-              </div>
-              <span class="font-mono text-xs font-bold shrink-0 ${
-                m.score >= 80 ? 'text-emerald-400' : m.score >= 50 ? 'text-yellow-400' : 'text-slate-500'
-              }">
-                ${m.score}%
-              </span>
+    <!-- Top Contender Cards -->
+    <div class="space-y-2.5">
+      ${evaluation.topMatches
+        .slice(0, 6)
+        .map(
+          (m) => `
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 hover:border-slate-700 transition-all min-w-0">
+          <div class="flex items-center justify-between text-sm mb-1.5 gap-2">
+            <div class="flex items-center gap-2 font-medium text-slate-200 min-w-0 flex-1">
+              <span class="text-base shrink-0">${m.distro.logoEmoji || '🐧'}</span>
+              <span class="truncate">${m.distro.name}</span>
             </div>
-
-            <!-- Match Bar -->
-            <div class="w-full bg-slate-800/80 rounded-full h-1.5 overflow-hidden">
-              <div class="h-1.5 rounded-full transition-all duration-300 ${
-                m.score >= 80 ? 'bg-emerald-400' : m.score >= 50 ? 'bg-yellow-400' : 'bg-slate-600'
-              }" style="width: ${m.score}%"></div>
-            </div>
-
-            <p class="text-[11px] text-slate-400 mt-2 line-clamp-1 break-words">${m.distro.tagline}</p>
+            <span class="font-mono text-xs font-bold shrink-0 ${
+              m.score >= 80 ? 'text-emerald-400' : m.score >= 50 ? 'text-yellow-400' : 'text-slate-500'
+            }">
+              ${m.score}%
+            </span>
           </div>
-        `
-          )
-          .join('')}
-      </div>
+
+          <!-- Match Bar -->
+          <div class="w-full bg-slate-800/80 rounded-full h-1.5 overflow-hidden">
+            <div class="h-1.5 rounded-full transition-all duration-300 ${
+              m.score >= 80 ? 'bg-emerald-400' : m.score >= 50 ? 'bg-yellow-400' : 'bg-slate-600'
+            }" style="width: ${m.score}%"></div>
+          </div>
+
+          <p class="text-[11px] text-slate-400 mt-2 line-clamp-1 break-words">${m.distro.tagline}</p>
+        </div>
+      `
+        )
+        .join('')}
     </div>
   `;
 }
