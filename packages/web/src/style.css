@@ -374,6 +374,19 @@
     color: #059669 !important;
   }
 
+  html.light #btn-official-site {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    border: 1px solid #047857 !important;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25) !important;
+  }
+
+  html.light #btn-official-site:hover {
+    background-color: #047857 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(5, 150, 105, 0.35) !important;
+  }
+
   /* Strengths & Trade-offs */
   html.light .bg-emerald-950\/30 {
     background-color: #f0fdf4 !important;
@@ -415,15 +428,31 @@
   }
 
   html.light #btn-tweak-blueprint {
-    background-color: #0f172a !important;
-    color: #34d399 !important;
-    border-color: #1e293b !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12) !important;
   }
 
   html.light #btn-tweak-blueprint:hover {
-    background-color: #1e293b !important;
-    color: #6ee7b7 !important;
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2) !important;
+  }
+
+  /* Turnkey Image Download CTA */
+  html.light #btn-download-image {
+    background-color: #4f46e5 !important;
+    color: #ffffff !important;
+    border: 1px solid #4338ca !important;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25) !important;
+  }
+
+  html.light #btn-download-image:hover {
+    background-color: #4338ca !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35) !important;
   }
 
   /* Accordions / Details Panels */
@@ -598,6 +627,30 @@
     background-color: #ffffff !important;
     color: #0f172a !important;
     border-color: #cbd5e1 !important;
+  }
+
+  html.light #btn-apply-expert,
+  html.light #btn-fallback-fresh {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25) !important;
+  }
+
+  html.light #btn-apply-expert:hover,
+  html.light #btn-fallback-fresh:hover {
+    background-color: #047857 !important;
+    color: #ffffff !important;
+  }
+
+  html.light #btn-tweak-shared {
+    background-color: #4f46e5 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25) !important;
+  }
+
+  html.light #btn-tweak-shared:hover {
+    background-color: #4338ca !important;
+    color: #ffffff !important;
   }
 
   html.light #distro-modal-card {
