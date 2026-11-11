@@ -50,6 +50,14 @@ export function renderWizardQuestion(
     progress.current >= 3 && evaluation && evaluation.bestMatch && evaluation.bestMatch.score >= 85;
 
   const canGoBack = progress.current > 0;
+  const hasDefault = question.options.some((o) => o.isDefault);
+  const hasUnlockedResults = !!(
+    evaluation &&
+    evaluation.bestMatch &&
+    evaluation.bestMatch.score >= 50 &&
+    (state.answeredQuestionIds.size > 0 || Object.keys(state.criteria).length > 0)
+  );
+  const resultsScore = evaluation?.bestMatch?.score ?? 0;
 
   const hasSelectedAnswer = question.options.some((opt) => {
     if (question.isMultiSelect) {
@@ -142,42 +150,54 @@ export function renderWizardQuestion(
       </div>
 
       <!-- Top Quick Navigation Bar (Skip / Back / Confirm on top) -->
-      <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-800/40 text-xs">
+      <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-800/40 text-xs gap-2 min-w-0">
         <button id="btn-back-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1 ${
           !canGoBack ? 'opacity-30 cursor-not-allowed' : ''
         }">
           <span>←</span> Previous
         </button>
 
-        ${
-          question.isMultiSelect
-            ? `
-          <button id="btn-multiselect-confirm-top" class="btn-primary !px-3.5 !py-1.5 rounded-lg flex items-center gap-1.5">
-            <span>Confirm & Next</span>
-            <span>→</span>
-          </button>
-        `
-            : hasSelectedAnswer
+        <div class="flex items-center gap-2 shrink-0">
+          ${
+            hasUnlockedResults
               ? `
-          <button id="btn-next-top" class="btn-primary !px-3.5 !py-1.5 rounded-lg flex items-center gap-1.5">
-            <span>${progress.current === progress.total - 1 ? 'View Final Results' : 'Next Question'}</span>
-            <span>→</span>
-          </button>
-        `
-              : question.isOptional
+            <button id="btn-jump-results-top" class="px-2.5 sm:px-3 py-1.5 rounded-lg flex items-center gap-1 text-xs font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900/60 transition-colors shadow-sm cursor-pointer" title="Jump straight back to your tailored match results">
+              <span>🎯 Results (${resultsScore}%)</span>
+              <span>↗</span>
+            </button>
+          `
+              : ''
+          }
+          ${
+            question.isMultiSelect
+              ? `
+            <button id="btn-multiselect-confirm-top" class="btn-primary !px-3.5 !py-1.5 rounded-lg flex items-center gap-1.5">
+              <span>Confirm & Next</span>
+              <span>→</span>
+            </button>
+          `
+              : hasSelectedAnswer
                 ? `
-          <button id="btn-skip-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1">
-            <span>Skip (Use Default)</span>
-            <span>→</span>
-          </button>
-        `
-                : `
-          <button id="btn-skip-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1">
-            <span>Skip for now</span>
-            <span>→</span>
-          </button>
-        `
-        }
+            <button id="btn-next-top" class="btn-primary !px-3.5 !py-1.5 rounded-lg flex items-center gap-1.5">
+              <span>${progress.current === progress.total - 1 ? 'View Final Results' : 'Next Question'}</span>
+              <span>→</span>
+            </button>
+          `
+                : hasDefault
+                  ? `
+            <button id="btn-skip-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1">
+              <span>Next (Use Default)</span>
+              <span>→</span>
+            </button>
+          `
+                  : `
+            <button id="btn-skip-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1">
+              <span>Next Question</span>
+              <span>→</span>
+            </button>
+          `
+          }
+        </div>
       </div>
 
       <!-- Question Prompt -->
@@ -338,33 +358,52 @@ export function renderWizardQuestion(
       }
 
       <!-- Navigation Controls -->
-      <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-800/80">
+      <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-800/80 gap-2 min-w-0">
         <button id="btn-back" class="btn-secondary ${
           !canGoBack ? 'opacity-30 cursor-not-allowed' : ''
         }">
           ← Previous Question
         </button>
-        ${
-          question.isMultiSelect
-            ? `
-          <button id="btn-multiselect-confirm" class="btn-primary">
-            <span>Confirm Choices & Continue</span>
-            <span>→</span>
-          </button>
-        `
-            : hasSelectedAnswer
+
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+          ${
+            hasUnlockedResults
               ? `
-          <button id="btn-next" class="btn-primary">
-            <span>${progress.current === progress.total - 1 ? 'View Final Results' : 'Next Question'}</span>
-            <span>→</span>
-          </button>
-        `
-              : `
-          <button id="btn-skip" class="btn-secondary">
-            ${question.isOptional ? 'Skip (Use Default) →' : 'Skip for now →'}
-          </button>
-        `
-        }
+            <button id="btn-jump-results" class="px-3 sm:px-4 py-2 rounded-xl flex items-center gap-1.5 text-xs sm:text-sm font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900/60 transition-colors shadow-sm cursor-pointer" title="Jump straight back to your tailored match results">
+              <span>🎯 Return to Results (${resultsScore}%)</span>
+              <span>↗</span>
+            </button>
+          `
+              : ''
+          }
+          ${
+            question.isMultiSelect
+              ? `
+            <button id="btn-multiselect-confirm" class="btn-primary">
+              <span>Confirm Choices & Continue</span>
+              <span>→</span>
+            </button>
+          `
+              : hasSelectedAnswer
+                ? `
+            <button id="btn-next" class="btn-primary">
+              <span>${progress.current === progress.total - 1 ? 'View Final Results' : 'Next Question'}</span>
+              <span>→</span>
+            </button>
+          `
+                : hasDefault
+                  ? `
+            <button id="btn-skip" class="btn-secondary">
+              Next (Use Default) →
+            </button>
+          `
+                  : `
+            <button id="btn-skip" class="btn-secondary">
+              Next Question →
+            </button>
+          `
+          }
+        </div>
       </div>
 
     </div>

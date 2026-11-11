@@ -72,7 +72,7 @@ test('Wizard View: displays Optional badge and Skip default button for optional 
     isSharedView: false
   };
 
-  const optionalQuestion = QUESTIONS.find(q => q.isOptional);
+  const optionalQuestion = QUESTIONS.find((q) => q.isOptional && q.options.some((o) => o.isDefault));
   assert.ok(optionalQuestion, 'There should be optional questions in question bank');
 
   const html = renderWizardQuestion(
@@ -82,7 +82,7 @@ test('Wizard View: displays Optional badge and Skip default button for optional 
   );
 
   assert.ok(html.includes('Optional'));
-  assert.ok(html.includes('Skip (Use Default) →'));
+  assert.ok(html.includes('Next (Use Default) →') || html.includes('Next (Use Default)'));
 });
 
 test('Wizard View: highlights strictly ONE option on single-select even with shared architecture', () => {
@@ -195,4 +195,36 @@ test('Wizard View: highlights Standard Default badge when question has no active
   assert.ok(!selectedHtml.includes('border-emerald-500/50'), 'Standard Default should drop emerald highlight once an option is selected');
   assert.ok(selectedHtml.includes('border-slate-700/80'), 'Standard Default drops back to neutral slate border');
 });
+
+test('Wizard View: displays Return to Results button when user has an unlocked match', () => {
+  const bootQuestion = QUESTIONS.find((q) => q.id === 'boot_medium')!;
+  assert.ok(bootQuestion);
+
+  const matchedState: AppState = {
+    criteria: { experienceLevel: 'intermediate', useCase: 'desktop', architecture: 'x86_64' },
+    answeredQuestionIds: new Set(['user_familiarity', 'technical_use_case']),
+    activeTab: 'wizard',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+
+  const evaluation = evaluateCriteria(matchedState.criteria);
+
+  const html = renderWizardQuestion(
+    bootQuestion,
+    { current: 5, total: 10 },
+    matchedState,
+    evaluation
+  );
+
+  assert.ok(html.includes('id="btn-jump-results"'), 'Must render bottom jump to results button');
+  assert.ok(html.includes('id="btn-jump-results-top"'), 'Must render top jump to results button');
+  assert.ok(html.includes('Return to Results'), 'Must include Return to Results label');
+  assert.ok(html.includes('Next (Use Default) →') || html.includes('Next Question →'), 'Must allow moving forward');
+});
+
 

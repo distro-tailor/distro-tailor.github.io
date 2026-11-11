@@ -119,4 +119,12 @@ export function bindWizardEvents(ctx: HandlerContext): void {
   };
   document.getElementById('btn-multiselect-confirm')?.addEventListener('click', handleMultiSelectConfirm);
   document.getElementById('btn-multiselect-confirm-top')?.addEventListener('click', handleMultiSelectConfirm);
+
+  // Jump back to match results (top and bottom)
+  const handleJumpResults = () => {
+    store.setTab('results');
+    router.saveStateToUrl(store.getState(), false);
+  };
+  document.getElementById('btn-jump-results')?.addEventListener('click', handleJumpResults);
+  document.getElementById('btn-jump-results-top')?.addEventListener('click', handleJumpResults);
 }
