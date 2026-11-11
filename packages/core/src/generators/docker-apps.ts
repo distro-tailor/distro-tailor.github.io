@@ -199,7 +199,10 @@ services:
     generateCompose: () => `# ==============================================================================
 # DistroTailor: Pi-hole Network-Wide Ad Blocker
 # DNS Sinkhole for Wi-Fi Telemetry & Tracker Blocking
-# Admin Dashboard: http://localhost:80/admin (Default password: admin)
+# Admin Dashboard: http://localhost:80/admin
+# There is no preset password; Pi-hole generates one on first start. Find it with
+#   docker logs pihole | grep -i password
+# and set your own with: docker exec -it pihole pihole setpassword
 # ==============================================================================
 services:
   pihole:
@@ -211,7 +214,6 @@ services:
       - "80:80/tcp"
     environment:
       TZ: 'UTC'
-      WEBPASSWORD: 'admin'
     volumes:
       - '/opt/pihole/etc-pihole:/etc/pihole'
       - '/opt/pihole/etc-dnsmasq.d:/etc/dnsmasq.d'

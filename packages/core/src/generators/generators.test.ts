@@ -42,6 +42,27 @@ for (const id of Object.keys(RECIPE_GENERATORS)) {
   });
 }
 
+/** Patterns that indicate a fixed, publicly known login baked into a recipe. */
+const FIXED_CREDENTIALS: Array<[string, RegExp]> = [
+  ['literal password piped to chpasswd', /(echo|printf) +['"][a-z_][a-z0-9_-]*:[^'"$%]+['"] *\| *chpasswd/i],
+  ['hashed password in cloud-config', /^\s*(passwd|hashed_passwd|plain_text_passwd):/m],
+  ['fixed Pi-hole web password', /WEBPASSWORD|webserver_api_password/i],
+  ['documented default password', /default (password|credentials)\s*[:=]/i]
+];
+
+for (const id of Object.keys(RECIPE_GENERATORS)) {
+  test(`Recipe Generator ${id}: contains no fixed login credentials`, () => {
+    const dockerApps = ['none', 'pihole', 'home-assistant'] as const;
+    for (const criteria of [...CRITERIA_VARIANTS, ...dockerApps.map((dockerApp) => ({ dockerApp }))]) {
+      for (const file of resolveRecipeGenerator(id, criteria).files) {
+        for (const [label, pattern] of FIXED_CREDENTIALS) {
+          assert.doesNotMatch(file.content, pattern, `${id}: ${file.filename} has a ${label}`);
+        }
+      }
+    }
+  });
+}
+
 test('Recipe Generator: unknown ids are rejected by isRecipeGeneratorId', () => {
   assert.equal(isRecipeGeneratorId('not-a-recipe'), false);
   assert.equal(isRecipeGeneratorId('toString'), false);

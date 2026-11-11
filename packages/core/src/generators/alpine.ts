@@ -1,4 +1,5 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
+import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
 import { getDockerApp } from './docker-apps.js';
 import { generateBootstrapAppsScript } from './desktop-apps.js';
 import { ALPINE_MINIROOTFS_SHA256 } from './checksums.js';
@@ -28,6 +29,8 @@ DOCKER_APP  ?= ${dockerApp}
 BUILD_DIR   ?= ./build
 ROOTFS_DIR  ?= $(BUILD_DIR)/rootfs
 OUTPUT_DIR  ?= ./output
+
+${CREDENTIAL_MAKE_VARS}
 TARBALL_NAME ?= $(DISTRO_NAME)-$(ARCH).tar.gz
 
 .PHONY: all clean check-root prepare rootfs configure tarball app-up app-down
@@ -76,8 +79,9 @@ configure: rootfs
 			rc-update add docker default && \\
 			mkdir -p /opt/$(DOCKER_APP); \\
 		fi && \\
-		echo '${distroName}' > /etc/hostname && \\
-		echo 'root:tailor' | chpasswd"
+		echo '${distroName}' > /etc/hostname"
+
+${credentialSetupSteps({ rootfs: '$(ROOTFS_DIR)', user: 'root', home: '/root', sudo: '', expire: false })}
 
 	# If a Docker application is configured, stage its compose file
 	@if [ '$(DOCKER_APP)' != 'none' ] && [ -f docker-compose.yml ]; then \\

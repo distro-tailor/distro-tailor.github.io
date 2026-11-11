@@ -90,7 +90,7 @@ configure: rootfs
 			locales \\
 			bash-completion && \\
 		useradd -m -s /bin/bash -u 1000 tailor && \\
-		echo 'tailor:tailor' | chpasswd && \\
+		passwd -l tailor >/dev/null && \\
 		echo 'tailor ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/tailor && \\
 		chmod 0440 /etc/sudoers.d/tailor && \\
 		apt-get clean && \\
@@ -124,7 +124,7 @@ wsl --import ${distroName} C:\\WSL\\${distroName} output\\rootfs.tar.gz --versio
 \`\`\`powershell
 wsl -d ${distroName}
 \`\`\`
-4. Default user: \`tailor\` (with passwordless sudo privileges).
+4. Default user: \`tailor\` (signed in automatically by WSL, with passwordless sudo). The account has no password; set one with \`sudo passwd tailor\` if you need it.
 `;
 
   return {

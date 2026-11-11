@@ -17,12 +17,19 @@ users:
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
     lock_passwd: false
-    # Default password: tailor (hashed for safety)
-    passwd: $6$rounds=4096$tailor$JvYj5l1h1r0Y1s2P1.z7vUqE0WvY5hX1m0R9o3W8vK1
+    # Filled in by "make" with your SSH public key (removed when none is found)
+    ssh_authorized_keys:
+      - __SSH_PUBKEY__
 
-ssh_pwauth: true
+# "make" sets this to false when an SSH key is authorized
+ssh_pwauth: __SSH_PWAUTH__
+# No fixed password: cloud-init generates a random one on first boot, prints it to the
+# VM console (and /var/log/cloud-init-output.log), and requires a change at first login.
 chpasswd:
-  expire: false
+  expire: true
+  users:
+    - name: tailor
+      type: RANDOM
 
 packages:
   - qemu-guest-agent
@@ -49,6 +56,10 @@ IMAGE_NAME  := ${vmName}
 DISK_SIZE   := 10G
 ARCH        := ${arch}
 OUTPUT_DIR  := ./output
+
+# SSH public key to authorize for the tailor user (default: your id_ed25519 / id_ecdsa / id_rsa .pub)
+INVOKING_HOME ?= $(shell getent passwd "$\${SUDO_USER:-$$(id -un)}" | cut -d: -f6)
+SSH_PUBKEY    ?= $(firstword $(wildcard $(INVOKING_HOME)/.ssh/id_ed25519.pub $(INVOKING_HOME)/.ssh/id_ecdsa.pub $(INVOKING_HOME)/.ssh/id_rsa.pub))
 ROOTFS_DIR  := ./build/rootfs
 QCOW2_FILE  := $(OUTPUT_DIR)/$(IMAGE_NAME).qcow2
 
@@ -61,7 +72,8 @@ all: clean prepare rootfs configure qcow2
 	@echo "===================================================="
 	@echo " Cloud-Init VM Disk Ready: $(QCOW2_FILE)"
 	@echo " Proxmox / KVM / OpenStack compatible"
-	@echo " Default User: tailor / tailor"
+	@echo " Login: user tailor, SSH key from SSH_PUBKEY or the random password"
+	@echo "        printed on the VM console at first boot"
 	@echo "===================================================="
 
 clean:
@@ -91,7 +103,16 @@ configure: rootfs
 	
 	@echo "[+] Injecting cloud-init seed configuration..."
 	sudo mkdir -p $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net
-	sudo cp user-data $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net/user-data
+	@set -e; key=''; \\
+	if [ -n '$(SSH_PUBKEY)' ] && [ -f '$(SSH_PUBKEY)' ]; then key=$$(head -n 1 '$(SSH_PUBKEY)'); fi; \\
+	if [ -n "$$key" ]; then \\
+		sed -e "s|__SSH_PUBKEY__|$$key|" -e 's|__SSH_PWAUTH__|false|' user-data > ./build/user-data; \\
+		echo "[+] Authorized SSH key $(SSH_PUBKEY); SSH password login disabled"; \\
+	else \\
+		sed -e '/ssh_authorized_keys:/,+1d' -e 's|__SSH_PWAUTH__|true|' user-data > ./build/user-data; \\
+		echo "[!] No SSH public key found (set SSH_PUBKEY=path/to/key.pub); random console password only"; \\
+	fi
+	sudo install -m 600 ./build/user-data $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net/user-data
 	sudo cp meta-data $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net/meta-data
 
 	@if [ -f docker-compose.yml ]; then \\
@@ -150,7 +171,12 @@ make test-qemu
 # Connect via SSH in another tab:
 ssh -p 2222 tailor@localhost
 \`\`\`
-Default credentials: \`tailor\` / \`tailor\`
+
+## Logging In
+There is no default password. \`make\` authorizes your SSH public key for the \`tailor\` user
+(override with \`make SSH_PUBKEY=path/to/key.pub\`) and disables SSH password login.
+Without a key, cloud-init generates a random password on first boot, prints it to the VM
+console and \`/var/log/cloud-init-output.log\`, and requires you to change it at first login.
 `;
 
   const files = [

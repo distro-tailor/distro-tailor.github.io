@@ -1,4 +1,5 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
+import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
 import { getDockerApp } from './docker-apps.js';
 import { generateBootstrapAppsScript } from './desktop-apps.js';
 
@@ -66,6 +67,8 @@ DOCKER_APP       ?= ${dockerApp}
 BUILD_DIR   ?= ./build
 ROOTFS_DIR  ?= $(BUILD_DIR)/rootfs
 OUTPUT_DIR  ?= ./output
+
+${CREDENTIAL_MAKE_VARS}
 ISO_NAME    ?= $(DISTRO_NAME)-$(VERSION)-$(ARCH).iso
 
 # Required host tools
@@ -181,7 +184,6 @@ configure: rootfs
 		fi && \\
 		\\
 		echo '${distroName}' > /etc/hostname && \\
-		echo 'root:tailor' | chpasswd && \\
 		apt-get clean && \\
 		rm -rf /var/lib/apt/lists/*"
 
@@ -190,6 +192,8 @@ configure: rootfs
 		cp docker-compose.yml $(ROOTFS_DIR)/opt/$(DOCKER_APP)/docker-compose.yml; \\
 		echo "[+] Bundled docker-compose.yml into /opt/$(DOCKER_APP)/"; \\
 	fi
+
+${credentialSetupSteps({ rootfs: '$(ROOTFS_DIR)', user: 'root', home: '/root', sudo: '', expire: true })}
 
 	# Safe unmount
 	umount -l $(ROOTFS_DIR)/dev/pts || true
@@ -281,7 +285,7 @@ docker compose up -d
 # Safe VM Sandbox (QEMU):
 qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable-kvm
 \`\`\`
-* **Default credentials:** \`root\` / \`tailor\`
+* **Login:** no fixed password. \`make\` sets a random root password (saved to \`output/credentials.txt\`, must be changed at first login) and authorizes your SSH public key if one is found (\`make SSH_PUBKEY=path/to/key.pub\` / \`LOGIN_PASSWORD=...\` to override)
 `;
 
   const files: GeneratedRecipe['files'] = [

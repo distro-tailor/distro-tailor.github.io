@@ -67,3 +67,13 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     When the CLI validates the recipe id
     Then it exits with an error listing the valid recipe ids
     And it does not silently fall back to a Debian recipe
+
+  Scenario: Generated images never ship a fixed, publicly known login
+    Given a user builds a debootstrap, Alpine, LXC, cloud-init, or WSL2 recipe
+    When "make" creates the image
+    Then the user's SSH public key is authorized when one is found (override with SSH_PUBKEY) and SSH password login is disabled
+    And otherwise a random password is generated at build time, never passed on a command line, and saved to an owner-only "output/credentials.txt"
+    And Debian-based images require that password to be changed at first login
+    And cloud-init images get a random first-boot password from cloud-init itself, shown on the VM console
+    And WSL2 images lock the password because WSL signs the user in automatically
+    And bundled services such as Pi-hole generate their own admin password instead of using a preset one

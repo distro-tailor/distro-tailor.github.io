@@ -1,4 +1,5 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
+import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
 
 export function generateLxcRecipe(criteria: UserCriteria): GeneratedRecipe {
   const templateName = 'distro-tailor-lxc-debian';
@@ -8,6 +9,9 @@ export function generateLxcRecipe(criteria: UserCriteria): GeneratedRecipe {
 TEMPLATE    := ${templateName}
 ARCH        := ${arch}
 OUTPUT_DIR  := ./output
+
+${CREDENTIAL_MAKE_VARS}
+
 BUILD_DIR   := ./build/rootfs
 TEMPLATE_XZ := $(OUTPUT_DIR)/$(TEMPLATE)-$(ARCH).tar.xz
 
@@ -50,8 +54,7 @@ configure: rootfs
 		apt-get clean && \\
 		rm -rf /var/lib/apt/lists/*"
 	
-	@echo "[+] Setting up container root password (tailor)..."
-	sudo chroot $(BUILD_DIR) /bin/bash -c "echo 'root:tailor' | chpasswd"
+${credentialSetupSteps({ rootfs: '$(BUILD_DIR)', user: 'root', home: '/root', sudo: 'sudo ', expire: true })}
 
 template: configure
 	@echo "[+] Compressing LXC rootfs into high-efficiency XZ tarball..."
@@ -114,7 +117,7 @@ pct create 100 /var/lib/vz/template/cache/${templateName}-${arch}.tar.xz -cores 
 pct start 100
 pct enter 100
 \`\`\`
-Default credentials: \`root\` / \`tailor\`
+Login: no fixed password. \`make\` sets a random root password (saved to \`output/credentials.txt\`, must be changed at first login) and authorizes your SSH public key if one is found (\`make SSH_PUBKEY=path/to/key.pub\` / \`LOGIN_PASSWORD=...\` to override). On Proxmox you can also set them per container with \`pct create --password\` / \`--ssh-public-keys\`.
 `;
 
   return {
