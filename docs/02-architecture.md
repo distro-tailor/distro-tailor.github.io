@@ -82,6 +82,12 @@ Alignment bonuses are included in $\sum W_{\text{max}}$, so only an exact alignm
 
 Criteria that depend on curated knowledge rather than profile attributes (form factor, workflow familiarity, driver philosophy, boot medium, pro audio, peripherals) are scored from ordered tier tables in `taxonomy/affinities.ts`. The first tier that applies to a distro wins, and a unit test verifies every referenced distro id exists in the registry. The recipe generator is then chosen by the ordered rules in `engine/recipe-selection.ts`.
 
+### Dual-Mode Questionnaire & Dimension Bundling
+The questionnaire provides two interchangeable lenses over this single engine:
+1. **Novice / Goal Mode (`smart`):** Bundles multi-dimensional technical criteria into intuitive outcome cards (e.g. `kids_education` sets `useCase`, `footprint`, and `platform` simultaneously), allowing novices to reach high-confidence matches in ~4 questions.
+2. **Technical / Expert Mode (`expert`):** Unpacks bundled dimensions into orthogonal single-variable steps (workload $\rightarrow$ CPU architecture $\rightarrow$ footprint $\rightarrow$ immutability $\rightarrow$ libc/init).
+3. **Experience-Level Invariance & Edge Case:** For 95% of standard targets, the recommendation is invariant across modes. The only intentional divergence is the `-15` penalty protecting beginners from source-compilation toolchains (e.g., matching a beginner with **Armbian** instead of **Buildroot** on embedded SBCs). Complete rationale and Q&A is documented in [`docs/03-design-rationale-and-qa.md`](file:///Users/surenrao/Projects/distro-tailor/docs/03-design-rationale-and-qa.md#12-dual-mode-questionnaire-goalnovice-vs-technicalexpert-architecture).
+
 ---
 
 ## ⚙️ Turnkey Recipe Generators (`packages/core/src/generators/`)

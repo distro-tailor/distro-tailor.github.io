@@ -216,6 +216,67 @@ flowchart LR
 
 ---
 
+## 🧠 12. Dual-Mode Questionnaire: Goal/Novice vs. Technical/Expert Architecture
+
+### Q12.1: Does picking Novice vs. Expert branch into two different decision trees?
+* **Decision:** **No.** DistroTailor implements a single, unified decision tree. The Novice (`smart`) and Expert (`expert`) modes are **two presentation lenses over the exact same canonical schema**.
+* **Rationale:**
+  1. **Canonical Schema Alignment:** Both flows write to the same underlying keys in `UserCriteria` (`useCase`, `platform`, `architecture`, `maxRamMb`, `footprint`, `prefersGui`, `rollingRelease`, etc.).
+  2. **In-Flight Seamless Mode Switching:** Users can toggle between `🌱 Goal Mode` and `⚙️ Technical Mode` at any time via the header switch without resetting their progress.
+  3. **Universal Outcomes for 95% of Targets:** A user selecting an office desktop, gaming box, media center, or homelab will receive the exact same champion (Linux Mint, Batocera, LibreELEC, or Proxmox) regardless of which lens they answered through.
+
+### Q12.2: How does Dimension Bundling work in Novice Mode?
+* **Concept:** Novices think in **outcomes** (*"I want to turn an old PC into a classic gaming console"*), not isolated systems variables.
+* **Mechanism:** A single novice option card bundles **2 to 3 technical dimensions** into a single click:
+
+| Novice Card Selected | Silently Bundled Technical Dimensions |
+| :--- | :--- |
+| **Living Room Retro Gaming** | `useCase: 'gaming'` + `footprint: 'lean'` + `platform: 'bare-metal'` |
+| **TV Media Player / Kodi** | `useCase: 'media-center'` + `footprint: 'minimal'` + `platform: 'bare-metal'` |
+| **Kid-Safe School PC (Endless OS)** | `useCase: 'education-kids'` + `footprint: 'standard'` + `platform: 'bare-metal'` |
+| **Raspberry Pi 4 / 5 Device** | `architecture: 'arm64'` + `platform: 'embedded-sbc'` + `formFactor: 'sbc'` |
+| **Ancient PC (15+ Years Old)** | `architecture: 'x86_64'` + `footprint: 'minimal'` + `formFactor: 'low-power'` |
+
+* **Impact on UX:** In just **2 clicks** (Goal + Device), a novice has populated 5 technical criteria. By Step 3 or 4, the **Fast-Track Match Prediction Banner** appears ($\ge 85\%$ confidence), letting beginners reach their build recipe in under 60 seconds across ~4 total questions.
+
+### Q12.3: How does Expert Mode handle fine-tuning?
+* **Concept:** Systems engineers frequently require non-standard combinations (e.g., an embedded container target running on an x86_64 rack server with musl libc).
+* **Mechanism:** Expert Mode unpacks bundled dimensions into **orthogonal, single-variable steps**:
+  - **Workload Step:** Selects strictly `useCase`.
+  - **Hardware Step:** Selects strictly `architecture` (`x86_64`, `arm64`, `riscv64`, `nommu`).
+  - **Footprint Step:** Selects strictly memory tier (`micro`, `minimal`, `lean`, `standard`, `full`).
+  - **Immutability Step:** Selects rootfs state model (`immutable-ostree`, `declarative-nix`, `read-only-rootfs`, `mutable`).
+  - **Toolchain Step:** Selects C library and init systems (`glibc` vs `musl`, `systemd` vs `openrc` vs `runit`).
+
+### Q12.4: What is the intentional `experienceLevel` Edge Case in the Decision Engine?
+* **Question:** Is there any scenario where switching `experienceLevel` *intentionally* changes the recommendation?
+* **Decision:** **Yes, as an Anti-Frustration Safety Guardrail on embedded/SBC targets.**
+* **The Rule (`matcher.ts:282-289`):**
+  ```typescript
+  else if (criteria.experienceLevel === 'beginner' && distro.experienceLevel === 'systems-engineer') {
+    earned -= 15; // Don't recommend a source-compilation distro to a beginner
+    reasons.push({
+      feature: 'Experience Level',
+      matched: false,
+      explanation: 'Requires advanced low-level source compilation (not ideal for beginners).'
+    });
+  }
+  ```
+* **Real-World Behavior Comparison:**
+  - Given identical hardware criteria: `{ useCase: 'iot-embedded', platform: 'embedded-sbc', architecture: 'arm64' }`:
+    - **Systems Engineer / Expert:** Matched with **Buildroot** (requires cross-compiling the Linux kernel, GCC toolchain, and BusyBox from C source code in a terminal).
+    - **Beginner / Novice:** Matched with **Armbian** or **DietPi** (pre-compiled, turnkey images ready to flash onto an SD card with a single mouse click).
+* **Justification:** Recommending a source-compilation toolchain to a beginner wanting a smart home gadget causes immediate failure. The engine protects beginners by downgrading source-compilation distros without altering standard desktop, server, or gaming outcomes.
+
+### Q12.5: How does Resilient Option Matching prevent empty/blank wizard pages?
+* **Problem:** When permalinks (such as `🎯 Load Match`) load criteria, they previously provided sparse discriminators (e.g. `useCase: 'education-kids'`, `platform: 'bare-metal'`). Because composite novice cards like `kids_education` expected `footprint: 'standard'`, the card failed strict equality and rendered as unselected, causing the wizard to show blank steps.
+* **Architecture:** `wizard-view.ts` uses a **two-tier resolution strategy**:
+  1. **Tier 1 (Strict Exact Match):** If an option card has all its applied criteria present and equal in the state, it is selected.
+  2. **Tier 2 (Conflict-Free Best-Fit):** If no exact match exists, the engine selects the card with zero conflicting keys and the highest number of matching keys.
+* **Result:** `Load Match` links and shared URLs display a coherent, fully-selected questionnaire walkthrough across every wizard step.
+
+---
+
 ## 📋 Summary Table of Archetypes & Flagships
 
 | User Goal / Hardware Archetype | Flagship Recommendation | Key Architectural Trait |
