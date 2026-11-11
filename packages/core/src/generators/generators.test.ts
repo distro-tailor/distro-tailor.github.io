@@ -15,6 +15,8 @@ import {
 import { generateDebootstrapRecipe } from './debootstrap.js';
 import { generateCloudInitRecipe } from './cloud-init.js';
 import { generateNixosRecipe } from './nixos.js';
+import { generateBuildrootRecipe } from './buildroot.js';
+import { generateAlpineRecipe } from './alpine.js';
 
 const CRITERIA_VARIANTS: UserCriteria[] = [
   {},
@@ -255,4 +257,61 @@ test('Recipe Generator: nixos configures custom kernel, filesystem, and bootload
   assert.match(config, /boot\.supportedFilesystems = \[ "zfs" \];/);
   assert.match(config, /boot\.loader\.grub\.enable = true;/);
   assert.match(config, /networking\.useNetworkd = true;/);
+});
+
+test('Recipe Generator: debootstrap wires firmware mode, Secure Boot, and TPM into packages and Makefile', () => {
+  const file = (c: UserCriteria) =>
+    generateDebootstrapRecipe({ architecture: 'x86_64', ...c }).files.find((f) => f.filename === 'Makefile')?.content ?? '';
+
+  const bios = file({ firmwareMode: 'legacy-bios' });
+  assert.match(bios, /FIRMWARE_MODE\s+\?=\s+legacy-bios/);
+  assert.match(bios, /grub-pc-bin/);
+  assert.doesNotMatch(bios, /grub-efi-amd64-bin/);
+
+  const signed = file({ firmwareMode: 'uefi', secureBoot: 'required' });
+  assert.match(signed, /shim-signed grub-efi-amd64-signed/);
+  assert.doesNotMatch(signed, /grub-pc-bin \\/);
+
+  const ownKeys = file({ secureBoot: 'own-keys', tpmUsage: 'disk-unlock' });
+  assert.match(ownKeys, /sign-boot:/);
+  assert.match(ownKeys, /sbsigntool/);
+  assert.match(ownKeys, /clevis-tpm2/);
+
+  const defaults = file({});
+  assert.match(defaults, /SECURE_BOOT\s+\?=\s+off/);
+  assert.match(defaults, /TPM_USAGE\s+\?=\s+off/);
+  assert.doesNotMatch(defaults, /sign-boot:/);
+});
+
+test('Recipe Generator: nixos enables lanzaboote Secure Boot, TPM, and legacy BIOS GRUB', () => {
+  const find = (c: UserCriteria, name: string) =>
+    generateNixosRecipe({ architecture: 'x86_64', ...c }).files.find((f) => f.filename === name)?.content ?? '';
+
+  const flake = find({ secureBoot: 'own-keys' }, 'flake.nix');
+  const config = find({ secureBoot: 'own-keys', tpmUsage: 'disk-unlock' }, 'configuration.nix');
+  assert.match(flake, /lanzaboote/);
+  assert.match(config, /boot\.lanzaboote/);
+  assert.match(config, /security\.tpm2\.enable = true;/);
+  assert.match(config, /boot\.initrd\.systemd\.enable = true;/);
+
+  const bios = find({ firmwareMode: 'legacy-bios' }, 'configuration.nix');
+  assert.match(bios, /grub\.efiSupport = false;/);
+  assert.doesNotMatch(find({}, 'flake.nix'), /lanzaboote/);
+});
+
+test('Recipe Generator: cloud-init, buildroot, and alpine honor firmware and TPM options', () => {
+  const ci = generateCloudInitRecipe({ firmwareMode: 'uefi', secureBoot: 'required', tpmUsage: 'measured-boot' })
+    .files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(ci, /--partition=gpt/);
+  assert.match(ci, /OVMF_CODE_4M\.secboot\.fd/);
+  assert.match(ci, /tpm-tis/);
+
+  const br = generateBuildrootRecipe({ architecture: 'x86_64', firmwareMode: 'legacy-bios', tpmUsage: 'measured-boot' })
+    .files.find((f) => f.filename === 'distro.defconfig')?.content ?? '';
+  assert.match(br, /BR2_TARGET_GRUB2_I386_PC=y/);
+  assert.match(br, /BR2_PACKAGE_TPM2_TOOLS=y/);
+
+  const al = generateAlpineRecipe({ tpmUsage: 'disk-unlock', secureBoot: 'own-keys' })
+    .files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(al, /tpm2-tools sbsigntool efitools/);
 });

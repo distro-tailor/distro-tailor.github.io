@@ -6,6 +6,20 @@ export function generateCloudInitRecipe(criteria: UserCriteria): GeneratedRecipe
   const vmName = 'distro-tailor-cloud';
   const dockerAppDef = getDockerApp(criteria.dockerApp);
   const appDir = dockerAppDef ? dockerAppDef.id : 'app';
+  const isUefi = criteria.firmwareMode === 'uefi' || criteria.secureBoot !== undefined;
+  const partitionTable = isUefi ? 'gpt' : 'mbr';
+  const ovmfCode = criteria.secureBoot === 'required'
+    ? '/usr/share/OVMF/OVMF_CODE_4M.secboot.fd'
+    : '/usr/share/OVMF/OVMF_CODE_4M.fd';
+  const qemuFirmwareFlags = isUefi
+    ? ` -drive if=pflash,format=raw,readonly=on,file=${ovmfCode}`
+    : '';
+  const qemuTpmFlags = criteria.tpmUsage
+    ? ' -chardev socket,id=chrtpm,path=/tmp/swtpm-sock -tpmdev emulator,id=tpm0,chardev=chrtpm -device tpm-tis,tpmdev=tpm0'
+    : '';
+  const tpmNote = criteria.tpmUsage
+    ? '\t@echo "[i] TPM 2.0: start a software TPM first: swtpm socket --tpm2 --tpmstate dir=/tmp --ctrl type=unixio,path=/tmp/swtpm-sock"\n'
+    : '';
   const fsType = criteria.fileSystem === 'btrfs' ? 'btrfs' : criteria.fileSystem === 'xfs' ? 'xfs' : 'ext4';
 
   const userConfigYaml = `#cloud-config
@@ -126,11 +140,11 @@ qcow2: configure
 	@echo "[+] Generating sparse bootable QCOW2 virtual disk image ($(DISK_SIZE))..."
 	$(QEMU_IMG) create -f qcow2 $(QCOW2_FILE) $(DISK_SIZE)
 	@echo "[+] Converting rootfs to partitioned QCOW2 (${fsType})..."
-	sudo virt-make-fs --partition=mbr --type=${fsType} --format=qcow2 --size=$(DISK_SIZE) $(ROOTFS_DIR) $(QCOW2_FILE)
+	sudo virt-make-fs --partition=${partitionTable} --type=${fsType} --format=qcow2 --size=$(DISK_SIZE) $(ROOTFS_DIR) $(QCOW2_FILE)
 
 test-qemu:
 	@echo "[+] Booting VM with QEMU (Forwarding SSH to localhost:2222)..."
-	qemu-system-x86_64 -m 2048 -enable-kvm -hda $(QCOW2_FILE) -net nic -net user,hostfwd=tcp::2222-:22
+${tpmNote}	qemu-system-x86_64 -m 2048 -enable-kvm${qemuFirmwareFlags}${qemuTpmFlags} -hda $(QCOW2_FILE) -net nic -net user,hostfwd=tcp::2222-:22
 `;
 
   const readmeContent = `# ${vmName} Cloud-Init QCOW2 Appliance

@@ -55,15 +55,34 @@ export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedReci
             : fileSystem === 'fat32'
               ? 'dosfstools'
               : 'e2fsprogs';
+  const firmwareMode = criteria.firmwareMode;
+  const secureBoot = criteria.secureBoot;
+  const tpmUsage = criteria.tpmUsage;
+  const firmwareLabel = firmwareMode || 'auto';
+  const secureBootLabel = secureBoot || 'off';
+  const tpmLabel = tpmUsage || 'off';
+
+  // Boot stack: legacy BIOS needs only grub-pc; UEFI needs grub-efi (signed shim chain when Secure Boot is required).
+  const efiGrubPkgs =
+    secureBoot === 'required'
+      ? `shim-signed grub-efi-${arch}-signed`
+      : `grub-efi-${arch}-bin`;
   const bootloaderPkgs =
-    bootloader === 'systemd-boot'
+    bootloader === 'systemd-boot' && firmwareMode !== 'legacy-bios'
       ? 'systemd-boot'
-      : `grub-pc-bin grub-efi-${arch}-bin`;
+      : firmwareMode === 'legacy-bios'
+        ? 'grub-pc-bin'
+        : firmwareMode === 'uefi'
+          ? efiGrubPkgs
+          : `grub-pc-bin ${efiGrubPkgs}`;
   const extraSystemsPkgs = [
     securityProfile === 'selinux' ? 'selinux-basics selinux-policy-default auditd' : '',
     securityProfile === 'apparmor' ? 'apparmor apparmor-utils' : '',
     networkingStack === 'networkmanager' ? 'network-manager' : '',
-    networkingStack === 'nftables-pf' ? 'nftables' : ''
+    networkingStack === 'nftables-pf' ? 'nftables' : '',
+    secureBoot === 'own-keys' ? 'sbsigntool efitools openssl' : '',
+    tpmUsage === 'measured-boot' ? 'tpm2-tools' : '',
+    tpmUsage === 'disk-unlock' ? 'tpm2-tools cryptsetup clevis-tpm2 clevis-luks clevis-initramfs' : ''
   ].filter(Boolean).join(' ');
 
   const makefileContent = `# ==============================================================================
@@ -89,6 +108,12 @@ BOOTLOADER      ?= ${bootloader}
 SECURITY_PROFILE ?= ${securityProfile}
 # NETWORKING_STACK: networkmanager | systemd-networkd | nftables-pf | busybox-minimal
 NETWORKING_STACK ?= ${networkingStack}
+# FIRMWARE_MODE: auto | uefi | legacy-bios
+FIRMWARE_MODE   ?= ${firmwareLabel}
+# SECURE_BOOT: off | required (signed shim + signed GRUB) | own-keys (sign boot files with your own keys)
+SECURE_BOOT     ?= ${secureBootLabel}
+# TPM_USAGE: off | measured-boot | disk-unlock (Clevis TPM2 LUKS binding)
+TPM_USAGE       ?= ${tpmLabel}
 
 # --- MODULAR HARDWARE & DESKTOP TUNING ---
 # HARDWARE_TARGET: generic-x86 | rpi | intel-nuc | vm | mac | handheld
@@ -266,7 +291,19 @@ iso: configure
 
 	grub-mkrescue -o $(OUTPUT_DIR)/$(ISO_NAME) $(BUILD_DIR)/iso
 	@echo "[+] Generated: $(OUTPUT_DIR)/$(ISO_NAME)"
-
+${secureBoot === 'own-keys' ? `
+# Own-key Secure Boot: generate a signing key pair and sign the kernel with sbsign.
+# Enroll output/secureboot/db.crt in your firmware (or MOK) before booting with Secure Boot on.
+sign-boot: configure
+	@mkdir -p $(OUTPUT_DIR)/secureboot
+	openssl req -new -x509 -newkey rsa:2048 -nodes -days 3650 -subj "/CN=${distroName} Secure Boot/" \\
+		-keyout $(OUTPUT_DIR)/secureboot/db.key -out $(OUTPUT_DIR)/secureboot/db.crt
+	sbsign --key $(OUTPUT_DIR)/secureboot/db.key --cert $(OUTPUT_DIR)/secureboot/db.crt \\
+		--output $(BUILD_DIR)/iso/boot/vmlinuz.signed $(BUILD_DIR)/iso/boot/vmlinuz
+` : ''}${secureBoot === 'required' ? `
+secure-boot-note:
+	@echo "[i] Secure Boot=required: the image installs shim-signed + signed GRUB (Microsoft-signed shim chain)."
+` : ''}
 # Docker App Management Targets
 app-up:
 	@if [ '$(DOCKER_APP)' = 'none' ]; then \\

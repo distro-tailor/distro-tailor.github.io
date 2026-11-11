@@ -74,7 +74,7 @@ configure: rootfs
 
 	chroot $(ROOTFS_DIR) /bin/sh -c "\\
 		apk update && \\
-		apk add --no-cache openrc util-linux ca-certificates openssh-server curl && \\
+		apk add --no-cache openrc util-linux ca-certificates openssh-server curl${[criteria.tpmUsage ? ' tpm2-tools' : '', criteria.secureBoot === 'own-keys' ? ' sbsigntool efitools' : ''].join('')} && \\
 		rc-update add bootmisc boot && \\
 		rc-update add hostname boot && \\
 		rc-update add networking boot && \\

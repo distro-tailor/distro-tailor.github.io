@@ -107,3 +107,12 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     When the recipe generator resolves "debootstrap-debian"
     Then the generated Makefile must set "ROOT_FS ?= btrfs"
     And the generated Makefile must install "btrfs-progs" and "linux-image-rt-amd64"
+
+  Scenario: Generating Recipes that Honor Firmware Mode, Secure Boot, and TPM
+    Given the criteria specify firmware mode "uefi", Secure Boot "required", and TPM usage "disk-unlock"
+    When the recipe generator resolves "debootstrap-debian"
+    Then the generated Makefile must set "FIRMWARE_MODE", "SECURE_BOOT", and "TPM_USAGE"
+    And the Makefile must install "shim-signed" and "grub-efi-amd64-signed" instead of unsigned GRUB
+    And the Makefile must install TPM 2.0 tooling including "clevis-tpm2"
+    And selecting "own-keys" Secure Boot must add a "sign-boot" target that signs the kernel with "sbsign"
+    And the NixOS recipe must enable lanzaboote for "own-keys" and legacy GRUB for "legacy-bios"

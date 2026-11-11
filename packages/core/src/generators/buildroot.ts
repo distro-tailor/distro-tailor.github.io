@@ -82,6 +82,28 @@ BR2_TARGET_ROOTFS_TAR=y
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
 ${
+  !isNoMmu && targetArch === 'x86_64' && criteria.firmwareMode
+    ? `
+# Bootloader firmware mode: ${criteria.firmwareMode}
+${criteria.firmwareMode === 'legacy-bios' ? 'BR2_TARGET_GRUB2=y\nBR2_TARGET_GRUB2_I386_PC=y' : 'BR2_TARGET_GRUB2=y\nBR2_TARGET_GRUB2_X86_64_EFI=y'}
+`
+    : ''
+}${
+  criteria.tpmUsage
+    ? `
+# TPM 2.0 userspace (${criteria.tpmUsage})
+BR2_PACKAGE_TPM2_TOOLS=y
+BR2_PACKAGE_TPM2_TSS=y
+`
+    : ''
+}${
+  criteria.secureBoot
+    ? `
+# Secure Boot (${criteria.secureBoot}): sign the kernel/GRUB images with sbsigntools after build
+BR2_PACKAGE_HOST_SBSIGN_TOOLS=y
+`
+    : ''
+}${
   navigationApps.length > 0
     ? `
 # Offline Navigation & GPS Appliance
