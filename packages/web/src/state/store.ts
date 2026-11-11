@@ -1,4 +1,4 @@
-import { UserCriteria, QUESTIONS } from '@distro-tailor/core';
+import { UserCriteria, QUESTIONS, QuestionFlow } from '@distro-tailor/core';
 import { AppState, AppTab, FlowMode, IAppStore } from '../types.js';
 
 export type { AppState, AppTab, FlowMode, IAppStore };
@@ -17,6 +17,8 @@ export function createDefaultState(): AppState {
   return {
     criteria: {},
     answeredQuestionIds: new Set<string>(),
+    answeredQuestionOrder: [],
+    viewingQuestionId: null,
     activeTab: 'wizard',
     activeFileIndex: 0,
     unsupportedSchemaNotice: undefined,
@@ -79,6 +81,11 @@ export class AppStore extends EventTarget implements IAppStore {
     this.notify();
   }
 
+  public setViewingQuestion(questionId: string | null): void {
+    this._state.viewingQuestionId = questionId;
+    this.notify();
+  }
+
   public pushHistory(): void {
     this._state.history.push({
       criteria: { ...this._state.criteria },
@@ -99,51 +106,101 @@ export class AppStore extends EventTarget implements IAppStore {
   }
 
   public stepBackQuestion(): boolean {
-    if (this.popHistory()) {
-      return true;
+    const flow = new QuestionFlow(QUESTIONS);
+    const eligible = flow.getEligibleQuestions(this._state.criteria);
+    if (eligible.length === 0) return false;
+
+    let currentIdx = -1;
+    if (this._state.viewingQuestionId) {
+      currentIdx = eligible.findIndex((q) => q.id === this._state.viewingQuestionId);
+    }
+    if (currentIdx === -1) {
+      if (this._state.activeTab === 'results') {
+        const answeredEligible = eligible.filter((q) => this._state.answeredQuestionIds.has(q.id));
+        currentIdx = answeredEligible.length > 0 ? eligible.indexOf(answeredEligible[answeredEligible.length - 1]) + 1 : eligible.length;
+      } else {
+        const nextQ = eligible.find((q) => !this._state.answeredQuestionIds.has(q.id));
+        currentIdx = nextQ ? eligible.indexOf(nextQ) : eligible.length - 1;
+      }
     }
 
-    if (this._state.answeredQuestionIds.size > 0) {
-      const answeredList = QUESTIONS.filter((q) => this._state.answeredQuestionIds.has(q.id));
-      const lastQ = answeredList[answeredList.length - 1];
-      if (lastQ) {
-        const newAnswered = new Set(this._state.answeredQuestionIds);
-        newAnswered.delete(lastQ.id);
-        const newCriteria = { ...this._state.criteria };
-        lastQ.options.forEach((opt) => {
-          Object.keys(opt.appliesCriteria).forEach((k) => {
-            delete newCriteria[k as keyof UserCriteria];
-          });
-        });
-        this._state.criteria = newCriteria;
-        this._state.answeredQuestionIds = newAnswered;
-        this._state.activeTab = 'wizard';
-        this.notify();
-        return true;
-      }
+    if (currentIdx > 0) {
+      const prevQ = eligible[currentIdx - 1];
+      this._state.viewingQuestionId = prevQ.id;
+      this._state.activeTab = 'wizard';
+      this.notify();
+      return true;
     }
 
     return false;
   }
 
-  public stepForwardQuestion(questionId: string): void {
-    this.pushHistory();
-    this._state.answeredQuestionIds.add(questionId);
-    this._state.activeTab = 'wizard';
+  public stepForwardQuestion(questionId?: string): boolean {
+    const flow = new QuestionFlow(QUESTIONS);
+    const qId = questionId || this._state.viewingQuestionId;
+    if (qId) {
+      this._state.answeredQuestionIds.add(qId);
+      const order = this._state.answeredQuestionOrder || (this._state.answeredQuestionOrder = []);
+      if (!order.includes(qId)) {
+        order.push(qId);
+      }
+    }
+
+    const eligible = flow.getEligibleQuestions(this._state.criteria);
+    let currentIdx = -1;
+    if (qId) {
+      currentIdx = eligible.findIndex((q) => q.id === qId);
+    }
+    if (currentIdx === -1) {
+      const nextQ = eligible.find((q) => !this._state.answeredQuestionIds.has(q.id));
+      currentIdx = nextQ ? eligible.indexOf(nextQ) : 0;
+    }
+
+    if (currentIdx !== -1 && currentIdx < eligible.length - 1) {
+      const nextQ = eligible[currentIdx + 1];
+      this._state.viewingQuestionId = nextQ.id;
+      this._state.activeTab = 'wizard';
+      this.notify();
+      return true;
+    }
+
+    // Reached the end of questions -> Go to results
+    this._state.viewingQuestionId = null;
+    this._state.activeTab = 'results';
     this.notify();
+    return false;
   }
 
   public answerQuestion<K extends keyof UserCriteria>(
     questionId: string,
-    answerKey: K,
-    answerValue: UserCriteria[K]
+    keyOrCriteria: K | Partial<UserCriteria>,
+    answerValue?: UserCriteria[K]
   ): void {
     this.pushHistory();
+    const criteriaPatch = (typeof keyOrCriteria === 'string'
+      ? { [keyOrCriteria]: answerValue }
+      : keyOrCriteria) as Partial<UserCriteria>;
+
     this._state.criteria = {
       ...this._state.criteria,
-      [answerKey]: answerValue
+      ...criteriaPatch
     };
     this._state.answeredQuestionIds.add(questionId);
+    const order = this._state.answeredQuestionOrder || (this._state.answeredQuestionOrder = []);
+    if (!order.includes(questionId)) {
+      order.push(questionId);
+    }
+
+    const flow = new QuestionFlow(QUESTIONS);
+    const eligible = flow.getEligibleQuestions(this._state.criteria);
+    const currentIdx = eligible.findIndex((q) => q.id === questionId);
+    if (currentIdx !== -1 && currentIdx < eligible.length - 1) {
+      this._state.viewingQuestionId = eligible[currentIdx + 1].id;
+      this._state.activeTab = 'wizard';
+    } else {
+      this._state.viewingQuestionId = null;
+      this._state.activeTab = 'results';
+    }
     this.notify();
   }
 
@@ -159,6 +216,8 @@ export class AppStore extends EventTarget implements IAppStore {
     );
     if (q) {
       this._state.answeredQuestionIds.delete(q.id);
+      this._state.answeredQuestionOrder = (this._state.answeredQuestionOrder || []).filter((id) => id !== q.id);
+      this._state.viewingQuestionId = q.id;
     }
 
     // Canonical question ID pairings
@@ -274,6 +333,9 @@ export class AppStore extends EventTarget implements IAppStore {
     this._state = {
       ...createDefaultState(),
       criteria: cleanCriteria || {},
+      answeredQuestionIds: new Set<string>(),
+      answeredQuestionOrder: [],
+      viewingQuestionId: null,
       isSharedView: !!cleanCriteria && Object.keys(cleanCriteria).length > 0
     };
     this.notify();

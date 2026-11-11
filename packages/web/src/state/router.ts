@@ -28,7 +28,9 @@ export function serializeStateToParams(state: AppState): URLSearchParams {
     params.set('file', String(state.activeFileIndex));
   }
 
-  if (state.answeredQuestionIds.size > 0) {
+  if (state.answeredQuestionOrder && state.answeredQuestionOrder.length > 0) {
+    params.set('ans', state.answeredQuestionOrder.join(','));
+  } else if (state.answeredQuestionIds.size > 0) {
     params.set('ans', Array.from(state.answeredQuestionIds).join(','));
   }
 
@@ -58,6 +60,7 @@ export function parseRawUrlParams(rawInput: string): ParsedUrlResult {
       supported: true,
       criteria: {},
       answeredQuestionIds: new Set<string>(),
+      answeredQuestionOrder: [],
       activeTab: 'wizard',
       activeFileIndex: 0,
       isSharedView: false
@@ -81,6 +84,7 @@ export function parseRawUrlParams(rawInput: string): ParsedUrlResult {
       supported: false,
       criteria: {},
       answeredQuestionIds: new Set<string>(),
+      answeredQuestionOrder: [],
       activeTab: 'wizard',
       activeFileIndex: 0,
       unsupportedNotice: migration.fallbackNotice,
@@ -96,9 +100,13 @@ export function parseRawUrlParams(rawInput: string): ParsedUrlResult {
   const activeFileIndex = file && !isNaN(Number(file)) ? Number(file) : 0;
 
   const answeredQuestionIds = new Set<string>();
+  const answeredQuestionOrder: string[] = [];
   const ans = params.get('ans');
   if (ans) {
-    ans.split(',').filter(Boolean).forEach((id) => answeredQuestionIds.add(id));
+    ans.split(',').filter(Boolean).forEach((id) => {
+      answeredQuestionIds.add(id);
+      answeredQuestionOrder.push(id);
+    });
   }
 
   const criteria = deserializeCriteriaFromParams(migration.params);
@@ -108,6 +116,7 @@ export function parseRawUrlParams(rawInput: string): ParsedUrlResult {
     supported: true,
     criteria,
     answeredQuestionIds,
+    answeredQuestionOrder,
     activeTab,
     activeFileIndex,
     isSharedView

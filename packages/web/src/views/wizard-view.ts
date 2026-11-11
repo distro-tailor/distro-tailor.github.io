@@ -49,7 +49,7 @@ export function renderWizardQuestion(
   const showEarlyGuess =
     progress.current >= 3 && evaluation && evaluation.bestMatch && evaluation.bestMatch.score >= 85;
 
-  const canGoBack = state.history.length > 0 || state.answeredQuestionIds.size > 0 || progress.current > 0;
+  const canGoBack = progress.current > 0;
 
   const hasSelectedAnswer = question.options.some((opt) => {
     if (question.isMultiSelect) {
@@ -160,7 +160,7 @@ export function renderWizardQuestion(
             : hasSelectedAnswer
               ? `
           <button id="btn-next-top" class="px-3.5 py-1.5 rounded-lg font-bold bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all shadow-md shadow-emerald-950/40 cursor-pointer flex items-center gap-1.5">
-            <span>Next Question</span>
+            <span>${progress.current === progress.total - 1 ? 'View Final Results' : 'Next Question'}</span>
             <span>→</span>
           </button>
         `
@@ -304,7 +304,7 @@ export function renderWizardQuestion(
             : hasSelectedAnswer
               ? `
           <button id="btn-next" class="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all shadow-lg shadow-emerald-950/40 cursor-pointer flex items-center gap-1.5">
-            <span>Next Question</span>
+            <span>${progress.current === progress.total - 1 ? 'View Final Results' : 'Next Question'}</span>
             <span>→</span>
           </button>
         `

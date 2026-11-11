@@ -20,8 +20,8 @@ function getAppElement(): HTMLElement {
 }
 
 function renderPrimaryContent(
-  nextQuestion: ReturnType<typeof flow.getNextQuestion>,
-  progress: ReturnType<typeof flow.getProgress>,
+  currentQuestion: (typeof QUESTIONS)[number] | null,
+  progress: { current: number; total: number; percentage: number },
   evaluation: ReturnType<typeof evaluateCriteria>,
   state: ReturnType<typeof store.getState>
 ): string {
@@ -37,19 +37,33 @@ function renderPrimaryContent(
     return renderExpertMatrix(state);
   }
 
-  if (!nextQuestion) {
+  if (!currentQuestion) {
     return renderResultsView(evaluation, state);
   }
 
-  return renderWizardQuestion(nextQuestion, progress, state, evaluation);
+  return renderWizardQuestion(currentQuestion, progress, state, evaluation);
 }
 
 function render(): void {
   const app = getAppElement();
   const state = store.getState();
   const evaluation = evaluateCriteria(state.criteria);
-  const nextQuestion = flow.getNextQuestion(state.criteria, state.answeredQuestionIds);
-  const progress = flow.getProgress(state.criteria, state.answeredQuestionIds);
+  const eligible = flow.getEligibleQuestions(state.criteria);
+
+  let currentQuestion = state.viewingQuestionId
+    ? eligible.find((q) => q.id === state.viewingQuestionId) || QUESTIONS.find((q) => q.id === state.viewingQuestionId) || null
+    : null;
+
+  if (!currentQuestion) {
+    currentQuestion = flow.getNextQuestion(state.criteria, state.answeredQuestionIds);
+  }
+
+  const currentIdx = currentQuestion ? eligible.findIndex((q) => q.id === currentQuestion.id) : eligible.length;
+  const progress = {
+    current: currentIdx >= 0 ? currentIdx : flow.getProgress(state.criteria, state.answeredQuestionIds).current,
+    total: eligible.length,
+    percentage: eligible.length === 0 ? 100 : Math.round(((currentIdx >= 0 ? currentIdx : 0) / eligible.length) * 100)
+  };
 
   app.innerHTML = `
     <!-- Top Navigation Header -->
@@ -60,7 +74,7 @@ function render(): void {
       
       <!-- Primary Left Column: Wizard Cards, Results, or Expert Matrix -->
       <section class="lg:col-span-8 flex flex-col gap-6 min-w-0 w-full max-w-full overflow-x-clip">
-        ${renderPrimaryContent(nextQuestion, progress, evaluation, state)}
+        ${renderPrimaryContent(currentQuestion, progress, evaluation, state)}
       </section>
 
       <!-- Right Column: Live Standings Leaderboard & Selected Chips -->
@@ -87,7 +101,7 @@ function render(): void {
     })()}
   `;
 
-  attachEventHandlers(nextQuestion, evaluation, flow);
+  attachEventHandlers(currentQuestion, evaluation, flow);
 }
 
 function handlePopState(): void {
@@ -114,10 +128,12 @@ function handlePopState(): void {
     store.update({
       criteria: parsed.criteria,
       answeredQuestionIds: parsed.answeredQuestionIds,
+      answeredQuestionOrder: parsed.answeredQuestionOrder || [],
       activeTab: parsed.activeTab,
       activeFileIndex: parsed.activeFileIndex,
       isSharedView: parsed.isSharedView,
-      unsupportedSchemaNotice: undefined
+      unsupportedSchemaNotice: undefined,
+      viewingQuestionId: null
     });
 
     scrollToQuestionCard();

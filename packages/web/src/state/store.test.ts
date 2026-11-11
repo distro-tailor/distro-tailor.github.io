@@ -104,27 +104,49 @@ test('AppStore: removeChoice clears new dimensions like peripheralNeed and realt
   assert.equal(store.getState().answeredQuestionIds.has('attached_peripherals'), false);
 });
 
-test('AppStore: stepBackQuestion steps back one question and stays in wizard tab', () => {
+test('AppStore: stepBackQuestion steps back one question and stays in wizard tab with selected criteria intact for highlighting', () => {
   const store = new AppStore();
 
   store.answerQuestion('user_familiarity', 'experienceLevel', 'beginner');
+  store.answerQuestion('beginner_goal', 'useCase', 'gaming');
   store.answerQuestion('beginner_device', 'architecture', 'x86_64');
   store.setTab('results'); // Simulate being on final results page
 
-  // Step back from results -> should land on wizard with beginner_device reopened
+  // Step back from results -> should land on wizard with beginner_device reopened and architecture intact for highlighting
   const stepped1 = store.stepBackQuestion();
   assert.equal(stepped1, true);
   assert.equal(store.getState().activeTab, 'wizard');
-  assert.equal(store.getState().criteria.architecture, undefined);
+  assert.equal(store.getState().viewingQuestionId, 'beginner_device');
+  assert.equal(store.getState().criteria.architecture, 'x86_64');
+  assert.equal(store.getState().criteria.useCase, 'gaming');
   assert.equal(store.getState().criteria.experienceLevel, 'beginner');
 
-  // Step back again -> should land on wizard with user_familiarity reopened
+  // Step back again -> should land on wizard with beginner_goal reopened
   const stepped2 = store.stepBackQuestion();
   assert.equal(stepped2, true);
   assert.equal(store.getState().activeTab, 'wizard');
-  assert.equal(store.getState().criteria.experienceLevel, undefined);
+  assert.equal(store.getState().viewingQuestionId, 'beginner_goal');
+  assert.equal(store.getState().criteria.useCase, 'gaming');
+
+  // Step back again -> should land on wizard with user_familiarity reopened
+  const stepped3 = store.stepBackQuestion();
+  assert.equal(stepped3, true);
+  assert.equal(store.getState().activeTab, 'wizard');
+  assert.equal(store.getState().viewingQuestionId, 'user_familiarity');
+  assert.equal(store.getState().criteria.experienceLevel, 'beginner');
 
   // Stepping back from beginning returns false
-  const stepped3 = store.stepBackQuestion();
-  assert.equal(stepped3, false);
+  const stepped4 = store.stepBackQuestion();
+  assert.equal(stepped4, false);
+
+  // Stepping forward advances through previously answered questions
+  const steppedFwd1 = store.stepForwardQuestion();
+  assert.equal(steppedFwd1, true);
+  assert.equal(store.getState().activeTab, 'wizard');
+  assert.equal(store.getState().viewingQuestionId, 'beginner_goal');
+
+  const steppedFwd2 = store.stepForwardQuestion();
+  assert.equal(steppedFwd2, true);
+  assert.equal(store.getState().activeTab, 'wizard');
+  assert.equal(store.getState().viewingQuestionId, 'beginner_device');
 });

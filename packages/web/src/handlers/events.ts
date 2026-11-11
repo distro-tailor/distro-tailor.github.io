@@ -42,37 +42,34 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
 
   // Navigation tabs
   document.getElementById('btn-toggle-wizard')?.addEventListener('click', () => {
-    const currentNext = flow.getNextQuestion(store.getState().criteria, store.getState().answeredQuestionIds);
-    if (!currentNext) {
-      returnToWizard();
-    } else {
-      store.setTab('wizard');
-      router.saveStateToUrl(store.getState(), true);
-      scrollToQuestionCard();
-    }
+    store.setTab('wizard');
+    router.saveStateToUrl(store.getState(), false);
+    scrollToQuestionCard();
   });
 
   document.getElementById('btn-toggle-expert')?.addEventListener('click', () => {
     store.setTab('expert');
-    router.saveStateToUrl(store.getState(), true);
+    router.saveStateToUrl(store.getState(), false);
   });
 
   document.getElementById('btn-view-results')?.addEventListener('click', () => {
     store.setTab('results');
-    router.saveStateToUrl(store.getState(), true);
+    router.saveStateToUrl(store.getState(), false);
   });
 
   // Early high-confidence match fast-track button
   document.getElementById('btn-early-results')?.addEventListener('click', () => {
     store.setTab('results');
-    router.saveStateToUrl(store.getState(), true);
+    router.saveStateToUrl(store.getState(), false);
   });
 
   // Return to wizard from results to review or modify choices
   const returnToWizard = () => {
-    const currentNext = flow.getNextQuestion(store.getState().criteria, store.getState().answeredQuestionIds);
-    if (!currentNext) {
-      store.stepBackQuestion();
+    const eligible = flow.getEligibleQuestions(store.getState().criteria);
+    const answeredEligible = eligible.filter((q) => store.getState().answeredQuestionIds.has(q.id));
+    const targetQ = answeredEligible.length > 0 ? answeredEligible[answeredEligible.length - 1] : eligible[0];
+    if (targetQ) {
+      store.setViewingQuestion(targetQ.id);
     }
     store.setTab('wizard');
     router.saveStateToUrl(store.getState(), false);
@@ -88,10 +85,15 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
       e.stopPropagation();
       const key = btn.getAttribute('data-remove-key');
       if (key) {
-        store.removeChoice(key);
+        const q = QUESTIONS.find((question) =>
+          question.options.some((opt) => opt.appliesCriteria && key in opt.appliesCriteria)
+        );
+        if (q) {
+          store.setViewingQuestion(q.id);
+        }
         store.setTab('wizard');
         router.saveStateToUrl(store.getState(), false);
-        showToast(`Modify choice: ${key}`, '✏️');
+        showToast(`Review choice: ${key}`, '✏️');
         scrollToQuestionCard();
       }
     });
@@ -300,14 +302,7 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
         btn.classList.add('bg-emerald-500/20', 'border-emerald-400', 'ring-2', 'ring-emerald-400', 'scale-[0.985]');
 
         setTimeout(() => {
-          store.pushHistory();
-          store.update({
-            criteria: {
-              ...store.getState().criteria,
-              ...opt.appliesCriteria
-            },
-            answeredQuestionIds: new Set([...store.getState().answeredQuestionIds, nextQuestion.id])
-          });
+          store.answerQuestion(nextQuestion.id, opt.appliesCriteria);
           router.saveStateToUrl(store.getState(), false);
           scrollToQuestionCard();
         }, 80);
@@ -548,17 +543,12 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
 
       const currentState = store.getState();
       if (currentState.activeTab === 'wizard') {
-        const currentNext = flow.getNextQuestion(currentState.criteria, currentState.answeredQuestionIds);
-        if (currentNext) {
+        if (nextQuestion) {
           const num = parseInt(e.key, 10);
-          if (!isNaN(num) && num >= 1 && num <= currentNext.options.length) {
-            const opt = currentNext.options[num - 1];
+          if (!isNaN(num) && num >= 1 && num <= nextQuestion.options.length) {
+            const opt = nextQuestion.options[num - 1];
             if (opt) {
-              store.pushHistory();
-              store.update({
-                criteria: { ...store.getState().criteria, ...opt.appliesCriteria },
-                answeredQuestionIds: new Set([...store.getState().answeredQuestionIds, currentNext.id])
-              });
+              store.answerQuestion(nextQuestion.id, opt.appliesCriteria);
               router.saveStateToUrl(store.getState(), false);
               scrollToQuestionCard();
               return;
@@ -575,8 +565,8 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
         }
 
         if (e.key === 'ArrowRight') {
-          if (currentNext) {
-            store.stepForwardQuestion(currentNext.id);
+          if (nextQuestion) {
+            store.stepForwardQuestion(nextQuestion.id);
             router.saveStateToUrl(store.getState(), false);
             scrollToQuestionCard();
           }

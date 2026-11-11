@@ -24,6 +24,8 @@ export interface HistorySnapshot {
 export interface AppState {
   criteria: UserCriteria;
   answeredQuestionIds: Set<string>;
+  answeredQuestionOrder?: string[];
+  viewingQuestionId?: string | null;
   activeTab: AppTab;
   activeFileIndex: number;
   unsupportedSchemaNotice?: string;
@@ -69,6 +71,11 @@ export interface IAppStore {
   popHistory(): boolean;
 
   /**
+   * Sets the specific question currently being viewed in the wizard.
+   */
+  setViewingQuestion(questionId: string | null): void;
+
+  /**
    * Steps back exactly one question in the wizard, falling back to taxonomy backtracking if history is empty.
    */
   stepBackQuestion(): boolean;
@@ -76,15 +83,15 @@ export interface IAppStore {
   /**
    * Steps forward to the next question in the decision tree, keeping existing criteria for this step.
    */
-  stepForwardQuestion(questionId: string): void;
+  stepForwardQuestion(questionId?: string): boolean;
 
   /**
    * Answers a specific question and stores criteria with compile-time type validation.
    */
   answerQuestion<K extends keyof UserCriteria>(
     questionId: string,
-    answerKey: K,
-    answerValue: UserCriteria[K]
+    keyOrCriteria: K | Partial<UserCriteria>,
+    answerValue?: UserCriteria[K]
   ): void;
 
   /**
@@ -145,6 +152,7 @@ export interface ParsedUrlResult {
   supported: boolean;
   criteria: UserCriteria;
   answeredQuestionIds: Set<string>;
+  answeredQuestionOrder?: string[];
   activeTab: AppTab;
   activeFileIndex: number;
   unsupportedNotice?: string;
