@@ -19,7 +19,8 @@ test('Criteria Schema: keeps allowlisted values unchanged', () => {
     prefersGui: false,
     peripherals: ['touchscreen', 'mixed-dpi'],
     dockerApp: 'home-assistant',
-    desktopApps: ['firefox', 'vlc']
+    desktopApps: ['firefox', 'vlc'],
+    emulatorApps: ['retroarch', 'dosbox-staging']
   };
   assert.deepEqual(sanitizeCriteria(input), input);
 });
@@ -39,10 +40,12 @@ test('Criteria Schema: drops unknown enum values and malformed scalars', () => {
 test('Criteria Schema: filters unknown entries from list fields', () => {
   const result = sanitizeCriteria({
     peripherals: ['touchscreen', 'evil`id`'],
-    desktopApps: ['firefox', SHELL_PAYLOAD, 42]
+    desktopApps: ['firefox', SHELL_PAYLOAD, 42],
+    emulatorApps: ['retroarch', SHELL_PAYLOAD, 99]
   });
   assert.deepEqual(result.peripherals, ['touchscreen']);
   assert.deepEqual(result.desktopApps, ['firefox']);
+  assert.deepEqual(result.emulatorApps, ['retroarch']);
 });
 
 test('Criteria Schema: ignores inherited object keys such as __proto__ and toString', () => {

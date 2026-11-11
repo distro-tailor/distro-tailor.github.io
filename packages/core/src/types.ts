@@ -160,6 +160,16 @@ export type DesktopAppId =
   | 'btop'
   | 'fastfetch';
 
+export type EmulatorAppId =
+  | 'retroarch'
+  | 'dosbox-staging'
+  | 'dolphin'
+  | 'pcsx2'
+  | 'duckstation'
+  | 'ppsspp'
+  | 'scummvm'
+  | 'mame';
+
 export type DesktopEnvId =
   | 'none'
   | 'cage'
@@ -234,6 +244,7 @@ export interface UserCriteria {
   enableFlatpak?: boolean;
   dockerApp?: DockerAppId;
   desktopApps?: DesktopAppId[];
+  emulatorApps?: EmulatorAppId[];
 }
 
 export interface QuestionOption {

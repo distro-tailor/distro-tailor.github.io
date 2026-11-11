@@ -7,6 +7,7 @@ import {
   DesktopWorkflowStyle,
   DockerAppId,
   DriverPhilosophy,
+  EmulatorAppId,
   ExperienceLevel,
   FormFactor,
   InitSystem,
@@ -210,6 +211,17 @@ export const DESKTOP_APP_VALUES: EnumCatalog<DesktopAppId> = {
   fastfetch: true
 };
 
+export const EMULATOR_APP_VALUES: EnumCatalog<EmulatorAppId> = {
+  retroarch: true,
+  'dosbox-staging': true,
+  dolphin: true,
+  pcsx2: true,
+  duckstation: true,
+  ppsspp: true,
+  scummvm: true,
+  mame: true
+};
+
 /** Untrusted criteria shape: same keys as UserCriteria, values not yet validated. */
 export type UntrustedCriteria = { [K in keyof UserCriteria]?: unknown };
 
@@ -264,7 +276,8 @@ export function sanitizeCriteria(input: UntrustedCriteria): UserCriteria {
     enableNix: pickBoolean(input.enableNix),
     enableFlatpak: pickBoolean(input.enableFlatpak),
     dockerApp: pickEnum(DOCKER_APP_VALUES, input.dockerApp),
-    desktopApps: pickEnumList(DESKTOP_APP_VALUES, input.desktopApps)
+    desktopApps: pickEnumList(DESKTOP_APP_VALUES, input.desktopApps),
+    emulatorApps: pickEnumList(EMULATOR_APP_VALUES, input.emulatorApps)
   };
 
   // Omit absent keys so callers that inspect Object.keys() see only supplied criteria.

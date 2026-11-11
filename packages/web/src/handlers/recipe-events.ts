@@ -1,4 +1,12 @@
-import { DesktopAppId, DesktopEnvId, DockerAppId, getDesktopApp, getDockerApp } from '@distro-tailor/core';
+import {
+  DesktopAppId,
+  DesktopEnvId,
+  DockerAppId,
+  EmulatorAppId,
+  getDesktopApp,
+  getDockerApp,
+  getEmulatorApp
+} from '@distro-tailor/core';
 import { getAddonCombos } from '../components/app-suites.js';
 import { router } from '../state/router.js';
 import { store } from '../state/store.js';
@@ -80,6 +88,32 @@ export function bindRecipeEvents(ctx: HandlerContext): void {
       } else {
         const app = getDesktopApp(appId);
         showToast(`✨ Added ${app?.name || appId} to bootstrap-apps.sh!`, app?.icon || '📦');
+      }
+    });
+  });
+
+  // 1-Click Gaming & Retro Emulators
+  document.querySelectorAll<HTMLElement>('.btn-toggle-emulator-app').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const blocker = target.getAttribute('data-incompatible-reason');
+      if (blocker) {
+        showToast(blocker, '🚫');
+        return;
+      }
+
+      const appId = target.getAttribute('data-app-id') as EmulatorAppId;
+      const list = store.getState().criteria.emulatorApps || [];
+      const newList = list.includes(appId) ? list.filter((id) => id !== appId) : [...list, appId];
+      store.update({
+        criteria: { ...store.getState().criteria, emulatorApps: newList }
+      });
+      router.saveStateToUrl(store.getState());
+      if (list.includes(appId)) {
+        showToast(`Removed ${appId} from bootstrap-emulators.sh`, '🎮');
+      } else {
+        const app = getEmulatorApp(appId);
+        showToast(`✨ Added ${app?.name || appId} to bootstrap-emulators.sh!`, app?.icon || '🎮');
       }
     });
   });

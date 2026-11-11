@@ -92,3 +92,11 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     Then every pinned artifact is downloaded again and compared with its checksum
     And pinned Alpine and Buildroot releases warn 60 days before and fail after their upstream end of support
     And the job summary lists which pins need updating
+
+  Scenario: Bundling Gaming Emulators & Gamepad Rules in Recipe Generation
+    Given the criteria specify "retroarch" and "dosbox-staging" in emulatorApps
+    When the recipe generator resolves "debootstrap-debian"
+    Then the generated files must include "bootstrap-emulators.sh"
+    And the bootstrap script must install gamepad udev rules for controller hotplug
+    And the bootstrap script must scaffold user ROM and BIOS directory trees
+    And the recipe quickstart commands must include "bootstrap-emulators.sh"

@@ -1,7 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { UserCriteria } from '../types.js';
-import { RECIPE_GENERATORS, isRecipeGeneratorId, resolveRecipeGenerator } from './index.js';
+import {
+  RECIPE_GENERATORS,
+  isRecipeGeneratorId,
+  resolveRecipeGenerator,
+  getEmulatorApp,
+  checkEmulatorAppCompatibility,
+  generateBootstrapEmulatorsScript
+} from './index.js';
+import { generateDebootstrapRecipe } from './debootstrap.js';
 
 const CRITERIA_VARIANTS: UserCriteria[] = [
   {},
@@ -84,4 +92,64 @@ test('Recipe Generator buildroot-embedded: uses selectable Kconfig choices for l
 test('Recipe Generator: unknown ids are rejected by isRecipeGeneratorId', () => {
   assert.equal(isRecipeGeneratorId('not-a-recipe'), false);
   assert.equal(isRecipeGeneratorId('toString'), false);
+});
+
+test('Emulator Apps: registry and lookup return definitions for all emulators', () => {
+  const ids: import('../types.js').EmulatorAppId[] = [
+    'retroarch',
+    'dosbox-staging',
+    'dolphin',
+    'pcsx2',
+    'duckstation',
+    'ppsspp',
+    'scummvm',
+    'mame'
+  ];
+  for (const id of ids) {
+    const app = getEmulatorApp(id);
+    assert.ok(app, `Missing emulator app: ${id}`);
+    assert.equal(app.id, id);
+    assert.ok(app.minRamMb > 0);
+  }
+});
+
+test('Emulator Apps: compatibility checks enforce hardware limits and RAM warnings', () => {
+  const dolphin = getEmulatorApp('dolphin')!;
+  const nommuResult = checkEmulatorAppCompatibility(dolphin, { architecture: 'nommu' });
+  assert.equal(nommuResult.compatible, false);
+  assert.match(nommuResult.blocker!, /Microcontrollers/);
+
+  const pcsx2 = getEmulatorApp('pcsx2')!;
+  const archResult = checkEmulatorAppCompatibility(pcsx2, { architecture: 'riscv64' });
+  assert.equal(archResult.compatible, false);
+  assert.match(archResult.blocker!, /does not provide prebuilt binaries/);
+
+  const ramResult = checkEmulatorAppCompatibility(pcsx2, { architecture: 'x86_64', maxRamMb: 1024 });
+  assert.equal(ramResult.compatible, true);
+  assert.ok(ramResult.warnings.length > 0);
+  assert.match(ramResult.warnings[0], /Exceeds your 1024 MB budget/);
+});
+
+test('Emulator Apps: generateBootstrapEmulatorsScript outputs gamepad rules and ROM scaffolding', () => {
+  const emptyScript = generateBootstrapEmulatorsScript([], {});
+  assert.match(emptyScript, /No emulators selected/);
+
+  const script = generateBootstrapEmulatorsScript(['retroarch', 'dosbox-staging'], { architecture: 'x86_64' });
+  assert.match(script, /99-distrotailor-gamepads\.rules/);
+  assert.match(script, /Xbox 360 \/ Xbox One/);
+  assert.match(script, /mkdir -p "\$TARGET_HOME\/Games\/bios"/);
+  assert.match(script, /"\$TARGET_HOME\/Games\/roms\/snes"/);
+  assert.match(script, /RetroArch/);
+  assert.match(script, /DOSBox-Staging/);
+});
+
+test('Recipe Generator: debootstrap bundles bootstrap-emulators.sh when emulatorApps are selected', () => {
+  const recipe = generateDebootstrapRecipe({
+    architecture: 'x86_64',
+    emulatorApps: ['retroarch', 'dosbox-staging']
+  });
+  const file = recipe.files.find((f) => f.filename === 'bootstrap-emulators.sh');
+  assert.ok(file, 'bootstrap-emulators.sh file was not bundled');
+  assert.equal(file.executable, true);
+  assert.ok(recipe.quickstartCommands.some((c) => c.includes('bootstrap-emulators.sh')));
 });

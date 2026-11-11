@@ -81,6 +81,12 @@ test('Formatters: formatConstraint safely handles dynamic apps, desktop envs and
     icon: '📦'
   });
 
+  // Emulator apps array
+  assert.deepEqual(formatConstraint('emulatorApps', ['retroarch', 'dolphin']), {
+    label: 'Emulators: 2 selected',
+    icon: '🎮'
+  });
+
   // Unknown arbitrary key with special characters
   const arbitrary = formatConstraint('customFeature', '<inject>');
   assert.equal(arbitrary.label, 'customFeature: &lt;inject&gt;');

@@ -1,10 +1,11 @@
-import { renderDesktopAppSuite, renderDockerServiceSuite } from '../app-suites.js';
+import { renderDesktopAppSuite, renderDockerServiceSuite, renderEmulatorAppSuite } from '../app-suites.js';
 import { panelAttributes } from '../panel.js';
 import { ResultsViewContext } from './context.js';
 
 /** Panel 1: add-on desktop apps, desktop environments, Docker services, and combos. */
 export function renderAppSuitePanel(ctx: ResultsViewContext): string {
   const { state, best, combos, isServer, selectedAppsCount, hasSelectedApps } = ctx;
+  const isGaming = state.criteria.useCase === 'gaming' || (state.criteria.emulatorApps?.length || 0) > 0;
   return `
       <!-- 📦 Panel 1: Add-On Applications & Desktop Environment Suite -->
       <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl transition-all" ${panelAttributes(state.panelOpen, 'app-suites', hasSelectedApps)}>
@@ -19,7 +20,7 @@ export function renderAppSuitePanel(ctx: ResultsViewContext): string {
                 </span>
               </div>
               <p class="text-xs text-slate-400 mt-0.5 break-words">
-                Pre-install popular desktop apps (Firefox, VS Code, VLC) or headless server apps (Plex, Home Assistant, Pi-hole).
+                Pre-install desktop apps (Firefox, VS Code), gaming emulators (RetroArch, DOSBox), or headless server containers (Plex, Home Assistant).
               </p>
             </div>
           </div>
@@ -32,9 +33,17 @@ export function renderAppSuitePanel(ctx: ResultsViewContext): string {
               ? `
             ${renderDockerServiceSuite(state.criteria, true, state.panelOpen)}
             ${renderDesktopAppSuite(state.criteria, false, state.panelOpen)}
+            ${renderEmulatorAppSuite(state.criteria, false, state.panelOpen)}
+          `
+              : isGaming
+              ? `
+            ${renderEmulatorAppSuite(state.criteria, true, state.panelOpen)}
+            ${renderDesktopAppSuite(state.criteria, false, state.panelOpen)}
+            ${renderDockerServiceSuite(state.criteria, false, state.panelOpen)}
           `
               : `
             ${renderDesktopAppSuite(state.criteria, true, state.panelOpen)}
+            ${renderEmulatorAppSuite(state.criteria, false, state.panelOpen)}
             ${renderDockerServiceSuite(state.criteria, false, state.panelOpen)}
           `
           }

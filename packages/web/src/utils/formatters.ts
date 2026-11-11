@@ -35,6 +35,10 @@ export function formatConstraint(key: string, value: unknown): FormattedConstrai
     const list = Array.isArray(value) ? value : String(value).split(',').filter(Boolean);
     return { label: `Desktop Apps: ${list.length} selected`, icon: '📦' };
   }
+  if (key === 'emulatorApps') {
+    const list = Array.isArray(value) ? value : String(value).split(',').filter(Boolean);
+    return { label: `Emulators: ${list.length} selected`, icon: '🎮' };
+  }
   if (key === 'desktopEnv') {
     return { label: `Desktop: ${escapeHtml(String(value)).toUpperCase()}`, icon: '🖼️' };
   }

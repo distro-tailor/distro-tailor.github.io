@@ -13,6 +13,7 @@ import { sanitizeCriteria } from '../taxonomy/criteria-schema.js';
 
 export * from './docker-apps.js';
 export * from './desktop-apps.js';
+export * from './emulator-apps.js';
 export * from './nixos.js';
 
 /** Every recipe generator by id. Typed as a Record so adding a RecipeGeneratorId requires a generator. */

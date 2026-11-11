@@ -23,6 +23,7 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
 
   const selectedAppsCount =
     (state.criteria.desktopApps?.length || 0) +
+    (state.criteria.emulatorApps?.length || 0) +
     (state.criteria.dockerApp ? 1 : 0) +
     (state.criteria.desktopEnv ? 1 : 0);
   const hasSelectedApps = selectedAppsCount > 0;
