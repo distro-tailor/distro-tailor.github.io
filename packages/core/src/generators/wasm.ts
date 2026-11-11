@@ -1,9 +1,5 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
-import { V86_ASSET_SHA256, V86_ASSETS_COMMIT, V86_NPM_VERSION } from './checksums.js';
-
-const V86_CDN = `https://cdn.jsdelivr.net/npm/v86@${V86_NPM_VERSION}/build`;
-const V86_BIOS_BASE = `https://raw.githubusercontent.com/copy/v86/${V86_ASSETS_COMMIT}/bios`;
-const V86_ISO_URL = 'https://copy.sh/v86/images/linux.iso';
+import { V86_ASSET_SHA256, V86_BIOS_BASE, V86_CDN, V86_ISO_URL } from './checksums.js';
 
 export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
   const htmlContent = `<!DOCTYPE html>

@@ -2,7 +2,7 @@ import { GeneratedRecipe, UserCriteria } from '../types.js';
 import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
 import { getDockerApp } from './docker-apps.js';
 import { generateBootstrapAppsScript } from './desktop-apps.js';
-import { ALPINE_MINIROOTFS_SHA256 } from './checksums.js';
+import { ALPINE_MINIROOTFS_SHA256, ALPINE_MIRROR, ALPINE_VERSION } from './checksums.js';
 
 export function generateAlpineRecipe(criteria: UserCriteria): GeneratedRecipe {
   const arch = criteria.architecture === 'arm64' ? 'aarch64' : 'x86_64';
@@ -17,9 +17,9 @@ export function generateAlpineRecipe(criteria: UserCriteria): GeneratedRecipe {
 # ==============================================================================
 
 DISTRO_NAME ?= ${distroName}
-VERSION     ?= 3.20.0
+VERSION     ?= ${ALPINE_VERSION}
 ARCH        ?= ${arch}
-ALPINE_MIRROR ?= https://dl-cdn.alpinelinux.org/alpine/v3.20
+ALPINE_MIRROR ?= ${ALPINE_MIRROR}
 # Published SHA-256 of alpine-minirootfs-$(VERSION)-$(ARCH).tar.gz (override when changing VERSION/ARCH)
 ALPINE_SHA256 ?= ${ALPINE_MINIROOTFS_SHA256[arch]}
 
