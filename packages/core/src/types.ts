@@ -273,6 +273,12 @@ export type NetworkingStack =
   | 'nftables-pf'
   | 'busybox-minimal';
 
+export type FirmwareMode = 'uefi' | 'legacy-bios';
+
+export type SecureBootPolicy = 'required' | 'own-keys';
+
+export type TpmUsage = 'measured-boot' | 'disk-unlock';
+
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
   platform?: PlatformTarget;
@@ -300,6 +306,9 @@ export interface UserCriteria {
   bootloader?: BootloaderPreference;
   securityProfile?: SecurityProfile;
   networkingStack?: NetworkingStack;
+  firmwareMode?: FirmwareMode;
+  secureBoot?: SecureBootPolicy;
+  tpmUsage?: TpmUsage;
 
   // Interactive Recipe Modifiers (App Suites & Turnkey Services)
   desktopEnv?: DesktopEnvId;

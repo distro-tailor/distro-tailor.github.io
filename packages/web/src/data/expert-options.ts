@@ -190,6 +190,36 @@ export const EXPERT_FIELDS: ExpertFieldConfig[] = [
     ]
   },
   {
+    id: 'expert-firmware-mode',
+    label: 'Firmware Mode',
+    criteriaKey: 'firmwareMode',
+    placeholder: 'Any Firmware (UEFI or BIOS)',
+    options: [
+      { value: 'uefi', label: 'UEFI (GPT + EFI System Partition)' },
+      { value: 'legacy-bios', label: 'Legacy BIOS / CSM (MBR)' }
+    ]
+  },
+  {
+    id: 'expert-secure-boot',
+    label: 'Secure Boot',
+    criteriaKey: 'secureBoot',
+    placeholder: 'Not Required',
+    options: [
+      { value: 'required', label: 'Required (Microsoft-signed shim)' },
+      { value: 'own-keys', label: 'Enroll My Own Keys (signed UKI)' }
+    ]
+  },
+  {
+    id: 'expert-tpm-usage',
+    label: 'TPM 2.0',
+    criteriaKey: 'tpmUsage',
+    placeholder: 'Not Used',
+    options: [
+      { value: 'measured-boot', label: 'Measured Boot / Attestation' },
+      { value: 'disk-unlock', label: 'TPM-Sealed Disk Unlock' }
+    ]
+  },
+  {
     id: 'expert-networking-stack',
     label: 'Networking Daemon',
     criteriaKey: 'networkingStack',

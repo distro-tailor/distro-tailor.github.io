@@ -56,3 +56,26 @@ test('Matcher Scoring: kernel, bootloader, security, and networking affinities a
   const networkdDistros = networkdResult.topMatches.map((m) => m.distro.id);
   assert.ok(networkdDistros.includes('arch') || networkdDistros.includes('nixos'));
 });
+
+test('Matcher Scoring: firmware, Secure Boot, and TPM affinities apply only when selected', () => {
+  const baseline = evaluateCriteria({});
+  assert.equal(baseline.bestMatch.distro.id, 'linux-mint');
+
+  const bios = evaluateCriteria({ firmwareMode: 'legacy-bios' });
+  const bazzite = bios.allMatches.find((m) => m.distro.id === 'bazzite');
+  const antix = bios.allMatches.find((m) => m.distro.id === 'antix');
+  assert.ok(bazzite && antix && antix.score > bazzite.score);
+
+  const sb = evaluateCriteria({ secureBoot: 'required' });
+  const arch = sb.allMatches.find((m) => m.distro.id === 'arch');
+  const ubuntu = sb.allMatches.find((m) => m.distro.id === 'ubuntu');
+  assert.ok(arch && ubuntu && ubuntu.score > arch.score);
+  assert.ok(sb.bestMatch.reasons.some((r) => r.feature === 'Secure Boot' && r.matched));
+
+  const ownKeys = evaluateCriteria({ secureBoot: 'own-keys' });
+  assert.ok(['nixos', 'talos', 'arch'].includes(ownKeys.bestMatch.distro.id));
+
+  const tpm = evaluateCriteria({ tpmUsage: 'disk-unlock' });
+  const freedos = tpm.allMatches.find((m) => m.distro.id === 'freedos');
+  assert.ok(freedos && freedos.score < tpm.bestMatch.score);
+});

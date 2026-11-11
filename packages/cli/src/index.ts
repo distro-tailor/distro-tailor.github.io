@@ -55,6 +55,9 @@ program
   .option('--bootloader <bootloader>', 'Bootloader preference (grub-hybrid, systemd-boot, u-boot, efistub)')
   .option('--security <security>', 'Security profile (standard-dac, selinux, apparmor, amnesic-ram)')
   .option('--network <network>', 'Networking stack (networkmanager, systemd-networkd, nftables-pf, busybox-minimal)')
+  .option('--firmware <mode>', 'Firmware mode (uefi, legacy-bios)')
+  .option('--secure-boot <policy>', 'Secure Boot policy (required, own-keys)')
+  .option('--tpm <usage>', 'TPM 2.0 usage (measured-boot, disk-unlock)')
   .option('--json', 'Output results as machine-readable JSON')
   .action((options) => {
     let criteria: UserCriteria = {
@@ -69,7 +72,10 @@ program
       kernelFlavor: options.kernel,
       bootloader: options.bootloader,
       securityProfile: options.security,
-      networkingStack: options.network
+      networkingStack: options.network,
+      firmwareMode: options.firmware,
+      secureBoot: options.secureBoot,
+      tpmUsage: options.tpm
     };
 
     if (options.url) {

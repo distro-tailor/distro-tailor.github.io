@@ -13,6 +13,7 @@ import {
   DESKTOP_USE_CASES,
   DRIVER_PHILOSOPHY_AFFINITIES,
   FILESYSTEM_AFFINITIES,
+  FIRMWARE_MODE_AFFINITIES,
   FORM_FACTOR_AFFINITIES,
   GUI_CAPABLE_DISTRO_IDS,
   KERNEL_FLAVOR_AFFINITIES,
@@ -20,7 +21,9 @@ import {
   PERIPHERAL_AFFINITIES,
   REALTIME_AUDIO_AFFINITIES,
   SECURITY_PROFILE_AFFINITIES,
+  SECURE_BOOT_AFFINITIES,
   SINGLE_PURPOSE_APPLIANCE_USE_CASES,
+  TPM_USAGE_AFFINITIES,
   UNCONSTRAINED_BASELINE,
   UNIVERSAL_DEFAULT_DISTRO_IDS,
   WORKFLOW_STYLE_AFFINITIES,
@@ -61,6 +64,9 @@ export function evaluateCriteria(
   if (criteria.bootloader) maxWeight += 10;
   if (criteria.securityProfile) maxWeight += 10;
   if (criteria.networkingStack) maxWeight += 10;
+  if (criteria.firmwareMode) maxWeight += 15;
+  if (criteria.secureBoot) maxWeight += 20;
+  if (criteria.tpmUsage) maxWeight += 15;
   const selectedPeripherals = (
     criteria.peripherals ||
     (criteria.peripheralNeed && criteria.peripheralNeed !== 'standard' ? [criteria.peripheralNeed] : [])
@@ -394,6 +400,17 @@ export function evaluateCriteria(
     }
     if (criteria.networkingStack) {
       applyAffinity(NETWORKING_STACK_AFFINITIES[criteria.networkingStack]);
+    }
+
+    // 15. Firmware & Trust Chain (UEFI/BIOS, Secure Boot, TPM)
+    if (criteria.firmwareMode) {
+      applyAffinity(FIRMWARE_MODE_AFFINITIES[criteria.firmwareMode]);
+    }
+    if (criteria.secureBoot) {
+      applyAffinity(SECURE_BOOT_AFFINITIES[criteria.secureBoot]);
+    }
+    if (criteria.tpmUsage) {
+      applyAffinity(TPM_USAGE_AFFINITIES[criteria.tpmUsage]);
     }
 
     // Normalized relative compatibility score (0 - 100%). Hard disqualifications are locked to 0%.

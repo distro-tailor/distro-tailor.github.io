@@ -11,6 +11,7 @@ import {
   EmulatorAppId,
   ExperienceLevel,
   FileSystemPreference,
+  FirmwareMode,
   FormFactor,
   InitSystem,
   KernelFlavor,
@@ -20,9 +21,11 @@ import {
   PlatformTarget,
   PrimaryUseCase,
   ReleaseCadence,
+  SecureBootPolicy,
   SecurityProfile,
   StateModel,
   StorageFootprint,
+  TpmUsage,
   UserCriteria
 } from '../types.js';
 
@@ -197,6 +200,21 @@ export const SECURITY_PROFILE_VALUES: EnumCatalog<SecurityProfile> = {
   'amnesic-ram': true
 };
 
+export const FIRMWARE_MODE_VALUES: EnumCatalog<FirmwareMode> = {
+  uefi: true,
+  'legacy-bios': true
+};
+
+export const SECURE_BOOT_VALUES: EnumCatalog<SecureBootPolicy> = {
+  required: true,
+  'own-keys': true
+};
+
+export const TPM_USAGE_VALUES: EnumCatalog<TpmUsage> = {
+  'measured-boot': true,
+  'disk-unlock': true
+};
+
 export const NETWORKING_STACK_VALUES: EnumCatalog<NetworkingStack> = {
   networkmanager: true,
   'systemd-networkd': true,
@@ -329,6 +347,9 @@ export function sanitizeCriteria(input: UntrustedCriteria): UserCriteria {
     bootloader: pickEnum(BOOTLOADER_VALUES, input.bootloader),
     securityProfile: pickEnum(SECURITY_PROFILE_VALUES, input.securityProfile),
     networkingStack: pickEnum(NETWORKING_STACK_VALUES, input.networkingStack),
+    firmwareMode: pickEnum(FIRMWARE_MODE_VALUES, input.firmwareMode),
+    secureBoot: pickEnum(SECURE_BOOT_VALUES, input.secureBoot),
+    tpmUsage: pickEnum(TPM_USAGE_VALUES, input.tpmUsage),
     desktopEnv: pickEnum(DESKTOP_ENV_VALUES, input.desktopEnv),
     enableDistrobox: pickBoolean(input.enableDistrobox),
     enableNix: pickBoolean(input.enableNix),

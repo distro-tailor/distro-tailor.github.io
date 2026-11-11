@@ -5,12 +5,15 @@ import {
   DistroProfile,
   DriverPhilosophy,
   FileSystemPreference,
+  FirmwareMode,
   FormFactor,
   KernelFlavor,
   NetworkingStack,
   PeripheralNeed,
   PrimaryUseCase,
+  SecureBootPolicy,
   SecurityProfile,
+  TpmUsage,
   UserCriteria
 } from '../types.js';
 
@@ -660,4 +663,90 @@ export const NETWORKING_STACK_AFFINITIES: AffinityTable<NetworkingStack> = {
       explanation: 'Minimal BusyBox networking utilities (ifupdown, udhcpc) with zero overhead.'
     }
   ]
+};
+
+// ---------------------------------------------------------------------------
+// Firmware & Trust-Chain Affinities (scored only when explicitly selected)
+// ---------------------------------------------------------------------------
+
+export const FIRMWARE_MODE_AFFINITIES: AffinityTable<FirmwareMode> = {
+  'legacy-bios': [
+    {
+      distroIds: ['antix', 'freedos', 'alpine', 'debian', 'porteus-kiosk', 'linux-mint', 'ubuntu'],
+      points: 15,
+      feature: 'Firmware Mode',
+      explanation: 'Ships images that boot on legacy BIOS / CSM (MBR) hardware as well as UEFI.'
+    },
+    {
+      distroIds: ['bazzite', 'asahi-linux', 'postmarketos'],
+      points: -15,
+      feature: 'Firmware Mode',
+      explanation: 'UEFI-only or non-BIOS firmware; cannot boot on legacy BIOS machines.'
+    }
+  ],
+  uefi: [
+    {
+      distroIds: ['fedora', 'fedora-silverblue', 'pop-os', 'arch', 'nixos', 'bazzite', 'talos', 'ubuntu'],
+      points: 10,
+      feature: 'Firmware Mode',
+      explanation: 'First-class native UEFI boot with GPT and an EFI System Partition.'
+    },
+    {
+      distroIds: ['freedos', 'reactos'],
+      points: -15,
+      feature: 'Firmware Mode',
+      explanation: 'Real-mode or legacy-oriented boot path with little or no native UEFI support.'
+    }
+  ]
+};
+
+export const SECURE_BOOT_AFFINITIES: AffinityTable<SecureBootPolicy> = {
+  required: [
+    {
+      distroIds: ['ubuntu', 'ubuntu-studio', 'linux-mint', 'debian', 'fedora', 'fedora-silverblue', 'pop-os', 'bazzite', 'proxmox-ve'],
+      points: 20,
+      feature: 'Secure Boot',
+      explanation: 'Boots out of the box with a Microsoft-signed shim and signed kernel under UEFI Secure Boot.'
+    },
+    {
+      distroIds: ['arch', 'alpine', 'buildroot', 'openwrt', 'opnsense', 'freedos', 'haiku', 'reactos', 'antix', 'porteus-kiosk'],
+      points: -15,
+      feature: 'Secure Boot',
+      explanation: 'No signed shim by default; Secure Boot must be disabled or configured manually.'
+    }
+  ],
+  'own-keys': [
+    {
+      distroIds: ['nixos', 'talos', 'arch'],
+      points: 20,
+      feature: 'Secure Boot',
+      explanation: 'Supports enrolling your own keys with signed unified kernel images (lanzaboote, sbctl, Talos secure boot).'
+    },
+    {
+      distroIds: ['freedos', 'haiku', 'reactos'],
+      points: -15,
+      feature: 'Secure Boot',
+      explanation: 'No custom-key Secure Boot or signed kernel image workflow.'
+    }
+  ]
+};
+
+const TPM_AFFINITY_TIERS: readonly AffinityTier[] = [
+  {
+    distroIds: ['fedora', 'fedora-silverblue', 'ubuntu', 'talos', 'nixos', 'arch'],
+    points: 15,
+    feature: 'TPM',
+    explanation: 'TPM 2.0 integration for measured boot and sealed disk keys (systemd-cryptenroll, Clevis, Talos TPM encryption).'
+  },
+  {
+    distroIds: ['freedos', 'haiku', 'reactos'],
+    points: -15,
+    feature: 'TPM',
+    explanation: 'No TPM 2.0 measured boot or sealed-key disk unlock support.'
+  }
+];
+
+export const TPM_USAGE_AFFINITIES: AffinityTable<TpmUsage> = {
+  'measured-boot': TPM_AFFINITY_TIERS,
+  'disk-unlock': TPM_AFFINITY_TIERS
 };

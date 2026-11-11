@@ -227,3 +227,19 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And clearing the filter or pressing Escape restores all original option cards
 
 
+
+  Scenario: Security-conscious user requires UEFI Secure Boot with a signed shim
+    Given the user specifies Secure Boot "required"
+    When the engine evaluates the candidate distributions
+    Then signed-shim distributions such as "Ubuntu", "Fedora", and "Debian" should outrank "Arch Linux" and "Alpine"
+    And the recommendation reasons should highlight the Microsoft-signed shim
+
+  Scenario: Legacy hardware owner needs BIOS (MBR) boot support
+    Given the user specifies firmware mode "legacy-bios"
+    When the engine evaluates the candidate distributions
+    Then "antiX" should outrank UEFI-only images such as "Bazzite"
+
+  Scenario: Hardened-workstation builder wants TPM-sealed disk unlock with their own signing keys
+    Given the user specifies Secure Boot "own-keys" and TPM usage "disk-unlock"
+    When the engine evaluates the candidate distributions
+    Then "NixOS", "Talos Linux", or "Arch Linux" should rank at the top

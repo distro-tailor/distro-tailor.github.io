@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { EXPERT_FIELDS } from './expert-options.js';
 
 test('Expert Options: defines valid configs with unique IDs and populated options', () => {
-  assert.equal(EXPERT_FIELDS.length, 15, 'Should define exactly 15 expert matrix fields');
+  assert.equal(EXPERT_FIELDS.length, 18, 'Should define exactly 18 expert matrix fields');
 
   const seenIds = new Set<string>();
   const seenKeys = new Set<string>();
@@ -19,7 +19,7 @@ test('Expert Options: defines valid configs with unique IDs and populated option
 
     assert.ok(field.label && field.label.length > 0);
     assert.ok(field.placeholder && field.placeholder.length > 0);
-    assert.ok(Array.isArray(field.options) && field.options.length >= 3);
+    assert.ok(Array.isArray(field.options) && field.options.length >= 2);
 
     for (const opt of field.options) {
       assert.ok(opt.value && opt.value.length > 0);

@@ -146,6 +146,18 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     apparmor: { label: 'AppArmor Path-Based MAC', icon: '🏰' },
     'amnesic-ram': { label: 'Amnesic RAM Incognito', icon: '🕵️' }
   },
+  firmwareMode: {
+    uefi: { label: 'UEFI Firmware (GPT)', icon: '🧬' },
+    'legacy-bios': { label: 'Legacy BIOS / CSM (MBR)', icon: '🕰️' }
+  },
+  secureBoot: {
+    required: { label: 'Secure Boot (Signed Shim)', icon: '🔏' },
+    'own-keys': { label: 'Secure Boot (Own Keys)', icon: '🗝️' }
+  },
+  tpmUsage: {
+    'measured-boot': { label: 'TPM 2.0 Measured Boot', icon: '📟' },
+    'disk-unlock': { label: 'TPM-Sealed Disk Unlock', icon: '🔐' }
+  },
   networkingStack: {
     networkmanager: { label: 'NetworkManager (Desktop & Wi-Fi)', icon: '📶' },
     'systemd-networkd': { label: 'systemd-networkd Daemon', icon: '⚙️' },
