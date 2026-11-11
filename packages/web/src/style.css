@@ -35,8 +35,15 @@
     @apply px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md;
     @apply bg-emerald-600 text-white hover:bg-emerald-700 border border-emerald-600;
   }
-  .dark .btn-primary {
+  .dark .btn-primary,
+  html.dark .btn-primary {
     @apply bg-emerald-400 text-slate-950 hover:bg-emerald-300 border-transparent shadow-emerald-950/40;
+    background-color: #34d399;
+    color: #020617;
+  }
+  .dark .btn-primary:hover,
+  html.dark .btn-primary:hover {
+    background-color: #6ee7b7;
   }
 
   /* Accent Action Button (Load Match permalinks, specialized highlights) */
@@ -44,8 +51,15 @@
     @apply px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md;
     @apply bg-sky-600 text-white hover:bg-sky-700 border border-sky-600;
   }
-  .dark .btn-accent {
+  .dark .btn-accent,
+  html.dark .btn-accent {
     @apply bg-cyan-400 text-slate-950 hover:bg-cyan-300 border-transparent shadow-cyan-950/40;
+    background-color: #22d3ee;
+    color: #020617;
+  }
+  .dark .btn-accent:hover,
+  html.dark .btn-accent:hover {
+    background-color: #67e8f9;
   }
 
   /* Secondary & Neutral Action Buttons (Back, Skip, Docs, Close, Dismiss) */
@@ -53,8 +67,12 @@
     @apply px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer border;
     @apply bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-slate-900 shadow-sm;
   }
-  .dark .btn-secondary {
+  .dark .btn-secondary,
+  html.dark .btn-secondary {
     @apply bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700 hover:text-slate-100;
+    background-color: #1e293b;
+    color: #e2e8f0;
+    border-color: #334155;
   }
 
   /* Persona Presets Card, Buttons & Badges */
@@ -819,6 +837,19 @@
   html.light #btn-close-distro-modal:hover {
     background-color: #e2e8f0 !important;
     color: #0f172a !important;
+  }
+
+  html.light #btn-modal-load-distro {
+    background-color: #0284c7 !important;
+    color: #ffffff !important;
+    border: 1px solid #0369a1 !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25) !important;
+  }
+
+  html.light #btn-modal-load-distro:hover {
+    background-color: #0369a1 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(2, 132, 199, 0.35) !important;
   }
 
   html.light #btn-modal-official-site {
