@@ -94,7 +94,7 @@ ${constraintsList || '• Default profile'}
 **Key Highlights:**
 ${best.distro.highlights.map((h) => `• ${h}`).join('\n')}
 
-🔗 **View or customize this Linux build:**
+🔗 **View or customize this build:**
 ${url}`;
 }
 

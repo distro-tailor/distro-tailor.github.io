@@ -14,7 +14,7 @@ export function renderSharedConfigBanner(ctx: ResultsViewContext): string {
               🔗
             </div>
             <div class="min-w-0 flex-1">
-              <h4 class="font-bold text-indigo-100 text-sm break-words">You are viewing a shared tailored Linux build!</h4>
+              <h4 class="font-bold text-indigo-100 text-sm break-words">You are viewing a shared tailored OS build!</h4>
               <p class="text-slate-400 text-[11px] mt-0.5 break-words">
                 Configured with <strong>${Object.keys(state.criteria).length} tailored criteria</strong>. You can inspect the recipe, tweak any choice, or start your own build.
               </p>

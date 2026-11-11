@@ -8,28 +8,28 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the registry contains desktop, appliance, embedded, server, and container distributions
 
   Scenario: Novice user wants a living room media center
-    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
     When the user selects goal "Living Room Media Center / TV Box (Kodi)"
     Then the engine should recommend "LibreELEC" with a match score of at least 80%
     And the recommendation should highlight remote-control navigation and HDMI-CEC support
     And the recommendation should suggest modular add-ons such as RetroArch gaming and home streaming
 
   Scenario: Family wants a private photo/video backup and home NAS
-    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
     When the user selects goal "Family Photo/Video Backup & Home Storage (NAS)"
     Then the engine should recommend "OpenMediaVault (OMV)" with a match score of at least 80%
     And the recommendation should highlight replacing iCloud and Google Photos fees with automated Wi-Fi phone sync
     And the recommendation should suggest modular add-ons such as Home Assistant and Pi-hole ad-blocking
 
   Scenario: Homeowner wants a private local smart home hub
-    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
     When the user selects goal "Smart Home Automation Hub (Home Assistant)"
     Then the engine should recommend "Home Assistant OS (HAOS)" with a match score of at least 80%
     And the recommendation should highlight 100% private local execution without cloud subscription fees
     And the recommendation should explain atomic A/B dual-rootfs rollbacks
 
   Scenario: Product creator wants to boot directly into a custom application
-    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
     When the user selects goal "Dedicated Single-App Appliance / Custom Product"
     Then the engine should recommend "Cage Wayland Appliance"
     And the generated recipe should provide an auto-restart watchdog loop
@@ -76,14 +76,14 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the recommendation should highlight BeOS heritage, OpenBFS filesystem indexing, and 3-second boot times
 
   Scenario: Freelancer needs a reliable home office workstation for documents and video calls
-    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
     When the user selects goal "Home Office & Freelancing (Word, Excel, Invoicing, Zoom, Slack)"
     Then the engine should recommend "Linux Mint" or "Fedora Workstation" with a match score of at least 80%
     And the recommendation should highlight 100% Microsoft Office compatibility and Timeshift snapshot rollbacks
     And the recommendation should suggest modular add-ons such as OnlyOffice editors and web app managers
 
   Scenario: Digital artist and video editor needs a turnkey creative multimedia studio
-    Given the user selects experience level "New to Linux / Just have a goal in mind"
+    Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
     When the user selects goal "Graphic Design, 3D Art & Video Production (Blender, Krita, DaVinci)"
     Then the engine should recommend "Ubuntu Studio" with a match score of at least 80%
     And the recommendation should highlight low-latency kernel, drawing tablet calibration, and pre-installed Krita and Blender

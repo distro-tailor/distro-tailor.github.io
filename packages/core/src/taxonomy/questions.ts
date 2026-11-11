@@ -5,7 +5,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 'user_familiarity',
     order: 1,
-    prompt: 'How much Linux experience do you have?',
+    prompt: 'How much experience do you have with open-source OSes?',
     subtext: 'No wrong answers! We tailor all remaining questions to speak your language.',
     category: 'preferences',
     tip: {
@@ -16,7 +16,7 @@ export const QUESTIONS: Question[] = [
     options: [
       {
         id: 'beginner',
-        label: 'New to Linux / Just have a project in mind',
+        label: 'New to Linux & Open Source / Just have a goal in mind',
         description: 'Keep it simple in plain English (e.g. turn an old PC into a gaming console, media player, or school station)',
         icon: '🌱',
         appliesCriteria: { experienceLevel: 'beginner' }
@@ -48,8 +48,8 @@ export const QUESTIONS: Question[] = [
     shouldAsk: (criteria) => criteria.experienceLevel === 'beginner',
     tip: {
       icon: '🧩',
-      title: 'Linux is Modular — You Can Mix & Match',
-      text: 'Don\'t stress over choosing between two goals (like a Media Center AND Retro Games). Pick your primary interface first—Linux lets you layer on containers, emulators, or ad-blockers on the results page.'
+      title: 'Open Source is Modular — You Can Mix & Match',
+      text: 'Don\'t stress over choosing between two goals (like a Media Center AND Retro Games). Pick your primary interface first—you can layer on containers, emulators, or ad-blockers on the results page.'
     },
     options: [
       {
@@ -173,8 +173,8 @@ export const QUESTIONS: Question[] = [
       },
       {
         id: 'browser_wasm',
-        label: 'Try Linux right now in my web browser tab',
-        description: 'Test Linux in a sandbox without installing anything or touching your hard drive',
+        label: 'Try an OS right now in my web browser tab',
+        description: 'Test an operating system in a sandbox without installing anything or touching your hard drive',
         icon: '🌐',
         appliesCriteria: { useCase: 'browser-wasm', footprint: 'minimal', platform: 'browser-wasm' }
       }
@@ -185,7 +185,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 'technical_use_case',
     order: 2,
-    prompt: 'What is the primary role or mission for this Linux system?',
+    prompt: 'What is the primary role or mission for this system?',
     subtext: 'Sets the foundational baseline for packages, security boundaries, and kernel capabilities.',
     category: 'platform',
     shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner',
@@ -482,8 +482,8 @@ export const QUESTIONS: Question[] = [
     shouldAsk: (criteria) => criteria.experienceLevel === 'beginner' && criteria.useCase !== 'browser-wasm',
     tip: {
       icon: '🚀',
-      title: 'Linux is Incredibly Lean',
-      text: 'While Windows 11 idles at 3.5GB to 4GB of RAM, lightweight Linux systems like antiX and DietPi idle at just 60MB to 150MB of RAM, making ancient 1GB machines feel brand new.'
+      title: 'Open Source Systems are Incredibly Lean',
+      text: 'While Windows 11 idles at 3.5GB to 4GB of RAM, lightweight systems like antiX, Haiku, and FreeDOS idle at just 2MB to 150MB of RAM, making older machines feel brand new.'
     },
     options: [
       {
@@ -612,7 +612,7 @@ export const QUESTIONS: Question[] = [
     tip: {
       icon: '🎨',
       title: 'Muscle Memory Matters',
-      text: 'Switching to Linux is easiest when your desktop layout feels familiar! Linux distributions offer desktop environments tailored for Windows switchers (Linux Mint), macOS users (Pop!_OS/COSMIC, GNOME), or touch and Chromebook/tablet interfaces (Endless OS).'
+      text: 'Switching to open-source systems is easiest when your desktop layout feels familiar! Distributions offer desktop environments tailored for Windows switchers (Linux Mint, ReactOS), macOS users (Pop!_OS/COSMIC, GNOME), or lightweight traditional setups (Haiku, antiX).'
     },
     options: [
       {
@@ -638,8 +638,8 @@ export const QUESTIONS: Question[] = [
       },
       {
         id: 'compact_traditional_style',
-        label: 'Lightweight / Traditional Linux Desktop',
-        description: 'Minimalist, low-RAM interface with traditional menus and maximum responsiveness on older hardware (antiX, XFCE)',
+        label: 'Lightweight / Traditional Desktop',
+        description: 'Minimalist, low-RAM interface with traditional menus and maximum responsiveness on older hardware (antiX, Haiku, XFCE)',
         icon: '🪶',
         appliesCriteria: { workflowStyle: 'traditional-compact' }
       },
@@ -742,7 +742,7 @@ export const QUESTIONS: Question[] = [
     id: 'boot_medium',
     order: 8,
     isOptional: true,
-    prompt: 'Where will this Linux system be installed and booted from?',
+    prompt: 'Where will this system be installed and booted from?',
     subtext: 'Storage drive medium affects filesystem caching, wear reduction, and RAM disk architecture.',
     category: 'hardware',
     shouldAsk: (criteria) =>
@@ -786,7 +786,7 @@ export const QUESTIONS: Question[] = [
     order: 9,
     isOptional: true,
     prompt: 'Will this system be used for pro-audio production or low-latency music creation?',
-    subtext: 'Real-time audio processing (DAWs, software synthesizers, MIDI) requires a low-latency realtime Linux kernel.',
+    subtext: 'Real-time audio processing (DAWs, software synthesizers, MIDI) requires a low-latency realtime kernel.',
     category: 'software',
     shouldAsk: (criteria) =>
       criteria.prefersGui !== false &&
@@ -797,7 +797,7 @@ export const QUESTIONS: Question[] = [
     tip: {
       icon: '🎵',
       title: 'Pro Audio & Realtime Kernels',
-      text: 'Everyday Linux kernels prioritize throughput over sub-millisecond latency. Professional digital audio workstations (Ardour, Reaper, Bitwig) require PREEMPT_RT or lowlatency kernels to avoid audio buffer xruns and crackles.'
+      text: 'Standard kernels prioritize throughput over sub-millisecond latency. Professional digital audio workstations (Ardour, Reaper, Bitwig) require PREEMPT_RT or lowlatency kernels to avoid audio buffer xruns and crackles.'
     },
     options: [
       {
@@ -903,7 +903,7 @@ export const QUESTIONS: Question[] = [
       {
         id: 'traditional_mutable',
         label: 'Traditional Mutable (apt, dnf, pacman)',
-        description: 'Standard Linux: install and tweak packages whenever you want',
+        description: 'Standard mutable OS: install and tweak packages whenever you want',
         icon: '🛠️',
         isDefault: true,
         appliesCriteria: { statePreference: 'mutable' }

@@ -22,7 +22,7 @@ export function renderNavbar(state: AppState, evaluation: RecommendationOutput):
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Offline Ready
               </span>
             </div>
-            <p class="text-[11px] sm:text-xs text-slate-400 truncate sm:whitespace-normal">Think of a project. Find your dream Linux match.</p>
+            <p class="text-[11px] sm:text-xs text-slate-400 truncate sm:whitespace-normal">Think of a project. Find your dream OS match.</p>
           </div>
         </div>
 

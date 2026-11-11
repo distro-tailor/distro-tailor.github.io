@@ -15,7 +15,7 @@ test('PWA Manifest: exists, parses valid JSON, and defines standalone mobile met
   const content = fs.readFileSync(manifestPath, 'utf-8');
   const manifest = JSON.parse(content);
 
-  assert.equal(manifest.name, 'DistroTailor — Linux Selector & Recipe Generator');
+  assert.equal(manifest.name, 'DistroTailor — OS Selector & Recipe Generator');
   assert.equal(manifest.short_name, 'DistroTailor');
   assert.equal(manifest.display, 'standalone');
   assert.equal(manifest.start_url, './');

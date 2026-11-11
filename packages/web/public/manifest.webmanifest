@@ -1,7 +1,7 @@
 {
-  "name": "DistroTailor — Linux Selector & Recipe Generator",
+  "name": "DistroTailor — OS Selector & Recipe Generator",
   "short_name": "DistroTailor",
-  "description": "Adaptive 20-questions Linux selector and custom distro build recipe generator",
+  "description": "Adaptive 20-questions open-source OS selector and custom distro build recipe generator",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

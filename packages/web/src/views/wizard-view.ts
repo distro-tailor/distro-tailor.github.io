@@ -18,7 +18,7 @@ export function renderUnsupportedSchemaFallback(notice: string): string {
           <span>💡</span> Why did this happen?
         </p>
         <p class="leading-relaxed break-words">
-          DistroTailor continuously refines hardware targeting, Linux distros, and question taxonomy. When a link from a deprecated or incompatible schema is opened, we protect you from invalid recipes and allow you to restart cleanly.
+          DistroTailor continuously refines hardware targeting, open-source distros, and question taxonomy. When a link from a deprecated or incompatible schema is opened, we protect you from invalid recipes and allow you to restart cleanly.
         </p>
       </div>
 
@@ -312,7 +312,7 @@ export function renderWizardQuestion(
           .join('')}
       </div>
 
-      <!-- Contextual Linux Pro-Tip Box -->
+      <!-- Contextual Pro-Tip Box -->
       ${
         question.tip
           ? `
