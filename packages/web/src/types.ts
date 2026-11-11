@@ -35,6 +35,7 @@ export interface AppState {
   showShareModal: boolean;
   showAllContenders: boolean;
   searchQuery?: string;
+  wizardFilterQuery?: string;
   selectedDistroId?: string | null;
   theme?: 'dark' | 'light';
   /** Panels the user explicitly opened (true) or closed (false). UI-only: never written to the URL. */
@@ -137,6 +138,11 @@ export interface IAppStore {
    * Sets the live search query for filtering distributions in leaderboard and catalog.
    */
   setSearchQuery(query: string): void;
+
+  /**
+   * Sets the search filter query for filtering options within a long questionnaire step.
+   */
+  setWizardFilter(query: string): void;
 
   /**
    * Sets the selected distro profile to display in the detailed preview modal.

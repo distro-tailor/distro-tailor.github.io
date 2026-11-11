@@ -204,4 +204,13 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the redundant "★ Standard Default" badge is hidden on that card to eliminate visual noise
     And the "Return to Results" button is available in the header if a match was already reached
 
+  Scenario: Inline quick search filter for questionnaire steps with long lists
+    Given a questionnaire step has 7 or more option cards
+    When the question renders on screen
+    Then an inline search input is displayed directly above the cards
+    When the user types a keyword into the filter input
+    Then the option grid immediately filters to display only cards matching the query
+    And typing number keys in the filter input does not trigger option selection shortcuts
+    And clearing the filter or pressing Escape restores all original option cards
+
 

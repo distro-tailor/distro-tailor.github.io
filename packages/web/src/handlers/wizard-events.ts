@@ -136,4 +136,27 @@ export function bindWizardEvents(ctx: HandlerContext): void {
   };
   document.getElementById('btn-jump-results')?.addEventListener('click', handleJumpResults);
   document.getElementById('btn-jump-results-top')?.addEventListener('click', handleJumpResults);
+
+  // Live filter input for long question option lists
+  const filterInput = document.getElementById('input-filter-wizard-options') as HTMLInputElement | null;
+  if (filterInput) {
+    filterInput.addEventListener('input', (e) => {
+      const val = (e.target as HTMLInputElement).value;
+      store.setWizardFilter(val);
+    });
+
+    filterInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        store.setWizardFilter('');
+      }
+    });
+  }
+
+  document.getElementById('btn-clear-wizard-filter')?.addEventListener('click', () => {
+    store.setWizardFilter('');
+  });
+
+  document.getElementById('btn-reset-wizard-filter')?.addEventListener('click', () => {
+    store.setWizardFilter('');
+  });
 }

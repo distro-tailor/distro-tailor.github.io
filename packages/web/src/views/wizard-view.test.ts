@@ -242,4 +242,49 @@ test('Wizard View: displays Return to Results button when user has an unlocked m
   assert.ok(html.includes('Next (Use Default) →') || html.includes('Next Question →'), 'Must allow moving forward');
 });
 
+test('Wizard View: displays quick filter input on questions with long option lists', () => {
+  const goalQuestion = QUESTIONS.find((q) => q.id === 'beginner_goal')!;
+  assert.ok(goalQuestion);
+  assert.ok(goalQuestion.options.length >= 7, 'Goal question should have at least 7 options');
+
+  const baseState: AppState = {
+    criteria: {},
+    answeredQuestionIds: new Set(),
+    activeTab: 'wizard',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+
+  // 1. Long list renders search filter input
+  const longHtml = renderWizardQuestion(goalQuestion, { current: 2, total: 10 }, baseState);
+  assert.ok(longHtml.includes('id="input-filter-wizard-options"'), 'Long question must render live filter input');
+
+  // 2. Short list does NOT render search filter input
+  const bootQuestion = QUESTIONS.find((q) => q.id === 'boot_medium')!;
+  const shortHtml = renderWizardQuestion(bootQuestion, { current: 5, total: 10 }, baseState);
+  assert.ok(!shortHtml.includes('id="input-filter-wizard-options"'), 'Short question must not render filter input');
+
+  // 3. Filter query narrows displayed options
+  const filteredState: AppState = {
+    ...baseState,
+    wizardFilterQuery: 'gps'
+  };
+  const filteredHtml = renderWizardQuestion(goalQuestion, { current: 2, total: 10 }, filteredState);
+  assert.ok(filteredHtml.includes('In-Car GPS &amp; Offline Navigation') || filteredHtml.includes('In-Car GPS & Offline Navigation'));
+  assert.ok(!filteredHtml.includes('Family Photo/Video Backup'), 'Non-matching options should be filtered out');
+
+  // 4. Unmatched filter query renders empty state
+  const emptyState: AppState = {
+    ...baseState,
+    wizardFilterQuery: 'xyznonexistentterm'
+  };
+  const emptyHtml = renderWizardQuestion(goalQuestion, { current: 2, total: 10 }, emptyState);
+  assert.ok(emptyHtml.includes('No options match'), 'Should display empty state when no options match filter');
+  assert.ok(emptyHtml.includes('id="btn-reset-wizard-filter"'), 'Should provide clear filter button in empty state');
+});
+
 

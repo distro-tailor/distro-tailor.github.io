@@ -206,6 +206,35 @@ export function renderWizardQuestion(
         ${question.subtext ? `<p class="text-xs sm:text-sm text-slate-400 leading-relaxed break-words">${question.subtext}</p>` : ''}
       </div>
 
+      ${
+        question.options.length >= 7
+          ? `
+      <!-- Inline Quick Search for long option lists -->
+      <div class="relative mb-5 max-w-md">
+        <input
+          id="input-filter-wizard-options"
+          type="text"
+          placeholder="Filter ${question.options.length} options (e.g., 'gps', 'kodi', 'server')..."
+          value="${escapeHtml(state.wizardFilterQuery || '')}"
+          class="w-full px-3.5 py-2 pl-9 pr-8 rounded-xl bg-slate-900 border border-slate-700/80 text-xs sm:text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all shadow-sm"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <span class="absolute left-3 top-2.5 text-xs text-slate-400 pointer-events-none">🔍</span>
+        ${
+          state.wizardFilterQuery
+            ? `
+          <button id="btn-clear-wizard-filter" class="absolute right-2.5 top-2 text-xs text-slate-400 hover:text-slate-100 cursor-pointer px-1 py-0.5" title="Clear filter">
+            ✕
+          </button>
+        `
+            : ''
+        }
+      </div>
+      `
+          : ''
+      }
+
       <!-- Option Cards -->
       <div class="${gridClass}">
         ${(() => {
@@ -274,12 +303,38 @@ export function renderWizardQuestion(
 
           const hasAnySelection = question.options.some((opt) => checkOptionSelected(opt));
 
-          return question.options
+          const filterQuery = (state.wizardFilterQuery || '').trim().toLowerCase();
+          const visibleOptions = filterQuery
+            ? question.options.filter(
+                (opt) =>
+                  opt.label.toLowerCase().includes(filterQuery) ||
+                  (opt.description && opt.description.toLowerCase().includes(filterQuery)) ||
+                  opt.id.toLowerCase().includes(filterQuery)
+              )
+            : question.options;
+
+          if (visibleOptions.length === 0) {
+            return `
+              <div class="col-span-full py-10 px-6 rounded-2xl bg-slate-950/60 border border-slate-800 text-center">
+                <span class="text-3xl mb-2.5 block">🔍</span>
+                <p class="text-sm font-semibold text-slate-200 mb-1">No options match "${escapeHtml(state.wizardFilterQuery || '')}"</p>
+                <p class="text-xs text-slate-400 mb-4">Try a different keyword or clear the filter to see all ${question.options.length} options.</p>
+                <button id="btn-reset-wizard-filter" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-semibold border border-slate-700 hover:border-emerald-500/40 transition-all cursor-pointer">
+                  Clear Filter
+                </button>
+              </div>
+            `;
+          }
+
+          const visibleCount = visibleOptions.length;
+
+          return visibleOptions
             .map((opt, idx) => {
-              const keyNum = idx + 1;
+              const originalIdx = question.options.indexOf(opt);
+              const keyNum = originalIdx !== -1 ? originalIdx + 1 : idx + 1;
               // Strip any leading emoji from label string to avoid duplicate display
               const cleanLabel = opt.label.replace(/^[\p{Emoji}\s]+/u, '').trim();
-              const isSpanFull = numOptions % 2 === 1 && idx === numOptions - 1 && numOptions > 3;
+              const isSpanFull = visibleCount % 2 === 1 && idx === visibleCount - 1 && visibleCount > 3;
               const spanClass = isSpanFull ? 'sm:col-span-2' : '';
 
               const isSelected = checkOptionSelected(opt);

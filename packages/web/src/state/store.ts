@@ -28,6 +28,7 @@ export function createDefaultState(): AppState {
     showShareModal: false,
     showAllContenders: false,
     searchQuery: '',
+    wizardFilterQuery: '',
     selectedDistroId: null,
     theme: getSavedTheme(),
     panelOpen: {}
@@ -128,6 +129,7 @@ export class AppStore extends EventTarget implements IAppStore {
     if (currentIdx > 0) {
       const prevQ = eligible[currentIdx - 1];
       this._state.viewingQuestionId = prevQ.id;
+      this._state.wizardFilterQuery = '';
       this._state.activeTab = 'wizard';
       this.notify();
       return true;
@@ -160,6 +162,7 @@ export class AppStore extends EventTarget implements IAppStore {
     if (currentIdx !== -1 && currentIdx < eligible.length - 1) {
       const nextQ = eligible[currentIdx + 1];
       this._state.viewingQuestionId = nextQ.id;
+      this._state.wizardFilterQuery = '';
       this._state.activeTab = 'wizard';
       this.notify();
       return true;
@@ -222,6 +225,7 @@ export class AppStore extends EventTarget implements IAppStore {
       const currentIdx = eligible.findIndex((q) => q.id === questionId);
       if (currentIdx !== -1 && currentIdx < eligible.length - 1) {
         this._state.viewingQuestionId = eligible[currentIdx + 1].id;
+        this._state.wizardFilterQuery = '';
         this._state.activeTab = 'wizard';
       } else {
         this._state.viewingQuestionId = null;
@@ -384,6 +388,12 @@ export class AppStore extends EventTarget implements IAppStore {
   public setSearchQuery(query: string): void {
     if (this._state.searchQuery === query) return;
     this._state.searchQuery = query;
+    this.notify();
+  }
+
+  public setWizardFilter(query: string): void {
+    if (this._state.wizardFilterQuery === query) return;
+    this._state.wizardFilterQuery = query;
     this.notify();
   }
 
