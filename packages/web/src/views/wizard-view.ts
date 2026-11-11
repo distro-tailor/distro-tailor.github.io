@@ -188,105 +188,112 @@ export function renderWizardQuestion(
 
       <!-- Option Cards -->
       <div class="${gridClass}">
-        ${question.options
-          .map((opt, idx) => {
-            const keyNum = idx + 1;
-            // Strip any leading emoji from label string to avoid duplicate display
-            const cleanLabel = opt.label.replace(/^[\p{Emoji}\s]+/u, '').trim();
-            const isSpanFull = numOptions % 2 === 1 && idx === numOptions - 1 && numOptions > 3;
-            const spanClass = isSpanFull ? 'sm:col-span-2' : '';
+        ${(() => {
+          // Check if option is currently selected for multi-select questions
+          const selectedPeripherals = (
+            state.criteria.peripherals ||
+            (state.criteria.peripheralNeed && state.criteria.peripheralNeed !== 'standard'
+              ? [state.criteria.peripheralNeed]
+              : ['standard'])
+          );
 
-            // Check if option is currently selected for multi-select questions
-            const selectedPeripherals = (
-              state.criteria.peripherals ||
-              (state.criteria.peripheralNeed && state.criteria.peripheralNeed !== 'standard'
-                ? [state.criteria.peripheralNeed]
-                : ['standard'])
-            );
-            const isMultiSelected =
-              question.isMultiSelect &&
-              opt.appliesCriteria.peripherals &&
-              opt.appliesCriteria.peripherals.some((p) => selectedPeripherals.includes(p));
-
-            const isSingleSelected = (() => {
-              if (question.isMultiSelect) return false;
-
-              // 1. Strict exact match: all criteria applied by this option are defined and match state
-              const exactMatches = question.options.filter(
-                (o) =>
-                  Object.entries(o.appliesCriteria).length > 0 &&
-                  Object.entries(o.appliesCriteria).every(
-                    ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
-                  )
+          const checkOptionSelected = (opt: (typeof question.options)[0]): boolean => {
+            if (question.isMultiSelect) {
+              return !!(
+                opt.appliesCriteria.peripherals &&
+                opt.appliesCriteria.peripherals.some((p) => selectedPeripherals.includes(p))
               );
-              if (exactMatches.length > 0) {
-                const best = exactMatches.sort(
-                  (a, b) => Object.keys(b.appliesCriteria).length - Object.keys(a.appliesCriteria).length
-                )[0];
-                return opt.id === best.id;
-              }
+            }
 
-              // 2. Resilient partial match: options with no conflicts whose defined keys match state
-              const partialMatches = question.options.filter((o) => {
-                const entries = Object.entries(o.appliesCriteria);
-                if (entries.length === 0) return false;
-                const hasConflict = entries.some(
-                  ([k, v]) =>
-                    (state.criteria as Record<string, unknown>)[k] !== undefined &&
-                    (state.criteria as Record<string, unknown>)[k] !== v
-                );
-                if (hasConflict) return false;
-                return entries.some(
+            // 1. Strict exact match: all criteria applied by this option are defined and match state
+            const exactMatches = question.options.filter(
+              (o) =>
+                Object.entries(o.appliesCriteria).length > 0 &&
+                Object.entries(o.appliesCriteria).every(
                   ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
-                );
-              });
+                )
+            );
+            if (exactMatches.length > 0) {
+              const best = exactMatches.sort(
+                (a, b) => Object.keys(b.appliesCriteria).length - Object.keys(a.appliesCriteria).length
+              )[0];
+              return opt.id === best.id;
+            }
 
-              if (partialMatches.length > 0) {
-                const best = partialMatches.sort((a, b) => {
-                  const aMatches = Object.entries(a.appliesCriteria).filter(
-                    ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
-                  ).length;
-                  const bMatches = Object.entries(b.appliesCriteria).filter(
-                    ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
-                  ).length;
-                  if (bMatches !== aMatches) return bMatches - aMatches;
-                  return Object.keys(b.appliesCriteria).length - Object.keys(a.appliesCriteria).length;
-                })[0];
-                return opt.id === best.id;
-              }
+            // 2. Resilient partial match: options with no conflicts whose defined keys match state
+            const partialMatches = question.options.filter((o) => {
+              const entries = Object.entries(o.appliesCriteria);
+              if (entries.length === 0) return false;
+              const hasConflict = entries.some(
+                ([k, v]) =>
+                  (state.criteria as Record<string, unknown>)[k] !== undefined &&
+                  (state.criteria as Record<string, unknown>)[k] !== v
+              );
+              if (hasConflict) return false;
+              return entries.some(
+                ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+              );
+            });
 
-              return false;
-            })();
+            if (partialMatches.length > 0) {
+              const best = partialMatches.sort((a, b) => {
+                const aMatches = Object.entries(a.appliesCriteria).filter(
+                  ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+                ).length;
+                const bMatches = Object.entries(b.appliesCriteria).filter(
+                  ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+                ).length;
+                if (bMatches !== aMatches) return bMatches - aMatches;
+                return Object.keys(b.appliesCriteria).length - Object.keys(a.appliesCriteria).length;
+              })[0];
+              return opt.id === best.id;
+            }
 
-            const isSelected = question.isMultiSelect ? isMultiSelected : isSingleSelected;
+            return false;
+          };
 
-            return `
+          const hasAnySelection = question.options.some((opt) => checkOptionSelected(opt));
+
+          return question.options
+            .map((opt, idx) => {
+              const keyNum = idx + 1;
+              // Strip any leading emoji from label string to avoid duplicate display
+              const cleanLabel = opt.label.replace(/^[\p{Emoji}\s]+/u, '').trim();
+              const isSpanFull = numOptions % 2 === 1 && idx === numOptions - 1 && numOptions > 3;
+              const spanClass = isSpanFull ? 'sm:col-span-2' : '';
+
+              const isSelected = checkOptionSelected(opt);
+              const isPlaceholderDefault = !hasAnySelection && !!opt.isDefault;
+
+              return `
             <button data-option-id="${opt.id}" class="option-btn group relative text-left p-4 sm:p-5 rounded-xl border transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 min-w-0 w-full overflow-hidden ${spanClass} ${
-              isSelected
-                ? 'border-emerald-400 bg-emerald-950/30 ring-1 ring-emerald-400/50 shadow-md shadow-emerald-950/30'
-                : 'border-slate-700/60 bg-slate-950/70 [@media(hover:hover)]:hover:bg-slate-800/90 [@media(hover:hover)]:hover:border-emerald-400 [@media(hover:hover)]:hover:shadow-lg [@media(hover:hover)]:hover:shadow-emerald-950/40 active:border-emerald-400 active:bg-slate-800/90'
-            }">
-              <div class="min-w-0 w-full">
-                <div class="flex items-start justify-between gap-3 mb-3">
-                  <div class="flex items-center gap-2 min-w-0 flex-wrap">
-                    <span class="text-2xl sm:text-3xl p-2 rounded-xl bg-slate-900 border border-slate-700/60 group-hover:scale-110 transition-transform shrink-0">${opt.icon || '👉'}</span>
-                    ${
-                      isSelected && !question.isMultiSelect
-                        ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">✓ Selected</span>`
-                        : ''
-                    }
-                    ${
-                      opt.isDefault
-                        ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-800 text-slate-300 border border-slate-700/80 shrink-0" title="Standard distribution default choice">★ Standard Default</span>`
-                        : ''
-                    }
-                  </div>
+                isSelected
+                  ? 'border-emerald-400 bg-emerald-950/30 ring-1 ring-emerald-400/50 shadow-md shadow-emerald-950/30'
+                  : 'border-slate-700/60 bg-slate-950/70 [@media(hover:hover)]:hover:bg-slate-800/90 [@media(hover:hover)]:hover:border-emerald-400 [@media(hover:hover)]:hover:shadow-lg [@media(hover:hover)]:hover:shadow-emerald-950/40 active:border-emerald-400 active:bg-slate-800/90'
+              }">
+                <div class="min-w-0 w-full">
+                  <div class="flex items-start justify-between gap-3 mb-3">
+                    <div class="flex items-center gap-2 min-w-0 flex-wrap">
+                      <span class="text-2xl sm:text-3xl p-2 rounded-xl bg-slate-900 border border-slate-700/60 group-hover:scale-110 transition-transform shrink-0">${opt.icon || '👉'}</span>
+                      ${
+                        isSelected && !question.isMultiSelect
+                          ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">✓ Selected</span>`
+                          : ''
+                      }
+                      ${
+                        opt.isDefault
+                          ? isPlaceholderDefault
+                            ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/50 shrink-0" title="Standard distribution default choice (active fallback)">★ Standard Default</span>`
+                            : `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-800 text-slate-400 border border-slate-700/80 shrink-0" title="Standard distribution default choice">★ Standard Default</span>`
+                          : ''
+                      }
+                    </div>
                   <div class="flex items-center gap-1.5 shrink-0">
                     ${
                       question.isMultiSelect
                         ? `
                       <span class="w-5 h-5 rounded flex items-center justify-center text-xs font-bold transition-colors ${
-                        isMultiSelected
+                        isSelected
                           ? 'bg-emerald-400 text-slate-950 border border-emerald-300'
                           : 'border border-slate-600 bg-slate-900 text-transparent'
                       }">
@@ -307,9 +314,10 @@ export function renderWizardQuestion(
                 ${opt.description ? `<p class="text-xs text-slate-400 leading-relaxed break-words">${opt.description}</p>` : ''}
               </div>
             </button>
-          `;
-          })
-          .join('')}
+              `;
+            })
+            .join('');
+        })()}
       </div>
 
       <!-- Contextual Pro-Tip Box -->

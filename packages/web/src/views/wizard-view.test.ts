@@ -149,3 +149,50 @@ test('Wizard View: highlights matching option on composite questions even when m
   assert.ok(html.includes('data-option-id="kids_education"'));
   assert.ok(html.includes('Kid-Safe School &amp; Coding Computer') || html.includes('Kid-Safe School & Coding Computer'));
 });
+
+test('Wizard View: highlights Standard Default badge when question has no active selection', () => {
+  const bootQuestion = QUESTIONS.find((q) => q.id === 'boot_medium')!;
+  assert.ok(bootQuestion);
+
+  // 1. When no selection has been made yet
+  const unselectedState: AppState = {
+    criteria: { experienceLevel: 'intermediate', useCase: 'desktop' },
+    answeredQuestionIds: new Set(['user_familiarity']),
+    activeTab: 'wizard',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+
+  const unselectedHtml = renderWizardQuestion(
+    bootQuestion,
+    { current: 5, total: 10 },
+    unselectedState
+  );
+
+  // Default badge should have emerald border highlight
+  assert.ok(unselectedHtml.includes('border-emerald-500/50'), 'Standard Default should be emerald highlighted when nothing selected');
+  assert.ok(unselectedHtml.includes('★ Standard Default'));
+  assert.ok(!unselectedHtml.includes('✓ Selected'), 'No option should have ✓ Selected badge when unselected');
+
+  // 2. When user manually selects another option (e.g. sd-card-usb)
+  const selectedState: AppState = {
+    ...unselectedState,
+    criteria: { ...unselectedState.criteria, bootMedium: 'sd-card-usb' }
+  };
+
+  const selectedHtml = renderWizardQuestion(
+    bootQuestion,
+    { current: 5, total: 10 },
+    selectedState
+  );
+
+  assert.ok(selectedHtml.includes('✓ Selected'), 'Manually chosen option must display ✓ Selected');
+  // Default badge is no longer placeholder-highlighted
+  assert.ok(!selectedHtml.includes('border-emerald-500/50'), 'Standard Default should drop emerald highlight once an option is selected');
+  assert.ok(selectedHtml.includes('border-slate-700/80'), 'Standard Default drops back to neutral slate border');
+});
+
