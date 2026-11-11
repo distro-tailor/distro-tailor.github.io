@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { formatConstraint, generateMarkdownSummary } from './formatters.js';
+import { formatConstraint, formatOsEcosystem, generateMarkdownSummary } from './formatters.js';
 import { evaluateCriteria } from '@distro-tailor/core';
 
 test('Formatters: formatConstraint accurately maps all primary criteria dimensions', () => {
@@ -110,3 +110,16 @@ test('Formatters: generateMarkdownSummary formats complete recommendation summar
   assert.ok(markdown.includes('Living Room Media Center'));
   assert.ok(markdown.includes('https://distrotailor.dev/#?useCase=media-center'));
 });
+
+test('Formatters: formatOsEcosystem maps two-tier OS family and kernel model accurately', () => {
+  assert.equal(formatOsEcosystem({ osFamily: 'linux', kernelModel: 'monolithic-linux' }), 'Linux · Monolithic');
+  assert.equal(formatOsEcosystem({ osFamily: 'bsd', kernelModel: 'monolithic-bsd' }), 'BSD · Monolithic Unix');
+  assert.equal(formatOsEcosystem({ osFamily: 'independent', kernelModel: 'hybrid-nt' }), 'Independent · Win32 / NT');
+  assert.equal(formatOsEcosystem({ osFamily: 'independent', kernelModel: 'realmode-dos' }), 'Independent · 16-bit DOS');
+  assert.equal(formatOsEcosystem({ osFamily: 'independent', kernelModel: 'illumos' }), 'Independent · Illumos / Solaris');
+  assert.equal(formatOsEcosystem({ osFamily: 'independent', kernelModel: 'beos-modular' }), 'Independent · BeOS C++');
+  assert.equal(formatOsEcosystem({ osFamily: 'independent', kernelModel: 'microkernel' }), 'Independent · Microkernel');
+  // Default fallback
+  assert.equal(formatOsEcosystem({}), 'Linux · Monolithic');
+});
+

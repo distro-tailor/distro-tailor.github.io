@@ -97,3 +97,30 @@ ${best.distro.highlights.map((h) => `• ${h}`).join('\n')}
 🔗 **View or customize this Linux build:**
 ${url}`;
 }
+
+/** Formats the two-tier OS family and kernel paradigm into a badge label. */
+export function formatOsEcosystem(distro: { osFamily?: string; kernelModel?: string }): string {
+  const family = distro.osFamily || 'linux';
+  const model = distro.kernelModel || 'monolithic-linux';
+
+  const familyLabels: Record<string, string> = {
+    linux: 'Linux',
+    bsd: 'BSD',
+    independent: 'Independent'
+  };
+
+  const modelLabels: Record<string, string> = {
+    'monolithic-linux': 'Monolithic',
+    'monolithic-bsd': 'Monolithic Unix',
+    illumos: 'Illumos / Solaris',
+    'hybrid-nt': 'Win32 / NT',
+    'beos-modular': 'BeOS C++',
+    'realmode-dos': '16-bit DOS',
+    microkernel: 'Microkernel'
+  };
+
+  const fam = familyLabels[family] || family;
+  const mod = modelLabels[model] || model;
+  return `${fam} · ${mod}`;
+}
+

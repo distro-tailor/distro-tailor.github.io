@@ -1,4 +1,5 @@
 import { ResultsViewContext } from './context.js';
+import { formatOsEcosystem } from '../../utils/formatters.js';
 
 /** Top match hero card with technical attributes, strengths, and tradeoffs. */
 export function renderWinnerBanner(ctx: ResultsViewContext): string {
@@ -14,6 +15,9 @@ export function renderWinnerBanner(ctx: ResultsViewContext): string {
                 <h2 class="text-xl sm:text-3xl font-extrabold text-slate-100 break-words">${best.distro.name}</h2>
                 <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shrink-0">
                   ${best.score}% Match
+                </span>
+                <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                  ${formatOsEcosystem(best.distro)}
                 </span>
               </div>
               <p class="text-xs sm:text-sm text-emerald-300 font-medium mt-1 break-words">${best.distro.tagline}</p>

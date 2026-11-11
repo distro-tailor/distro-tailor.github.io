@@ -40,7 +40,7 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the target architecture is 64-bit x86 with standard footprint and 4GB RAM
     When the engine evaluates the candidate distributions
     Then the engine should recommend "OPNsense" with a match score of at least 80%
-    And the recommended OS family should be "bsd"
+    And the recommended OS family should be "bsd" and kernel model "monolithic-bsd"
     And the recommendation should highlight stateful packet filtering, Suricata IDS/IPS, and WireGuard VPN
 
   Scenario: Systems builder needs an ultra-minimal real-mode OS for legacy hardware or vintage gaming
@@ -48,7 +48,7 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the user specifies a micro footprint under 16MB RAM on x86 hardware with no C library
     When the engine evaluates the candidate distributions
     Then the engine should recommend "FreeDOS" with a match score of at least 80%
-    And the recommended OS family should be "dos"
+    And the recommended OS family should be "independent" and kernel model "realmode-dos"
     And the recommendation should highlight 100% MS-DOS compatibility and sub-second boot times
 
   Scenario: Enterprise cloud architect needs a stateless hypervisor with Solaris Zones and ZFS
@@ -56,7 +56,7 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the user specifies a stateless RAM boot model on x86 server hardware
     When the engine evaluates the candidate distributions
     Then the engine should recommend "SmartOS" with a match score of at least 80%
-    And the recommended OS family should be "illumos"
+    And the recommended OS family should be "independent" and kernel model "illumos"
     And the recommendation should highlight Solaris Zones, DTrace, and Crossbow network virtualization
 
   Scenario: Industrial technician needs native Windows NT driver and software compatibility without Windows
@@ -64,7 +64,7 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the user specifies a Windows-style interface on low RAM with no standard C library
     When the engine evaluates the candidate distributions
     Then the engine should recommend "ReactOS" with a match score of at least 80%
-    And the recommended OS family should be "nt-compatible"
+    And the recommended OS family should be "independent" and kernel model "hybrid-nt"
     And the recommendation should highlight clean-room NT architecture and binary driver compatibility
 
   Scenario: Power user wants an ultra-responsive, non-Unix personal desktop operating system
@@ -72,7 +72,7 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the user specifies a compact traditional workflow on lean hardware with no Unix C library
     When the engine evaluates the candidate distributions
     Then the engine should recommend "Haiku" with a match score of at least 80%
-    And the recommended OS family should be "independent"
+    And the recommended OS family should be "independent" and kernel model "beos-modular"
     And the recommendation should highlight BeOS heritage, OpenBFS filesystem indexing, and 3-second boot times
 
   Scenario: Freelancer needs a reliable home office workstation for documents and video calls

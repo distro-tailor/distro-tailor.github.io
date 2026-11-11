@@ -267,7 +267,8 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'smartos',
     name: 'SmartOS',
-    osFamily: 'illumos',
+    osFamily: 'independent',
+    kernelModel: 'illumos',
     tagline: 'Converged stateless hypervisor combining Solaris Zones, KVM/bhyve, and native OpenZFS',
     description:
       'A specialized, stateless type-1 hypervisor derived from OpenSolaris and Illumos. Boots entirely into RAM from USB or PXE, combining enterprise OpenZFS storage, DTrace kernel tracing, Crossbow network virtualization, and ultra-secure lightweight Solaris Zones.',
@@ -514,7 +515,8 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'freedos',
     name: 'FreeDOS',
-    osFamily: 'dos',
+    osFamily: 'independent',
+    kernelModel: 'realmode-dos',
     tagline: 'Complete, open-source MS-DOS compatible operating system for legacy hardware and retro gaming',
     description:
       'A 100% open-source, GPL-compatible DOS operating system capable of running classic 16-bit real-mode software, vintage PC games, and industrial hardware controllers directly on bare metal with virtually zero memory overhead.',
@@ -568,7 +570,8 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'reactos',
     name: 'ReactOS',
-    osFamily: 'nt-compatible',
+    osFamily: 'independent',
+    kernelModel: 'hybrid-nt',
     tagline: 'Open-source clean-room reimplementation of the Windows NT architecture',
     description:
       'A free, open-source operating system written from scratch to be binary-compatible with Microsoft Windows NT/2000/XP applications and device drivers, running Win32 software natively on bare metal without a Windows license.',
@@ -624,6 +627,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     id: 'haiku',
     name: 'Haiku',
     osFamily: 'independent',
+    kernelModel: 'beos-modular',
     tagline: 'Fast, responsive personal desktop operating system inspired by BeOS',
     description:
       'A completely independent, open-source personal computer operating system built from the ground up for desktop responsiveness. Features per-thread multithreading, modular C++ architecture, an indexed database filesystem (BFS), and boots to a full desktop in under 3 seconds.',
@@ -890,6 +894,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     id: 'opnsense',
     name: 'OPNsense',
     osFamily: 'bsd',
+    kernelModel: 'monolithic-bsd',
     tagline: 'Open source, easy-to-use security-oriented FreeBSD firewall & routing platform',
     description:
       'A high-performance, FreeBSD-based firewall and routing platform featuring an intuitive web interface, stateful packet filtering (pf), multi-gigabit throughput, WireGuard VPN, and Suricata intrusion detection.',
@@ -1429,3 +1434,14 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     }
   }
 ];
+
+/** Returns the OS family of a distribution, defaulting to 'linux'. */
+export function getDistroOsFamily(distro: DistroProfile): 'linux' | 'bsd' | 'independent' {
+  return distro.osFamily ?? 'linux';
+}
+
+/** Returns the architectural kernel model of a distribution, defaulting to 'monolithic-linux'. */
+export function getDistroKernelModel(distro: DistroProfile): import('../types.js').KernelModel {
+  return distro.kernelModel ?? 'monolithic-linux';
+}
+

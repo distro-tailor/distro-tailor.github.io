@@ -90,15 +90,22 @@ export interface AlternativeComparison {
 export type OsFamily =
   | 'linux'
   | 'bsd'
-  | 'dos'
-  | 'nt-compatible'
-  | 'illumos'
   | 'independent';
+
+export type KernelModel =
+  | 'monolithic-linux'
+  | 'monolithic-bsd'
+  | 'illumos'
+  | 'hybrid-nt'
+  | 'beos-modular'
+  | 'realmode-dos'
+  | 'microkernel';
 
 export interface DistroProfile {
   id: string;
   name: string;
   osFamily?: OsFamily;
+  kernelModel?: KernelModel;
   tagline: string;
   description: string;
   website: string;

@@ -1,6 +1,7 @@
 import { DistroProfile, getDistroTargetUrl, RecommendationOutput } from '@distro-tailor/core';
 import { AppState } from '../types.js';
 import { escapeHtml } from '../utils/dom.js';
+import { formatOsEcosystem } from '../utils/formatters.js';
 
 export function renderDistroDetailModal(
   distro: DistroProfile,
@@ -44,6 +45,9 @@ export function renderDistroDetailModal(
               }
               <span class="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-slate-800 text-slate-400 border border-slate-700">
                 ${escapeHtml(distro.experienceLevel)}
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950/60 text-emerald-400 border border-emerald-800/80">
+                ${formatOsEcosystem(distro)}
               </span>
             </div>
             <p class="text-xs sm:text-sm text-emerald-400 font-medium mt-1 leading-snug">${escapeHtml(distro.tagline)}</p>

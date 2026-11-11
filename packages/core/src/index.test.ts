@@ -123,6 +123,7 @@ test('Core Matcher: Pinpoints OPNsense for standard x86 firewall & high-throughp
   assert.equal(result.bestMatch.distro.id, 'opnsense');
   assert.ok(result.bestMatch.score >= 80);
   assert.equal(result.bestMatch.distro.osFamily, 'bsd');
+  assert.equal(result.bestMatch.distro.kernelModel, 'monolithic-bsd');
 });
 
 test('Core Matcher: Pinpoints FreeDOS for micro-footprint real-mode PC appliances', () => {
@@ -138,7 +139,8 @@ test('Core Matcher: Pinpoints FreeDOS for micro-footprint real-mode PC appliance
 
   assert.equal(result.bestMatch.distro.id, 'freedos');
   assert.ok(result.bestMatch.score >= 80);
-  assert.equal(result.bestMatch.distro.osFamily, 'dos');
+  assert.equal(result.bestMatch.distro.osFamily, 'independent');
+  assert.equal(result.bestMatch.distro.kernelModel, 'realmode-dos');
 });
 
 test('Core Matcher: Pinpoints SmartOS for stateless Illumos hypervisors and Solaris Zones', () => {
@@ -154,7 +156,8 @@ test('Core Matcher: Pinpoints SmartOS for stateless Illumos hypervisors and Sola
 
   assert.equal(result.bestMatch.distro.id, 'smartos');
   assert.ok(result.bestMatch.score >= 80);
-  assert.equal(result.bestMatch.distro.osFamily, 'illumos');
+  assert.equal(result.bestMatch.distro.osFamily, 'independent');
+  assert.equal(result.bestMatch.distro.kernelModel, 'illumos');
 });
 
 test('Core Matcher: Pinpoints ReactOS for open-source Windows NT compatibility on legacy PCs', () => {
@@ -171,7 +174,8 @@ test('Core Matcher: Pinpoints ReactOS for open-source Windows NT compatibility o
 
   assert.equal(result.bestMatch.distro.id, 'reactos');
   assert.ok(result.bestMatch.score >= 80);
-  assert.equal(result.bestMatch.distro.osFamily, 'nt-compatible');
+  assert.equal(result.bestMatch.distro.osFamily, 'independent');
+  assert.equal(result.bestMatch.distro.kernelModel, 'hybrid-nt');
 });
 
 test('Core Matcher: Pinpoints Haiku for responsive personal desktop computing', () => {
@@ -189,6 +193,7 @@ test('Core Matcher: Pinpoints Haiku for responsive personal desktop computing', 
   assert.equal(result.bestMatch.distro.id, 'haiku');
   assert.ok(result.bestMatch.score >= 80);
   assert.equal(result.bestMatch.distro.osFamily, 'independent');
+  assert.equal(result.bestMatch.distro.kernelModel, 'beos-modular');
 });
 
 test('Core Matcher: Pinpoints Endless OS for kids school and education', () => {
