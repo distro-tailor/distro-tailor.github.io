@@ -64,8 +64,8 @@ When you intend to change scoring (`engine/matcher.ts`, `taxonomy/affinities.ts`
 
 ### 1. Setup
 ```bash
-git clone https://github.com/your-username/distro-tailor.git
-cd distro-tailor
+git clone https://github.com/distro-tailor/distro-tailor.github.io.git
+cd distro-tailor.github.io
 npm install
 npm run build
 ```

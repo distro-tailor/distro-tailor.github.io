@@ -41,8 +41,8 @@ DistroTailor is built as a hybrid modular monorepo:
 - npm >= 10.0.0
 
 ```bash
-git clone https://github.com/your-username/distro-tailor.git
-cd distro-tailor
+git clone https://github.com/distro-tailor/distro-tailor.github.io.git
+cd distro-tailor.github.io
 npm install
 npm run build
 ```
