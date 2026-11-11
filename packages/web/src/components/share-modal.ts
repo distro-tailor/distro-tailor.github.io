@@ -36,7 +36,7 @@ export function renderShareModal(evaluation: RecommendationOutput, criteria: Use
 
   return `
     <div id="share-modal-backdrop" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[90] flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150 min-w-0 max-w-full overflow-hidden my-auto max-h-[90vh] flex flex-col">
+      <div id="share-modal-card" class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150 min-w-0 max-w-full overflow-hidden my-auto max-h-[90vh] flex flex-col">
         
         <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800 shrink-0 min-w-0 gap-2">
           <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -88,13 +88,13 @@ export function renderShareModal(evaluation: RecommendationOutput, criteria: Use
               `
                   : ''
               }
-              <a href="https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(`Tailored Linux Distro Match: ${best.distro.name} (${best.score}%)`)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-orange-950/40 hover:bg-orange-900/40 text-orange-300 border border-orange-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors text-center">
+              <a id="btn-share-reddit" href="https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(`Tailored Linux Distro Match: ${best.distro.name} (${best.score}%)`)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-orange-950/40 hover:bg-orange-900/40 text-orange-300 border border-orange-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors text-center">
                 <span>🤖</span> Reddit
               </a>
-              <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(`Found my Linux match with DistroTailor: ${best.distro.name} (${best.score}% Match)!`)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-sky-950/40 hover:bg-sky-900/40 text-sky-300 border border-sky-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors text-center">
+              <a id="btn-share-twitter" href="https://twitter.com/intent/tweet?text=${encodeURIComponent(`Found my Linux match with DistroTailor: ${best.distro.name} (${best.score}% Match)!`)}&url=${encodeURIComponent(url)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-sky-950/40 hover:bg-sky-900/40 text-sky-300 border border-sky-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors text-center">
                 <span>🐦</span> X
               </a>
-              <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out my tailored Linux distro match: ${best.distro.name} (${best.score}%) - ${url}`)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-300 border border-emerald-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors text-center">
+              <a id="btn-share-whatsapp" href="https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out my tailored Linux distro match: ${best.distro.name} (${best.score}%) - ${url}`)}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-300 border border-emerald-800/50 flex items-center justify-center gap-1.5 font-medium transition-colors text-center">
                 <span>💬</span> WhatsApp
               </a>
             </div>

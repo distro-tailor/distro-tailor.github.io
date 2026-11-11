@@ -658,6 +658,110 @@
     border-color: #cbd5e1 !important;
   }
 
+  /* Share Modal Popup & Buttons */
+  html.light #share-modal-card {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #share-modal-card span.bg-slate-950 {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  html.light #btn-close-share-modal {
+    color: #64748b !important;
+  }
+
+  html.light #btn-close-share-modal:hover {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+  }
+
+  html.light #share-link-input,
+  html.light #share-markdown-preview {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  /* Primary Copy Button in Share Modal */
+  html.light #btn-copy-share-url {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    border: 1px solid #047857 !important;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25) !important;
+  }
+
+  html.light #btn-copy-share-url:hover {
+    background-color: #047857 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(5, 150, 105, 0.35) !important;
+  }
+
+  html.light #btn-copy-markdown-summary {
+    color: #047857 !important;
+    font-weight: 600 !important;
+  }
+
+  html.light #btn-copy-markdown-summary:hover {
+    color: #065f46 !important;
+  }
+
+  /* Social Share Buttons in Share Modal */
+  html.light #btn-native-share {
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #btn-native-share:hover {
+    background-color: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+  }
+
+  html.light #btn-share-reddit {
+    background-color: #fff7ed !important;
+    color: #c2410c !important;
+    border: 1px solid #fed7aa !important;
+    box-shadow: 0 1px 2px rgba(194, 65, 12, 0.08) !important;
+  }
+
+  html.light #btn-share-reddit:hover {
+    background-color: #ffedd5 !important;
+    border-color: #fdba74 !important;
+    color: #9a3412 !important;
+  }
+
+  html.light #btn-share-twitter {
+    background-color: #f0f9ff !important;
+    color: #0369a1 !important;
+    border: 1px solid #bae6fd !important;
+    box-shadow: 0 1px 2px rgba(3, 105, 161, 0.08) !important;
+  }
+
+  html.light #btn-share-twitter:hover {
+    background-color: #e0f2fe !important;
+    border-color: #7dd3fc !important;
+    color: #075985 !important;
+  }
+
+  html.light #btn-share-whatsapp {
+    background-color: #f0fdf4 !important;
+    color: #15803d !important;
+    border: 1px solid #bbf7d0 !important;
+    box-shadow: 0 1px 2px rgba(21, 128, 61, 0.08) !important;
+  }
+
+  html.light #btn-share-whatsapp:hover {
+    background-color: #dcfce7 !important;
+    border-color: #86efac !important;
+    color: #166534 !important;
+  }
+
   html.light .shadow-2xl,
   html.light .shadow-xl {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
