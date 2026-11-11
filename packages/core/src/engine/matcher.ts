@@ -6,18 +6,39 @@ import {
   UserCriteria
 } from '../types.js';
 import { DISTRO_REGISTRY } from '../taxonomy/distros.js';
+import {
+  AffinityTier,
+  BOOT_MEDIUM_AFFINITIES,
+  DESKTOP_USE_CASES,
+  DRIVER_PHILOSOPHY_AFFINITIES,
+  FORM_FACTOR_AFFINITIES,
+  GUI_CAPABLE_DISTRO_IDS,
+  PERIPHERAL_AFFINITIES,
+  REALTIME_AUDIO_AFFINITIES,
+  SINGLE_PURPOSE_APPLIANCE_USE_CASES,
+  UNCONSTRAINED_BASELINE,
+  UNIVERSAL_DEFAULT_DISTRO_IDS,
+  WORKFLOW_STYLE_AFFINITIES,
+  findAffinityTier
+} from '../taxonomy/affinities.js';
 import { resolveRecipeGenerator } from '../generators/index.js';
+import { selectRecipeGenerator } from './recipe-selection.js';
+
+const FOOTPRINT_ORDER = ['micro', 'minimal', 'lean', 'standard', 'full'];
+const FLAGSHIP_USE_CASE_BONUS = 2; // Use case is the distro's primary focus
+const EXACT_FOOTPRINT_BONUS = 2; // Distro sits exactly in the requested footprint tier
 
 export function evaluateCriteria(
   criteria: UserCriteria,
   distros: DistroProfile[] = DISTRO_REGISTRY
 ): RecommendationOutput {
-  // Calculate total maximum weight of criteria actually specified by the user
+  // Calculate total maximum weight of criteria actually specified by the user.
+  // Includes alignment bonuses so a perfect match lands at exactly 100% instead of saturating.
   let maxWeight = 0;
-  if (criteria.useCase) maxWeight += 25;
+  if (criteria.useCase) maxWeight += 25 + FLAGSHIP_USE_CASE_BONUS;
   if (criteria.platform) maxWeight += 20;
   if (criteria.architecture) maxWeight += 20;
-  if (criteria.footprint) maxWeight += 15;
+  if (criteria.footprint) maxWeight += 15 + EXACT_FOOTPRINT_BONUS;
   if (criteria.maxRamMb) maxWeight += 15;
   if (criteria.formFactor) maxWeight += 15;
   if (criteria.statePreference && criteria.statePreference !== 'no-preference') maxWeight += 10;
@@ -38,6 +59,9 @@ export function evaluateCriteria(
     maxWeight += selectedPeripherals.length * 15;
   }
 
+  // Criteria may arrive with explicitly undefined keys (e.g. a skipped question); only supplied values count.
+  const isUnconstrained = Object.values(criteria).every((value) => value === undefined);
+
   if (maxWeight === 0) {
     maxWeight = 100; // Default baseline if nothing specified
   }
@@ -48,27 +72,23 @@ export function evaluateCriteria(
     let hardDisqualificationReason = '';
     const reasons: MatchReason[] = [];
 
-    // 0. Unconstrained Baseline (Zero Constraints Specified)
-    if (Object.keys(criteria).length === 0) {
-      if (distro.id === 'linux-mint') {
-        earned = 100;
+    // Applies the first matching curated affinity tier (see taxonomy/affinities.ts).
+    const applyAffinity = (tiers: readonly AffinityTier[] | undefined): void => {
+      const tier = findAffinityTier(tiers, distro, criteria);
+      if (!tier) return;
+      earned += tier.points;
+      if (tier.feature) {
         reasons.push({
-          feature: 'Universal Baseline',
-          matched: true,
-          explanation: 'Recommended standard out-of-the-box desktop Linux for everyday PC and laptop use.'
+          feature: tier.feature,
+          matched: tier.points > 0,
+          explanation: tier.explanation ?? ''
         });
-      } else if (distro.id === 'ubuntu' || distro.id === 'fedora') {
-        earned = 90;
-        reasons.push({
-          feature: 'Universal Baseline',
-          matched: true,
-          explanation: 'Leading mainstream distribution with extensive community and hardware support.'
-        });
-      } else if (distro.experienceLevel === 'beginner' && distro.primaryUseCases.includes('desktop')) {
-        earned = 80;
-      } else {
-        earned = 50;
       }
+    };
+
+    // 0. Unconstrained Baseline (Zero Constraints Specified)
+    if (isUnconstrained) {
+      applyAffinity(UNCONSTRAINED_BASELINE);
     }
 
     // 1. Use Case Alignment (Weight: 25)
@@ -76,7 +96,7 @@ export function evaluateCriteria(
       if (distro.primaryUseCases.includes(criteria.useCase)) {
         earned += 25;
         if (distro.primaryUseCases[0] === criteria.useCase) {
-          earned += 2; // Bonus for flagship primary focus
+          earned += FLAGSHIP_USE_CASE_BONUS;
         }
         reasons.push({
           feature: 'Use Case',
@@ -84,27 +104,9 @@ export function evaluateCriteria(
           explanation: `Specifically built or recognized for ${criteria.useCase}.`
         });
       } else {
-        const desktopUseCases = [
-          'education-kids',
-          'home-office',
-          'creative-studio',
-          'gaming',
-          'desktop'
-        ];
-        const singlePurposeAppliances = [
-          'kiosk-signage',
-          'home-router',
-          'smart-home',
-          'media-center',
-          'nas-storage',
-          'hypervisor-vms',
-          'k8s-cluster',
-          'browser-wasm'
-        ];
-
         // Is the candidate a dedicated single-purpose appliance?
         const isDedicatedAppliance = distro.primaryUseCases.every((uc) =>
-          singlePurposeAppliances.includes(uc)
+          SINGLE_PURPOSE_APPLIANCE_USE_CASES.includes(uc)
         );
 
         if (isDedicatedAppliance) {
@@ -115,7 +117,7 @@ export function evaluateCriteria(
             explanation: `Dedicated appliance (${distro.primaryUseCases.join(', ')}) not suitable for ${criteria.useCase}.`
           });
         } else if (
-          desktopUseCases.includes(criteria.useCase) &&
+          DESKTOP_USE_CASES.includes(criteria.useCase) &&
           distro.primaryUseCases.includes('desktop')
         ) {
           earned += 8; // Capable desktop fallback (e.g. Mint, Debian, Arch, Fedora)
@@ -176,15 +178,13 @@ export function evaluateCriteria(
 
     // 4. Storage Footprint & RAM Budget (Weight: 15 + 15)
     if (criteria.footprint) {
-      const footprintOrder = ['micro', 'minimal', 'lean', 'standard', 'full'];
-      const targetIdx = footprintOrder.indexOf(criteria.footprint);
-      const distroIdx = footprintOrder.indexOf(distro.footprint);
+      const targetIdx = FOOTPRINT_ORDER.indexOf(criteria.footprint);
+      const distroIdx = FOOTPRINT_ORDER.indexOf(distro.footprint);
 
       if (distroIdx <= targetIdx) {
         earned += 15;
-        // Bonus for exact footprint tier alignment
         if (distroIdx === targetIdx) {
-          earned += 2;
+          earned += EXACT_FOOTPRINT_BONUS;
         }
         reasons.push({
           feature: 'Footprint',
@@ -226,102 +226,7 @@ export function evaluateCriteria(
 
     // 4B. Form Factor & Thermal / Power Envelope (Weight: 15)
     if (criteria.formFactor) {
-      if (criteria.formFactor === 'handheld') {
-        if (distro.id === 'bazzite') {
-          earned += 15;
-          reasons.push({
-            feature: 'Handheld Gaming Optimization',
-            matched: true,
-            explanation: 'Built specifically for Steam Deck, ROG Ally, and handheld PCs with custom TDP limiters, controller sleep/wake, and Game Mode.'
-          });
-        } else if (distro.id === 'batocera') {
-          earned += 10;
-          reasons.push({
-            feature: 'Handheld Gaming Optimization',
-            matched: true,
-            explanation: 'Controller-driven arcade interface designed for portable gaming consoles.'
-          });
-        } else if (['proxmox-ve', 'talos', 'openwrt', 'buildroot', 'cage-appliance'].includes(distro.id)) {
-          earned -= 20;
-          reasons.push({
-            feature: 'Handheld Gaming Optimization',
-            matched: false,
-            explanation: 'Server/appliance distribution lacks handheld controller support and graphical game UI.'
-          });
-        }
-      } else if (criteria.formFactor === 'laptop') {
-        const laptopFriendly = ['fedora', 'pop-os', 'linux-mint', 'ubuntu', 'endless-os'];
-        if (laptopFriendly.includes(distro.id)) {
-          earned += 15;
-          reasons.push({
-            feature: 'Laptop Power & Battery',
-            matched: true,
-            explanation: 'First-class battery management (power-profiles-daemon), reliable Modern Standby/suspend, and automatic Wi-Fi management.'
-          });
-        } else if (distro.platforms.includes('desktop')) {
-          earned += 8;
-        }
-      } else if (criteria.formFactor === 'desktop') {
-        if (distro.platforms.includes('desktop')) {
-          earned += 15;
-          reasons.push({
-            feature: 'Desktop Performance',
-            matched: true,
-            explanation: 'Optimized for AC wall-powered desktops with uncapped performance governors and multi-monitor setups.'
-          });
-        }
-      } else if (criteria.formFactor === 'low-power') {
-        const lowPowerDistros = ['antix', 'dietpi', 'libreelec', 'alpine', 'porteus-kiosk'];
-        if (lowPowerDistros.includes(distro.id)) {
-          earned += 15;
-          reasons.push({
-            feature: 'Low-Power Hardware',
-            matched: true,
-            explanation: 'Ultra-low CPU and RAM footprint designed specifically to run smoothly on weak or low-power processors.'
-          });
-        } else if (distro.footprint === 'full' || distro.minRamMb > 2048) {
-          earned -= 15;
-          reasons.push({
-            feature: 'Low-Power Hardware',
-            matched: false,
-            explanation: 'Heavy desktop compositor and background services may struggle or lag on low-power processors.'
-          });
-        }
-      } else if (criteria.formFactor === 'mac') {
-        if (criteria.architecture === 'arm64' && distro.id === 'asahi-linux') {
-          earned += 15;
-          reasons.push({
-            feature: 'Apple Silicon Hardware',
-            matched: true,
-            explanation: 'Native upstream kernel support and reverse-engineered GPU drivers for Apple M-series chips.'
-          });
-        } else if (['linux-mint', 'fedora', 'pop-os', 'ubuntu', 'endless-os'].includes(distro.id)) {
-          earned += 15;
-          reasons.push({
-            feature: 'Mac Hardware Support',
-            matched: true,
-            explanation: 'Includes out-of-the-box proprietary drivers for Broadcom Wi-Fi and Mac hardware quirks.'
-          });
-        }
-      } else if (criteria.formFactor === 'sbc') {
-        if (['dietpi', 'armbian', 'postmarketos', 'alpine', 'batocera', 'libreelec'].includes(distro.id)) {
-          earned += 15;
-          reasons.push({
-            feature: 'Single-Board Computer',
-            matched: true,
-            explanation: 'Specifically optimized for single-board ARM computers (Raspberry Pi, Rockchip, Allwinner).'
-          });
-        }
-      } else if (criteria.formFactor === 'server') {
-        if (['proxmox-ve', 'truenas-scale', 'debian', 'ubuntu', 'talos'].includes(distro.id)) {
-          earned += 15;
-          reasons.push({
-            feature: 'Server Hardware',
-            matched: true,
-            explanation: 'Designed for dedicated 24/7 server hardware, IPMI remote management, and rack infrastructure.'
-          });
-        }
-      }
+      applyAffinity(FORM_FACTOR_AFFINITIES[criteria.formFactor]);
     }
 
     // 5. State Model & Immutability (Weight: 10)
@@ -421,8 +326,7 @@ export function evaluateCriteria(
       const isGuiDistro =
         distro.platforms.includes('desktop') ||
         distro.platforms.includes('kiosk') ||
-        distro.id === 'batocera' ||
-        distro.id === 'libreelec';
+        GUI_CAPABLE_DISTRO_IDS.includes(distro.id);
       if (criteria.prefersGui && isGuiDistro) {
         earned += 10;
         reasons.push({
@@ -441,219 +345,28 @@ export function evaluateCriteria(
     }
 
     // 9B. Desktop Workflow & Interface Familiarity (Weight: 10)
-    if (criteria.workflowStyle && criteria.workflowStyle !== 'no-preference') {
-      if (criteria.workflowStyle === 'windows') {
-        if (['linux-mint'].includes(distro.id)) {
-          earned += 10;
-          reasons.push({
-            feature: 'Interface Familiarity',
-            matched: true,
-            explanation: 'Cinnamon desktop provides an intuitive, familiar Windows-style layout with taskbar and start menu.'
-          });
-        } else if (['fedora', 'debian', 'ubuntu-studio'].includes(distro.id)) {
-          earned += 5;
-          reasons.push({
-            feature: 'Interface Familiarity',
-            matched: true,
-            explanation: 'Features configurable KDE Plasma or XFCE environments readily styled to a Windows layout.'
-          });
-        }
-      } else if (criteria.workflowStyle === 'macos') {
-        if (['pop-os'].includes(distro.id)) {
-          earned += 10;
-          reasons.push({
-            feature: 'Interface Familiarity',
-            matched: true,
-            explanation: 'COSMIC desktop features centered dock, top bar, spotlight launcher, and smooth trackpad navigation familiar to macOS users.'
-          });
-        } else if (['fedora', 'fedora-silverblue', 'ubuntu', 'asahi-linux'].includes(distro.id)) {
-          earned += 8;
-          reasons.push({
-            feature: 'Interface Familiarity',
-            matched: true,
-            explanation: 'GNOME desktop features macOS-style top bar, smooth multi-touch gestures, and dynamic workspaces.'
-          });
-        }
-      } else if (criteria.workflowStyle === 'mobile-touch') {
-        if (['endless-os'].includes(distro.id)) {
-          earned += 10;
-          reasons.push({
-            feature: 'Interface Familiarity',
-            matched: true,
-            explanation: 'Clean, full-screen app grid launcher and touch-friendly design familiar to tablet, iPad, Android, and Chromebook users.'
-          });
-        } else if (['postmarketos'].includes(distro.id)) {
-          earned += 8;
-          reasons.push({
-            feature: 'Interface Familiarity',
-            matched: true,
-            explanation: 'Mobile-first Linux environment (Phosh/Plasma Mobile) tailored specifically for touchscreens and portable devices.'
-          });
-        } else if (['fedora', 'fedora-silverblue', 'bazzite'].includes(distro.id)) {
-          earned += 6;
-          reasons.push({
-            feature: 'Interface Familiarity',
-            matched: true,
-            explanation: 'Modern Wayland gestures and full-screen app grid suitable for 2-in-1 touchscreen devices.'
-          });
-        }
-      } else if (criteria.workflowStyle === 'traditional-compact') {
-        if (['antix'].includes(distro.id)) {
-          earned += 10;
-          reasons.push({
-            feature: 'Interface Familiarity',
-            matched: true,
-            explanation: 'Ultra-fast, low-RAM traditional window manager interface with classic menus and minimal resource usage.'
-          });
-        } else if (['debian', 'dietpi'].includes(distro.id)) {
-          earned += 6;
-          reasons.push({
-            feature: 'Interface Familiarity',
-            matched: true,
-            explanation: 'Highly modular base easily paired with lightweight classic desktop environments.'
-          });
-        }
-      }
+    if (criteria.workflowStyle) {
+      applyAffinity(WORKFLOW_STYLE_AFFINITIES[criteria.workflowStyle]);
     }
 
     // 10. Driver Philosophy (Weight: 10)
-    if (criteria.driverPhilosophy && criteria.driverPhilosophy !== 'no-preference') {
-      if (criteria.driverPhilosophy === 'free-software-only') {
-        if (['debian', 'alpine', 'arch'].includes(distro.id)) {
-          earned += 10;
-          reasons.push({
-            feature: 'Open Source Drivers',
-            matched: true,
-            explanation: 'Strictly prioritizes 100% Free/Libre open-source software and clean driver separation.'
-          });
-        }
-      } else if (criteria.driverPhilosophy === 'seamless-proprietary') {
-        if (['pop-os', 'linux-mint', 'ubuntu-studio', 'fedora', 'batocera'].includes(distro.id)) {
-          earned += 10;
-          reasons.push({
-            feature: 'Proprietary Drivers',
-            matched: true,
-            explanation: 'Includes out-of-the-box proprietary drivers (NVIDIA GPUs, Broadcom Wi-Fi, media codecs).'
-          });
-        }
-      }
+    if (criteria.driverPhilosophy) {
+      applyAffinity(DRIVER_PHILOSOPHY_AFFINITIES[criteria.driverPhilosophy]);
     }
 
     // 11. Boot Medium (Weight: 10)
     if (criteria.bootMedium) {
-      if (criteria.bootMedium === 'sd-card-usb' && ['dietpi', 'libreelec', 'batocera', 'alpine', 'tails', 'antix'].includes(distro.id)) {
-        earned += 10;
-        reasons.push({
-          feature: 'Flash Storage',
-          matched: true,
-          explanation: 'Includes RAM caching and Flash-wear reduction optimized for MicroSD cards and USB thumbdrives.'
-        });
-      } else if (criteria.bootMedium === 'pxe-diskless' && ['talos', 'alpine', 'proxmox-ve'].includes(distro.id)) {
-        earned += 10;
-        reasons.push({
-          feature: 'Diskless Boot',
-          matched: true,
-          explanation: 'Native support for diskless PXE network booting and run-from-RAM architectures.'
-        });
-      } else if (criteria.bootMedium === 'nvme-ssd') {
-        earned += 8;
-      }
+      applyAffinity(BOOT_MEDIUM_AFFINITIES[criteria.bootMedium]);
     }
 
     // 12. Realtime Pro Audio (Weight: 15)
     if (criteria.realtimeAudio) {
-      if (distro.id === 'ubuntu-studio') {
-        earned += 15;
-        reasons.push({
-          feature: 'Low-Latency Audio',
-          matched: true,
-          explanation: 'Features an out-of-the-box lowlatency / realtime Linux kernel with PipeWire pro audio and JACK.'
-        });
-      }
+      applyAffinity(REALTIME_AUDIO_AFFINITIES);
     }
 
     // 13. Specialized Hardware & Peripherals (Weight: 15 per selected peripheral)
     for (const p of selectedPeripherals) {
-      if (p === 'touchscreen') {
-        const touchDistros = [
-          'fedora',
-          'fedora-silverblue',
-          'endless-os',
-          'bazzite',
-          'postmarketos',
-          'ubuntu',
-          'asahi-linux'
-        ];
-        if (touchDistros.includes(distro.id)) {
-          earned += 15;
-          reasons.push({
-            feature: 'Touch & Tablet Support',
-            matched: true,
-            explanation: 'First-class Wayland touch gestures, auto-screen rotation, and integrated on-screen keyboard.'
-          });
-        } else if (distro.id === 'antix') {
-          earned -= 10;
-          reasons.push({
-            feature: 'Touch & Tablet Support',
-            matched: false,
-            explanation: 'Uses traditional X11 window managers with minimal or no touch gesture support.'
-          });
-        }
-      } else if (p === 'printer-scanner') {
-        const printFriendly = ['linux-mint', 'ubuntu', 'fedora'];
-        if (printFriendly.includes(distro.id)) {
-          earned += 15;
-          reasons.push({
-            feature: 'Printers & Scanners',
-            matched: true,
-            explanation: 'Pre-configured CUPS, automatic mDNS Bonjour discovery, and turnkey HP/Brother/Epson driver utilities.'
-          });
-        } else if (['alpine', 'buildroot', 'dietpi'].includes(distro.id)) {
-          earned -= 15;
-          reasons.push({
-            feature: 'Printers & Scanners',
-            matched: false,
-            explanation: 'Minimal base system requires manual terminal setup and installation of CUPS printing daemons.'
-          });
-        }
-      } else if (p === 'vr-headset') {
-        const vrDistros = ['bazzite', 'pop-os', 'arch'];
-        if (vrDistros.includes(distro.id)) {
-          earned += 15;
-          reasons.push({
-            feature: 'VR & Sim Rigs',
-            matched: true,
-            explanation: 'Cutting-edge Mesa Vulkan drivers, native SteamVR compatibility, Monado/Envision OpenXR runtime, and DRM direct display leasing.'
-          });
-        } else if (['debian', 'antix'].includes(distro.id)) {
-          earned -= 15;
-          reasons.push({
-            feature: 'VR & Sim Rigs',
-            matched: false,
-            explanation: 'Older LTS kernel and Mesa graphics stack lack DRM leasing for modern VR headsets.'
-          });
-        }
-      } else if (p === 'drawing-tablet') {
-        const artDistros = ['ubuntu-studio', 'fedora', 'pop-os'];
-        if (artDistros.includes(distro.id)) {
-          earned += 15;
-          reasons.push({
-            feature: 'Drawing Tablets & Stylus',
-            matched: true,
-            explanation: 'Pre-calibrated Wacom/Huion digitizer drivers, pressure sensitivity curves, and pen mapping tools.'
-          });
-        }
-      } else if (p === 'mixed-dpi') {
-        const waylandFractional = ['fedora', 'fedora-silverblue', 'bazzite', 'pop-os', 'ubuntu'];
-        if (waylandFractional.includes(distro.id)) {
-          earned += 15;
-          reasons.push({
-            feature: 'High-DPI & Multi-Monitor',
-            matched: true,
-            explanation: 'Native Wayland per-monitor fractional scaling and independent refresh rates (prevents 4K blur).'
-          });
-        }
-      }
+      applyAffinity(PERIPHERAL_AFFINITIES[p]);
     }
 
     // Normalized relative compatibility score (0 - 100%). Hard disqualifications are locked to 0%.
@@ -671,7 +384,8 @@ export function evaluateCriteria(
   // 2. Flagship use-case alignment
   // 3. Lower minimum RAM footprint
   // 4. Exact experience level match
-  // 5. Alphabetical by name
+  // 5. Universal desktop defaults (Mint, Ubuntu, Fedora)
+  // 6. Alphabetical by name
   scoredDistros.sort((a, b) => {
     if (b.score !== a.score) {
       return b.score - a.score;
@@ -689,9 +403,8 @@ export function evaluateCriteria(
       const bExp = b.distro.experienceLevel === criteria.experienceLevel;
       if (aExp !== bExp) return aExp ? -1 : 1;
     }
-    const universalDefaults = ['linux-mint', 'ubuntu', 'fedora'];
-    const aDefIndex = universalDefaults.indexOf(a.distro.id);
-    const bDefIndex = universalDefaults.indexOf(b.distro.id);
+    const aDefIndex = UNIVERSAL_DEFAULT_DISTRO_IDS.indexOf(a.distro.id);
+    const bDefIndex = UNIVERSAL_DEFAULT_DISTRO_IDS.indexOf(b.distro.id);
     if (aDefIndex !== -1 || bDefIndex !== -1) {
       if (aDefIndex === -1) return 1;
       if (bDefIndex === -1) return -1;
@@ -702,34 +415,10 @@ export function evaluateCriteria(
 
   const bestMatch = scoredDistros[0];
 
-  // Resolve recipe generator if requested or available
-  let recommendedRecipe;
-  const hasExplicitModifiers = !!(
-    criteria.requiresCustomBuild ||
-    criteria.enableDistrobox ||
-    criteria.enableNix ||
-    criteria.dockerApp ||
-    (criteria.desktopApps && criteria.desktopApps.length > 0)
-  );
-
-  const targetGeneratorId =
-    criteria.platform === 'wsl2'
-      ? 'wsl2-debian'
-      : criteria.platform === 'vm'
-      ? 'cloud-init-qcow2'
-      : criteria.useCase === 'hypervisor-vms'
-      ? 'proxmox-lxc'
-      : criteria.useCase === 'iot-embedded'
-      ? 'buildroot-embedded'
-      : bestMatch.distro.recipeGeneratorId
-      ? bestMatch.distro.recipeGeneratorId
-      : (hasExplicitModifiers && bestMatch.distro.id !== 'arch'
-          ? 'debootstrap-debian'
-          : undefined);
-
-  if (targetGeneratorId) {
-    recommendedRecipe = resolveRecipeGenerator(targetGeneratorId, criteria);
-  }
+  const targetGeneratorId = selectRecipeGenerator(criteria, bestMatch.distro);
+  const recommendedRecipe = targetGeneratorId
+    ? resolveRecipeGenerator(targetGeneratorId, criteria)
+    : undefined;
 
   const summary = `Evaluated ${distros.length} distributions. Top match is ${bestMatch.distro.name} with a ${bestMatch.score}% compatibility score.`;
 

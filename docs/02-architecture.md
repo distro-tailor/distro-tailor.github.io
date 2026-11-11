@@ -16,9 +16,12 @@ distro-tailor/
 │   │   │   ├── types.ts       # Domain taxonomy, criteria interfaces, profiles
 │   │   │   ├── engine/
 │   │   │   │   ├── matcher.ts         # Weighted constraint matching algorithm
+│   │   │   │   ├── recipe-selection.ts # Ordered rules choosing the recipe generator
 │   │   │   │   └── question-flow.ts   # Adaptive dynamic questionnaire director
 │   │   │   ├── taxonomy/
-│   │   │   │   ├── distros.ts         # Verified profile registry (22+ distributions)
+│   │   │   │   ├── distros.ts         # Verified profile registry (31 distributions)
+│   │   │   │   ├── affinities.ts      # Curated per-criterion distro affinity tables
+│   │   │   │   ├── criteria-schema.ts # Criteria allowlists & sanitizer for untrusted input
 │   │   │   │   └── questions.ts       # 20-Questions tree with contextual tips
 │   │   │   └── generators/
 │   │   │       ├── debootstrap.ts     # Debian minbase ISO generator
@@ -26,8 +29,11 @@ distro-tailor/
 │   │   │       ├── buildroot.ts       # Embedded Buildroot defconfig generator
 │   │   │       ├── alpine.ts          # Minimal apk chroot generator
 │   │   │       ├── container.ts       # Multi-stage distroless container generator
+│   │   │       ├── cloud-init.ts      # Cloud-init qcow2 VM image generator
+│   │   │       ├── wsl.ts             # WSL2 rootfs tarball generator
+│   │   │       ├── lxc.ts             # Proxmox LXC template generator
 │   │   │       └── wasm.ts            # Browser WebVM (v86) assembler
-│   │   └── src/index.test.ts  # Node.js native test runner test suite (16 tests)
+│   │   └── src/**/*.test.ts   # Node.js native test runner suites
 │   │
 │   ├── web/                   # Client-side SPA (Vite + Tailwind CSS + Web Standards MVC)
 │   │   ├── src/
@@ -62,15 +68,19 @@ $$\text{Score} = \max\left(0, \min\left(100, \text{round}\left(\frac{\sum W_{\te
 
 | Criterion | Max Weight | Hard/Soft Gate | Evaluation Logic |
 | :--- | :---: | :---: | :--- |
-| **Primary Use Case** | **25 pts** | Soft | Direct match against `distro.primaryUseCases` |
+| **Primary Use Case** | **25 pts** (+2 flagship bonus) | Soft | Direct match against `distro.primaryUseCases`; bonus when it is the distro's first listed use case |
 | **Platform Target** | **20 pts** | Soft (-10 penalty) | Direct match against `distro.platforms` |
-| **CPU Architecture** | **20 pts** | **Hard Gate (-40 penalty)** | Heavy penalty for incompatible hardware (e.g. x86 binary on ARM) |
-| **Storage & RAM Footprint** | **15 pts** | Soft (-15 penalty) | Ordered hierarchy check (`micro` < `minimal` < `lean` < `standard` < `full`) |
+| **CPU Architecture** | **20 pts** | **Hard Gate (score locked to 0%)** | Incompatible hardware disqualifies the distro outright (e.g. x86 binary on ARM) |
+| **Storage & RAM Footprint** | **15 pts** (+2 exact tier bonus) each | Soft (-15 / -30 penalty) | Ordered hierarchy check (`micro` < `minimal` < `lean` < `standard` < `full`) |
 | **Desktop Workflow Style** | **10 pts** | Soft | Evaluates Windows, macOS, Mobile/Touch, or Traditional ergonomics |
 | **State Immutability** | **10 pts** | Soft | Compares `mutable`, `declarative`, `immutable-ostree`, `stateless-ram` |
 | **C Library & Init** | **10 pts** | Soft (5 pts each) | `musl` vs. `glibc` and `systemd` vs. `busybox`/`openrc` |
 | **Release Cadence & Drivers** | **10 pts each** | Soft | LTS vs Rolling, and Proprietary vs 100% Free Software |
 | **Experience Level** | **5 pts** | Soft (-15 penalty) | Penalizes source-compilation systems (Buildroot) for beginners |
+
+Alignment bonuses are included in $\sum W_{\text{max}}$, so only an exact alignment reaches 100% and near-misses no longer tie at the cap.
+
+Criteria that depend on curated knowledge rather than profile attributes (form factor, workflow familiarity, driver philosophy, boot medium, pro audio, peripherals) are scored from ordered tier tables in `taxonomy/affinities.ts`. The first tier that applies to a distro wins, and a unit test verifies every referenced distro id exists in the registry. The recipe generator is then chosen by the ordered rules in `engine/recipe-selection.ts`.
 
 ---
 

@@ -96,3 +96,17 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And stepping back highlights the applied default option without leaving unconstrained empty criteria
     And skipping all questions falls back gracefully to Linux Mint as the Universal Baseline at 100% instead of unconstrained ties
     And allow additional alternative comparisons to grow dynamically in the data registry
+
+  Scenario: Exact alignment bonuses separate otherwise tied perfect matches
+    Given a user requests a "standard" storage footprint
+    When the matcher normalizes scores against the maximum achievable weight
+    Then the maximum includes the flagship use-case and exact footprint tier bonuses
+    And Debian, which sits exactly in the "standard" tier, scores 100%
+    And Alpine, which is far smaller than requested, no longer ties it at 100%
+
+  Scenario: Curated distro affinities live in a validated data catalog
+    Given hardware, workflow, driver, boot-medium, and peripheral affinities are defined in "taxonomy/affinities.ts"
+    When a contributor adds or renames a distribution
+    Then the affinity integrity test fails for any affinity referencing an unknown distro id
+    And the matcher applies the first matching affinity tier without hardcoded distro id checks
+    And criteria whose keys are all undefined fall back to the Universal Baseline
