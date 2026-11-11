@@ -210,18 +210,52 @@ export function renderWizardQuestion(
 
             const isSingleSelected = (() => {
               if (question.isMultiSelect) return false;
-              const matchingOptions = question.options.filter(
+
+              // 1. Strict exact match: all criteria applied by this option are defined and match state
+              const exactMatches = question.options.filter(
                 (o) =>
                   Object.entries(o.appliesCriteria).length > 0 &&
                   Object.entries(o.appliesCriteria).every(
                     ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
                   )
               );
-              if (matchingOptions.length === 0) return false;
-              const best = matchingOptions.sort(
-                (a, b) => Object.keys(b.appliesCriteria).length - Object.keys(a.appliesCriteria).length
-              )[0];
-              return opt.id === best.id;
+              if (exactMatches.length > 0) {
+                const best = exactMatches.sort(
+                  (a, b) => Object.keys(b.appliesCriteria).length - Object.keys(a.appliesCriteria).length
+                )[0];
+                return opt.id === best.id;
+              }
+
+              // 2. Resilient partial match: options with no conflicts whose defined keys match state
+              const partialMatches = question.options.filter((o) => {
+                const entries = Object.entries(o.appliesCriteria);
+                if (entries.length === 0) return false;
+                const hasConflict = entries.some(
+                  ([k, v]) =>
+                    (state.criteria as Record<string, unknown>)[k] !== undefined &&
+                    (state.criteria as Record<string, unknown>)[k] !== v
+                );
+                if (hasConflict) return false;
+                return entries.some(
+                  ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+                );
+              });
+
+              if (partialMatches.length > 0) {
+                const best = partialMatches.sort((a, b) => {
+                  const aMatches = Object.entries(a.appliesCriteria).filter(
+                    ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+                  ).length;
+                  const bMatches = Object.entries(b.appliesCriteria).filter(
+                    ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+                  ).length;
+                  if (bMatches !== aMatches) return bMatches - aMatches;
+                  return Object.keys(b.appliesCriteria).length - Object.keys(a.appliesCriteria).length;
+                })[0];
+                return opt.id === best.id;
+              }
+
+              return false;
             })();
 
             const isSelected = question.isMultiSelect ? isMultiSelected : isSingleSelected;

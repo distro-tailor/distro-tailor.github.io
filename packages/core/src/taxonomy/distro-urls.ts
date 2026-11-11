@@ -25,9 +25,16 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
   'endless-os': {
     experienceLevel: 'beginner',
     useCase: 'education-kids',
+    footprint: 'standard',
     platform: 'bare-metal',
     architecture: 'x86_64',
-    maxRamMb: 4096
+    formFactor: 'desktop',
+    maxRamMb: 4096,
+    prefersGui: true,
+    workflowStyle: 'mobile-touch',
+    releaseCadence: 'standard',
+    driverPhilosophy: 'seamless-proprietary',
+    bootMedium: 'nvme-ssd'
   },
   openmediavault: {
     experienceLevel: 'beginner',

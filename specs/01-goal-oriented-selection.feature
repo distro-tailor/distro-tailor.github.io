@@ -130,5 +130,6 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     Then the decision engine must rank that distribution as the #1 champion
     And the compatibility score must be at least 80%
     And users can click "Load Match" directly from the distro preview modal to jump straight to its winning build recipe
+    And all relevant questionnaire steps in the wizard display their selected cards with zero blank pages
 
 

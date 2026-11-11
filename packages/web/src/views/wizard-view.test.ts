@@ -115,3 +115,37 @@ test('Wizard View: highlights strictly ONE option on single-select even with sha
   assert.ok(html.includes('data-option-id="standard_laptop"'));
   assert.ok(html.includes('Laptop / Notebook / Ultrabook'));
 });
+
+test('Wizard View: highlights matching option on composite questions even when minor secondary tags are omitted', () => {
+  // Criteria has useCase: 'education-kids' and platform: 'bare-metal', but footprint is omitted
+  const dummyState: AppState = {
+    criteria: {
+      experienceLevel: 'beginner',
+      useCase: 'education-kids',
+      platform: 'bare-metal',
+      architecture: 'x86_64',
+      maxRamMb: 4096
+    },
+    answeredQuestionIds: new Set(['user_familiarity', 'beginner_goal']),
+    activeTab: 'wizard',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+
+  const goalQuestion = QUESTIONS.find((q) => q.id === 'beginner_goal')!;
+  assert.ok(goalQuestion);
+
+  const html = renderWizardQuestion(
+    goalQuestion,
+    { current: 2, total: 10 },
+    dummyState
+  );
+
+  assert.ok(html.includes('✓ Selected'), 'Expected an option to be marked as ✓ Selected');
+  assert.ok(html.includes('data-option-id="kids_education"'));
+  assert.ok(html.includes('Kid-Safe School &amp; Coding Computer') || html.includes('Kid-Safe School & Coding Computer'));
+});
