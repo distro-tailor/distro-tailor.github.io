@@ -142,7 +142,7 @@ export interface IAppStore {
   /**
    * Sets the search filter query for filtering options within a long questionnaire step.
    */
-  setWizardFilter(query: string): void;
+  setWizardFilter(query: string, notify?: boolean): void;
 
   /**
    * Sets the selected distro profile to display in the detailed preview modal.

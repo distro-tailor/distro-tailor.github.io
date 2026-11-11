@@ -391,10 +391,12 @@ export class AppStore extends EventTarget implements IAppStore {
     this.notify();
   }
 
-  public setWizardFilter(query: string): void {
+  public setWizardFilter(query: string, notify = true): void {
     if (this._state.wizardFilterQuery === query) return;
     this._state.wizardFilterQuery = query;
-    this.notify();
+    if (notify) {
+      this.notify();
+    }
   }
 
   public setSelectedDistro(distroId: string | null): void {

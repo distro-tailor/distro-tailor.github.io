@@ -221,15 +221,9 @@ export function renderWizardQuestion(
           spellcheck="false"
         />
         <span class="absolute left-3 top-2.5 text-xs text-slate-400 pointer-events-none">🔍</span>
-        ${
-          state.wizardFilterQuery
-            ? `
-          <button id="btn-clear-wizard-filter" class="absolute right-2.5 top-2 text-xs text-slate-400 hover:text-slate-100 cursor-pointer px-1 py-0.5" title="Clear filter">
-            ✕
-          </button>
-        `
-            : ''
-        }
+        <button id="btn-clear-wizard-filter" type="button" class="${state.wizardFilterQuery ? '' : 'hidden'} absolute right-2.5 top-2 text-xs text-slate-400 hover:text-slate-100 cursor-pointer px-1 py-0.5" title="Clear filter">
+          ✕
+        </button>
       </div>
       `
           : ''
@@ -313,24 +307,27 @@ export function renderWizardQuestion(
               )
             : question.options;
 
+          const emptyStateHtml = `
+            <div id="wizard-empty-filter-state" class="${visibleOptions.length === 0 ? '' : 'hidden'} col-span-full py-10 px-6 rounded-2xl bg-slate-950/60 border border-slate-800 text-center">
+              <span class="text-3xl mb-2.5 block">🔍</span>
+              <p class="text-sm font-semibold text-slate-200 mb-1">No options match <span id="wizard-empty-filter-query">"${escapeHtml(state.wizardFilterQuery || '')}"</span></p>
+              <p class="text-xs text-slate-400 mb-4">Try a different keyword or clear the filter to see all ${question.options.length} options.</p>
+              <button id="btn-reset-wizard-filter" type="button" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-semibold border border-slate-700 hover:border-emerald-500/40 transition-all cursor-pointer">
+                Clear Filter
+              </button>
+            </div>
+          `;
+
           if (visibleOptions.length === 0) {
-            return `
-              <div class="col-span-full py-10 px-6 rounded-2xl bg-slate-950/60 border border-slate-800 text-center">
-                <span class="text-3xl mb-2.5 block">🔍</span>
-                <p class="text-sm font-semibold text-slate-200 mb-1">No options match "${escapeHtml(state.wizardFilterQuery || '')}"</p>
-                <p class="text-xs text-slate-400 mb-4">Try a different keyword or clear the filter to see all ${question.options.length} options.</p>
-                <button id="btn-reset-wizard-filter" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-semibold border border-slate-700 hover:border-emerald-500/40 transition-all cursor-pointer">
-                  Clear Filter
-                </button>
-              </div>
-            `;
+            return emptyStateHtml;
           }
 
           const visibleCount = visibleOptions.length;
 
-          return visibleOptions
-            .map((opt, idx) => {
-              const originalIdx = question.options.indexOf(opt);
+          return (
+            visibleOptions
+              .map((opt, idx) => {
+                const originalIdx = question.options.indexOf(opt);
               const keyNum = originalIdx !== -1 ? originalIdx + 1 : idx + 1;
               // Strip any leading emoji from label string to avoid duplicate display
               const cleanLabel = opt.label.replace(/^[\p{Emoji}\s]+/u, '').trim();
@@ -339,9 +336,10 @@ export function renderWizardQuestion(
 
               const isSelected = checkOptionSelected(opt);
               const isPlaceholderDefault = !hasAnySelection && !!opt.isDefault;
+              const searchText = `${opt.label} ${opt.description || ''} ${opt.id}`.toLowerCase();
 
               return `
-            <button data-option-id="${opt.id}" class="option-btn group relative text-left p-4 sm:p-5 rounded-xl border transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 min-w-0 w-full overflow-hidden ${spanClass} ${
+            <button data-option-id="${opt.id}" data-search-text="${escapeHtml(searchText)}" class="option-btn group relative text-left p-4 sm:p-5 rounded-xl border transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 min-w-0 w-full overflow-hidden ${spanClass} ${
                 isSelected
                   ? 'border-emerald-400 bg-emerald-950/30 ring-1 ring-emerald-400/50 shadow-md shadow-emerald-950/30'
                   : 'border-slate-700/60 bg-slate-950/70 [@media(hover:hover)]:hover:bg-slate-800/90 [@media(hover:hover)]:hover:border-emerald-400 [@media(hover:hover)]:hover:shadow-lg [@media(hover:hover)]:hover:shadow-emerald-950/40 active:border-emerald-400 active:bg-slate-800/90'
@@ -391,7 +389,8 @@ export function renderWizardQuestion(
             </button>
               `;
             })
-            .join('');
+            .join('') + (question.options.length >= 7 ? emptyStateHtml : '')
+          );
         })()}
       </div>
 

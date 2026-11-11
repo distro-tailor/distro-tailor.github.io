@@ -137,26 +137,60 @@ export function bindWizardEvents(ctx: HandlerContext): void {
   document.getElementById('btn-jump-results')?.addEventListener('click', handleJumpResults);
   document.getElementById('btn-jump-results-top')?.addEventListener('click', handleJumpResults);
 
-  // Live filter input for long question option lists
+  // Live DOM-local filter for long question option lists (100% flicker-free)
   const filterInput = document.getElementById('input-filter-wizard-options') as HTMLInputElement | null;
+  const clearBtn = document.getElementById('btn-clear-wizard-filter');
+  const emptyState = document.getElementById('wizard-empty-filter-state');
+  const emptyQuerySpan = document.getElementById('wizard-empty-filter-query');
+  const optionButtons = document.querySelectorAll<HTMLButtonElement>('.option-btn');
+
+  const applyLiveFilter = (rawQuery: string) => {
+    const query = rawQuery.trim().toLowerCase();
+    // Keep store state in sync without firing a full-page re-render
+    store.setWizardFilter(rawQuery, false);
+
+    if (clearBtn) {
+      clearBtn.classList.toggle('hidden', query.length === 0);
+    }
+
+    let matchCount = 0;
+    optionButtons.forEach((btn) => {
+      const text = btn.getAttribute('data-search-text') || '';
+      const isMatch = query.length === 0 || text.includes(query);
+      btn.classList.toggle('hidden', !isMatch);
+      if (isMatch) matchCount++;
+    });
+
+    if (emptyState) {
+      emptyState.classList.toggle('hidden', matchCount > 0);
+      if (emptyQuerySpan) {
+        emptyQuerySpan.textContent = `"${rawQuery}"`;
+      }
+    }
+  };
+
   if (filterInput) {
     filterInput.addEventListener('input', (e) => {
       const val = (e.target as HTMLInputElement).value;
-      store.setWizardFilter(val);
+      applyLiveFilter(val);
     });
 
     filterInput.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        store.setWizardFilter('');
+        filterInput.value = '';
+        applyLiveFilter('');
       }
     });
   }
 
-  document.getElementById('btn-clear-wizard-filter')?.addEventListener('click', () => {
-    store.setWizardFilter('');
-  });
+  const clearFilterAction = () => {
+    if (filterInput) {
+      filterInput.value = '';
+      filterInput.focus();
+    }
+    applyLiveFilter('');
+  };
 
-  document.getElementById('btn-reset-wizard-filter')?.addEventListener('click', () => {
-    store.setWizardFilter('');
-  });
+  clearBtn?.addEventListener('click', clearFilterAction);
+  document.getElementById('btn-reset-wizard-filter')?.addEventListener('click', clearFilterAction);
 }
