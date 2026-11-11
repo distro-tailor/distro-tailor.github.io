@@ -203,3 +203,43 @@ export function deserializeCriteriaFromParams(params: Record<string, string>): U
   // Shared URLs are untrusted input: only allowlisted values may reach the matcher or recipe generators.
   return sanitizeCriteria(raw);
 }
+
+/**
+ * Serializes strongly typed UserCriteria into standard URL query parameter key-values.
+ */
+export function serializeCriteriaToParams(
+  criteria: UserCriteria,
+  extra?: Record<string, string>
+): Record<string, string> {
+  const params: Record<string, string> = {
+    v: String(CURRENT_SCHEMA_VERSION),
+    ...(extra || {})
+  };
+
+  for (const [key, value] of Object.entries(criteria)) {
+    if (value !== undefined && value !== null && value !== '') {
+      if (Array.isArray(value)) {
+        if (value.length > 0) {
+          params[key] = value.join(',');
+        }
+      } else {
+        params[key] = String(value);
+      }
+    }
+  }
+
+  return params;
+}
+
+/**
+ * Converts UserCriteria directly into a shareable query string (e.g. "?v=1&tab=results&...").
+ */
+export function serializeCriteriaToQuery(
+  criteria: UserCriteria,
+  extra?: Record<string, string>
+): string {
+  const params = serializeCriteriaToParams(criteria, extra);
+  const searchParams = new URLSearchParams(params);
+  const qs = searchParams.toString();
+  return qs ? `?${qs}` : '';
+}

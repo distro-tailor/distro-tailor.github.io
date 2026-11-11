@@ -70,3 +70,32 @@ test('URL Schema Migrations: Intercepts future schemas (v=99) with clean fallbac
   assert.equal(result.status, 'unsupported-too-new');
   assert.ok(result.fallbackNotice?.includes('newer version'));
 });
+
+test('URL Schema Serialization: cleanly serializes criteria and roundtrips with deserializer', async () => {
+  const { serializeCriteriaToParams, serializeCriteriaToQuery, deserializeCriteriaFromParams } = await import('./url-schema.js');
+  const criteria = {
+    useCase: 'desktop' as const,
+    architecture: 'x86_64' as const,
+    maxRamMb: 8192,
+    prefersGui: true,
+    desktopApps: ['firefox', 'vscode']
+  };
+
+  const params = serializeCriteriaToParams(criteria, { tab: 'results' });
+  assert.equal(params.v, '1');
+  assert.equal(params.tab, 'results');
+  assert.equal(params.useCase, 'desktop');
+  assert.equal(params.desktopApps, 'firefox,vscode');
+
+  const query = serializeCriteriaToQuery(criteria, { tab: 'results' });
+  assert.ok(query.startsWith('?'));
+  assert.ok(query.includes('useCase=desktop'));
+  assert.ok(query.includes('desktopApps=firefox%2Cvscode'));
+
+  const restored = deserializeCriteriaFromParams(params);
+  assert.equal(restored.useCase, 'desktop');
+  assert.equal(restored.architecture, 'x86_64');
+  assert.equal(restored.maxRamMb, 8192);
+  assert.equal(restored.prefersGui, true);
+  assert.deepEqual(restored.desktopApps, ['firefox', 'vscode']);
+});

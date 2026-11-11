@@ -33,6 +33,15 @@ Welcome to the central documentation index for **DistroTailor**—the 20-Questio
   - Matcher & UX enhancements (RAM budget evaluation, hard arch gates, circuit breaker resilience)
   - Step-by-step remediation tracking dashboard
 
+- **[Testing Generated Distro Recipes in VMs & Emulators](05-testing-vm-and-iso-guide.md)**
+  - Prerequisites and tooling (QEMU, UTM, VirtualBox)
+  - Hands-on recipes: NixOS Flake VM (`make test-vm`), Debian Cloud-Init QCOW2 (`make image`), Live Hybrid ISO (`make iso`)
+  - Testing Wayland Kiosks and WebAssembly in-browser emulators
+
+- **[Distro Recommendations Matrix & Archetype Audit Report](distro-recommendations-matrix.md)**
+  - Automated sanity evaluation over 27 real-world system archetypes
+  - Reproducible URL state permalinks and CLI export test commands for each persona
+
 - **[Contributing Guidelines](../CONTRIBUTING.md)**
   - The 3 Pillars of Contribution (Feature Spec, Client-Side MVC, 100% Automated Tests)
   - Monorepo package responsibilities and zero-hardcoding rules

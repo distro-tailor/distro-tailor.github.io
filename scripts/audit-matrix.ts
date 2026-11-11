@@ -1,4 +1,4 @@
-import { evaluateCriteria, DISTRO_REGISTRY, UserCriteria } from '../packages/core/src/index.js';
+import { evaluateCriteria, DISTRO_REGISTRY, serializeCriteriaToQuery, UserCriteria } from '../packages/core/src/index.js';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -430,6 +430,10 @@ interface AuditResult {
   thirdScore: number;
   sanityStatus: 'PASS' | 'WARN' | 'FAIL';
   sanityNote: string;
+  urlQuery: string;
+  recipeId?: string;
+  recipeTitle?: string;
+  recipeQuickstart?: string;
 }
 
 export function runMatrixAudit(): { results: AuditResult[]; summary: { total: number; passed: number; warned: number; failed: number } } {
@@ -448,6 +452,8 @@ export function runMatrixAudit(): { results: AuditResult[]; summary: { total: nu
     const winnerId = winner.distro.id;
     const winnerName = winner.distro.name;
     const winnerScore = winner.score;
+    const urlQuery = serializeCriteriaToQuery(arc.criteria, { tab: 'results' });
+    const recipe = output.recommendedRecipe;
 
     let sanityStatus: 'PASS' | 'WARN' | 'FAIL' = 'PASS';
     let sanityNote = 'Recommendation aligned with archetype goals.';
@@ -500,7 +506,11 @@ export function runMatrixAudit(): { results: AuditResult[]; summary: { total: nu
       thirdName: third?.distro.name || '',
       thirdScore: third?.score || 0,
       sanityStatus,
-      sanityNote
+      sanityNote,
+      urlQuery,
+      recipeId: recipe?.id,
+      recipeTitle: recipe?.title,
+      recipeQuickstart: recipe?.quickstartCommands[0]
     });
   }
 
@@ -532,8 +542,8 @@ export function generateMatrixMarkdown(audit: ReturnType<typeof runMatrixAudit>)
 
   for (const cat of categories) {
     md += `## 📂 ${cat}\n\n`;
-    md += `| Status | Archetype | Hardware / Constraints | 🥇 Top Winner | 🥈 Runner-Up | 🥉 3rd Place | Audit Sanity Notes |\n`;
-    md += `| :---: | :--- | :--- | :--- | :--- | :--- | :--- |\n`;
+    md += `| Status | Archetype | Hardware / Constraints | 🥇 Top Winner | ⚡ Build Recipe / VM Target | 🔗 Permalink (URL State) |\n`;
+    md += `| :---: | :--- | :--- | :--- | :--- | :--- |\n`;
 
     const catResults = results.filter(r => r.archetype.category === cat);
     for (const r of catResults) {
@@ -547,13 +557,32 @@ export function generateMatrixMarkdown(audit: ReturnType<typeof runMatrixAudit>)
       ].filter(Boolean).join(' • ');
 
       const winnerText = `**${r.winnerName}** (${r.winnerScore}%)`;
-      const runnerText = `${r.runnerUpName} (${r.runnerUpScore}%)`;
-      const thirdText = `${r.thirdName} (${r.thirdScore}%)`;
+      const recipeText = r.recipeTitle
+        ? `**${r.recipeTitle}**<br><code>${r.recipeQuickstart || 'make'}</code>`
+        : `<em>Turnkey Official Image</em>`;
+      const urlText = `[\`Load Persona\`](${r.urlQuery})`;
 
-      md += `| ${statusIcon} | **${r.archetype.name}**<br>_${r.archetype.description}_ | \`${hw}\` | ${winnerText} | ${runnerText} | ${thirdText} | ${r.sanityNote} |\n`;
+      md += `| ${statusIcon} | **${r.archetype.name}**<br>_${r.archetype.description}_ | \`${hw}\` | ${winnerText} | ${recipeText} | ${urlText} |\n`;
     }
     md += `\n`;
   }
+
+  md += `## 🧪 Testing Persona Builds & VMs Locally\n\n`;
+  md += `Every archetype above is deterministically reproducible from its URL state. You can evaluate and export its complete build harness directly with the DistroTailor CLI:\n\n`;
+  md += `\`\`\`bash\n`;
+  md += `# 1. Declarative NixOS Workstation Flake -> Disposable QEMU VM\n`;
+  md += `npm run cli export -- --url "?v=1&tab=results&statePreference=declarative&useCase=desktop&architecture=x86_64" --out ./build-test/nixos\n`;
+  md += `cd ./build-test/nixos && make test-vm\n\n`;
+  md += `# 2. Debian Cloud Virtual Machine Disk -> QCOW2 image\n`;
+  md += `npm run cli export -- --url "?v=1&tab=results&useCase=server&platform=vm&architecture=x86_64" --out ./build-test/cloud-vm\n`;
+  md += `cd ./build-test/cloud-vm && make image\n\n`;
+  md += `# 3. Debian Minimal Live Bootable ISO -> Hybrid BIOS/UEFI ISO\n`;
+  md += `npm run cli export -- --url "?v=1&tab=results&useCase=desktop&platform=bare-metal&requiresCustomBuild=true" --out ./build-test/live-iso\n`;
+  md += `cd ./build-test/live-iso && sudo make iso\n\n`;
+  md += `# 4. Cage Wayland Signage Kiosk -> Alpine RootFS Watchdog\n`;
+  md += `npm run cli export -- --url "?v=1&tab=results&useCase=kiosk-signage&platform=kiosk&architecture=x86_64" --out ./build-test/kiosk\n`;
+  md += `cd ./build-test/kiosk && sudo make rootfs\n`;
+  md += `\`\`\`\n\n`;
 
   md += `## 🛡️ Invariant Rules Enforced by Matrix\n\n`;
   md += `1. **No Appliance Leakage to Desktop Goals:** Single-purpose appliances (\`Porteus Kiosk\`, \`OpenWrt\`, \`LibreELEC\`, \`Talos\`, \`Home Assistant\`, \`TrueNAS\`, \`Proxmox\`) must NEVER win on general desktop, educational, or home-office requests.\n`;

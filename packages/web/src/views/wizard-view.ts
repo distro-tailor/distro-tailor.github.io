@@ -1,6 +1,7 @@
 import { Question, RecommendationOutput, UserCriteria } from '@distro-tailor/core';
 import { AppState } from '../state/store.js';
 import { escapeHtml } from '../utils/dom.js';
+import { renderPersonaPresetsPanel } from '../components/persona-presets-panel.js';
 
 export function renderUnsupportedSchemaFallback(notice: string): string {
   return `
@@ -326,5 +327,8 @@ export function renderWizardQuestion(
       </div>
 
     </div>
+
+    <!-- Example Personas & Quick-Start Deterministic Test Builds -->
+    ${renderPersonaPresetsPanel()}
   `;
 }

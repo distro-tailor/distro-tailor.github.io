@@ -116,3 +116,12 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     When the next question renders and the user presses a number key again
     Then the answer applies to the question currently displayed, not the first question
     And ArrowLeft steps back and Escape closes open modals or the expert matrix
+
+  Scenario: Loading an Example Persona Preset and Inspecting Deterministic Test Builds
+    Given the user is on the questionnaire wizard view
+    When the user selects an example persona preset card such as "Declarative NixOS Workstation"
+    Then the application applies the preset criteria directly to the active state
+    And transitions immediately to the results view
+    And updates the URL query string to the persona's deterministic permalink
+    And displays the recommended distribution, custom build recipe, and 3-tier VM test commands
+
