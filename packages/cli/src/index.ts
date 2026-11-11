@@ -50,6 +50,11 @@ program
   .option('--state <state>', 'State model (mutable, declarative, immutable-ostree, stateless-ram, read-only-rootfs)')
   .option('--c-lib <libc>', 'C standard library (glibc, musl, uclibc-ng)')
   .option('--init <init>', 'Init system (systemd, openrc, runit, busybox)')
+  .option('--filesystem <fs>', 'Root filesystem (ext4, btrfs, zfs, xfs, f2fs, fat32)')
+  .option('--kernel <kernel>', 'Kernel flavor (lts-stable, realtime-rt, hardened, zen-liquorix)')
+  .option('--bootloader <bootloader>', 'Bootloader preference (grub-hybrid, systemd-boot, u-boot, efistub)')
+  .option('--security <security>', 'Security profile (standard-dac, selinux, apparmor, amnesic-ram)')
+  .option('--network <network>', 'Networking stack (networkmanager, systemd-networkd, nftables-pf, busybox-minimal)')
   .option('--json', 'Output results as machine-readable JSON')
   .action((options) => {
     let criteria: UserCriteria = {
@@ -59,7 +64,12 @@ program
       footprint: options.footprint,
       statePreference: options.state,
       cLibPreference: options.cLib,
-      initPreference: options.init
+      initPreference: options.init,
+      fileSystem: options.filesystem,
+      kernelFlavor: options.kernel,
+      bootloader: options.bootloader,
+      securityProfile: options.security,
+      networkingStack: options.network
     };
 
     if (options.url) {

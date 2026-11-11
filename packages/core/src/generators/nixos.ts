@@ -92,6 +92,36 @@ export function generateNixosRecipe(criteria: UserCriteria): GeneratedRecipe {
   };`;
   }
 
+  // Low-level Systems Engineering
+  let kernelConfig = '';
+  if (criteria.kernelFlavor === 'zen-liquorix') {
+    kernelConfig = '\n  # Zen Gaming & Desktop Low-Latency Kernel\n  boot.kernelPackages = pkgs.linuxPackages_zen;';
+  } else if (criteria.kernelFlavor === 'hardened') {
+    kernelConfig = '\n  # Hardened Security Kernel\n  boot.kernelPackages = pkgs.linuxPackages_hardened;';
+  } else if (criteria.kernelFlavor === 'realtime-rt') {
+    kernelConfig = '\n  # PREEMPT_RT Realtime Low-Latency Kernel\n  boot.kernelPackages = pkgs.linuxPackages_rt;';
+  }
+
+  let fsConfig = '';
+  if (criteria.fileSystem === 'zfs') {
+    fsConfig = '\n  # OpenZFS Storage Pool Support\n  boot.supportedFilesystems = [ "zfs" ];';
+  } else if (criteria.fileSystem === 'btrfs') {
+    fsConfig = '\n  # Btrfs Subvolume Support\n  boot.supportedFilesystems = [ "btrfs" ];';
+  }
+
+  const bootloaderConfig = criteria.bootloader === 'grub-hybrid'
+    ? `  # Bootloader (GRUB 2 Hybrid BIOS + UEFI)
+  boot.loader.grub.enable = true;
+  boot.loader.grub.efiSupport = true;
+  boot.loader.efi.canTouchEfiVariables = true;`
+    : `  # Bootloader (UEFI / systemd-boot)
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;`;
+
+  const networkConfig = criteria.networkingStack === 'systemd-networkd'
+    ? '  networking.useNetworkd = true;'
+    : '  networking.networkmanager.enable = true;';
+
   // Docker container app configuration
   const dockerAppDef = getDockerApp(criteria.dockerApp);
   let containerConfig = '';
@@ -140,13 +170,11 @@ export function generateNixosRecipe(criteria: UserCriteria): GeneratedRecipe {
 {
   system.stateVersion = "24.11";
 
-  # Bootloader (UEFI / systemd-boot)
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+${bootloaderConfig}${kernelConfig ? '\n' + kernelConfig : ''}${fsConfig ? '\n' + fsConfig : ''}
 
   # Networking
   networking.hostName = "${hostname}";
-  networking.networkmanager.enable = true;
+${networkConfig}
 
   # Localization & Time
   time.timeZone = "UTC";

@@ -14,6 +14,7 @@ import {
 } from './index.js';
 import { generateDebootstrapRecipe } from './debootstrap.js';
 import { generateCloudInitRecipe } from './cloud-init.js';
+import { generateNixosRecipe } from './nixos.js';
 
 const CRITERIA_VARIANTS: UserCriteria[] = [
   {},
@@ -239,4 +240,19 @@ test('Recipe Generator: cloud-init formats virtual disk using specified filesyst
   });
   const makefile = recipe.files.find((f) => f.filename === 'Makefile')?.content ?? '';
   assert.match(makefile, /virt-make-fs --partition=mbr --type=btrfs/);
+});
+
+test('Recipe Generator: nixos configures custom kernel, filesystem, and bootloader', () => {
+  const recipe = generateNixosRecipe({
+    architecture: 'x86_64',
+    fileSystem: 'zfs',
+    kernelFlavor: 'zen-liquorix',
+    bootloader: 'grub-hybrid',
+    networkingStack: 'systemd-networkd'
+  });
+  const config = recipe.files.find((f) => f.filename === 'configuration.nix')?.content ?? '';
+  assert.match(config, /boot\.kernelPackages = pkgs\.linuxPackages_zen;/);
+  assert.match(config, /boot\.supportedFilesystems = \[ "zfs" \];/);
+  assert.match(config, /boot\.loader\.grub\.enable = true;/);
+  assert.match(config, /networking\.useNetworkd = true;/);
 });

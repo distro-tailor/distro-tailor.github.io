@@ -334,6 +334,8 @@ export class AppStore extends EventTarget implements IAppStore {
       this._state.answeredQuestionIds.delete('display_mode');
     } else if (criteriaKey === 'workflowStyle') {
       this._state.answeredQuestionIds.delete('desktop_workflow_style');
+    } else if (criteriaKey === 'fileSystem') {
+      this._state.answeredQuestionIds.delete('filesystem_and_storage');
     }
 
     this.notify();
@@ -349,9 +351,15 @@ export class AppStore extends EventTarget implements IAppStore {
       delete cleaned.cLibPreference;
       delete cleaned.initPreference;
       delete cleaned.statePreference;
+      delete cleaned.fileSystem;
+      delete cleaned.kernelFlavor;
+      delete cleaned.bootloader;
+      delete cleaned.securityProfile;
+      delete cleaned.networkingStack;
       this._state.criteria = cleaned;
       this._state.answeredQuestionIds.delete('c_library_and_init');
       this._state.answeredQuestionIds.delete('system_immutability');
+      this._state.answeredQuestionIds.delete('filesystem_and_storage');
     }
     this.notify();
   }

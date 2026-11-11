@@ -68,9 +68,11 @@ test('AppStore: setFlowMode clears technical criteria when switching to smart/be
   store.setFlowMode('expert');
   store.answerQuestion('c_library_and_init', 'cLibPreference', 'musl');
   store.answerQuestion('system_immutability', 'statePreference', 'declarative');
+  store.answerQuestion('filesystem_and_storage', 'fileSystem', 'btrfs');
 
   assert.equal(store.getState().criteria.cLibPreference, 'musl');
   assert.equal(store.getState().criteria.statePreference, 'declarative');
+  assert.equal(store.getState().criteria.fileSystem, 'btrfs');
 
   // Switch back to smart mode
   store.setFlowMode('smart');
@@ -78,7 +80,9 @@ test('AppStore: setFlowMode clears technical criteria when switching to smart/be
   assert.equal(state.flowMode, 'smart');
   assert.equal(state.criteria.cLibPreference, undefined);
   assert.equal(state.criteria.statePreference, undefined);
+  assert.equal(state.criteria.fileSystem, undefined);
   assert.equal(state.answeredQuestionIds.has('c_library_and_init'), false);
+  assert.equal(state.answeredQuestionIds.has('filesystem_and_storage'), false);
   assert.equal(state.answeredQuestionIds.has('system_immutability'), false);
 });
 
