@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "test": "node --test 'dist/*.test.js' 'dist/**/*.test.js'"
+    "test": "tsx --test 'src/**/*.test.ts'"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
