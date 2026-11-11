@@ -58,6 +58,15 @@ When you intend to change scoring (`engine/matcher.ts`, `taxonomy/affinities.ts`
    npm run scoring:update
    ```
 
+### 5. Pinned Recipe Downloads
+Generated recipes verify every download against a SHA-256 pinned in `packages/core/src/generators/checksums.ts`, which is the single source for those versions, URLs, and hashes. A monthly GitHub Action (`.github/workflows/check-pins.yml`, also runnable by hand) runs `npm run check:pins` to re-verify each pin and to flag pinned Alpine or Buildroot releases that are near or past upstream end of support.
+
+To bump a pinned release, change the version in `checksums.ts`, copy the new hash from the upstream checksum file noted beside it, then run:
+```bash
+npm run check:pins
+npm test
+```
+
 ---
 
 ## 🛠️ Development Workflow

@@ -77,3 +77,10 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     And cloud-init images get a random first-boot password from cloud-init itself, shown on the VM console
     And WSL2 images lock the password because WSL signs the user in automatically
     And bundled services such as Pi-hole generate their own admin password instead of using a preset one
+
+  Scenario: Pinned recipe downloads are re-verified every month
+    Given recipe downloads are pinned to versions and SHA-256 checksums in "checksums.ts"
+    When the monthly "Check Recipe Download Pins" workflow runs
+    Then every pinned artifact is downloaded again and compared with its checksum
+    And pinned Alpine and Buildroot releases warn 60 days before and fail after their upstream end of support
+    And the job summary lists which pins need updating
