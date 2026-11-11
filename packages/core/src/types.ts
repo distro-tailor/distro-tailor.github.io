@@ -206,6 +206,7 @@ export interface UserCriteria {
   bootMedium?: BootMedium;
   realtimeAudio?: boolean;
   peripheralNeed?: PeripheralNeed;
+  peripherals?: PeripheralNeed[];
 
   // Interactive Recipe Modifiers (App Suites & Turnkey Services)
   desktopEnv?: DesktopEnvId;
@@ -222,6 +223,7 @@ export interface QuestionOption {
   description?: string;
   icon?: string;
   appliesCriteria: Partial<UserCriteria>;
+  isDefault?: boolean;
 }
 
 export interface QuestionTip {
@@ -240,6 +242,7 @@ export interface Question {
   shouldAsk?: (criteriaSoFar: UserCriteria) => boolean;
   tip?: QuestionTip;
   isOptional?: boolean;
+  isMultiSelect?: boolean;
 }
 
 export interface MatchReason {

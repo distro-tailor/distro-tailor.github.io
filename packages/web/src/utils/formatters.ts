@@ -47,6 +47,18 @@ export function formatConstraint(key: string, value: unknown): FormattedConstrai
   if (key === 'enableFlatpak') {
     return { label: value ? 'Flatpak Sandbox' : 'No Flatpak', icon: '📦' };
   }
+  if (key === 'peripherals') {
+    const list = Array.isArray(value) ? value : String(value).split(',').filter(Boolean);
+    const nonStd = list.filter((p: string) => p !== 'standard');
+    if (nonStd.length === 0) {
+      return { label: 'Standard Mouse & Screen', icon: '🖥️' };
+    }
+    const labels = nonStd.map((p: string) => CONSTRAINT_DICTIONARY.peripheralNeed?.[p]?.label || p);
+    return {
+      label: `Peripherals: ${labels.join(', ')}`,
+      icon: '🔌'
+    };
+  }
 
   const strVal = String(value);
   if (CONSTRAINT_DICTIONARY[key] && CONSTRAINT_DICTIONARY[key][strVal]) {

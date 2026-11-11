@@ -3,6 +3,16 @@ import { AppState, AppTab, FlowMode, IAppStore } from '../types.js';
 
 export type { AppState, AppTab, FlowMode, IAppStore };
 
+export function getSavedTheme(): 'dark' | 'light' {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('dt_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    }
+  } catch {}
+  return 'dark';
+}
+
 export function createDefaultState(): AppState {
   return {
     criteria: {},
@@ -14,7 +24,10 @@ export function createDefaultState(): AppState {
     history: [],
     flowMode: 'smart',
     showShareModal: false,
-    showAllContenders: false
+    showAllContenders: false,
+    searchQuery: '',
+    selectedDistroId: null,
+    theme: getSavedTheme()
   };
 }
 
@@ -31,6 +44,15 @@ export class AppStore extends EventTarget implements IAppStore {
       ...createDefaultState(),
       ...(initialState || {})
     };
+    if (typeof document !== 'undefined' && this._state.theme) {
+      if (this._state.theme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+      }
+    }
   }
 
   public getState(): Readonly<AppState> {
@@ -173,6 +195,42 @@ export class AppStore extends EventTarget implements IAppStore {
 
   public toggleAllContenders(): void {
     this._state.showAllContenders = !this._state.showAllContenders;
+    this.notify();
+  }
+
+  public setSearchQuery(query: string): void {
+    if (this._state.searchQuery === query) return;
+    this._state.searchQuery = query;
+    this.notify();
+  }
+
+  public setSelectedDistro(distroId: string | null): void {
+    if (this._state.selectedDistroId === distroId) return;
+    this._state.selectedDistroId = distroId;
+    this.notify();
+  }
+
+  public toggleTheme(): void {
+    const nextTheme: 'dark' | 'light' = this._state.theme === 'dark' ? 'light' : 'dark';
+    this.setTheme(nextTheme);
+  }
+
+  public setTheme(theme: 'dark' | 'light'): void {
+    this._state.theme = theme;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('dt_theme', theme);
+      }
+    } catch {}
+    if (typeof document !== 'undefined') {
+      if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+      }
+    }
     this.notify();
   }
 

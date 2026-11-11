@@ -25,3 +25,14 @@ test('Leaderboard Layout: renders top 6 contenders when collapsed and all 31 whe
   assert.ok(expandedHtml.includes('▲ Show Top 6 Only'));
   assert.ok(expandedHtml.includes('#31'));
 });
+
+test('Leaderboard Layout: live search filters contenders by name and tagline', () => {
+  const evalResult = evaluateCriteria({});
+  const state = createDefaultState();
+
+  state.searchQuery = 'mint';
+  const html = renderLeaderboard(evalResult, state);
+  assert.ok(html.includes('Linux Mint'));
+  assert.ok(html.includes('1 found') || html.includes('found'));
+  assert.ok(!html.includes('Batocera.linux')); // should be filtered out
+});

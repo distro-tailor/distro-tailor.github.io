@@ -1,5 +1,6 @@
 import { DISTRO_REGISTRY, RecommendationOutput } from '@distro-tailor/core';
 import { AppState } from '../state/store.js';
+import { escapeHtml } from '../utils/dom.js';
 
 export function renderNavbar(state: AppState, evaluation: RecommendationOutput): string {
   const hasCriteria = Object.keys(state.criteria).length > 0;
@@ -61,16 +62,22 @@ export function renderNavbar(state: AppState, evaluation: RecommendationOutput):
               : ''
           }
 
-          <!-- GitHub Star & Fork Widgets -->
-          <div class="hidden sm:flex items-center gap-1.5 pl-1.5 border-l border-slate-800/80 shrink-0">
-            <a href="https://github.com/distro-tailor/distro-tailor" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-amber-300 border border-slate-800 transition-all flex items-center gap-1.5 shadow-sm" title="Star DistroTailor on GitHub">
-              <svg class="w-3.5 h-3.5 text-amber-400 fill-current" viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
-              <span>Star</span>
-            </a>
-            <a href="https://github.com/distro-tailor/distro-tailor/fork" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-indigo-300 border border-slate-800 transition-all flex items-center gap-1.5 shadow-sm" title="Fork DistroTailor on GitHub">
-              <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h4.5A2.25 2.25 0 0 0 12.5 6.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878ZM12.5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM8 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v-4.5a.75.75 0 0 1 1.5 0v4.5Z"></path></svg>
-              <span>Fork</span>
-            </a>
+          <!-- Theme Switcher & GitHub Star & Fork Widgets -->
+          <div class="flex items-center gap-1.5 pl-1.5 border-l border-slate-800/80 shrink-0">
+            <button id="btn-toggle-theme" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-amber-300 border border-slate-800 transition-all flex items-center gap-1 shadow-sm cursor-pointer" title="Toggle Theme (${state.theme === 'light' ? 'Switch to Dark' : 'Switch to Light'})">
+              <span>${state.theme === 'light' ? '🌙' : '☀️'}</span>
+              <span class="hidden md:inline">${state.theme === 'light' ? 'Dark' : 'Light'}</span>
+            </button>
+            <div class="hidden sm:flex items-center gap-1.5">
+              <a href="https://github.com/distro-tailor/distro-tailor" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-amber-300 border border-slate-800 transition-all flex items-center gap-1.5 shadow-sm" title="Star DistroTailor on GitHub">
+                <svg class="w-3.5 h-3.5 text-amber-400 fill-current" viewBox="0 0 16 16"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
+                <span>Star</span>
+              </a>
+              <a href="https://github.com/distro-tailor/distro-tailor/fork" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-indigo-300 border border-slate-800 transition-all flex items-center gap-1.5 shadow-sm" title="Fork DistroTailor on GitHub">
+                <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h4.5A2.25 2.25 0 0 0 12.5 6.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878ZM12.5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM8 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v-4.5a.75.75 0 0 1 1.5 0v4.5Z"></path></svg>
+                <span>Fork</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -79,39 +86,84 @@ export function renderNavbar(state: AppState, evaluation: RecommendationOutput):
 }
 
 export function renderLeaderboard(evaluation: RecommendationOutput, state: AppState): string {
-  const isExpanded = state.showAllContenders;
+  const isExpanded = state.showAllContenders || !!state.searchQuery;
   const allDistros = evaluation.allMatches || evaluation.topMatches;
-  const displayMatches = isExpanded ? allDistros : allDistros.slice(0, 6);
+  const query = (state.searchQuery || '').trim().toLowerCase();
+  
+  const filteredMatches = query
+    ? allDistros.filter(
+        (m) =>
+          m.distro.name.toLowerCase().includes(query) ||
+          m.distro.tagline.toLowerCase().includes(query) ||
+          m.distro.id.toLowerCase().includes(query)
+      )
+    : allDistros;
+
+  const displayMatches = isExpanded ? filteredMatches : filteredMatches.slice(0, 6);
   const totalCount = allDistros.length || DISTRO_REGISTRY.length;
 
   return `
-    <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80 gap-2">
+    <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-800/80 gap-2">
       <div class="min-w-0">
         <h3 class="text-sm font-bold text-slate-200 truncate">The Contenders</h3>
         <p class="text-[11px] text-slate-400 truncate">Updates live as you answer</p>
       </div>
       <button id="btn-header-distros-count" class="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-slate-800 text-slate-300 hover:text-emerald-300 hover:bg-slate-700 transition-colors shrink-0 cursor-pointer" title="Click to view all ${totalCount} distros">
-        ${isExpanded ? `All ${totalCount} distros` : `Top 6 of ${totalCount}`}
+        ${query ? `${filteredMatches.length} found` : isExpanded ? `All ${totalCount} distros` : `Top 6 of ${totalCount}`}
       </button>
     </div>
 
+    <!-- Live Search Input -->
+    <div class="relative mb-3">
+      <input
+        id="input-search-leaderboard"
+        type="text"
+        placeholder="Filter 31 distros..."
+        value="${escapeHtml(state.searchQuery || '')}"
+        class="w-full px-3 py-1.5 pl-7 pr-7 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all"
+      />
+      <span class="absolute left-2.5 top-2 text-[11px] text-slate-500 pointer-events-none">🔍</span>
+      ${
+        state.searchQuery
+          ? `
+        <button id="btn-clear-search" class="absolute right-2 top-1.5 text-xs text-slate-400 hover:text-slate-200 cursor-pointer px-1 py-0.5" title="Clear filter">
+          ✕
+        </button>
+      `
+          : ''
+      }
+    </div>
+
     <!-- Contender Cards (Scrollable when expanded) -->
-    <div class="space-y-2.5 ${isExpanded ? 'max-h-[520px] overflow-y-auto pr-1 select-none' : ''}">
-      ${displayMatches
-        .map(
-          (m, idx) => `
-        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 hover:border-slate-700 transition-all min-w-0">
+    <div class="space-y-2.5 ${isExpanded ? 'max-h-[520px] overflow-y-auto pr-1' : ''}">
+      ${
+        displayMatches.length === 0
+          ? `
+        <div class="p-4 rounded-xl bg-slate-950/60 border border-slate-800 text-center text-xs text-slate-400">
+          <p>No distributions match "<strong>${escapeHtml(query)}</strong>"</p>
+          <button id="btn-reset-filter" class="mt-2 px-2.5 py-1 rounded bg-slate-800 text-emerald-400 hover:bg-slate-700 font-mono text-[11px] cursor-pointer">
+            Clear filter
+          </button>
+        </div>
+      `
+          : displayMatches
+              .map(
+                (m, idx) => `
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 hover:border-emerald-500/50 hover:bg-slate-900/80 transition-all min-w-0 cursor-pointer group distro-card-preview" data-distro-id="${m.distro.id}" title="Click to preview ${escapeHtml(m.distro.name)} details">
           <div class="flex items-center justify-between text-sm mb-1.5 gap-2">
             <div class="flex items-center gap-2 font-medium text-slate-200 min-w-0 flex-1">
-              <span class="text-base shrink-0">${m.distro.logoEmoji || '🐧'}</span>
+              <span class="text-base shrink-0 group-hover:scale-110 transition-transform">${m.distro.logoEmoji || '🐧'}</span>
               <span class="text-[11px] font-mono font-bold text-slate-500 shrink-0">#${idx + 1}</span>
-              <span class="truncate">${m.distro.name}</span>
+              <span class="truncate group-hover:text-emerald-300 transition-colors">${m.distro.name}</span>
             </div>
-            <span class="font-mono text-xs font-bold shrink-0 ${
-              m.score >= 80 ? 'text-emerald-400' : m.score >= 50 ? 'text-yellow-400' : 'text-slate-500'
-            }">
-              ${m.score}%
-            </span>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span class="font-mono text-xs font-bold ${
+                m.score >= 80 ? 'text-emerald-400' : m.score >= 50 ? 'text-yellow-400' : 'text-slate-500'
+              }">
+                ${m.score}%
+              </span>
+              <span class="text-[10px] text-slate-600 group-hover:text-emerald-400 font-mono transition-colors">↗</span>
+            </div>
           </div>
 
           <!-- Match Bar -->
@@ -124,14 +176,15 @@ export function renderLeaderboard(evaluation: RecommendationOutput, state: AppSt
           <p class="text-[11px] text-slate-400 mt-2 line-clamp-1 break-words">${m.distro.tagline}</p>
         </div>
       `
-        )
-        .join('')}
+              )
+              .join('')
+      }
     </div>
 
     <!-- Toggle All 31 Contenders Action Bar -->
     <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs">
       <button id="btn-toggle-all-contenders" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 cursor-pointer transition-colors">
-        <span>${isExpanded ? '▲ Show Top 6 Only' : `▼ View All ${totalCount} Distros (${allDistros.length} Ranked)`}</span>
+        <span>${isExpanded && !query ? '▲ Show Top 6 Only' : `▼ View All ${totalCount} Distros (${allDistros.length} Ranked)`}</span>
       </button>
       <button id="btn-quick-matrix" class="text-[11px] font-mono text-slate-400 hover:text-slate-200 transition-colors flex items-center gap-1 cursor-pointer" title="Open full comparison matrix">
         <span>Matrix</span> ↗

@@ -127,6 +127,53 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
     });
   });
 
+  // Toggle Theme (Dark / Light)
+  document.getElementById('btn-toggle-theme')?.addEventListener('click', () => {
+    store.toggleTheme();
+  });
+
+  // Distro Preview Modal Trigger (Leaderboard cards and catalog badges)
+  document.querySelectorAll<HTMLElement>('[data-distro-id]').forEach((el) => {
+    el.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('button, a')) return;
+      const id = el.getAttribute('data-distro-id');
+      if (id) {
+        store.setSelectedDistro(id);
+      }
+    });
+  });
+
+  const closeDistroModal = () => {
+    store.setSelectedDistro(null);
+  };
+  document.getElementById('btn-close-distro-modal')?.addEventListener('click', closeDistroModal);
+  document.getElementById('btn-modal-dismiss')?.addEventListener('click', closeDistroModal);
+  document.getElementById('distro-modal-backdrop')?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).id === 'distro-modal-backdrop') {
+      closeDistroModal();
+    }
+  });
+
+  // Live Search in Leaderboard
+  const searchInput = document.getElementById('input-search-leaderboard') as HTMLInputElement | null;
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const val = (e.target as HTMLInputElement).value;
+      store.setSearchQuery(val);
+    });
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        store.setSearchQuery('');
+      }
+    });
+  }
+  document.getElementById('btn-clear-search')?.addEventListener('click', () => {
+    store.setSearchQuery('');
+  });
+  document.getElementById('btn-reset-filter')?.addEventListener('click', () => {
+    store.setSearchQuery('');
+  });
+
   // Toggle All 31 Contenders in Leaderboard
   document.getElementById('btn-toggle-all-contenders')?.addEventListener('click', () => {
     store.toggleAllContenders();
@@ -222,6 +269,53 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
       const optId = btn.getAttribute('data-option-id');
       const opt = nextQuestion?.options.find((o) => o.id === optId);
       if (opt && nextQuestion) {
+        if (nextQuestion.isMultiSelect) {
+          // Toggle item in multi-select list
+          const currentPeripherals = [
+            ...(store.getState().criteria.peripherals ||
+              (store.getState().criteria.peripheralNeed && store.getState().criteria.peripheralNeed !== 'standard'
+                ? [store.getState().criteria.peripheralNeed]
+                : []))
+          ];
+
+          if (opt.id === 'standard_peripherals') {
+            store.update({
+              criteria: {
+                ...store.getState().criteria,
+                peripherals: ['standard'],
+                peripheralNeed: 'standard'
+              }
+            });
+          } else {
+            const pKey = opt.appliesCriteria.peripherals?.[0] || (opt.appliesCriteria.peripheralNeed as any);
+            const withoutStandard = currentPeripherals.filter((p) => p !== 'standard');
+            const exists = withoutStandard.includes(pKey);
+            const nextList = exists
+              ? withoutStandard.filter((p) => p !== pKey)
+              : [...withoutStandard, pKey];
+
+            if (nextList.length === 0) {
+              store.update({
+                criteria: {
+                  ...store.getState().criteria,
+                  peripherals: ['standard'],
+                  peripheralNeed: 'standard'
+                }
+              });
+            } else {
+              store.update({
+                criteria: {
+                  ...store.getState().criteria,
+                  peripherals: nextList,
+                  peripheralNeed: nextList[0]
+                }
+              });
+            }
+          }
+          router.saveStateToUrl(store.getState(), false);
+          return;
+        }
+
         btn.classList.remove('bg-slate-950/70', 'border-slate-700/60');
         btn.classList.add('bg-emerald-500/20', 'border-emerald-400', 'ring-2', 'ring-emerald-400', 'scale-[0.985]');
 
@@ -241,8 +335,8 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
     });
   });
 
-  // Back button
-  document.getElementById('btn-back')?.addEventListener('click', () => {
+  // Back button (top and bottom)
+  const handleBack = () => {
     router.stepBack(() => {
       const popped = store.popHistory();
       if (popped) {
@@ -250,10 +344,12 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
         scrollToQuestionCard();
       }
     });
-  });
+  };
+  document.getElementById('btn-back')?.addEventListener('click', handleBack);
+  document.getElementById('btn-back-top')?.addEventListener('click', handleBack);
 
-  // Skip question button
-  document.getElementById('btn-skip')?.addEventListener('click', () => {
+  // Skip question button (top and bottom)
+  const handleSkip = () => {
     if (nextQuestion) {
       store.pushHistory();
       store.update({
@@ -262,7 +358,23 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
       router.saveStateToUrl(store.getState(), true);
       scrollToQuestionCard();
     }
-  });
+  };
+  document.getElementById('btn-skip')?.addEventListener('click', handleSkip);
+  document.getElementById('btn-skip-top')?.addEventListener('click', handleSkip);
+
+  // Multi-select confirm & next (top and bottom)
+  const handleMultiSelectConfirm = () => {
+    if (nextQuestion) {
+      store.pushHistory();
+      store.update({
+        answeredQuestionIds: new Set([...store.getState().answeredQuestionIds, nextQuestion.id])
+      });
+      router.saveStateToUrl(store.getState(), true);
+      scrollToQuestionCard();
+    }
+  };
+  document.getElementById('btn-multiselect-confirm')?.addEventListener('click', handleMultiSelectConfirm);
+  document.getElementById('btn-multiselect-confirm-top')?.addEventListener('click', handleMultiSelectConfirm);
 
   // Recipe Tabs
   document.querySelectorAll<HTMLButtonElement>('.recipe-tab').forEach((tab) => {
@@ -483,6 +595,10 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
       }
 
       if (e.key === 'Escape') {
+        if (currentState.selectedDistroId) {
+          store.setSelectedDistro(null);
+          return;
+        }
         if (currentState.showShareModal) {
           store.setShareModal(false);
           return;

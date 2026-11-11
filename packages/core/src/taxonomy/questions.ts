@@ -329,6 +329,7 @@ export const QUESTIONS: Question[] = [
         label: 'Standard PC or Windows Laptop (Intel or AMD)',
         description: 'Most ordinary desktops and laptops made in the last 10-12 years',
         icon: '💻',
+        isDefault: true,
         appliesCriteria: { architecture: 'x86_64' }
       },
       {
@@ -430,6 +431,7 @@ export const QUESTIONS: Question[] = [
         label: 'x86_64 / AMD64',
         description: 'Standard modern Intel and AMD PCs, laptops, and cloud hypervisors',
         icon: '💻',
+        isDefault: true,
         appliesCriteria: { architecture: 'x86_64' }
       },
       {
@@ -604,6 +606,7 @@ export const QUESTIONS: Question[] = [
         label: 'Rock-Solid Long-Term Support (LTS)',
         description: 'Battle-tested point releases; packages stay frozen with backported security fixes (e.g. Debian, Ubuntu LTS, Rocky)',
         icon: '🛡️',
+        isDefault: true,
         appliesCriteria: { releaseCadence: 'lts' }
       },
       {
@@ -646,6 +649,7 @@ export const QUESTIONS: Question[] = [
         label: 'Seamless & Turnkey (Include NVIDIA & Wi-Fi Blobs)',
         description: 'Maximum convenience: out-of-the-box proprietary GPU drivers, Wi-Fi firmware, and media codecs',
         icon: '🎮',
+        isDefault: true,
         appliesCriteria: { driverPhilosophy: 'seamless-proprietary' }
       },
       {
@@ -688,6 +692,7 @@ export const QUESTIONS: Question[] = [
         label: 'Internal NVMe / SATA SSD or Hard Drive',
         description: 'Standard high-speed persistent disk storage on desktop, laptop, or server',
         icon: '⚡',
+        isDefault: true,
         appliesCriteria: { bootMedium: 'nvme-ssd' }
       },
       {
@@ -739,6 +744,7 @@ export const QUESTIONS: Question[] = [
         label: 'No, Standard Audio & Everyday Multimedia',
         description: 'Standard desktop audio stack (PulseAudio / standard PipeWire) for music, movies, and conferencing',
         icon: '🔊',
+        isDefault: true,
         appliesCriteria: { realtimeAudio: false }
       }
     ]
@@ -749,8 +755,9 @@ export const QUESTIONS: Question[] = [
     id: 'attached_peripherals',
     order: 10,
     isOptional: true,
+    isMultiSelect: true,
     prompt: 'Do you have any specialized peripherals or attached displays?',
-    subtext: 'Hardware peripherals like touchscreens, printers, VR headsets, and 4K displays require specific driver stacks.',
+    subtext: 'Standard mouse, keyboard, and screen are fully supported out of the box. Select any specialized hardware you also plan to connect:',
     category: 'hardware',
     shouldAsk: (criteria) =>
       criteria.prefersGui !== false &&
@@ -766,45 +773,46 @@ export const QUESTIONS: Question[] = [
     options: [
       {
         id: 'standard_peripherals',
-        label: 'Standard Mouse, Keyboard & Screen',
+        label: 'Standard Mouse, Keyboard & Screen Only',
         description: 'Everyday standard desktop or laptop peripherals with no special hardware requirements',
         icon: '🖥️',
-        appliesCriteria: { peripheralNeed: 'standard' }
+        isDefault: true,
+        appliesCriteria: { peripherals: ['standard'], peripheralNeed: 'standard' }
       },
       {
         id: 'touchscreen_tablet',
         label: 'Touchscreen, Tablet, or 2-in-1 Laptop',
         description: 'Requires native Wayland multi-touch gestures, auto-screen rotation, and virtual on-screen keyboards',
         icon: '📱',
-        appliesCriteria: { peripheralNeed: 'touchscreen' }
+        appliesCriteria: { peripherals: ['touchscreen'], peripheralNeed: 'touchscreen' }
       },
       {
         id: 'printers_scanners',
         label: 'Home or Office Printers & Document Scanners',
         description: 'Requires turnkey CUPS printing, automatic Bonjour/mDNS Wi-Fi printer discovery, and HP/Brother drivers',
         icon: '🖨️',
-        appliesCriteria: { peripheralNeed: 'printer-scanner' }
+        appliesCriteria: { peripherals: ['printer-scanner'], peripheralNeed: 'printer-scanner' }
       },
       {
         id: 'vr_gaming_rig',
         label: 'Virtual Reality (VR) Headset or Flight/Sim Rig',
         description: 'Requires SteamVR compatibility, DRM display leasing, cutting-edge Vulkan drivers, and Monado OpenXR',
         icon: '🥽',
-        appliesCriteria: { peripheralNeed: 'vr-headset' }
+        appliesCriteria: { peripherals: ['vr-headset'], peripheralNeed: 'vr-headset' }
       },
       {
         id: 'drawing_tablet',
         label: 'Drawing Tablet or Pen Stylus (Wacom / Huion)',
         description: 'Requires digitizer kernel drivers, pressure sensitivity calibration, and creative tool integration',
         icon: '🎨',
-        appliesCriteria: { peripheralNeed: 'drawing-tablet' }
+        appliesCriteria: { peripherals: ['drawing-tablet'], peripheralNeed: 'drawing-tablet' }
       },
       {
         id: 'mixed_dpi_monitors',
         label: 'Multiple Monitors or Mixed 4K / High-DPI Displays',
         description: 'Requires per-monitor Wayland fractional scaling (125%/150%) and independent refresh rates without blur',
         icon: '📺',
-        appliesCriteria: { peripheralNeed: 'mixed-dpi' }
+        appliesCriteria: { peripherals: ['mixed-dpi'], peripheralNeed: 'mixed-dpi' }
       }
     ]
   },
@@ -829,6 +837,7 @@ export const QUESTIONS: Question[] = [
         label: 'Traditional Mutable (apt, dnf, pacman)',
         description: 'Standard Linux: install and tweak packages whenever you want',
         icon: '🛠️',
+        isDefault: true,
         appliesCriteria: { statePreference: 'mutable' }
       },
       {
@@ -882,6 +891,7 @@ export const QUESTIONS: Question[] = [
         label: 'glibc + systemd',
         description: 'Broadest binary compatibility with commercial drivers and proprietary software',
         icon: '🏢',
+        isDefault: true,
         appliesCriteria: { cLibPreference: 'glibc', initPreference: 'systemd' }
       },
       {

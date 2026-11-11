@@ -35,7 +35,13 @@ export function serializeStateToParams(state: AppState): URLSearchParams {
   // Serialize criteria keys into clean query parameters
   for (const [key, value] of Object.entries(state.criteria)) {
     if (value !== undefined && value !== null && value !== '') {
-      params.set(key, String(value));
+      if (Array.isArray(value)) {
+        if (value.length > 0) {
+          params.set(key, value.join(','));
+        }
+      } else {
+        params.set(key, String(value));
+      }
     }
   }
 

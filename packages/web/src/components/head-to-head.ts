@@ -1,4 +1,5 @@
 import { RecommendationOutput } from '@distro-tailor/core';
+import { escapeHtml } from '../utils/dom.js';
 
 /**
  * Renders the transparent score breakdown and head-to-head comparison card.
@@ -70,19 +71,22 @@ export function renderDecidingFactorsAndHeadToHead(evaluation: RecommendationOut
               .map((runner) => {
                 const unmetReasons = runner.reasons.filter((r) => !r.matched);
                 return `
-                <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 flex flex-col justify-between text-xs min-w-0">
+                <div data-distro-id="${runner.distro.id}" class="bg-slate-950/70 border border-slate-800 hover:border-emerald-500/40 rounded-xl p-4 flex flex-col justify-between text-xs min-w-0 cursor-pointer transition-all group" title="Click to preview ${escapeHtml(runner.distro.name)} details">
                   <div>
                     <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-800/80 gap-2">
                       <div class="flex items-center gap-2 min-w-0">
-                        <span class="text-2xl p-1 rounded-lg bg-slate-900 border border-slate-800 shrink-0">${runner.distro.logoEmoji || '🐧'}</span>
+                        <span class="text-2xl p-1 rounded-lg bg-slate-900 border border-slate-800 shrink-0 group-hover:scale-110 transition-transform">${runner.distro.logoEmoji || '🐧'}</span>
                         <div class="min-w-0">
-                          <span class="font-bold text-slate-200 text-sm block truncate">${runner.distro.name}</span>
+                          <span class="font-bold text-slate-200 text-sm block truncate group-hover:text-emerald-300 transition-colors">${runner.distro.name}</span>
                           <span class="text-[10px] text-slate-400 block truncate">${runner.distro.tagline}</span>
                         </div>
                       </div>
-                      <span class="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
-                        ${runner.score}% Match
-                      </span>
+                      <div class="flex items-center gap-1.5 shrink-0">
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
+                          ${runner.score}% Match
+                        </span>
+                        <span class="text-[10px] text-slate-500 group-hover:text-emerald-400 font-mono transition-colors">↗</span>
+                      </div>
                     </div>
 
                     <!-- Decisive Divergence -->

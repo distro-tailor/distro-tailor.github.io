@@ -186,8 +186,11 @@ export function deserializeCriteriaFromParams(params: Record<string, string>): U
   if (params.realtimeAudio !== undefined) {
     criteria.realtimeAudio = params.realtimeAudio === 'true' || params.realtimeAudio === '1';
   }
-  if (params.peripheralNeed) {
+  if (params.peripherals) {
+    criteria.peripherals = params.peripherals.split(',').filter(Boolean) as any[];
+  } else if (params.peripheralNeed) {
     criteria.peripheralNeed = params.peripheralNeed as any;
+    criteria.peripherals = [params.peripheralNeed as any];
   }
   if (params.requiresCustomBuild !== undefined) {
     criteria.requiresCustomBuild = params.requiresCustomBuild === 'true' || params.requiresCustomBuild === '1';

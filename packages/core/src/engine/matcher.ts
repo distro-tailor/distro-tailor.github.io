@@ -28,7 +28,13 @@ export function evaluateCriteria(
   if (criteria.bootMedium) maxWeight += 10;
   if (criteria.prefersGui !== undefined) maxWeight += 10;
   if (criteria.realtimeAudio) maxWeight += 15;
-  if (criteria.peripheralNeed && criteria.peripheralNeed !== 'standard') maxWeight += 15;
+  const selectedPeripherals = (
+    criteria.peripherals ||
+    (criteria.peripheralNeed && criteria.peripheralNeed !== 'standard' ? [criteria.peripheralNeed] : [])
+  ).filter((p) => p !== 'standard');
+  if (selectedPeripherals.length > 0) {
+    maxWeight += selectedPeripherals.length * 15;
+  }
 
   if (maxWeight === 0) {
     maxWeight = 100; // Default baseline if nothing specified
@@ -365,9 +371,9 @@ export function evaluateCriteria(
       }
     }
 
-    // 13. Specialized Hardware & Peripherals (Weight: 15)
-    if (criteria.peripheralNeed && criteria.peripheralNeed !== 'standard') {
-      if (criteria.peripheralNeed === 'touchscreen') {
+    // 13. Specialized Hardware & Peripherals (Weight: 15 per selected peripheral)
+    for (const p of selectedPeripherals) {
+      if (p === 'touchscreen') {
         const touchDistros = [
           'fedora',
           'fedora-silverblue',
@@ -392,7 +398,7 @@ export function evaluateCriteria(
             explanation: 'Uses traditional X11 window managers with minimal or no touch gesture support.'
           });
         }
-      } else if (criteria.peripheralNeed === 'printer-scanner') {
+      } else if (p === 'printer-scanner') {
         const printFriendly = ['linux-mint', 'ubuntu', 'fedora'];
         if (printFriendly.includes(distro.id)) {
           earned += 15;
@@ -409,7 +415,7 @@ export function evaluateCriteria(
             explanation: 'Minimal base system requires manual terminal setup and installation of CUPS printing daemons.'
           });
         }
-      } else if (criteria.peripheralNeed === 'vr-headset') {
+      } else if (p === 'vr-headset') {
         const vrDistros = ['bazzite', 'pop-os', 'arch'];
         if (vrDistros.includes(distro.id)) {
           earned += 15;
@@ -426,7 +432,7 @@ export function evaluateCriteria(
             explanation: 'Older LTS kernel and Mesa graphics stack lack DRM leasing for modern VR headsets.'
           });
         }
-      } else if (criteria.peripheralNeed === 'drawing-tablet') {
+      } else if (p === 'drawing-tablet') {
         const artDistros = ['ubuntu-studio', 'fedora', 'pop-os'];
         if (artDistros.includes(distro.id)) {
           earned += 15;
@@ -436,7 +442,7 @@ export function evaluateCriteria(
             explanation: 'Pre-calibrated Wacom/Huion digitizer drivers, pressure sensitivity curves, and pen mapping tools.'
           });
         }
-      } else if (criteria.peripheralNeed === 'mixed-dpi') {
+      } else if (p === 'mixed-dpi') {
         const waylandFractional = ['fedora', 'fedora-silverblue', 'bazzite', 'pop-os', 'ubuntu'];
         if (waylandFractional.includes(distro.id)) {
           earned += 15;

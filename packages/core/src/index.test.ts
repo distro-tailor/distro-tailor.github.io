@@ -606,4 +606,14 @@ test('Matcher: Specialized peripherals evaluate touch, printers, and VR stacks',
   const bazziteMatch = vrRes.allMatches.find(m => m.distro.id === 'bazzite');
   assert.ok(bazziteMatch);
   assert.ok(bazziteMatch.reasons.some(r => r.feature === 'VR & Sim Rigs' && r.matched));
+
+  // Multi-Select Peripherals: Touch + Printer
+  const multiRes = evaluateCriteria({
+    useCase: 'home-office',
+    peripherals: ['touchscreen', 'printer-scanner']
+  });
+  const fedoraMulti = multiRes.allMatches.find(m => m.distro.id === 'fedora');
+  assert.ok(fedoraMulti);
+  assert.ok(fedoraMulti.reasons.some(r => r.feature === 'Touch & Tablet Support' && r.matched));
+  assert.ok(fedoraMulti.reasons.some(r => r.feature === 'Printers & Scanners' && r.matched));
 });

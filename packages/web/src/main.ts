@@ -1,5 +1,6 @@
-import { evaluateCriteria, QuestionFlow, QUESTIONS } from '@distro-tailor/core';
+import { DISTRO_REGISTRY, evaluateCriteria, QuestionFlow, QUESTIONS } from '@distro-tailor/core';
 import { renderCriteriaChips } from './components/chips.js';
+import { renderDistroDetailModal } from './components/distro-modal.js';
 import { renderFooter, renderLeaderboard, renderNavbar } from './components/layout.js';
 import { renderShareModal } from './components/share-modal.js';
 import { attachEventHandlers } from './handlers/events.js';
@@ -77,6 +78,13 @@ function render(): void {
 
     <!-- Interactive Share Modal -->
     ${state.showShareModal ? renderShareModal(evaluation, state.criteria) : ''}
+
+    <!-- Distro Detail Preview Modal -->
+    ${(() => {
+      if (!state.selectedDistroId) return '';
+      const distro = DISTRO_REGISTRY.find((d) => d.id === state.selectedDistroId);
+      return distro ? renderDistroDetailModal(distro, evaluation, state) : '';
+    })()}
   `;
 
   attachEventHandlers(nextQuestion, evaluation, flow);

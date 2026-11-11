@@ -32,6 +32,9 @@ export interface AppState {
   flowMode: FlowMode;
   showShareModal: boolean;
   showAllContenders: boolean;
+  searchQuery?: string;
+  selectedDistroId?: string | null;
+  theme?: 'dark' | 'light';
 }
 
 /**
@@ -103,6 +106,21 @@ export interface IAppStore {
    * Toggles visibility of all 31 contenders in the live sidebar leaderboard.
    */
   toggleAllContenders(): void;
+
+  /**
+   * Sets the live search query for filtering distributions in leaderboard and catalog.
+   */
+  setSearchQuery(query: string): void;
+
+  /**
+   * Sets the selected distro profile to display in the detailed preview modal.
+   */
+  setSelectedDistro(distroId: string | null): void;
+
+  /**
+   * Toggles between dark and light themes and updates DOM and storage.
+   */
+  toggleTheme(): void;
 
   /**
    * Completely resets state to initial defaults, optionally applying clean shared criteria.
