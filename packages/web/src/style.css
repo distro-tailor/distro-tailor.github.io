@@ -75,6 +75,32 @@
     transform: scale(0.985);
   }
 
+  /* Distro Detail Modal Load Match CTA */
+  #btn-modal-load-distro {
+    background-color: #22d3ee !important;
+    color: #020617 !important;
+    border: 1px solid #06b6d4 !important;
+    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4) !important;
+  }
+
+  #btn-modal-load-distro:hover {
+    background-color: #67e8f9 !important;
+    color: #020617 !important;
+    box-shadow: 0 6px 18px rgba(6, 182, 212, 0.5) !important;
+  }
+
+  /* Persona Presets Panel Buttons */
+  .persona-preset-btn {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: #a7f3d0 !important;
+    border: 1px solid rgba(52, 211, 153, 0.4) !important;
+  }
+
+  .persona-preset-btn:hover {
+    background-color: #34d399 !important;
+    color: #020617 !important;
+  }
+
   /* --- High-Contrast Professional Light Theme --- */
   html.light body {
     background-color: #f8fafc;
