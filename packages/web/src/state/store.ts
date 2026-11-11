@@ -224,7 +224,7 @@ export class AppStore extends EventTarget implements IAppStore {
     if (criteriaKey === 'useCase') {
       this._state.answeredQuestionIds.delete('beginner_goal');
       this._state.answeredQuestionIds.delete('technical_use_case');
-    } else if (criteriaKey === 'platform' || criteriaKey === 'architecture') {
+    } else if (criteriaKey === 'platform' || criteriaKey === 'architecture' || criteriaKey === 'formFactor') {
       this._state.answeredQuestionIds.delete('beginner_device');
       this._state.answeredQuestionIds.delete('hardware_architecture');
     } else if (criteriaKey === 'footprint' || criteriaKey === 'maxRamMb') {

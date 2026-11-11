@@ -84,3 +84,34 @@ test('Wizard View: displays Optional badge and Skip default button for optional 
   assert.ok(html.includes('Optional'));
   assert.ok(html.includes('Skip (Use Default) →'));
 });
+
+test('Wizard View: highlights strictly ONE option on single-select even with shared architecture', () => {
+  const dummyState: AppState = {
+    criteria: { architecture: 'x86_64', formFactor: 'laptop' },
+    answeredQuestionIds: new Set(['user_familiarity', 'beginner_goal', 'beginner_device']),
+    activeTab: 'wizard',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+
+  const deviceQuestion = QUESTIONS.find((q) => q.id === 'beginner_device')!;
+  assert.ok(deviceQuestion);
+
+  const html = renderWizardQuestion(
+    deviceQuestion,
+    { current: 2, total: 10 },
+    dummyState
+  );
+
+  // Exactly one option should have the ✓ Selected badge
+  const selectedMatches = html.match(/✓ Selected/g) || [];
+  assert.equal(selectedMatches.length, 1, 'Expected exactly one card to have ✓ Selected badge');
+
+  // Verify that the laptop option card has the selected border styling
+  assert.ok(html.includes('data-option-id="standard_laptop"'));
+  assert.ok(html.includes('Laptop / Notebook / Ultrabook'));
+});

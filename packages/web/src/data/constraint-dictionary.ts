@@ -50,6 +50,15 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     riscv64: { label: 'RISC-V 64-bit Board', icon: '📐' },
     nommu: { label: 'Microcontroller (NOMMU)', icon: '🔌' }
   },
+  formFactor: {
+    desktop: { label: 'Desktop PC / Tower', icon: '🖥️' },
+    laptop: { label: 'Laptop / Notebook', icon: '💻' },
+    handheld: { label: 'Handheld Gaming PC', icon: '🎮' },
+    'low-power': { label: 'Low-Power / Ancient PC', icon: '👴' },
+    mac: { label: 'Apple Mac Hardware', icon: '🍏' },
+    sbc: { label: 'Single-Board Computer', icon: '🍓' },
+    server: { label: 'Enterprise Rack Server', icon: '🖧' }
+  },
   footprint: {
     micro: { label: 'Extreme Micro (<16MB)', icon: '🪶' },
     minimal: { label: 'Ultra-Light (<1GB RAM)', icon: '⚡' },

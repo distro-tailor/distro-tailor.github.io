@@ -189,10 +189,20 @@ export type PeripheralNeed =
   | 'mixed-dpi'
   | 'standard';
 
+export type FormFactor =
+  | 'desktop'
+  | 'laptop'
+  | 'handheld'
+  | 'low-power'
+  | 'mac'
+  | 'sbc'
+  | 'server';
+
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
   platform?: PlatformTarget;
   architecture?: CpuArchitecture;
+  formFactor?: FormFactor;
   maxRamMb?: number;
   footprint?: StorageFootprint;
   initPreference?: InitSystem | 'no-preference';

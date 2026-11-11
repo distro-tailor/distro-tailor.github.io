@@ -325,75 +325,82 @@ export const QUESTIONS: Question[] = [
     },
     options: [
       {
-        id: 'standard_pc',
-        label: 'Standard PC or Windows Laptop (Intel or AMD)',
-        description: 'Most ordinary desktops and laptops made in the last 10-12 years',
+        id: 'standard_desktop',
+        label: 'Desktop PC or Tower (Intel or AMD)',
+        description: 'AC wall-powered desktop or workstation made in the last 10–12 years',
+        icon: '🖥️',
+        appliesCriteria: { architecture: 'x86_64', formFactor: 'desktop' }
+      },
+      {
+        id: 'standard_laptop',
+        label: 'Laptop / Notebook / Ultrabook (Intel or AMD)',
+        description: 'Battery-powered portable laptop; needs power-saving, sleep/suspend, and Wi-Fi management',
         icon: '💻',
         isDefault: true,
-        appliesCriteria: { architecture: 'x86_64' }
+        appliesCriteria: { architecture: 'x86_64', formFactor: 'laptop' }
       },
       {
         id: 'old_macbook',
         label: 'Old Intel MacBook / Mac (2006–2017)',
         description: 'Revive an older MacBook, MacBook Air/Pro, or Mac Mini abandoned by Apple macOS updates (includes Broadcom Wi-Fi driver fix)',
         icon: '🍏',
-        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal' }
+        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'mac' }
       },
       {
         id: 'ancient_pc',
-        label: 'Ancient / Obsolete Computer (15-20 years old)',
-        description: 'Very old machines with older CPUs and limited memory (under 1GB–2GB RAM)',
+        label: 'Ancient / Low-Power Computer (Intel Atom, Celeron, 10–15+ yrs)',
+        description: 'Very weak CPU or under 1GB–2GB RAM; needs an ultra-lightweight OS that will not lag',
         icon: '👴',
-        appliesCriteria: { architecture: 'x86_64', footprint: 'minimal' }
+        appliesCriteria: { architecture: 'x86_64', footprint: 'minimal', formFactor: 'low-power' }
       },
       {
         id: 'raspberry_pi',
         label: 'Raspberry Pi or Mini SBC Board',
         description: 'Raspberry Pi 3, 4, 5, or similar developer single-board computers',
         icon: '🍓',
-        appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc' }
+        appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc', formFactor: 'sbc' }
       },
       {
         id: 'android_tv_box',
         label: 'Android TV Box or TV Stick (Amlogic, Allwinner, Rockchip)',
         description: 'Repurpose a cheap $25 TV box/stick into a 24/7 home server, Pi-hole ad-blocker, or Kodi TV player',
         icon: '📺',
-        appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc' }
+        appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc', formFactor: 'low-power' }
       },
       {
         id: 'repurposed_gadget',
         label: 'Repurposed Gadget (Synology NAS, Old Phone, Ouya, Thin Client)',
         description: 'Reclaim proprietary hardware: install OpenMediaVault on Synology NAS, postmarketOS on old phones, or Linux on Ouya/thin clients',
         icon: '🔓',
-        appliesCriteria: { platform: 'embedded-sbc', footprint: 'lean' }
+        appliesCriteria: { platform: 'embedded-sbc', footprint: 'lean', formFactor: 'low-power' }
       },
       {
         id: 'gaming_handheld',
         label: 'Handheld Gaming Device (Steam Deck, ROG Ally, etc.)',
-        description: 'Portable gaming PC with integrated display and thumbsticks',
+        description: 'Portable gaming PC with 15W APU, integrated display, thumbsticks, and Game Mode',
         icon: '🎮',
-        appliesCriteria: { architecture: 'x86_64' }
+        appliesCriteria: { architecture: 'x86_64', formFactor: 'handheld' }
       },
       {
         id: 'used_server_rack',
         label: 'Used Enterprise Rack Server (Craigslist / eBay 1U/2U/4U)',
         description: 'Scored a cheap Dell PowerEdge (R720/R730), HP ProLiant (DL380), or Supermicro rack server? Ideal for Proxmox VE hypervisors or multi-bay ZFS storage',
         icon: '🖧',
-        appliesCriteria: { architecture: 'x86_64', platform: 'server', footprint: 'full' }
+        appliesCriteria: { architecture: 'x86_64', platform: 'server', footprint: 'full', formFactor: 'server' }
       },
       {
         id: 'apple_silicon_mac',
         label: 'Apple Silicon Mac (M1 / M2 / M3 / M4 MacBook, Mini, Studio)',
         description: 'Modern ARM Apple hardware. Native bare-metal Linux via Fedora Asahi Remix with conformant Vulkan/OpenGL GPU drivers and speaker DSP',
         icon: '🍎',
-        appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'full' }
+        appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'full', formFactor: 'mac' }
       },
       {
         id: 'snapdragon_arm_laptop',
         label: 'Snapdragon / ARM Laptop (Snapdragon X Elite, ThinkPad X13s, Surface Pro X)',
         description: 'Modern Qualcomm ARM64 laptops with extreme 20+ hour battery life, supported in upstream Linux kernels 6.11+',
         icon: '🐉',
-        appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'standard' }
+        appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'standard', formFactor: 'laptop' }
       },
       {
         id: 'windows_wsl2',
@@ -407,7 +414,7 @@ export const QUESTIONS: Question[] = [
         label: 'RISC-V Board or PC (VisionFive 2, Milk-V, SpacemiT)',
         description: 'Open-standard instruction set architecture (ISA) single-board computer or developer workstation',
         icon: '📐',
-        appliesCriteria: { architecture: 'riscv64', platform: 'embedded-sbc', footprint: 'lean' }
+        appliesCriteria: { architecture: 'riscv64', platform: 'embedded-sbc', footprint: 'lean', formFactor: 'sbc' }
       }
     ]
   },

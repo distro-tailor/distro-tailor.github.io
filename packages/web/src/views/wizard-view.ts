@@ -208,12 +208,21 @@ export function renderWizardQuestion(
               opt.appliesCriteria.peripherals &&
               opt.appliesCriteria.peripherals.some((p) => selectedPeripherals.includes(p));
 
-            const isSingleSelected =
-              !question.isMultiSelect &&
-              Object.entries(opt.appliesCriteria).length > 0 &&
-              Object.entries(opt.appliesCriteria).every(
-                ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+            const isSingleSelected = (() => {
+              if (question.isMultiSelect) return false;
+              const matchingOptions = question.options.filter(
+                (o) =>
+                  Object.entries(o.appliesCriteria).length > 0 &&
+                  Object.entries(o.appliesCriteria).every(
+                    ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+                  )
               );
+              if (matchingOptions.length === 0) return false;
+              const best = matchingOptions.sort(
+                (a, b) => Object.keys(b.appliesCriteria).length - Object.keys(a.appliesCriteria).length
+              )[0];
+              return opt.id === best.id;
+            })();
 
             const isSelected = question.isMultiSelect ? isMultiSelected : isSingleSelected;
 

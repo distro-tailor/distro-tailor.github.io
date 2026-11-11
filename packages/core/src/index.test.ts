@@ -617,3 +617,36 @@ test('Matcher: Specialized peripherals evaluate touch, printers, and VR stacks',
   assert.ok(fedoraMulti.reasons.some(r => r.feature === 'Touch & Tablet Support' && r.matched));
   assert.ok(fedoraMulti.reasons.some(r => r.feature === 'Printers & Scanners' && r.matched));
 });
+
+test('Matcher: Form Factor scoring differentiates Handheld, Laptop, and Low-Power hardware', () => {
+  // Handheld gaming PC (Steam Deck / ROG Ally)
+  const handheldRes = evaluateCriteria({
+    useCase: 'gaming',
+    architecture: 'x86_64',
+    formFactor: 'handheld'
+  });
+  assert.equal(handheldRes.bestMatch.distro.id, 'bazzite');
+  const bazziteMatch = handheldRes.allMatches.find(m => m.distro.id === 'bazzite');
+  assert.ok(bazziteMatch);
+  assert.ok(bazziteMatch.reasons.some(r => r.feature === 'Handheld Gaming Optimization' && r.matched));
+
+  // Laptop power and battery management
+  const laptopRes = evaluateCriteria({
+    useCase: 'desktop',
+    architecture: 'x86_64',
+    formFactor: 'laptop'
+  });
+  const fedoraMatch = laptopRes.allMatches.find(m => m.distro.id === 'fedora');
+  assert.ok(fedoraMatch);
+  assert.ok(fedoraMatch.reasons.some(r => r.feature === 'Laptop Power & Battery' && r.matched));
+
+  // Low-power / ancient PC
+  const lowPowerRes = evaluateCriteria({
+    architecture: 'x86_64',
+    formFactor: 'low-power',
+    footprint: 'minimal'
+  });
+  const antixMatch = lowPowerRes.allMatches.find(m => m.distro.id === 'antix');
+  assert.ok(antixMatch);
+  assert.ok(antixMatch.reasons.some(r => r.feature === 'Low-Power Hardware' && r.matched));
+});

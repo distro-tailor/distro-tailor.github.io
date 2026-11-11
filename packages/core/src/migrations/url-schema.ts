@@ -166,6 +166,7 @@ export function deserializeCriteriaFromParams(params: Record<string, string>): U
   if (params.useCase) criteria.useCase = params.useCase as any;
   if (params.platform) criteria.platform = params.platform as any;
   if (params.architecture) criteria.architecture = params.architecture as any;
+  if (params.formFactor) criteria.formFactor = params.formFactor as any;
   if (params.footprint) criteria.footprint = params.footprint as any;
   if (params.statePreference) criteria.statePreference = params.statePreference as any;
   if (params.cLibPreference) criteria.cLibPreference = params.cLibPreference as any;

@@ -19,6 +19,7 @@ export function evaluateCriteria(
   if (criteria.architecture) maxWeight += 20;
   if (criteria.footprint) maxWeight += 15;
   if (criteria.maxRamMb) maxWeight += 15;
+  if (criteria.formFactor) maxWeight += 15;
   if (criteria.statePreference && criteria.statePreference !== 'no-preference') maxWeight += 10;
   if (criteria.cLibPreference && criteria.cLibPreference !== 'no-preference') maxWeight += 5;
   if (criteria.initPreference && criteria.initPreference !== 'no-preference') maxWeight += 5;
@@ -196,6 +197,106 @@ export function evaluateCriteria(
           matched: false,
           explanation: `Requires minimum ${distro.minRamMb} MB RAM, which exceeds your ${criteria.maxRamMb} MB hardware budget.`
         });
+      }
+    }
+
+    // 4B. Form Factor & Thermal / Power Envelope (Weight: 15)
+    if (criteria.formFactor) {
+      if (criteria.formFactor === 'handheld') {
+        if (distro.id === 'bazzite') {
+          earned += 15;
+          reasons.push({
+            feature: 'Handheld Gaming Optimization',
+            matched: true,
+            explanation: 'Built specifically for Steam Deck, ROG Ally, and handheld PCs with custom TDP limiters, controller sleep/wake, and Game Mode.'
+          });
+        } else if (distro.id === 'batocera') {
+          earned += 10;
+          reasons.push({
+            feature: 'Handheld Gaming Optimization',
+            matched: true,
+            explanation: 'Controller-driven arcade interface designed for portable gaming consoles.'
+          });
+        } else if (['proxmox-ve', 'talos', 'openwrt', 'buildroot', 'cage-appliance'].includes(distro.id)) {
+          earned -= 20;
+          reasons.push({
+            feature: 'Handheld Gaming Optimization',
+            matched: false,
+            explanation: 'Server/appliance distribution lacks handheld controller support and graphical game UI.'
+          });
+        }
+      } else if (criteria.formFactor === 'laptop') {
+        const laptopFriendly = ['fedora', 'pop-os', 'linux-mint', 'ubuntu', 'endless-os'];
+        if (laptopFriendly.includes(distro.id)) {
+          earned += 15;
+          reasons.push({
+            feature: 'Laptop Power & Battery',
+            matched: true,
+            explanation: 'First-class battery management (power-profiles-daemon), reliable Modern Standby/suspend, and automatic Wi-Fi management.'
+          });
+        } else if (distro.platforms.includes('desktop')) {
+          earned += 8;
+        }
+      } else if (criteria.formFactor === 'desktop') {
+        if (distro.platforms.includes('desktop')) {
+          earned += 15;
+          reasons.push({
+            feature: 'Desktop Performance',
+            matched: true,
+            explanation: 'Optimized for AC wall-powered desktops with uncapped performance governors and multi-monitor setups.'
+          });
+        }
+      } else if (criteria.formFactor === 'low-power') {
+        const lowPowerDistros = ['antix', 'dietpi', 'libreelec', 'alpine', 'porteus-kiosk'];
+        if (lowPowerDistros.includes(distro.id)) {
+          earned += 15;
+          reasons.push({
+            feature: 'Low-Power Hardware',
+            matched: true,
+            explanation: 'Ultra-low CPU and RAM footprint designed specifically to run smoothly on weak or low-power processors.'
+          });
+        } else if (distro.footprint === 'full' || distro.minRamMb > 2048) {
+          earned -= 15;
+          reasons.push({
+            feature: 'Low-Power Hardware',
+            matched: false,
+            explanation: 'Heavy desktop compositor and background services may struggle or lag on low-power processors.'
+          });
+        }
+      } else if (criteria.formFactor === 'mac') {
+        if (criteria.architecture === 'arm64' && distro.id === 'asahi-linux') {
+          earned += 15;
+          reasons.push({
+            feature: 'Apple Silicon Hardware',
+            matched: true,
+            explanation: 'Native upstream kernel support and reverse-engineered GPU drivers for Apple M-series chips.'
+          });
+        } else if (['linux-mint', 'fedora', 'pop-os', 'ubuntu', 'endless-os'].includes(distro.id)) {
+          earned += 15;
+          reasons.push({
+            feature: 'Mac Hardware Support',
+            matched: true,
+            explanation: 'Includes out-of-the-box proprietary drivers for Broadcom Wi-Fi and Mac hardware quirks.'
+          });
+        }
+      } else if (criteria.formFactor === 'sbc') {
+        if (['dietpi', 'armbian', 'postmarketos', 'alpine', 'batocera', 'libreelec'].includes(distro.id)) {
+          earned += 15;
+          reasons.push({
+            feature: 'Single-Board Computer',
+            matched: true,
+            explanation: 'Specifically optimized for single-board ARM computers (Raspberry Pi, Rockchip, Allwinner).'
+          });
+        }
+      } else if (criteria.formFactor === 'server') {
+        if (['proxmox-ve', 'truenas-scale', 'debian', 'ubuntu', 'talos'].includes(distro.id)) {
+          earned += 15;
+          reasons.push({
+            feature: 'Server Hardware',
+            matched: true,
+            explanation: 'Designed for dedicated 24/7 server hardware, IPMI remote management, and rack infrastructure.'
+          });
+        }
       }
     }
 
