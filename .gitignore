@@ -15,9 +15,29 @@ build/
 .env.local
 *.local
 
-# Recipe output from `distro-tailor export` (default --out ./distro-recipe)
+# Recipe output and VM build artifacts from `distro-tailor export` / test harnesses
 distro-recipe/
+vm-test/
+artifacts/
+
+# Disk images, installation media, and virtual machines
 *.iso
+*.img
+*.qcow2
+*.vdi
+*.vmdk
+*.raw
+*.box
+*.AppImage
+
+# Large compressed archives
+*.tar.gz
+*.tgz
+*.tar.xz
+*.tar.bz2
+*.tar.zst
+*.zip
+*.7z
 
 # Scoring review reports (npm run scoring:compare -- <ref> --report ...)
 scoring-report*.md

@@ -1,0 +1,65 @@
+#!/bin/sh
+# DistroTailor pre-commit hook: Block large files and accidental VM/binary commits
+# Maximum allowed file size in bytes (2 MB)
+MAX_BYTES=2097152
+MAX_MB=2
+
+# Prohibited binary and virtual machine image extensions (case-insensitive)
+PROHIBITED_EXTENSIONS_REGEX='\.(iso|img|qcow2|vdi|vmdk|raw|box|appimage|tar\.gz|tgz|tar\.xz|tar\.bz2|zip|7z|exe|bin|dylib|so)$'
+
+FAILED=0
+
+# Loop through all files staged for commit (Added, Copied, Modified)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -z "$STAGED_FILES" ]; then
+  exit 0
+fi
+
+for FILE in $STAGED_FILES; do
+  # Check if file exists on disk (could be deleted or submodule)
+  if [ ! -f "$FILE" ]; then
+    continue
+  fi
+
+  # 1. Check prohibited extensions
+  LOWER_FILE=$(echo "$FILE" | tr '[:upper:]' '[:lower:]')
+  if echo "$LOWER_FILE" | grep -qE "$PROHIBITED_EXTENSIONS_REGEX"; then
+    echo "❌ [Pre-Commit Error] Prohibited binary file extension detected:"
+    echo "   File: $FILE"
+    echo "   Virtual machine images, disk archives, and compiled binaries must not be committed to git."
+    echo "   To unstage this file, run:"
+    echo "     git reset HEAD \"$FILE\""
+    echo ""
+    FAILED=1
+    continue
+  fi
+
+  # 2. Check file size
+  # Use stat portably across macOS and Linux
+  if stat -f%z "$FILE" >/dev/null 2>&1; then
+    # macOS / BSD stat
+    FILE_SIZE=$(stat -f%z "$FILE")
+  else
+    # Linux GNU stat
+    FILE_SIZE=$(stat -c%s "$FILE" 2>/dev/null || wc -c < "$FILE")
+  fi
+
+  if [ "$FILE_SIZE" -gt "$MAX_BYTES" ]; then
+    HUMAN_SIZE=$(awk "BEGIN {printf \"%.2f MB\", $FILE_SIZE / 1048576}")
+    echo "❌ [Pre-Commit Error] Staged file exceeds maximum size limit ($MAX_MB MB):"
+    echo "   File: $FILE ($HUMAN_SIZE)"
+    echo "   To prevent repository bloat, large files must not be committed directly."
+    echo "   To unstage this file, run:"
+    echo "     git reset HEAD \"$FILE\""
+    echo ""
+    FAILED=1
+  fi
+done
+
+if [ $FAILED -ne 0 ]; then
+  echo "Commit rejected to protect repository history. Please unstage the files listed above."
+  exit 1
+fi
+
+exit 0

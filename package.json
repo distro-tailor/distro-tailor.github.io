@@ -20,7 +20,8 @@
     "scoring:check": "tsx scripts/scoring-snapshot.ts check",
     "scoring:update": "tsx scripts/scoring-snapshot.ts update",
     "scoring:compare": "tsx scripts/scoring-snapshot.ts compare",
-    "check:pins": "tsx scripts/check-pins.ts"
+    "check:pins": "tsx scripts/check-pins.ts",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
