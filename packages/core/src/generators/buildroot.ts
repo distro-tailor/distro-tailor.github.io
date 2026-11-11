@@ -58,12 +58,12 @@ clean:
 # Target: ${targetArch} | Libc: ${libc}
 
 BR2_${targetArch}=y
-${isNoMmu ? 'BR2_USE_MMU=n\nBR2_ARM_CPU_ARM_CORTEX_M4=y' : ''}
+${isNoMmu ? '# Cortex-M4 has no MMU; Buildroot derives BR2_USE_MMU from the CPU\nBR2_cortex_m4=y' : ''}
 
 # Toolchain configuration
 BR2_TOOLCHAIN_BUILDROOT=y
-BR2_TOOLCHAIN_BUILDROOT_LIBC="${libc}"
-BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_6_6=y
+BR2_TOOLCHAIN_BUILDROOT_${libc === 'musl' ? 'MUSL' : 'UCLIBC'}=y
+BR2_KERNEL_HEADERS_6_6=y
 
 # Busybox core userspace
 BR2_PACKAGE_BUSYBOX=y

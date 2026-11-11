@@ -63,6 +63,24 @@ for (const id of Object.keys(RECIPE_GENERATORS)) {
   });
 }
 
+test('Recipe Generator buildroot-embedded: uses selectable Kconfig choices for libc, headers, and NOMMU CPU', () => {
+  // Derived symbols such as BR2_TOOLCHAIN_BUILDROOT_LIBC or BR2_USE_MMU have no prompt, so Buildroot
+  // silently ignores them in a defconfig (verified against Buildroot 2025.02 with make defconfig).
+  const defconfig = (architecture: UserCriteria['architecture']) =>
+    resolveRecipeGenerator('buildroot-embedded', { architecture }).files.find((f) => f.filename === 'distro.defconfig')!.content;
+
+  for (const architecture of ['x86_64', 'arm64'] as const) {
+    assert.match(defconfig(architecture), /^BR2_TOOLCHAIN_BUILDROOT_MUSL=y$/m);
+    assert.match(defconfig(architecture), /^BR2_KERNEL_HEADERS_6_6=y$/m);
+  }
+  const nommu = defconfig('nommu');
+  assert.match(nommu, /^BR2_cortex_m4=y$/m);
+  assert.match(nommu, /^BR2_TOOLCHAIN_BUILDROOT_UCLIBC=y$/m);
+  for (const config of [defconfig('x86_64'), nommu]) {
+    assert.doesNotMatch(config, /^BR2_(TOOLCHAIN_BUILDROOT_LIBC|USE_MMU|PACKAGE_HOST_LINUX_HEADERS_CUSTOM_\w+)=/m);
+  }
+});
+
 test('Recipe Generator: unknown ids are rejected by isRecipeGeneratorId', () => {
   assert.equal(isRecipeGeneratorId('not-a-recipe'), false);
   assert.equal(isRecipeGeneratorId('toString'), false);
