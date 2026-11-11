@@ -118,7 +118,7 @@ export function renderLeaderboard(evaluation: RecommendationOutput, state: AppSt
       <input
         id="input-search-leaderboard"
         type="text"
-        placeholder="Filter 31 distros..."
+        placeholder="Filter ${totalCount} distros..."
         value="${escapeHtml(state.searchQuery || '')}"
         class="w-full px-3 py-1.5 pl-7 pr-7 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all"
       />
@@ -240,7 +240,7 @@ export function renderFooter(): string {
             <span>·</span>
             <span>Zero Tracking / No Cookies</span>
             <span>·</span>
-            <span>31 Linux Distros Indexed</span>
+            <span>${DISTRO_REGISTRY.length} Open-Source Distros Indexed</span>
             <span>·</span>
             <span>MIT Licensed</span>
           </div>

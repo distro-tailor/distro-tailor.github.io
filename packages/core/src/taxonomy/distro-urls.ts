@@ -102,6 +102,15 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     maxRamMb: 512,
     footprint: 'minimal'
   },
+  freedos: {
+    experienceLevel: 'intermediate',
+    useCase: 'appliance-product',
+    platform: 'bare-metal',
+    architecture: 'x86_64',
+    footprint: 'micro',
+    maxRamMb: 16,
+    cLibPreference: 'none'
+  },
   'linux-mint': {
     experienceLevel: 'beginner',
     useCase: 'home-office',
@@ -136,6 +145,14 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     useCase: 'router-networking',
     platform: 'router-firewall',
     architecture: 'x86_64'
+  },
+  opnsense: {
+    experienceLevel: 'intermediate',
+    useCase: 'router-networking',
+    platform: 'router-firewall',
+    architecture: 'x86_64',
+    footprint: 'standard',
+    maxRamMb: 4096
   },
   dietpi: {
     experienceLevel: 'intermediate',

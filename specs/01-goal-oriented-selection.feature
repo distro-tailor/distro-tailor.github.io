@@ -35,6 +35,22 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the generated recipe should provide an auto-restart watchdog loop
     And the recipe should support custom application binaries via "APP_CMD"
 
+  Scenario: Network engineer needs a high-throughput enterprise firewall and routing appliance
+    Given the criteria specify "router-networking" use case
+    And the target architecture is 64-bit x86 with standard footprint and 4GB RAM
+    When the engine evaluates the candidate distributions
+    Then the engine should recommend "OPNsense" with a match score of at least 80%
+    And the recommended OS family should be "bsd"
+    And the recommendation should highlight stateful packet filtering, Suricata IDS/IPS, and WireGuard VPN
+
+  Scenario: Systems builder needs an ultra-minimal real-mode OS for legacy hardware or vintage gaming
+    Given the criteria specify "appliance-product" use case
+    And the user specifies a micro footprint under 16MB RAM on x86 hardware with no C library
+    When the engine evaluates the candidate distributions
+    Then the engine should recommend "FreeDOS" with a match score of at least 80%
+    And the recommended OS family should be "dos"
+    And the recommendation should highlight 100% MS-DOS compatibility and sub-second boot times
+
   Scenario: Freelancer needs a reliable home office workstation for documents and video calls
     Given the user selects experience level "New to Linux / Just have a goal in mind"
     When the user selects goal "Home Office & Freelancing (Word, Excel, Invoicing, Zoom, Slack)"

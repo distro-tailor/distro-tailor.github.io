@@ -114,7 +114,7 @@ export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
       explanation: 'Controller-driven arcade interface designed for portable gaming consoles.'
     },
     {
-      distroIds: ['proxmox-ve', 'talos', 'openwrt', 'buildroot', 'cage-appliance'],
+      distroIds: ['proxmox-ve', 'talos', 'openwrt', 'opnsense', 'buildroot', 'cage-appliance'],
       points: -20,
       feature: 'Handheld Gaming Optimization',
       explanation: 'Server/appliance distribution lacks handheld controller support and graphical game UI.'
@@ -139,7 +139,7 @@ export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
   ],
   'low-power': [
     {
-      distroIds: ['antix', 'dietpi', 'libreelec', 'alpine', 'porteus-kiosk'],
+      distroIds: ['antix', 'dietpi', 'libreelec', 'alpine', 'porteus-kiosk', 'freedos'],
       points: 15,
       feature: 'Low-Power Hardware',
       explanation: 'Ultra-low CPU and RAM footprint designed specifically to run smoothly on weak or low-power processors.'
@@ -175,7 +175,7 @@ export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
   ],
   server: [
     {
-      distroIds: ['proxmox-ve', 'truenas-scale', 'debian', 'ubuntu', 'talos'],
+      distroIds: ['proxmox-ve', 'truenas-scale', 'debian', 'ubuntu', 'talos', 'opnsense'],
       points: 15,
       feature: 'Server Hardware',
       explanation: 'Designed for dedicated 24/7 server hardware, IPMI remote management, and rack infrastructure.'

@@ -110,6 +110,37 @@ test('Core Matcher: Pinpoints OpenWrt for home router & firewall', () => {
   assert.ok(result.bestMatch.score >= 80);
 });
 
+test('Core Matcher: Pinpoints OPNsense for standard x86 firewall & high-throughput routing', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'intermediate',
+    useCase: 'router-networking',
+    platform: 'router-firewall',
+    architecture: 'x86_64',
+    footprint: 'standard',
+    maxRamMb: 4096
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'opnsense');
+  assert.ok(result.bestMatch.score >= 80);
+  assert.equal(result.bestMatch.distro.osFamily, 'bsd');
+});
+
+test('Core Matcher: Pinpoints FreeDOS for micro-footprint real-mode PC appliances', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'intermediate',
+    useCase: 'appliance-product',
+    platform: 'bare-metal',
+    architecture: 'x86_64',
+    footprint: 'micro',
+    maxRamMb: 16,
+    cLibPreference: 'none'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'freedos');
+  assert.ok(result.bestMatch.score >= 80);
+  assert.equal(result.bestMatch.distro.osFamily, 'dos');
+});
+
 test('Core Matcher: Pinpoints Endless OS for kids school and education', () => {
   const result = evaluateCriteria({
     experienceLevel: 'beginner',
@@ -439,9 +470,9 @@ test('Matcher: RAM constraints evaluate maxRamMb against minRamMb', () => {
   assert.equal(ramReason.matched, true);
 });
 
-test('Matcher: allMatches contains all 31 registered distributions ranked', () => {
+test('Matcher: allMatches contains all 33 registered distributions ranked', () => {
   const result = evaluateCriteria({});
-  assert.equal(result.allMatches.length, 31);
+  assert.equal(result.allMatches.length, 33);
   assert.equal(result.topMatches.length, 5);
   // Unconstrained baseline recommends Linux Mint at 100% instead of arbitrary Alpine 0%
   assert.equal(result.bestMatch.distro.id, 'linux-mint');

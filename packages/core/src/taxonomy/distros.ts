@@ -456,6 +456,60 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     }
   },
   {
+    id: 'freedos',
+    name: 'FreeDOS',
+    osFamily: 'dos',
+    tagline: 'Complete, open-source MS-DOS compatible operating system for legacy hardware and retro gaming',
+    description:
+      'A 100% open-source, GPL-compatible DOS operating system capable of running classic 16-bit real-mode software, vintage PC games, and industrial hardware controllers directly on bare metal with virtually zero memory overhead.',
+    website: 'https://www.freedos.org',
+    documentationUrl: 'https://www.freedos.org/help/',
+    logoEmoji: '💾',
+    platforms: ['bare-metal', 'vm'],
+    architectures: ['x86_64'],
+    footprint: 'micro',
+    minRamMb: 2,
+    initSystems: ['custom'],
+    cLibraries: ['none'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['appliance-product', 'gaming'],
+    rollingRelease: false,
+    highlights: [
+      'Boots in under 1 second and runs comfortably in 2MB RAM (640KB conventional memory)',
+      '100% binary compatibility with classic MS-DOS software and 16-bit real-mode DOS games',
+      'Perfect for reviving vintage 386/486/Pentium PCs or industrial CNC controllers',
+      'Free and open source under the GNU GPL with a comprehensive package repository'
+    ],
+    tradeoffs: [
+      '16-bit real-mode OS without memory protection, modern multi-core multitasking, or native modern Wi-Fi',
+      'Cannot run modern 64-bit Linux GUI applications or modern web browsers'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'MS-DOS',
+        relation: 'upstream',
+        headline: 'Why FreeDOS instead of MS-DOS?',
+        whyThisInstead:
+          'FreeDOS is 100% free and open-source (GPL) with modern FAT32 large-disk support, CD/DVD drivers, and active community maintenance, whereas MS-DOS is obsolete proprietary software locked to FAT16.',
+        tradeoffNotice:
+          'A tiny fraction of highly timing-sensitive 1980s copy-protected PC booter games expect original IBM BIOS timings.'
+      },
+      {
+        popularAlternative: 'Batocera / DOSBox',
+        relation: 'competitor',
+        headline: 'Why FreeDOS instead of Batocera or DOSBox?',
+        whyThisInstead:
+          'FreeDOS runs natively on bare-metal vintage x86 hardware without emulator CPU overhead or input lag, making it the ideal OS for physical vintage rigs and industrial machinery.',
+        tradeoffNotice:
+          'On modern multi-core PCs with HDMI displays and USB controllers, Batocera or DOSBox provides convenient gamepad mapping and graphic shaders.'
+      }
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.freedos.org/download/'
+    }
+  },
+  {
     id: 'linux-mint',
     name: 'Linux Mint',
     tagline: 'The most welcoming, elegant desktop for Linux newcomers',
@@ -651,8 +705,75 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     tradeoffs: [
       'Specialized for routing, not suited for general computing'
     ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'OPNsense / pfSense',
+        relation: 'competitor',
+        headline: 'Why OpenWrt instead of OPNsense / pfSense?',
+        whyThisInstead:
+          'OpenWrt runs on constrained ARM, MIPS, and SBC routers with under 128MB RAM and has world-class Wi-Fi access point drivers. OPNsense requires standard x86 PC hardware and at least 2GB RAM.',
+        tradeoffNotice:
+          'OPNsense provides more advanced multi-gigabit routing, Suricata IDS/IPS, and enterprise traffic shaping on dedicated x86 server hardware.'
+      }
+    ],
     prebuiltImage: {
       downloadUrl: 'https://firmware-selector.openwrt.org'
+    }
+  },
+  {
+    id: 'opnsense',
+    name: 'OPNsense',
+    osFamily: 'bsd',
+    tagline: 'Open source, easy-to-use security-oriented FreeBSD firewall & routing platform',
+    description:
+      'A high-performance, FreeBSD-based firewall and routing platform featuring an intuitive web interface, stateful packet filtering (pf), multi-gigabit throughput, WireGuard VPN, and Suricata intrusion detection.',
+    website: 'https://opnsense.org',
+    documentationUrl: 'https://docs.opnsense.org',
+    logoEmoji: '🛡️',
+    platforms: ['router-firewall', 'bare-metal', 'vm'],
+    architectures: ['x86_64'],
+    footprint: 'standard',
+    minRamMb: 2048,
+    initSystems: ['bsd-rc', 'custom'],
+    cLibraries: ['bsd-libc'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['router-networking'],
+    packageManager: 'pkg',
+    rollingRelease: false,
+    highlights: [
+      'Stateful Packet Filter (pf) with high-throughput multi-core packet scheduling',
+      'Built-in Suricata Intrusion Detection & Prevention (IDS/IPS)',
+      'Turnkey WireGuard, OpenVPN, and IPsec VPN gateways',
+      'Rich Web GUI with live traffic graphs, NetFlow monitoring, and granular firewall rules',
+      '100% open-source (2-Clause BSD license) with zero telemetry or artificial feature gates'
+    ],
+    tradeoffs: [
+      'Requires dedicated 64-bit x86 PC with at least 2GB RAM and dual network interfaces (NICs)',
+      'Limited support for consumer Wi-Fi access point mode compared to OpenWrt'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'pfSense / Netgate',
+        relation: 'competitor',
+        headline: 'Why OPNsense instead of pfSense?',
+        whyThisInstead:
+          'OPNsense is 100% open-source under the 2-Clause BSD license with an open API, regular bi-weekly security updates, and no proprietary lock-in. Netgate focuses on closed-source pfSense Plus, while OPNsense remains community-first.',
+        tradeoffNotice:
+          'pfSense is pre-installed on Netgate hardware appliances with commercial TAC support contracts.'
+      },
+      {
+        popularAlternative: 'OpenWrt',
+        relation: 'competitor',
+        headline: 'Why OPNsense instead of OpenWrt for Home / Office Routing?',
+        whyThisInstead:
+          'OPNsense is built for high-throughput x86 hardware with enterprise-grade deep packet inspection (Suricata IDS/IPS), advanced traffic shaping, and extensive reporting. OpenWrt is tailored for low-resource flash routers and Wi-Fi access points.',
+        tradeoffNotice:
+          'OpenWrt runs on cheap $40 ARM/MIPS routers and single-board computers with world-class Wi-Fi AP drivers, whereas OPNsense requires standard x86 PC hardware.'
+      }
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://opnsense.org/download/'
     }
   },
   {

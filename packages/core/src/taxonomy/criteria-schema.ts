@@ -104,6 +104,7 @@ export const INIT_PREFERENCE_VALUES: EnumCatalog<InitSystem | 'no-preference'> =
   runit: true,
   s6: true,
   busybox: true,
+  'bsd-rc': true,
   'none-container': true,
   custom: true,
   ...NO_PREFERENCE
@@ -113,6 +114,7 @@ export const CLIB_PREFERENCE_VALUES: EnumCatalog<CLibrary | 'no-preference'> = {
   glibc: true,
   musl: true,
   'uclibc-ng': true,
+  'bsd-libc': true,
   none: true,
   ...NO_PREFERENCE
 };

@@ -34,6 +34,7 @@ export type InitSystem =
   | 'runit'
   | 's6'
   | 'busybox'
+  | 'bsd-rc'
   | 'none-container'
   | 'custom';
 
@@ -41,6 +42,7 @@ export type CLibrary =
   | 'glibc'
   | 'musl'
   | 'uclibc-ng'
+  | 'bsd-libc'
   | 'none';
 
 export type StateModel =
@@ -85,9 +87,18 @@ export interface AlternativeComparison {
   tradeoffNotice?: string; // Transparent admission of when the alternative might still be preferred
 }
 
+export type OsFamily =
+  | 'linux'
+  | 'bsd'
+  | 'dos'
+  | 'nt-compatible'
+  | 'illumos'
+  | 'independent';
+
 export interface DistroProfile {
   id: string;
   name: string;
+  osFamily?: OsFamily;
   tagline: string;
   description: string;
   website: string;
