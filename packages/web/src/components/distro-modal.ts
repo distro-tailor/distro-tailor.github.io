@@ -117,14 +117,14 @@ export function renderDistroDetailModal(
         <!-- Official Links and Footer -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-800">
           <div class="flex items-center gap-2 w-full sm:w-auto">
-            <a href="${distro.website}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40">
+            <a id="btn-modal-official-site" href="${distro.website}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40">
               <span>Official Site</span>
               <span>↗</span>
             </a>
             ${
               distro.documentationUrl
                 ? `
-              <a href="${distro.documentationUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center justify-center gap-1.5">
+              <a id="btn-modal-docs" href="${distro.documentationUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center justify-center gap-1.5">
                 <span>Docs</span>
                 <span>↗</span>
               </a>

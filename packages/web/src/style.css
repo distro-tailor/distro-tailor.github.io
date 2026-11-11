@@ -387,18 +387,26 @@
     box-shadow: 0 6px 18px rgba(5, 150, 105, 0.35) !important;
   }
 
-  /* Strengths & Trade-offs */
-  html.light .bg-emerald-950\/30 {
+  /* Strengths & Trade-offs (Results View & Distro Detail Modal) */
+  html.light .bg-emerald-950\/30,
+  html.light .bg-emerald-950\/20 {
     background-color: #f0fdf4 !important;
     border-color: #bbf7d0 !important;
   }
 
-  html.light .bg-emerald-950\/30 h4 {
+  html.light .bg-emerald-950\/30 h4,
+  html.light .bg-emerald-950\/20 h4 {
     color: #15803d !important;
   }
 
-  html.light .bg-emerald-950\/30 ul {
+  html.light .bg-emerald-950\/30 ul,
+  html.light .bg-emerald-950\/20 ul {
     color: #166534 !important;
+  }
+
+  html.light .bg-emerald-950\/30 span.text-emerald-400,
+  html.light .bg-emerald-950\/20 span.text-emerald-400 {
+    color: #15803d !important;
   }
 
   html.light .bg-amber-950\/20 {
@@ -412,6 +420,10 @@
 
   html.light .bg-amber-950\/20 ul {
     color: #92400e !important;
+  }
+
+  html.light .bg-amber-950\/20 span.text-amber-400 {
+    color: #b45309 !important;
   }
 
   /* Blueprint Summary Bar & Chips */
@@ -653,9 +665,97 @@
     color: #ffffff !important;
   }
 
+  /* Distro Detail Modal / Preview Popup */
   html.light #distro-modal-card {
     background-color: #ffffff !important;
     border-color: #cbd5e1 !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #distro-modal-card .w-12,
+  html.light #distro-modal-card .w-14 {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  html.light #distro-modal-card p.text-emerald-400 {
+    color: #047857 !important;
+  }
+
+  html.light #distro-modal-card p.bg-slate-950\/60 {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    color: #334155 !important;
+  }
+
+  html.light #distro-modal-card h3 {
+    color: #475569 !important;
+  }
+
+  html.light #distro-modal-card .grid .bg-slate-950\/80 {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  html.light #distro-modal-card .grid .bg-slate-950\/80 span.text-slate-500 {
+    color: #64748b !important;
+    font-weight: 600 !important;
+  }
+
+  html.light #distro-modal-card .grid .bg-slate-950\/80 span.text-slate-200 {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+  }
+
+  html.light #btn-close-distro-modal {
+    background-color: #f1f5f9 !important;
+    color: #64748b !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  html.light #btn-close-distro-modal:hover {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+  }
+
+  html.light #btn-modal-official-site {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    border: 1px solid #047857 !important;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25) !important;
+  }
+
+  html.light #btn-modal-official-site:hover {
+    background-color: #047857 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(5, 150, 105, 0.35) !important;
+  }
+
+  html.light #btn-modal-docs {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #btn-modal-docs:hover {
+    background-color: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+  }
+
+  html.light #btn-modal-dismiss {
+    background-color: #ffffff !important;
+    color: #475569 !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #btn-modal-dismiss:hover {
+    background-color: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
   }
 
   /* Share Modal Popup & Buttons */
