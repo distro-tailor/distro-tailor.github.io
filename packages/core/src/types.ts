@@ -136,7 +136,8 @@ export type RecipeGeneratorId =
   | 'wasm-browser'
   | 'cloud-init-qcow2'
   | 'wsl2-debian'
-  | 'proxmox-lxc';
+  | 'proxmox-lxc'
+  | 'nixos-flake';
 
 export type DesktopAppId =
   | 'firefox'

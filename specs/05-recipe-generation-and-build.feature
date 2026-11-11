@@ -45,6 +45,14 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     And the Makefile must output an XZ-compressed rootfs archive ".tar.xz"
     And the rootfs must exclude kernel and bootloader binaries
 
+  Scenario: Generating a Declarative NixOS Flake Recipe
+    Given the criteria specify declarative immutability or NixOS as the target base
+    When the recipe generator resolves "nixos-flake"
+    Then the generated files must include "flake.nix", "configuration.nix", and "Makefile"
+    And the flake.nix must define a reproducible system flake for the target architecture
+    And the Makefile must support building a test VM with "make test-vm"
+    And the configuration.nix must configure the tailor user, SSH keys, and selected applications
+
   Scenario: Providing a 3-Tier Testing and Verification Ladder
     Given any generated recipe or recommended image
     When the results view is displayed to the user

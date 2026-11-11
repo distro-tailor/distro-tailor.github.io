@@ -8,10 +8,12 @@ import { generateWasmRecipe } from './wasm.js';
 import { generateCloudInitRecipe } from './cloud-init.js';
 import { generateWslRecipe } from './wsl.js';
 import { generateLxcRecipe } from './lxc.js';
+import { generateNixosRecipe } from './nixos.js';
 import { sanitizeCriteria } from '../taxonomy/criteria-schema.js';
 
 export * from './docker-apps.js';
 export * from './desktop-apps.js';
+export * from './nixos.js';
 
 /** Every recipe generator by id. Typed as a Record so adding a RecipeGeneratorId requires a generator. */
 export const RECIPE_GENERATORS: Readonly<Record<RecipeGeneratorId, (criteria: UserCriteria) => GeneratedRecipe>> = {
@@ -23,7 +25,8 @@ export const RECIPE_GENERATORS: Readonly<Record<RecipeGeneratorId, (criteria: Us
   'wasm-browser': generateWasmRecipe,
   'cloud-init-qcow2': generateCloudInitRecipe,
   'wsl2-debian': generateWslRecipe,
-  'proxmox-lxc': generateLxcRecipe
+  'proxmox-lxc': generateLxcRecipe,
+  'nixos-flake': generateNixosRecipe
 };
 
 export function isRecipeGeneratorId(value: unknown): value is RecipeGeneratorId {

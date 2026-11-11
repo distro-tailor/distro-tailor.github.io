@@ -907,7 +907,8 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     ],
     prebuiltImage: {
       downloadUrl: 'https://nixos.org/download/'
-    }
+    },
+    recipeGeneratorId: 'nixos-flake'
   },
   {
     id: 'fedora-silverblue',

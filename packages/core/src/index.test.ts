@@ -690,3 +690,31 @@ test('Matcher: Form Factor scoring differentiates Handheld, Laptop, and Low-Powe
   assert.ok(antixMatch);
   assert.ok(antixMatch.reasons.some(r => r.feature === 'Low-Power Hardware' && r.matched));
 });
+
+test('Recipe Generators: Generates Declarative NixOS Flake & VM Harness recipe', () => {
+  const result = evaluateCriteria({
+    statePreference: 'declarative',
+    useCase: 'desktop',
+    architecture: 'x86_64',
+    desktopApps: ['firefox', 'vscode'],
+    dockerApp: 'nextcloud',
+    realtimeAudio: true
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'nixos');
+  assert.ok(result.recommendedRecipe);
+  if (result.recommendedRecipe) {
+    assert.equal(result.recommendedRecipe.id, 'nixos-flake');
+    const filenames = result.recommendedRecipe.files.map((f) => f.filename);
+    assert.ok(filenames.includes('flake.nix'));
+    assert.ok(filenames.includes('configuration.nix'));
+    assert.ok(filenames.includes('Makefile'));
+    assert.ok(filenames.includes('README.md'));
+
+    const config = result.recommendedRecipe.files.find((f) => f.filename === 'configuration.nix')?.content || '';
+    assert.ok(config.includes('pkgs.firefox'));
+    assert.ok(config.includes('pkgs.vscode'));
+    assert.ok(config.includes('virtualisation.docker.enable = true'));
+    assert.ok(config.includes('services.pipewire'));
+  }
+});
