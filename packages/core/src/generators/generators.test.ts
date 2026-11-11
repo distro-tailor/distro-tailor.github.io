@@ -13,6 +13,7 @@ import {
   generateBootstrapNavigationScript
 } from './index.js';
 import { generateDebootstrapRecipe } from './debootstrap.js';
+import { generateCloudInitRecipe } from './cloud-init.js';
 
 const CRITERIA_VARIANTS: UserCriteria[] = [
   {},
@@ -210,4 +211,32 @@ test('Recipe Generator: debootstrap bundles bootstrap-navigation.sh when navigat
   assert.ok(file, 'bootstrap-navigation.sh file was not bundled');
   assert.equal(file.executable, true);
   assert.ok(recipe.quickstartCommands.some((c) => c.includes('bootstrap-navigation.sh')));
+});
+
+test('Recipe Generator: debootstrap configures custom filesystem, kernel flavor, and bootloader', () => {
+  const recipe = generateDebootstrapRecipe({
+    architecture: 'x86_64',
+    fileSystem: 'btrfs',
+    kernelFlavor: 'realtime-rt',
+    bootloader: 'systemd-boot',
+    securityProfile: 'selinux',
+    networkingStack: 'nftables-pf'
+  });
+  const makefile = recipe.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(makefile, /ROOT_FS\s+\?=\s+btrfs/);
+  assert.match(makefile, /KERNEL_FLAVOR\s+\?=\s+realtime-rt/);
+  assert.match(makefile, /BOOTLOADER\s+\?=\s+systemd-boot/);
+  assert.match(makefile, /btrfs-progs/);
+  assert.match(makefile, /linux-image-rt-amd64/);
+  assert.match(makefile, /selinux-basics/);
+  assert.match(makefile, /nftables/);
+});
+
+test('Recipe Generator: cloud-init formats virtual disk using specified filesystem', () => {
+  const recipe = generateCloudInitRecipe({
+    architecture: 'x86_64',
+    fileSystem: 'btrfs'
+  });
+  const makefile = recipe.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(makefile, /virt-make-fs --partition=mbr --type=btrfs/);
 });

@@ -9,12 +9,17 @@ import { DISTRO_REGISTRY } from '../taxonomy/distros.js';
 import {
   AffinityTier,
   BOOT_MEDIUM_AFFINITIES,
+  BOOTLOADER_AFFINITIES,
   DESKTOP_USE_CASES,
   DRIVER_PHILOSOPHY_AFFINITIES,
+  FILESYSTEM_AFFINITIES,
   FORM_FACTOR_AFFINITIES,
   GUI_CAPABLE_DISTRO_IDS,
+  KERNEL_FLAVOR_AFFINITIES,
+  NETWORKING_STACK_AFFINITIES,
   PERIPHERAL_AFFINITIES,
   REALTIME_AUDIO_AFFINITIES,
+  SECURITY_PROFILE_AFFINITIES,
   SINGLE_PURPOSE_APPLIANCE_USE_CASES,
   UNCONSTRAINED_BASELINE,
   UNIVERSAL_DEFAULT_DISTRO_IDS,
@@ -51,6 +56,11 @@ export function evaluateCriteria(
   if (criteria.prefersGui !== undefined) maxWeight += 10;
   if (criteria.workflowStyle && criteria.workflowStyle !== 'no-preference') maxWeight += 10;
   if (criteria.realtimeAudio) maxWeight += 15;
+  if (criteria.fileSystem) maxWeight += 10;
+  if (criteria.kernelFlavor) maxWeight += 10;
+  if (criteria.bootloader) maxWeight += 10;
+  if (criteria.securityProfile) maxWeight += 10;
+  if (criteria.networkingStack) maxWeight += 10;
   const selectedPeripherals = (
     criteria.peripherals ||
     (criteria.peripheralNeed && criteria.peripheralNeed !== 'standard' ? [criteria.peripheralNeed] : [])
@@ -367,6 +377,23 @@ export function evaluateCriteria(
     // 13. Specialized Hardware & Peripherals (Weight: 15 per selected peripheral)
     for (const p of selectedPeripherals) {
       applyAffinity(PERIPHERAL_AFFINITIES[p]);
+    }
+
+    // 14. Systems-Engineering Dimensions (Weight: 10 each when explicitly selected)
+    if (criteria.fileSystem) {
+      applyAffinity(FILESYSTEM_AFFINITIES[criteria.fileSystem]);
+    }
+    if (criteria.kernelFlavor) {
+      applyAffinity(KERNEL_FLAVOR_AFFINITIES[criteria.kernelFlavor]);
+    }
+    if (criteria.bootloader) {
+      applyAffinity(BOOTLOADER_AFFINITIES[criteria.bootloader]);
+    }
+    if (criteria.securityProfile) {
+      applyAffinity(SECURITY_PROFILE_AFFINITIES[criteria.securityProfile]);
+    }
+    if (criteria.networkingStack) {
+      applyAffinity(NETWORKING_STACK_AFFINITIES[criteria.networkingStack]);
     }
 
     // Normalized relative compatibility score (0 - 100%). Hard disqualifications are locked to 0%.

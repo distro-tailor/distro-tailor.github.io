@@ -100,3 +100,10 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     And the bootstrap script must install gamepad udev rules for controller hotplug
     And the bootstrap script must scaffold user ROM and BIOS directory trees
     And the recipe quickstart commands must include "bootstrap-emulators.sh"
+
+  Scenario: Generating a Debootstrap Recipe with Custom Root Filesystem and Realtime Kernel
+    Given the criteria specify "btrfs" as root filesystem
+    And the criteria specify "realtime-rt" as kernel flavor
+    When the recipe generator resolves "debootstrap-debian"
+    Then the generated Makefile must set "ROOT_FS ?= btrfs"
+    And the generated Makefile must install "btrfs-progs" and "linux-image-rt-amd64"

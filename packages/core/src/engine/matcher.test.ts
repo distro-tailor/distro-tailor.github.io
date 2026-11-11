@@ -27,3 +27,32 @@ test('Matcher Scoring: router-only distributions are treated as dedicated applia
   const useCase = result.bestMatch.reasons.find((r) => r.feature === 'Use Case');
   assert.match(useCase?.explanation ?? '', /Dedicated appliance/);
 });
+
+test('Matcher Scoring: filesystem selection applies points and reasons accurately', () => {
+  const zfsResult = evaluateCriteria({ fileSystem: 'zfs' });
+  const zfsTop = zfsResult.topMatches.map((m) => m.distro.id);
+  assert.ok(zfsTop.includes('truenas-scale') || zfsTop.includes('proxmox-ve') || zfsTop.includes('smartos'));
+  const zfsReason = zfsResult.bestMatch.reasons.find((r) => r.feature === 'Root Filesystem');
+  assert.ok(zfsReason?.matched);
+
+  const fat32Result = evaluateCriteria({ fileSystem: 'fat32' });
+  assert.equal(fat32Result.bestMatch.distro.id, 'freedos');
+});
+
+test('Matcher Scoring: kernel, bootloader, security, and networking affinities apply', () => {
+  const rtResult = evaluateCriteria({ kernelFlavor: 'realtime-rt' });
+  const rtDistros = rtResult.topMatches.map((m) => m.distro.id);
+  assert.ok(rtDistros.includes('ubuntu-studio') || rtDistros.includes('debian'));
+
+  const selinuxResult = evaluateCriteria({ securityProfile: 'selinux' });
+  const selinuxDistros = selinuxResult.topMatches.map((m) => m.distro.id);
+  assert.ok(selinuxDistros.includes('fedora') || selinuxDistros.includes('talos'));
+
+  const systemdBootResult = evaluateCriteria({ bootloader: 'systemd-boot' });
+  const systemdBootDistros = systemdBootResult.topMatches.map((m) => m.distro.id);
+  assert.ok(systemdBootDistros.includes('pop-os') || systemdBootDistros.includes('arch'));
+
+  const networkdResult = evaluateCriteria({ networkingStack: 'systemd-networkd' });
+  const networkdDistros = networkdResult.topMatches.map((m) => m.distro.id);
+  assert.ok(networkdDistros.includes('arch') || networkdDistros.includes('nixos'));
+});

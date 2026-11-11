@@ -984,5 +984,59 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { cLibPreference: 'no-preference', initPreference: 'no-preference' }
       }
     ]
+  },
+
+  // --- STEP 12: ROOT FILESYSTEM & STORAGE (Only for Systems Engineers) ---
+  {
+    id: 'filesystem_and_storage',
+    order: 12,
+    isOptional: true,
+    prompt: 'Root Filesystem & Storage Architecture',
+    subtext: 'Standard ext4 vs. snapshot-capable Btrfs/ZFS, flash-friendly F2FS, or high-throughput XFS.',
+    category: 'software',
+    shouldAsk: (criteria) => criteria.experienceLevel === 'systems-engineer',
+    tip: {
+      icon: '💾',
+      title: 'Filesystem Trade-Offs',
+      text: 'ext4 is rock-solid and universally supported. Btrfs and ZFS provide copy-on-write snapshots and rollback. F2FS minimizes flash write amplification on MicroSD and eMMC.'
+    },
+    options: [
+      {
+        id: 'ext4',
+        label: 'ext4 (Standard Journaled)',
+        description: 'Battle-tested Linux standard with minimal overhead and maximum tool support',
+        icon: '📁',
+        isDefault: true,
+        appliesCriteria: { fileSystem: 'ext4' }
+      },
+      {
+        id: 'btrfs',
+        label: 'Btrfs (Snapshots & Subvolumes)',
+        description: 'Copy-on-write filesystem with subvolume rollbacks and transparent zstd compression',
+        icon: '🌳',
+        appliesCriteria: { fileSystem: 'btrfs' }
+      },
+      {
+        id: 'zfs',
+        label: 'OpenZFS (Storage Pools & RAID-Z)',
+        description: 'Enterprise storage pools, dataset snapshots, end-to-end checksumming, and RAID-Z',
+        icon: '🛡️',
+        appliesCriteria: { fileSystem: 'zfs' }
+      },
+      {
+        id: 'xfs',
+        label: 'XFS (High-Throughput Enterprise)',
+        description: 'Parallel I/O allocation groups designed for large scale-out database servers',
+        icon: '⚡',
+        appliesCriteria: { fileSystem: 'xfs' }
+      },
+      {
+        id: 'f2fs',
+        label: 'F2FS (Flash-Friendly for SD/eMMC)',
+        description: 'Log-structured filesystem optimized for NAND flash endurance and random I/O',
+        icon: '💾',
+        appliesCriteria: { fileSystem: 'f2fs' }
+      }
+    ]
   }
 ];

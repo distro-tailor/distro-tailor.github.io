@@ -1,4 +1,5 @@
 import {
+  BootloaderPreference,
   BootMedium,
   CLibrary,
   CpuArchitecture,
@@ -9,13 +10,17 @@ import {
   DriverPhilosophy,
   EmulatorAppId,
   ExperienceLevel,
+  FileSystemPreference,
   FormFactor,
   InitSystem,
+  KernelFlavor,
   NavigationAppId,
+  NetworkingStack,
   PeripheralNeed,
   PlatformTarget,
   PrimaryUseCase,
   ReleaseCadence,
+  SecurityProfile,
   StateModel,
   StorageFootprint,
   UserCriteria
@@ -162,6 +167,43 @@ export const BOOT_MEDIUM_VALUES: EnumCatalog<BootMedium> = {
   'pxe-diskless': true
 };
 
+export const FILESYSTEM_VALUES: EnumCatalog<FileSystemPreference> = {
+  ext4: true,
+  btrfs: true,
+  zfs: true,
+  xfs: true,
+  f2fs: true,
+  fat32: true
+};
+
+export const KERNEL_FLAVOR_VALUES: EnumCatalog<KernelFlavor> = {
+  'lts-stable': true,
+  'realtime-rt': true,
+  hardened: true,
+  'zen-liquorix': true
+};
+
+export const BOOTLOADER_VALUES: EnumCatalog<BootloaderPreference> = {
+  'grub-hybrid': true,
+  'systemd-boot': true,
+  'u-boot': true,
+  efistub: true
+};
+
+export const SECURITY_PROFILE_VALUES: EnumCatalog<SecurityProfile> = {
+  'standard-dac': true,
+  selinux: true,
+  apparmor: true,
+  'amnesic-ram': true
+};
+
+export const NETWORKING_STACK_VALUES: EnumCatalog<NetworkingStack> = {
+  networkmanager: true,
+  'systemd-networkd': true,
+  'nftables-pf': true,
+  'busybox-minimal': true
+};
+
 export const PERIPHERAL_VALUES: EnumCatalog<PeripheralNeed> = {
   touchscreen: true,
   'printer-scanner': true,
@@ -282,6 +324,11 @@ export function sanitizeCriteria(input: UntrustedCriteria): UserCriteria {
     realtimeAudio: pickBoolean(input.realtimeAudio),
     peripheralNeed: pickEnum(PERIPHERAL_VALUES, input.peripheralNeed),
     peripherals: pickEnumList(PERIPHERAL_VALUES, input.peripherals),
+    fileSystem: pickEnum(FILESYSTEM_VALUES, input.fileSystem),
+    kernelFlavor: pickEnum(KERNEL_FLAVOR_VALUES, input.kernelFlavor),
+    bootloader: pickEnum(BOOTLOADER_VALUES, input.bootloader),
+    securityProfile: pickEnum(SECURITY_PROFILE_VALUES, input.securityProfile),
+    networkingStack: pickEnum(NETWORKING_STACK_VALUES, input.networkingStack),
     desktopEnv: pickEnum(DESKTOP_ENV_VALUES, input.desktopEnv),
     enableDistrobox: pickBoolean(input.enableDistrobox),
     enableNix: pickBoolean(input.enableNix),

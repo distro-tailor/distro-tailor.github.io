@@ -6,6 +6,7 @@ export function generateCloudInitRecipe(criteria: UserCriteria): GeneratedRecipe
   const vmName = 'distro-tailor-cloud';
   const dockerAppDef = getDockerApp(criteria.dockerApp);
   const appDir = dockerAppDef ? dockerAppDef.id : 'app';
+  const fsType = criteria.fileSystem === 'btrfs' ? 'btrfs' : criteria.fileSystem === 'xfs' ? 'xfs' : 'ext4';
 
   const userConfigYaml = `#cloud-config
 hostname: ${vmName}
@@ -124,8 +125,8 @@ configure: rootfs
 qcow2: configure
 	@echo "[+] Generating sparse bootable QCOW2 virtual disk image ($(DISK_SIZE))..."
 	$(QEMU_IMG) create -f qcow2 $(QCOW2_FILE) $(DISK_SIZE)
-	@echo "[+] Converting rootfs to partitioned QCOW2..."
-	sudo virt-make-fs --partition=mbr --type=ext4 --format=qcow2 --size=$(DISK_SIZE) $(ROOTFS_DIR) $(QCOW2_FILE)
+	@echo "[+] Converting rootfs to partitioned QCOW2 (${fsType})..."
+	sudo virt-make-fs --partition=mbr --type=${fsType} --format=qcow2 --size=$(DISK_SIZE) $(ROOTFS_DIR) $(QCOW2_FILE)
 
 test-qemu:
 	@echo "[+] Booting VM with QEMU (Forwarding SSH to localhost:2222)..."

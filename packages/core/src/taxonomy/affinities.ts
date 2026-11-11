@@ -1,11 +1,16 @@
 import {
+  BootloaderPreference,
   BootMedium,
   DesktopWorkflowStyle,
   DistroProfile,
   DriverPhilosophy,
+  FileSystemPreference,
   FormFactor,
+  KernelFlavor,
+  NetworkingStack,
   PeripheralNeed,
   PrimaryUseCase,
+  SecurityProfile,
   UserCriteria
 } from '../types.js';
 
@@ -358,4 +363,301 @@ export const PERIPHERAL_AFFINITIES: AffinityTable<PeripheralNeed> = {
     }
   ],
   standard: []
+};
+
+// ---------------------------------------------------------------------------
+// Low-level Systems-Engineering Affinities
+// ---------------------------------------------------------------------------
+
+export const FILESYSTEM_AFFINITIES: AffinityTable<FileSystemPreference> = {
+  zfs: [
+    {
+      distroIds: ['truenas-scale', 'proxmox-ve', 'smartos'],
+      points: 15,
+      feature: 'Root Filesystem',
+      explanation: 'Native ZFS root storage pool with datasets, snapshots, and RAID-Z redundancy.'
+    },
+    {
+      distroIds: ['ubuntu', 'debian', 'arch', 'nixos'],
+      points: 5,
+      feature: 'Root Filesystem',
+      explanation: 'Supports OpenZFS via kernel modules and zfsutils.'
+    },
+    {
+      distroIds: ['freedos', 'openwrt', 'buildroot'],
+      points: -10,
+      feature: 'Root Filesystem',
+      explanation: 'Does not support OpenZFS root filesystem.'
+    }
+  ],
+  btrfs: [
+    {
+      distroIds: ['fedora', 'fedora-silverblue', 'bazzite', 'arch'],
+      points: 15,
+      feature: 'Root Filesystem',
+      explanation: 'Default or native Btrfs root filesystem with transparent zstd compression and subvolume snapshots.'
+    },
+    {
+      distroIds: ['ubuntu', 'debian', 'linux-mint'],
+      points: 5,
+      feature: 'Root Filesystem',
+      explanation: 'Standard Linux support for Btrfs formatted partitions.'
+    },
+    {
+      distroIds: ['freedos'],
+      points: -15,
+      feature: 'Root Filesystem',
+      explanation: 'Incompatible with Btrfs Linux filesystem.'
+    }
+  ],
+  f2fs: [
+    {
+      distroIds: ['postmarketos', 'dietpi', 'armbian'],
+      points: 15,
+      feature: 'Root Filesystem',
+      explanation: 'Flash-Friendly File System (F2FS) optimized for flash memory, SD cards, and eMMC.'
+    },
+    {
+      distroIds: ['freedos'],
+      points: -15,
+      feature: 'Root Filesystem',
+      explanation: 'Incompatible with F2FS Linux filesystem.'
+    }
+  ],
+  xfs: [
+    {
+      distroIds: ['fedora', 'proxmox-ve'],
+      points: 12,
+      feature: 'Root Filesystem',
+      explanation: 'High-performance scalable XFS enterprise filesystem with parallel allocation groups.'
+    },
+    {
+      distroIds: ['freedos'],
+      points: -15,
+      feature: 'Root Filesystem',
+      explanation: 'Incompatible with XFS Linux filesystem.'
+    }
+  ],
+  fat32: [
+    {
+      distroIds: ['freedos'],
+      points: 25,
+      feature: 'Root Filesystem',
+      explanation: 'Native FAT32 / FAT16 MS-DOS compatible filesystem architecture.'
+    },
+    {
+      distroIds: ['linux-mint', 'ubuntu', 'debian', 'arch', 'dietpi'],
+      points: 5,
+      feature: 'Root Filesystem',
+      explanation: 'Standard EFI system partition and FAT32 removable drive compatibility.'
+    }
+  ],
+  ext4: [
+    {
+      distroIds: ['linux-mint', 'ubuntu', 'debian', 'dietpi', 'armbian', 'arch', 'openmediavault'],
+      points: 10,
+      feature: 'Root Filesystem',
+      explanation: 'Rock-solid standard fourth extended filesystem (ext4) with journaling.'
+    },
+    {
+      distroIds: ['freedos'],
+      points: -15,
+      feature: 'Root Filesystem',
+      explanation: 'Incompatible with ext4 Linux filesystem.'
+    }
+  ]
+};
+
+export const KERNEL_FLAVOR_AFFINITIES: AffinityTable<KernelFlavor> = {
+  'realtime-rt': [
+    {
+      distroIds: ['ubuntu-studio'],
+      points: 20,
+      feature: 'Kernel Flavor',
+      explanation: 'Includes pre-configured PREEMPT_RT deterministic low-latency audio/video realtime kernel.'
+    },
+    {
+      distroIds: ['debian', 'arch', 'alpine'],
+      points: 10,
+      feature: 'Kernel Flavor',
+      explanation: 'Provides official real-time (RT) kernel package variants.'
+    },
+    {
+      distroIds: ['freedos', 'smartos'],
+      points: -15,
+      feature: 'Kernel Flavor',
+      explanation: 'Non-Linux architecture without Linux PREEMPT_RT kernel.'
+    }
+  ],
+  hardened: [
+    {
+      distroIds: ['alpine', 'talos'],
+      points: 15,
+      feature: 'Kernel Flavor',
+      explanation: 'Hardened kernel build with stack-clash protection, ASLR, and minimized attack surface.'
+    },
+    {
+      distroIds: ['arch', 'debian', 'fedora'],
+      points: 8,
+      feature: 'Kernel Flavor',
+      explanation: 'Supports hardened kernel builds or security policies.'
+    }
+  ],
+  'zen-liquorix': [
+    {
+      distroIds: ['bazzite', 'pop-os', 'arch'],
+      points: 15,
+      feature: 'Kernel Flavor',
+      explanation: 'Zen/Liquorix scheduler tuned for desktop interactivity, high frame rates, and low-latency multitasking.'
+    }
+  ],
+  'lts-stable': [
+    {
+      distroIds: ['debian', 'ubuntu', 'linux-mint', 'proxmox-ve', 'truenas-scale', 'openmediavault'],
+      points: 10,
+      feature: 'Kernel Flavor',
+      explanation: 'Rock-solid upstream Long Term Support (LTS) kernel tree.'
+    }
+  ]
+};
+
+export const BOOTLOADER_AFFINITIES: AffinityTable<BootloaderPreference> = {
+  'systemd-boot': [
+    {
+      distroIds: ['pop-os', 'arch', 'nixos'],
+      points: 15,
+      feature: 'Bootloader',
+      explanation: 'Modern lightweight UEFI bootloader (systemd-boot) with zero configuration overhead.'
+    },
+    {
+      distroIds: ['freedos', 'buildroot', 'openwrt'],
+      points: -15,
+      feature: 'Bootloader',
+      explanation: 'Lacks systemd / UEFI systemd-boot support.'
+    }
+  ],
+  'u-boot': [
+    {
+      distroIds: ['armbian', 'dietpi', 'postmarketos', 'buildroot'],
+      points: 15,
+      feature: 'Bootloader',
+      explanation: 'Universal Bootloader (Das U-Boot) tailored for ARM, RISC-V, and embedded SoC hardware.'
+    }
+  ],
+  efistub: [
+    {
+      distroIds: ['arch', 'alpine'],
+      points: 15,
+      feature: 'Bootloader',
+      explanation: 'Direct UEFI EFISTUB kernel boot without intermediary bootloader stages.'
+    },
+    {
+      distroIds: ['freedos'],
+      points: -15,
+      feature: 'Bootloader',
+      explanation: 'Incompatible with UEFI EFISTUB booting.'
+    }
+  ],
+  'grub-hybrid': [
+    {
+      distroIds: ['ubuntu', 'debian', 'linux-mint', 'fedora', 'proxmox-ve'],
+      points: 10,
+      feature: 'Bootloader',
+      explanation: 'GRUB 2 bootloader supporting both legacy BIOS MBR and UEFI dual-booting.'
+    }
+  ]
+};
+
+export const SECURITY_PROFILE_AFFINITIES: AffinityTable<SecurityProfile> = {
+  selinux: [
+    {
+      distroIds: ['fedora', 'fedora-silverblue', 'talos'],
+      points: 15,
+      feature: 'Security Hardening',
+      explanation: 'Enforcing Security-Enhanced Linux (SELinux) Mandatory Access Control architecture.'
+    },
+    {
+      distroIds: ['freedos', 'smartos'],
+      points: -15,
+      feature: 'Security Hardening',
+      explanation: 'Does not support Linux SELinux MAC subsystem.'
+    }
+  ],
+  apparmor: [
+    {
+      distroIds: ['ubuntu', 'linux-mint', 'debian', 'openmediavault', 'ubuntu-studio'],
+      points: 15,
+      feature: 'Security Hardening',
+      explanation: 'AppArmor pathname-based mandatory access control profiles.'
+    },
+    {
+      distroIds: ['freedos', 'smartos'],
+      points: -15,
+      feature: 'Security Hardening',
+      explanation: 'Does not support Linux AppArmor MAC subsystem.'
+    }
+  ],
+  'amnesic-ram': [
+    {
+      distroIds: ['porteus-kiosk', 'alpine'],
+      points: 20,
+      feature: 'Security Hardening',
+      explanation: 'Runs entirely in volatile RAM disk with zero persistent traces on local storage.'
+    }
+  ],
+  'standard-dac': [
+    {
+      distroIds: ['arch', 'dietpi', 'buildroot', 'armbian', 'antix'],
+      points: 10,
+      feature: 'Security Hardening',
+      explanation: 'Standard POSIX Discretionary Access Control (users, groups, and permissions).'
+    }
+  ]
+};
+
+export const NETWORKING_STACK_AFFINITIES: AffinityTable<NetworkingStack> = {
+  'systemd-networkd': [
+    {
+      distroIds: ['arch', 'nixos', 'talos', 'chainguard-distroless'],
+      points: 15,
+      feature: 'Networking Stack',
+      explanation: 'Declarative systemd-networkd lightweight network service daemon.'
+    },
+    {
+      distroIds: ['alpine', 'buildroot', 'freedos', 'opnsense'],
+      points: -15,
+      feature: 'Networking Stack',
+      explanation: 'Non-systemd architecture without systemd-networkd.'
+    }
+  ],
+  networkmanager: [
+    {
+      distroIds: ['linux-mint', 'ubuntu', 'fedora', 'bazzite', 'pop-os', 'ubuntu-studio', 'endless-os'],
+      points: 15,
+      feature: 'Networking Stack',
+      explanation: 'Full-featured NetworkManager with GUI applets, Wi-Fi, VPN, and cellular modems.'
+    },
+    {
+      distroIds: ['buildroot', 'freedos', 'openwrt'],
+      points: -15,
+      feature: 'Networking Stack',
+      explanation: 'Minimal or non-Linux architecture without desktop NetworkManager daemon.'
+    }
+  ],
+  'nftables-pf': [
+    {
+      distroIds: ['opnsense', 'openwrt', 'alpine', 'debian'],
+      points: 15,
+      feature: 'Networking Stack',
+      explanation: 'Advanced packet filtering with nftables or BSD Packet Filter (pf).'
+    }
+  ],
+  'busybox-minimal': [
+    {
+      distroIds: ['buildroot', 'dietpi', 'alpine'],
+      points: 15,
+      feature: 'Networking Stack',
+      explanation: 'Minimal BusyBox networking utilities (ifupdown, udhcpc) with zero overhead.'
+    }
+  ]
 };

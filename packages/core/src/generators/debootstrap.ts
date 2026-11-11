@@ -35,6 +35,37 @@ export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedReci
           ? 'server-performance'
           : 'desktop-balanced';
 
+  // Low-level Systems Engineering Options
+  const fileSystem = criteria.fileSystem || 'ext4';
+  const kernelFlavor = criteria.kernelFlavor || 'lts-stable';
+  const bootloader = criteria.bootloader || 'grub-hybrid';
+  const securityProfile = criteria.securityProfile || 'standard-dac';
+  const networkingStack = criteria.networkingStack || 'networkmanager';
+
+  const kernelPkg = kernelFlavor === 'realtime-rt' ? `linux-image-rt-${arch}` : `linux-image-${arch}`;
+  const fsPkg =
+    fileSystem === 'btrfs'
+      ? 'btrfs-progs'
+      : fileSystem === 'xfs'
+        ? 'xfsprogs'
+        : fileSystem === 'zfs'
+          ? 'zfsutils-linux'
+          : fileSystem === 'f2fs'
+            ? 'f2fs-tools'
+            : fileSystem === 'fat32'
+              ? 'dosfstools'
+              : 'e2fsprogs';
+  const bootloaderPkgs =
+    bootloader === 'systemd-boot'
+      ? 'systemd-boot'
+      : `grub-pc-bin grub-efi-${arch}-bin`;
+  const extraSystemsPkgs = [
+    securityProfile === 'selinux' ? 'selinux-basics selinux-policy-default auditd' : '',
+    securityProfile === 'apparmor' ? 'apparmor apparmor-utils' : '',
+    networkingStack === 'networkmanager' ? 'network-manager' : '',
+    networkingStack === 'nftables-pf' ? 'nftables' : ''
+  ].filter(Boolean).join(' ');
+
   const makefileContent = `# ==============================================================================
 # DistroTailor: Debootstrap Minimal Linux Builder
 # Target: Debian Minimal (bootable ISO & rootfs)
@@ -46,6 +77,18 @@ VERSION         ?= 1.0.0
 ARCH            ?= ${arch}
 SUITE           ?= bookworm
 MIRROR          ?= http://deb.debian.org/debian
+
+# --- SYSTEMS ENGINEERING & FILESYSTEM ---
+# ROOT_FS: ext4 | btrfs | zfs | xfs | f2fs | fat32
+ROOT_FS         ?= ${fileSystem}
+# KERNEL_FLAVOR: lts-stable | realtime-rt | hardened | zen-liquorix
+KERNEL_FLAVOR   ?= ${kernelFlavor}
+# BOOTLOADER: grub-hybrid | systemd-boot | u-boot | efistub
+BOOTLOADER      ?= ${bootloader}
+# SECURITY_PROFILE: standard-dac | selinux | apparmor | amnesic-ram
+SECURITY_PROFILE ?= ${securityProfile}
+# NETWORKING_STACK: networkmanager | systemd-networkd | nftables-pf | busybox-minimal
+NETWORKING_STACK ?= ${networkingStack}
 
 # --- MODULAR HARDWARE & DESKTOP TUNING ---
 # HARDWARE_TARGET: generic-x86 | rpi | intel-nuc | vm | mac | handheld
@@ -129,11 +172,12 @@ configure: rootfs
 	chroot $(ROOTFS_DIR) /bin/bash -c "export DEBIAN_FRONTEND=noninteractive && \\
 		apt-get update && \\
 		apt-get install -y --no-install-recommends \\
-			linux-image-${arch} \\
+			${kernelPkg} \\
 			systemd-sysv \\
 			live-boot \\
-			grub-pc-bin \\
-			grub-efi-${arch}-bin \\
+			${bootloaderPkgs} \\
+			${fsPkg} \\
+			${extraSystemsPkgs ? extraSystemsPkgs + ' \\\\' : ''}
 			iproute2 \\
 			iputils-ping \\
 			netbase \\

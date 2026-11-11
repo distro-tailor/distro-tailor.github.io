@@ -138,5 +138,67 @@ export const EXPERT_FIELDS: ExpertFieldConfig[] = [
       { value: 'sd-card-usb', label: 'MicroSD / USB Flash Drive' },
       { value: 'pxe-diskless', label: 'Network Boot (PXE / Diskless)' }
     ]
+  },
+  {
+    id: 'expert-filesystem',
+    label: 'Root Filesystem',
+    criteriaKey: 'fileSystem',
+    placeholder: 'Any Filesystem (Default: ext4)',
+    options: [
+      { value: 'ext4', label: 'ext4 (Standard Journaled)' },
+      { value: 'btrfs', label: 'Btrfs (Snapshots & Subvolumes)' },
+      { value: 'zfs', label: 'OpenZFS (Storage Pools & Datasets)' },
+      { value: 'xfs', label: 'XFS (High-Throughput Enterprise)' },
+      { value: 'f2fs', label: 'F2FS (Flash-Friendly SD/eMMC)' },
+      { value: 'fat32', label: 'FAT32 (Legacy MS-DOS)' }
+    ]
+  },
+  {
+    id: 'expert-kernel-flavor',
+    label: 'Kernel Flavor',
+    criteriaKey: 'kernelFlavor',
+    placeholder: 'Any Kernel (Default: LTS)',
+    options: [
+      { value: 'lts-stable', label: 'LTS Stable Upstream Tree' },
+      { value: 'realtime-rt', label: 'PREEMPT_RT Realtime Low-Latency' },
+      { value: 'hardened', label: 'Hardened / ASLR Attack-Surface Reduction' },
+      { value: 'zen-liquorix', label: 'Zen / Liquorix Low-Latency Desktop' }
+    ]
+  },
+  {
+    id: 'expert-bootloader',
+    label: 'Bootloader & Firmware',
+    criteriaKey: 'bootloader',
+    placeholder: 'Any Bootloader (Default: GRUB)',
+    options: [
+      { value: 'grub-hybrid', label: 'GRUB 2 Hybrid (BIOS + UEFI)' },
+      { value: 'systemd-boot', label: 'systemd-boot Minimal UEFI' },
+      { value: 'u-boot', label: 'Das U-Boot (ARM & RISC-V SBCs)' },
+      { value: 'efistub', label: 'Direct EFISTUB Kernel Boot' }
+    ]
+  },
+  {
+    id: 'expert-security-profile',
+    label: 'Security Hardening',
+    criteriaKey: 'securityProfile',
+    placeholder: 'Standard DAC (POSIX)',
+    options: [
+      { value: 'standard-dac', label: 'Standard POSIX DAC' },
+      { value: 'selinux', label: 'SELinux Enforcing MAC' },
+      { value: 'apparmor', label: 'AppArmor Path-Based MAC' },
+      { value: 'amnesic-ram', label: 'Amnesic RAM Incognito (Zero Footprint)' }
+    ]
+  },
+  {
+    id: 'expert-networking-stack',
+    label: 'Networking Daemon',
+    criteriaKey: 'networkingStack',
+    placeholder: 'Default (NetworkManager / OS Default)',
+    options: [
+      { value: 'networkmanager', label: 'NetworkManager (Desktop, Wi-Fi & VPN)' },
+      { value: 'systemd-networkd', label: 'systemd-networkd Declarative Daemon' },
+      { value: 'nftables-pf', label: 'nftables / BSD Packet Filter (pf)' },
+      { value: 'busybox-minimal', label: 'BusyBox Minimal Networking' }
+    ]
   }
 ];

@@ -241,6 +241,38 @@ export type DesktopWorkflowStyle =
   | 'traditional-compact'
   | 'no-preference';
 
+export type FileSystemPreference =
+  | 'ext4'
+  | 'btrfs'
+  | 'zfs'
+  | 'xfs'
+  | 'f2fs'
+  | 'fat32';
+
+export type KernelFlavor =
+  | 'lts-stable'
+  | 'realtime-rt'
+  | 'hardened'
+  | 'zen-liquorix';
+
+export type BootloaderPreference =
+  | 'grub-hybrid'
+  | 'systemd-boot'
+  | 'u-boot'
+  | 'efistub';
+
+export type SecurityProfile =
+  | 'standard-dac'
+  | 'selinux'
+  | 'apparmor'
+  | 'amnesic-ram';
+
+export type NetworkingStack =
+  | 'networkmanager'
+  | 'systemd-networkd'
+  | 'nftables-pf'
+  | 'busybox-minimal';
+
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
   platform?: PlatformTarget;
@@ -261,6 +293,13 @@ export interface UserCriteria {
   realtimeAudio?: boolean;
   peripheralNeed?: PeripheralNeed;
   peripherals?: PeripheralNeed[];
+
+  // Low-level Systems-Engineering Dimensions
+  fileSystem?: FileSystemPreference;
+  kernelFlavor?: KernelFlavor;
+  bootloader?: BootloaderPreference;
+  securityProfile?: SecurityProfile;
+  networkingStack?: NetworkingStack;
 
   // Interactive Recipe Modifiers (App Suites & Turnkey Services)
   desktopEnv?: DesktopEnvId;

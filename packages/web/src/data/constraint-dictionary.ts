@@ -119,5 +119,37 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     'drawing-tablet': { label: 'Drawing Tablet / Stylus Pen', icon: '🎨' },
     'mixed-dpi': { label: 'Mixed 4K / High-DPI Multi-Monitor', icon: '📺' },
     'standard': { label: 'Standard Mouse, Keyboard & Screen', icon: '🖥️' }
+  },
+  fileSystem: {
+    ext4: { label: 'ext4 Journaled File System', icon: '📁' },
+    btrfs: { label: 'Btrfs (Snapshots & Subvolumes)', icon: '🌳' },
+    zfs: { label: 'OpenZFS (Storage Pools & Datasets)', icon: '🛡️' },
+    xfs: { label: 'XFS (Enterprise Scalable)', icon: '⚡' },
+    f2fs: { label: 'F2FS (Flash-Friendly SD/eMMC)', icon: '💾' },
+    fat32: { label: 'FAT32 (Legacy MS-DOS)', icon: '💾' }
+  },
+  kernelFlavor: {
+    'lts-stable': { label: 'LTS Stable Kernel', icon: '🐧' },
+    'realtime-rt': { label: 'PREEMPT_RT Realtime Low-Latency', icon: '⏱️' },
+    hardened: { label: 'Hardened Security Kernel', icon: '🛡️' },
+    'zen-liquorix': { label: 'Zen / Liquorix Low-Latency Desktop', icon: '🚀' }
+  },
+  bootloader: {
+    'grub-hybrid': { label: 'GRUB 2 Hybrid (BIOS + UEFI)', icon: '🥾' },
+    'systemd-boot': { label: 'systemd-boot Minimal UEFI', icon: '⚡' },
+    'u-boot': { label: 'Das U-Boot (ARM & RISC-V SBCs)', icon: '🔌' },
+    efistub: { label: 'Direct EFISTUB Kernel Boot', icon: '🚀' }
+  },
+  securityProfile: {
+    'standard-dac': { label: 'Standard POSIX DAC', icon: '🔑' },
+    selinux: { label: 'SELinux Enforcing MAC', icon: '🛡️' },
+    apparmor: { label: 'AppArmor Path-Based MAC', icon: '🏰' },
+    'amnesic-ram': { label: 'Amnesic RAM Incognito', icon: '🕵️' }
+  },
+  networkingStack: {
+    networkmanager: { label: 'NetworkManager (Desktop & Wi-Fi)', icon: '📶' },
+    'systemd-networkd': { label: 'systemd-networkd Daemon', icon: '⚙️' },
+    'nftables-pf': { label: 'nftables / BSD Packet Filter (pf)', icon: '🔥' },
+    'busybox-minimal': { label: 'BusyBox Minimal Networking', icon: '🧰' }
   }
 };

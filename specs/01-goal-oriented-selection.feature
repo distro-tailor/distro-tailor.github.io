@@ -75,6 +75,19 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the recommended OS family should be "independent" and kernel model "beos-modular"
     And the recommendation should highlight BeOS heritage, OpenBFS filesystem indexing, and 3-second boot times
 
+  Scenario: Systems engineer requires native OpenZFS storage pools and datasets
+    Given the user specifies experience level "Systems Hacker / Embedded Engineer"
+    And the user specifies root filesystem "zfs"
+    When the engine evaluates the candidate distributions
+    Then the top recommendations should include "TrueNAS SCALE" or "Proxmox VE"
+    And the recommendation reasons should highlight native ZFS root storage pool with datasets and snapshots
+
+  Scenario: Audio engineer requires PREEMPT_RT realtime low-latency kernel
+    Given the user specifies kernel flavor "realtime-rt"
+    When the engine evaluates the candidate distributions
+    Then the engine should recommend "Ubuntu Studio" with a match score of at least 80%
+    And the recommendation reasons should highlight deterministic PREEMPT_RT audio and video scheduling
+
   Scenario: Freelancer needs a reliable home office workstation for documents and video calls
     Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
     When the user selects goal "Home Office & Freelancing (Word, Excel, Invoicing, Zoom, Slack)"
