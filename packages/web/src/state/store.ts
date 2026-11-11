@@ -126,6 +126,13 @@ export class AppStore extends EventTarget implements IAppStore {
     return false;
   }
 
+  public stepForwardQuestion(questionId: string): void {
+    this.pushHistory();
+    this._state.answeredQuestionIds.add(questionId);
+    this._state.activeTab = 'wizard';
+    this.notify();
+  }
+
   public answerQuestion<K extends keyof UserCriteria>(
     questionId: string,
     answerKey: K,

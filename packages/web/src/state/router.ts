@@ -165,11 +165,7 @@ export class AppRouter implements IAppRouter {
   }
 
   public stepBack(onFallbackStep: () => void): void {
-    if (this.inAppHistoryDepth > 0 && typeof window !== 'undefined') {
-      window.history.back();
-    } else {
-      onFallbackStep();
-    }
+    onFallbackStep();
   }
 }
 

@@ -30,6 +30,18 @@ export class QuestionFlow {
   }
 
   /**
+   * Retrieves the most recently answered eligible question in the decision tree.
+   */
+  public getPreviousQuestion(
+    criteria: UserCriteria,
+    answeredQuestionIds: Set<string>
+  ): Question | null {
+    const eligible = this.getEligibleQuestions(criteria);
+    const answered = eligible.filter((q) => answeredQuestionIds.has(q.id));
+    return answered.length > 0 ? answered[answered.length - 1] : null;
+  }
+
+  /**
    * Calculates completion progress percentage.
    */
   public getProgress(

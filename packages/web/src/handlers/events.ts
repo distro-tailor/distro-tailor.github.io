@@ -308,7 +308,7 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
             },
             answeredQuestionIds: new Set([...store.getState().answeredQuestionIds, nextQuestion.id])
           });
-          router.saveStateToUrl(store.getState(), true);
+          router.saveStateToUrl(store.getState(), false);
           scrollToQuestionCard();
         }, 80);
       }
@@ -326,14 +326,22 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
   document.getElementById('btn-back')?.addEventListener('click', handleBack);
   document.getElementById('btn-back-top')?.addEventListener('click', handleBack);
 
+  // Next Question forward button (top and bottom)
+  const handleNext = () => {
+    if (nextQuestion) {
+      store.stepForwardQuestion(nextQuestion.id);
+      router.saveStateToUrl(store.getState(), false);
+      scrollToQuestionCard();
+    }
+  };
+  document.getElementById('btn-next')?.addEventListener('click', handleNext);
+  document.getElementById('btn-next-top')?.addEventListener('click', handleNext);
+
   // Skip question button (top and bottom)
   const handleSkip = () => {
     if (nextQuestion) {
-      store.pushHistory();
-      store.update({
-        answeredQuestionIds: new Set([...store.getState().answeredQuestionIds, nextQuestion.id])
-      });
-      router.saveStateToUrl(store.getState(), true);
+      store.stepForwardQuestion(nextQuestion.id);
+      router.saveStateToUrl(store.getState(), false);
       scrollToQuestionCard();
     }
   };
@@ -343,11 +351,8 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
   // Multi-select confirm & next (top and bottom)
   const handleMultiSelectConfirm = () => {
     if (nextQuestion) {
-      store.pushHistory();
-      store.update({
-        answeredQuestionIds: new Set([...store.getState().answeredQuestionIds, nextQuestion.id])
-      });
-      router.saveStateToUrl(store.getState(), true);
+      store.stepForwardQuestion(nextQuestion.id);
+      router.saveStateToUrl(store.getState(), false);
       scrollToQuestionCard();
     }
   };
@@ -554,7 +559,7 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
                 criteria: { ...store.getState().criteria, ...opt.appliesCriteria },
                 answeredQuestionIds: new Set([...store.getState().answeredQuestionIds, currentNext.id])
               });
-              router.saveStateToUrl(store.getState(), true);
+              router.saveStateToUrl(store.getState(), false);
               scrollToQuestionCard();
               return;
             }
@@ -564,6 +569,14 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
         if (e.key === 'Backspace' || e.key === 'ArrowLeft') {
           const stepped = store.stepBackQuestion();
           if (stepped) {
+            router.saveStateToUrl(store.getState(), false);
+            scrollToQuestionCard();
+          }
+        }
+
+        if (e.key === 'ArrowRight') {
+          if (currentNext) {
+            store.stepForwardQuestion(currentNext.id);
             router.saveStateToUrl(store.getState(), false);
             scrollToQuestionCard();
           }

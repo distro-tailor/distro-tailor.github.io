@@ -1,4 +1,4 @@
-import { Question, RecommendationOutput } from '@distro-tailor/core';
+import { Question, RecommendationOutput, UserCriteria } from '@distro-tailor/core';
 import { AppState } from '../state/store.js';
 import { escapeHtml } from '../utils/dom.js';
 
@@ -50,6 +50,19 @@ export function renderWizardQuestion(
     progress.current >= 3 && evaluation && evaluation.bestMatch && evaluation.bestMatch.score >= 85;
 
   const canGoBack = state.history.length > 0 || state.answeredQuestionIds.size > 0 || progress.current > 0;
+
+  const hasSelectedAnswer = question.options.some((opt) => {
+    if (question.isMultiSelect) {
+      const selected = state.criteria.peripherals || (state.criteria.peripheralNeed ? [state.criteria.peripheralNeed] : []);
+      return opt.appliesCriteria.peripherals?.some((p) => selected.includes(p));
+    }
+    return (
+      Object.entries(opt.appliesCriteria).length > 0 &&
+      Object.entries(opt.appliesCriteria).every(
+        ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+      )
+    );
+  });
 
   return `
     <div id="wizard-question-card" class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-8 backdrop-blur shadow-xl min-w-0 max-w-full overflow-hidden scroll-mt-6 animate-question-forward">
@@ -144,14 +157,21 @@ export function renderWizardQuestion(
             <span>→</span>
           </button>
         `
-            : question.isOptional
+            : hasSelectedAnswer
               ? `
+          <button id="btn-next-top" class="px-3.5 py-1.5 rounded-lg font-bold bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all shadow-md shadow-emerald-950/40 cursor-pointer flex items-center gap-1.5">
+            <span>Next Question</span>
+            <span>→</span>
+          </button>
+        `
+              : question.isOptional
+                ? `
           <button id="btn-skip-top" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-slate-300 hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1">
             <span>Skip (Use Default)</span>
             <span>→</span>
           </button>
         `
-              : `
+                : `
           <button id="btn-skip-top" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-slate-400 hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1">
             <span>Skip for now</span>
             <span>→</span>
@@ -188,16 +208,30 @@ export function renderWizardQuestion(
               opt.appliesCriteria.peripherals &&
               opt.appliesCriteria.peripherals.some((p) => selectedPeripherals.includes(p));
 
+            const isSingleSelected =
+              !question.isMultiSelect &&
+              Object.entries(opt.appliesCriteria).length > 0 &&
+              Object.entries(opt.appliesCriteria).every(
+                ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+              );
+
+            const isSelected = question.isMultiSelect ? isMultiSelected : isSingleSelected;
+
             return `
             <button data-option-id="${opt.id}" class="option-btn group relative text-left p-4 sm:p-5 rounded-xl border transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 min-w-0 w-full overflow-hidden ${spanClass} ${
-              isMultiSelected
+              isSelected
                 ? 'border-emerald-400 bg-emerald-950/30 ring-1 ring-emerald-400/50 shadow-md shadow-emerald-950/30'
                 : 'border-slate-700/60 bg-slate-950/70 [@media(hover:hover)]:hover:bg-slate-800/90 [@media(hover:hover)]:hover:border-emerald-400 [@media(hover:hover)]:hover:shadow-lg [@media(hover:hover)]:hover:shadow-emerald-950/40 active:border-emerald-400 active:bg-slate-800/90'
             }">
               <div class="min-w-0 w-full">
                 <div class="flex items-start justify-between gap-3 mb-3">
-                  <div class="flex items-center gap-2 min-w-0">
+                  <div class="flex items-center gap-2 min-w-0 flex-wrap">
                     <span class="text-2xl sm:text-3xl p-2 rounded-xl bg-slate-900 border border-slate-700/60 group-hover:scale-110 transition-transform shrink-0">${opt.icon || '👉'}</span>
+                    ${
+                      isSelected && !question.isMultiSelect
+                        ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">✓ Selected</span>`
+                        : ''
+                    }
                     ${
                       opt.isDefault
                         ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-800 text-slate-300 border border-slate-700/80 shrink-0" title="Standard distribution default choice">★ Standard Default</span>`
@@ -225,7 +259,7 @@ export function renderWizardQuestion(
                   </div>
                 </div>
                 <h3 class="text-sm sm:text-base font-semibold ${
-                  isMultiSelected ? 'text-emerald-300' : 'text-slate-100 group-hover:text-emerald-300'
+                  isSelected ? 'text-emerald-300' : 'text-slate-100 group-hover:text-emerald-300'
                 } transition-colors mb-1.5 leading-snug break-words">${cleanLabel}</h3>
                 ${opt.description ? `<p class="text-xs text-slate-400 leading-relaxed break-words">${opt.description}</p>` : ''}
               </div>
@@ -267,7 +301,14 @@ export function renderWizardQuestion(
             <span>→</span>
           </button>
         `
-            : `
+            : hasSelectedAnswer
+              ? `
+          <button id="btn-next" class="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all shadow-lg shadow-emerald-950/40 cursor-pointer flex items-center gap-1.5">
+            <span>Next Question</span>
+            <span>→</span>
+          </button>
+        `
+              : `
           <button id="btn-skip" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 transition-all cursor-pointer">
             ${question.isOptional ? 'Skip (Use Default) →' : 'Skip for now →'}
           </button>

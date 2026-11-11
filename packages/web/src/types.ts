@@ -74,6 +74,11 @@ export interface IAppStore {
   stepBackQuestion(): boolean;
 
   /**
+   * Steps forward to the next question in the decision tree, keeping existing criteria for this step.
+   */
+  stepForwardQuestion(questionId: string): void;
+
+  /**
    * Answers a specific question and stores criteria with compile-time type validation.
    */
   answerQuestion<K extends keyof UserCriteria>(
