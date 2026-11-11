@@ -3,6 +3,7 @@ import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
 import { getDockerApp } from './docker-apps.js';
 import { generateBootstrapAppsScript } from './desktop-apps.js';
 import { generateBootstrapEmulatorsScript } from './emulator-apps.js';
+import { generateBootstrapNavigationScript } from './navigation-apps.js';
 import { ALPINE_MINIROOTFS_SHA256, ALPINE_MIRROR, ALPINE_VERSION } from './checksums.js';
 
 export function generateAlpineRecipe(criteria: UserCriteria): GeneratedRecipe {
@@ -11,6 +12,7 @@ export function generateAlpineRecipe(criteria: UserCriteria): GeneratedRecipe {
   const dockerAppDef = getDockerApp(criteria.dockerApp);
   const desktopApps = criteria.desktopApps || [];
   const emulatorApps = criteria.emulatorApps || [];
+  const navigationApps = criteria.navigationApps || [];
   const dockerApp = dockerAppDef ? dockerAppDef.id : 'none';
 
   const makefileContent = `# ==============================================================================
@@ -151,6 +153,15 @@ clean:
     });
   }
 
+  if (navigationApps.length > 0) {
+    files.push({
+      filename: 'bootstrap-navigation.sh',
+      description: `Turnkey unattended installer for ${navigationApps.length} navigation tool(s), GPSd, and OpenStreetMap data`,
+      content: generateBootstrapNavigationScript(navigationApps, criteria),
+      executable: true
+    });
+  }
+
   const quickstartCommands = ['sudo make'];
   if (desktopApps.length > 0) {
     quickstartCommands.push(`sudo bash bootstrap-apps.sh  # 1-Click install ${desktopApps.length} desktop app(s)`);
@@ -158,9 +169,12 @@ clean:
   if (emulatorApps.length > 0) {
     quickstartCommands.push(`sudo bash bootstrap-emulators.sh  # 1-Click install ${emulatorApps.length} emulator(s) & controller setup`);
   }
+  if (navigationApps.length > 0) {
+    quickstartCommands.push(`sudo bash bootstrap-navigation.sh  # 1-Click install ${navigationApps.length} navigation tool(s) & GPSd setup`);
+  }
   if (dockerAppDef) {
     quickstartCommands.push(`docker compose up -d  # Launch ${dockerAppDef.name} at ${dockerAppDef.webUrl}`);
-  } else if (desktopApps.length === 0 && emulatorApps.length === 0) {
+  } else if (desktopApps.length === 0 && emulatorApps.length === 0 && navigationApps.length === 0) {
     quickstartCommands.push(`tar -tzf output/${distroName}-${arch}.tar.gz | head -n 20`);
   }
 

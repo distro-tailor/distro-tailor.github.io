@@ -7,7 +7,10 @@ import {
   resolveRecipeGenerator,
   getEmulatorApp,
   checkEmulatorAppCompatibility,
-  generateBootstrapEmulatorsScript
+  generateBootstrapEmulatorsScript,
+  getNavigationApp,
+  checkNavigationAppCompatibility,
+  generateBootstrapNavigationScript
 } from './index.js';
 import { generateDebootstrapRecipe } from './debootstrap.js';
 
@@ -152,4 +155,59 @@ test('Recipe Generator: debootstrap bundles bootstrap-emulators.sh when emulator
   assert.ok(file, 'bootstrap-emulators.sh file was not bundled');
   assert.equal(file.executable, true);
   assert.ok(recipe.quickstartCommands.some((c) => c.includes('bootstrap-emulators.sh')));
+});
+
+test('Navigation Apps: registry and lookup return definitions for all navigation tools', () => {
+  const ids: import('../types.js').NavigationAppId[] = [
+    'navit',
+    'gpsd',
+    'foxtrotgps',
+    'opencpn',
+    'mkgmap'
+  ];
+  for (const id of ids) {
+    const app = getNavigationApp(id);
+    assert.ok(app, `Missing navigation app: ${id}`);
+    assert.equal(app.id, id);
+    assert.ok(app.minRamMb > 0);
+  }
+});
+
+test('Navigation Apps: compatibility checks enforce hardware limits and RAM warnings', () => {
+  const navit = getNavigationApp('navit')!;
+  const nommuResult = checkNavigationAppCompatibility(navit, { architecture: 'nommu' });
+  assert.equal(nommuResult.compatible, false);
+  assert.match(nommuResult.blocker!, /Microcontrollers/);
+
+  const gpsd = getNavigationApp('gpsd')!;
+  const nommuGpsd = checkNavigationAppCompatibility(gpsd, { architecture: 'nommu' });
+  assert.equal(nommuGpsd.compatible, true);
+
+  const opencpn = getNavigationApp('opencpn')!;
+  const ramResult = checkNavigationAppCompatibility(opencpn, { architecture: 'x86_64', maxRamMb: 128 });
+  assert.equal(ramResult.compatible, true);
+  assert.ok(ramResult.warnings.length > 0);
+  assert.match(ramResult.warnings[0], /Exceeds your 128 MB budget/);
+});
+
+test('Navigation Apps: generateBootstrapNavigationScript outputs GPSd and Navit configuration', () => {
+  const emptyScript = generateBootstrapNavigationScript([], {});
+  assert.match(emptyScript, /No navigation apps selected/);
+
+  const script = generateBootstrapNavigationScript(['navit', 'gpsd', 'mkgmap'], { architecture: 'x86_64' });
+  assert.match(script, /gpsd/);
+  assert.match(script, /fetch-osm-map/);
+  assert.match(script, /navit\.xml/);
+  assert.match(script, /compile-garmin-osm/);
+});
+
+test('Recipe Generator: debootstrap bundles bootstrap-navigation.sh when navigationApps are selected', () => {
+  const recipe = generateDebootstrapRecipe({
+    architecture: 'x86_64',
+    navigationApps: ['navit', 'gpsd']
+  });
+  const file = recipe.files.find((f) => f.filename === 'bootstrap-navigation.sh');
+  assert.ok(file, 'bootstrap-navigation.sh file was not bundled');
+  assert.equal(file.executable, true);
+  assert.ok(recipe.quickstartCommands.some((c) => c.includes('bootstrap-navigation.sh')));
 });

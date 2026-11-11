@@ -89,6 +89,13 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the recommendation should highlight low-latency kernel, drawing tablet calibration, and pre-installed Krita and Blender
     And the recommendation should suggest modular add-ons such as DaVinci Resolve setup and PipeWire audio routing
 
+  Scenario: Maker or driver wants an offline in-car GPS or repurposed PND navigation appliance
+    Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
+    When the user selects goal "In-Car GPS & Offline Navigation (Navit + OpenStreetMap)"
+    Then the engine should recommend a lightweight appliance distribution
+    And the generated recipe should support bundling "bootstrap-navigation.sh" with GPSd and Navit configuration
+    And the recipe should support offline OpenStreetMap vector data and serial NMEA receiver auto-detection
+
   Scenario: Switching between Goal Mode and Technical Mode on the fly
     Given the user is currently on Question 2 in "Goal Mode"
     When the user clicks the "⇄ switch" toggle button in the question header

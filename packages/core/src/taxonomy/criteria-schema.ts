@@ -11,6 +11,7 @@ import {
   ExperienceLevel,
   FormFactor,
   InitSystem,
+  NavigationAppId,
   PeripheralNeed,
   PlatformTarget,
   PrimaryUseCase,
@@ -224,6 +225,14 @@ export const EMULATOR_APP_VALUES: EnumCatalog<EmulatorAppId> = {
   mame: true
 };
 
+export const NAVIGATION_APP_VALUES: EnumCatalog<NavigationAppId> = {
+  navit: true,
+  gpsd: true,
+  foxtrotgps: true,
+  opencpn: true,
+  mkgmap: true
+};
+
 /** Untrusted criteria shape: same keys as UserCriteria, values not yet validated. */
 export type UntrustedCriteria = { [K in keyof UserCriteria]?: unknown };
 
@@ -279,7 +288,8 @@ export function sanitizeCriteria(input: UntrustedCriteria): UserCriteria {
     enableFlatpak: pickBoolean(input.enableFlatpak),
     dockerApp: pickEnum(DOCKER_APP_VALUES, input.dockerApp),
     desktopApps: pickEnumList(DESKTOP_APP_VALUES, input.desktopApps),
-    emulatorApps: pickEnumList(EMULATOR_APP_VALUES, input.emulatorApps)
+    emulatorApps: pickEnumList(EMULATOR_APP_VALUES, input.emulatorApps),
+    navigationApps: pickEnumList(NAVIGATION_APP_VALUES, input.navigationApps)
   };
 
   // Omit absent keys so callers that inspect Object.keys() see only supplied criteria.

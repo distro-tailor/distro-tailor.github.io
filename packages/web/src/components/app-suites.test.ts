@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { renderDesktopAppSuite, renderDockerServiceSuite } from './app-suites.js';
+import { renderDesktopAppSuite, renderDockerServiceSuite, renderNavigationAppSuite } from './app-suites.js';
 
 test('App Suites: renders NOMMU notices and marks incompatible apps on microcontrollers', () => {
   const nommuCriteria = { architecture: 'nommu' as const };
@@ -13,6 +13,10 @@ test('App Suites: renders NOMMU notices and marks incompatible apps on microcont
   const desktopHtml = renderDesktopAppSuite(nommuCriteria, true);
   assert.ok(desktopHtml.includes('Microcontrollers (NOMMU) lack display compositors'));
   assert.ok(desktopHtml.includes('data-incompatible-reason'));
+
+  const navHtml = renderNavigationAppSuite(nommuCriteria, true);
+  assert.ok(navHtml.includes('Microcontrollers (NOMMU) lack graphical subsystems'));
+  assert.ok(navHtml.includes('data-incompatible-reason'));
 });
 
 test('App Suites: renders RAM warnings when application exceeds user memory budget', () => {
@@ -26,6 +30,11 @@ test('App Suites: renders RAM warnings when application exceeds user memory budg
   // Blender requires 4096MB, Chromium requires 2048MB
   assert.ok(desktopHtml.includes('⚠️ 4G'), 'Blender should display 4G RAM warning badge');
   assert.ok(desktopHtml.includes('⚠️ 2G'), 'Chromium should display 2G RAM warning badge');
+
+  const navHtml = renderNavigationAppSuite({ architecture: 'x86_64', maxRamMb: 128 }, true);
+  // OpenCPN requires 256MB, mkgmap requires 512MB
+  assert.ok(navHtml.includes('⚠️ 256M'), 'OpenCPN should display 256M warning on 128MB target');
+  assert.ok(navHtml.includes('⚠️ 512M'), 'mkgmap should display 512M warning on 128MB target');
 });
 
 test('App Suites: renders cleanly without warnings on ample hardware', () => {
@@ -38,4 +47,8 @@ test('App Suites: renders cleanly without warnings on ample hardware', () => {
   const desktopHtml = renderDesktopAppSuite(ampleCriteria, true);
   assert.ok(!desktopHtml.includes('data-incompatible-reason'));
   assert.ok(!desktopHtml.includes('⚠️'));
+
+  const navHtml = renderNavigationAppSuite(ampleCriteria, true);
+  assert.ok(!navHtml.includes('data-incompatible-reason'));
+  assert.ok(!navHtml.includes('⚠️'));
 });

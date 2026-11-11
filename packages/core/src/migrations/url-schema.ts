@@ -191,7 +191,8 @@ export function deserializeCriteriaFromParams(params: Record<string, string>): U
     enableFlatpak: flag(params.enableFlatpak),
     dockerApp: params.dockerApp !== 'none' ? params.dockerApp : undefined,
     desktopApps: list(params.desktopApps),
-    emulatorApps: list(params.emulatorApps)
+    emulatorApps: list(params.emulatorApps),
+    navigationApps: list(params.navigationApps)
   };
 
   if (params.peripherals) {

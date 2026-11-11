@@ -87,6 +87,12 @@ test('Formatters: formatConstraint safely handles dynamic apps, desktop envs and
     icon: '🎮'
   });
 
+  // Navigation apps array
+  assert.deepEqual(formatConstraint('navigationApps', ['navit', 'gpsd']), {
+    label: 'GPS & Nav: 2 selected',
+    icon: '🧭'
+  });
+
   // Unknown arbitrary key with special characters
   const arbitrary = formatConstraint('customFeature', '<inject>');
   assert.equal(arbitrary.label, 'customFeature: &lt;inject&gt;');

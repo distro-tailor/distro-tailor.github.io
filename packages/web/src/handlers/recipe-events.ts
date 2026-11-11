@@ -3,9 +3,11 @@ import {
   DesktopEnvId,
   DockerAppId,
   EmulatorAppId,
+  NavigationAppId,
   getDesktopApp,
   getDockerApp,
-  getEmulatorApp
+  getEmulatorApp,
+  getNavigationApp
 } from '@distro-tailor/core';
 import { getAddonCombos } from '../components/app-suites.js';
 import { router } from '../state/router.js';
@@ -114,6 +116,32 @@ export function bindRecipeEvents(ctx: HandlerContext): void {
       } else {
         const app = getEmulatorApp(appId);
         showToast(`✨ Added ${app?.name || appId} to bootstrap-emulators.sh!`, app?.icon || '🎮');
+      }
+    });
+  });
+
+  // 1-Click Offline GPS & Navigation Apps
+  document.querySelectorAll<HTMLElement>('.btn-toggle-navigation-app').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const blocker = target.getAttribute('data-incompatible-reason');
+      if (blocker) {
+        showToast(blocker, '🚫');
+        return;
+      }
+
+      const appId = target.getAttribute('data-app-id') as NavigationAppId;
+      const list = store.getState().criteria.navigationApps || [];
+      const newList = list.includes(appId) ? list.filter((id) => id !== appId) : [...list, appId];
+      store.update({
+        criteria: { ...store.getState().criteria, navigationApps: newList }
+      });
+      router.saveStateToUrl(store.getState());
+      if (list.includes(appId)) {
+        showToast(`Removed ${appId} from bootstrap-navigation.sh`, '🧭');
+      } else {
+        const app = getNavigationApp(appId);
+        showToast(`✨ Added ${app?.name || appId} to bootstrap-navigation.sh!`, app?.icon || '🧭');
       }
     });
   });

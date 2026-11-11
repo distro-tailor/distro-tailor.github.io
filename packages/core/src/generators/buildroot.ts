@@ -1,10 +1,12 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
 import { BUILDROOT_DOWNLOADS, BUILDROOT_TARBALL_SHA256, BUILDROOT_VERSION } from './checksums.js';
+import { generateBootstrapNavigationScript } from './navigation-apps.js';
 
 export function generateBuildrootRecipe(criteria: UserCriteria): GeneratedRecipe {
   const isNoMmu = criteria.architecture === 'nommu';
   const targetArch = isNoMmu ? 'arm' : criteria.architecture === 'arm64' ? 'aarch64' : 'x86_64';
   const libc = isNoMmu ? 'uclibc' : 'musl';
+  const navigationApps = criteria.navigationApps || [];
 
   const makefileContent = `# ==============================================================================
 # DistroTailor: Buildroot Embedded Linux Toolchain & Kernel Generator
@@ -79,7 +81,47 @@ BR2_TARGET_GENERIC_GETTY_BAUDRATE_115200=y
 BR2_TARGET_ROOTFS_TAR=y
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
-`;
+${
+  navigationApps.length > 0
+    ? `
+# Offline Navigation & GPS Appliance
+${navigationApps.includes('gpsd') || navigationApps.includes('navit') ? 'BR2_PACKAGE_GPSD=y\nBR2_PACKAGE_GPSD_CLIENTS=y' : ''}
+${navigationApps.includes('navit') ? 'BR2_PACKAGE_NAVIT=y\nBR2_PACKAGE_TSLIB=y' : ''}
+`
+    : ''
+}`;
+
+  const files: GeneratedRecipe['files'] = [
+    {
+      filename: 'Makefile',
+      description: 'Automation to fetch Buildroot, inject configuration, and parallel-compile',
+      content: makefileContent
+    },
+    {
+      filename: 'distro.defconfig',
+      description: 'Buildroot configuration specifying architecture, libc, BusyBox, and output formats',
+      content: defconfigContent
+    }
+  ];
+
+  if (navigationApps.length > 0) {
+    files.push({
+      filename: 'bootstrap-navigation.sh',
+      description: `Turnkey unattended installer for ${navigationApps.length} navigation tool(s), GPSd, and OpenStreetMap data`,
+      content: generateBootstrapNavigationScript(navigationApps, criteria),
+      executable: true
+    });
+  }
+
+  const quickstartCommands = [
+    'sudo apt-get install -y build-essential bison flex libncurses-dev rsync',
+    'make configure',
+    'make build'
+  ];
+
+  if (navigationApps.length > 0) {
+    quickstartCommands.push(`sudo bash bootstrap-navigation.sh  # Provision GPSd & download offline OpenStreetMap vector data`);
+  }
 
   return {
     id: 'buildroot-embedded',
@@ -97,22 +139,7 @@ BR2_TARGET_ROOTFS_EXT2_4=y
       'rsync',
       'unzip'
     ],
-    files: [
-      {
-        filename: 'Makefile',
-        description: 'Automation to fetch Buildroot, inject configuration, and parallel-compile',
-        content: makefileContent
-      },
-      {
-        filename: 'distro.defconfig',
-        description: 'Buildroot configuration specifying architecture, libc, BusyBox, and output formats',
-        content: defconfigContent
-      }
-    ],
-    quickstartCommands: [
-      'sudo apt-get install -y build-essential bison flex libncurses-dev rsync',
-      'make configure',
-      'make build'
-    ]
+    files,
+    quickstartCommands
   };
 }

@@ -2,14 +2,18 @@ import {
   checkDesktopAppCompatibility,
   checkDockerAppCompatibility,
   checkEmulatorAppCompatibility,
+  checkNavigationAppCompatibility,
   DESKTOP_APPS_REGISTRY,
   DesktopEnvId,
   DOCKER_APPS_REGISTRY,
   DockerAppId,
   EMULATOR_APPS_REGISTRY,
   EmulatorAppId,
+  NAVIGATION_APPS_REGISTRY,
+  NavigationAppId,
   getDockerApp,
   getEmulatorApp,
+  getNavigationApp,
   UserCriteria
 } from '@distro-tailor/core';
 import { type AddonCombo, getAddonCombos } from '../data/addon-combos.js';
@@ -336,6 +340,109 @@ export function renderEmulatorAppSuite(
           <span class="text-lg">🎮</span>
           <span>Add Gaming & Retro Emulators? (RetroArch, DOSBox, Dolphin, PCSX2, etc.)</span>
           ${selectedCount > 0 ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">${selectedCount} active</span>` : ''}
+        </span>
+        <span class="text-slate-500 group-open:rotate-180 transition-transform text-sm shrink-0">▼</span>
+      </summary>
+      <div class="mt-4 pt-4 border-t border-slate-800">
+        ${innerContent}
+      </div>
+    </details>
+  `;
+}
+
+export function renderNavigationAppSuite(
+  criteria: UserCriteria,
+  isPrimary: boolean,
+  panelOpen?: Readonly<Record<string, boolean>>
+): string {
+  const selectedCount = (criteria.navigationApps || []).length;
+  const isExpanded = isPrimary || selectedCount > 0;
+  const isNommu = criteria.architecture === 'nommu';
+
+  const innerContent = `
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 min-w-0">
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-xl shrink-0">🧭</span>
+          <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">Offline GPS & In-Car Navigation Suite</h3>
+          ${isPrimary ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">Recommended for In-Car & Field Use</span>` : ''}
+        </div>
+        <p class="text-xs text-slate-400 mt-1 break-words">
+          Turn your build into a standalone offline road navigator, marine chartplotter, or telemetry station (ideal for in-car touchscreens, Raspberry Pi, or repurposed vintage GPS/TomTom devices). Generates an automated <code class="text-emerald-400">bootstrap-navigation.sh</code> with GPSd serial auto-detection and OpenStreetMap vector data:
+        </p>
+      </div>
+      <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap shrink-0 self-start sm:self-auto">
+        ${selectedCount} Selected
+      </span>
+    </div>
+
+    ${
+      isNommu
+        ? `
+      <div class="p-3 mb-4 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-300 text-xs flex items-center gap-2.5">
+        <span class="text-base shrink-0">⚠️</span>
+        <span>Microcontrollers (NOMMU) lack graphical subsystems for map rendering. Only telemetry daemons (GPSd) can run on this target.</span>
+      </div>
+    `
+        : ''
+    }
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 text-xs min-w-0">
+      ${NAVIGATION_APPS_REGISTRY.map((app) => {
+        const isSelected = (criteria.navigationApps || []).includes(app.id);
+        const compat = checkNavigationAppCompatibility(app, criteria);
+        const hasWarning = compat.compatible && compat.warnings.length > 0;
+
+        return `
+          <div data-app-id="${app.id}" ${compat.blocker ? `data-incompatible-reason="${compat.blocker}"` : ''} class="btn-toggle-navigation-app p-2.5 rounded-xl border select-none transition-all flex flex-col justify-between min-w-0 ${
+            !compat.compatible
+              ? 'opacity-50 cursor-not-allowed bg-slate-950/40 border-slate-900'
+              : isSelected
+              ? 'cursor-pointer bg-amber-950/20 border-amber-500/60 shadow-md shadow-amber-950/30'
+              : 'cursor-pointer bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
+          }">
+            <div class="flex items-center justify-between mb-1.5 gap-1.5 min-w-0">
+              <span class="text-xl shrink-0">${app.icon}</span>
+              <div class="flex items-center gap-1 shrink-0">
+                ${
+                  !compat.compatible
+                    ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30" title="${compat.blocker}">N/A</span>`
+                    : hasWarning
+                    ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30" title="${compat.warnings[0]}">⚠️ ${app.minRamMb >= 1024 ? `${(app.minRamMb / 1024).toFixed(0)}G` : `${app.minRamMb}M`}</span>`
+                    : ''
+                }
+                <div class="w-4 h-4 rounded border flex items-center justify-center text-[10px] font-bold ${
+                  isSelected ? 'bg-amber-400 border-amber-400 text-slate-950' : 'border-slate-700 bg-slate-900'
+                }">
+                  ${isSelected ? '✓' : ''}
+                </div>
+              </div>
+            </div>
+            <div class="min-w-0">
+              <span class="font-bold text-slate-200 block truncate text-xs">${app.name}</span>
+              <span class="text-[10px] text-slate-400 block truncate">${app.category}</span>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+
+  if (isPrimary) {
+    return `
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
+        ${innerContent}
+      </div>
+    `;
+  }
+
+  return `
+    <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 min-w-0 overflow-hidden transition-all" ${panelAttributes(panelOpen, 'navigation-apps', isExpanded)}>
+      <summary class="flex items-center justify-between cursor-pointer select-none text-xs font-semibold text-slate-300">
+        <span class="flex items-center gap-2 flex-wrap">
+          <span class="text-lg">🧭</span>
+          <span>Add Offline GPS & In-Car Navigation? (Navit, GPSd, OpenStreetMap, OpenCPN, etc.)</span>
+          ${selectedCount > 0 ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">${selectedCount} active</span>` : ''}
         </span>
         <span class="text-slate-500 group-open:rotate-180 transition-transform text-sm shrink-0">▼</span>
       </summary>

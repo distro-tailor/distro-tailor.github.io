@@ -95,6 +95,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'appliance-product', footprint: 'minimal', platform: 'kiosk' }
       },
       {
+        id: 'offline_navigation',
+        label: 'In-Car GPS & Offline Navigation (Navit + OpenStreetMap)',
+        description: 'Turn an old GPS (TomTom/WinCE), Raspberry Pi, or car touchscreen into a dedicated offline road & marine navigator with zero cellular fees',
+        icon: '🧭',
+        appliesCriteria: { useCase: 'appliance-product', footprint: 'micro', platform: 'bare-metal' }
+      },
+      {
         id: 'cheap_router',
         label: 'Home Router & Wi-Fi Firewall',
         description: 'Turn an old PC or box into a fast home router, ditch ISP rental fees, and block ads network-wide',

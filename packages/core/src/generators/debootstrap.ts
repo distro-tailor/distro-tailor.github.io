@@ -3,6 +3,7 @@ import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
 import { getDockerApp } from './docker-apps.js';
 import { generateBootstrapAppsScript } from './desktop-apps.js';
 import { generateBootstrapEmulatorsScript } from './emulator-apps.js';
+import { generateBootstrapNavigationScript } from './navigation-apps.js';
 
 export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedRecipe {
   const arch = criteria.architecture === 'arm64' ? 'arm64' : 'amd64';
@@ -10,6 +11,7 @@ export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedReci
   const dockerAppDef = getDockerApp(criteria.dockerApp);
   const desktopApps = criteria.desktopApps || [];
   const emulatorApps = criteria.emulatorApps || [];
+  const navigationApps = criteria.navigationApps || [];
   const desktopEnv = criteria.desktopEnv || (criteria.prefersGui ? 'cage' : 'none');
   const enableDistrobox = criteria.enableDistrobox ? '1' : '0';
   const enableNix = criteria.enableNix ? '1' : '0';
@@ -324,6 +326,15 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable
     });
   }
 
+  if (navigationApps.length > 0) {
+    files.push({
+      filename: 'bootstrap-navigation.sh',
+      description: `Turnkey unattended installer for ${navigationApps.length} navigation tool(s), GPSd, and OpenStreetMap data`,
+      content: generateBootstrapNavigationScript(navigationApps, criteria),
+      executable: true
+    });
+  }
+
   files.push({
     filename: 'README.md',
     description: 'Step-by-step build instructions, app quickstart, and QEMU test guide',
@@ -344,9 +355,13 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable
     quickstartCommands.push(`sudo bash bootstrap-emulators.sh  # 1-Click install ${emulatorApps.length} emulator(s) & controller setup`);
   }
 
+  if (navigationApps.length > 0) {
+    quickstartCommands.push(`sudo bash bootstrap-navigation.sh  # 1-Click install ${navigationApps.length} navigation tool(s) & GPSd setup`);
+  }
+
   if (dockerAppDef) {
     quickstartCommands.push(`docker compose up -d  # Launch ${dockerAppDef.name} at ${dockerAppDef.webUrl}`);
-  } else if (desktopApps.length === 0 && emulatorApps.length === 0) {
+  } else if (desktopApps.length === 0 && emulatorApps.length === 0 && navigationApps.length === 0) {
     quickstartCommands.push(`qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 1024`);
   }
 

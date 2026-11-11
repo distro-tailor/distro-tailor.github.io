@@ -188,6 +188,13 @@ export type EmulatorAppId =
   | 'scummvm'
   | 'mame';
 
+export type NavigationAppId =
+  | 'navit'
+  | 'gpsd'
+  | 'foxtrotgps'
+  | 'opencpn'
+  | 'mkgmap';
+
 export type DesktopEnvId =
   | 'none'
   | 'cage'
@@ -263,6 +270,7 @@ export interface UserCriteria {
   dockerApp?: DockerAppId;
   desktopApps?: DesktopAppId[];
   emulatorApps?: EmulatorAppId[];
+  navigationApps?: NavigationAppId[];
 }
 
 export interface QuestionOption {

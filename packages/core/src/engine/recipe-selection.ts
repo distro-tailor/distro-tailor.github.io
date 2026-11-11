@@ -17,7 +17,8 @@ function hasExplicitRecipeModifiers(criteria: UserCriteria): boolean {
     criteria.enableNix ||
     criteria.dockerApp ||
     (criteria.desktopApps && criteria.desktopApps.length > 0) ||
-    (criteria.emulatorApps && criteria.emulatorApps.length > 0)
+    (criteria.emulatorApps && criteria.emulatorApps.length > 0) ||
+    (criteria.navigationApps && criteria.navigationApps.length > 0)
   );
 }
 
