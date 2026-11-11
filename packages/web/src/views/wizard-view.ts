@@ -49,6 +49,8 @@ export function renderWizardQuestion(
   const showEarlyGuess =
     progress.current >= 3 && evaluation && evaluation.bestMatch && evaluation.bestMatch.score >= 85;
 
+  const canGoBack = state.history.length > 0 || state.answeredQuestionIds.size > 0 || progress.current > 0;
+
   return `
     <div id="wizard-question-card" class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 sm:p-8 backdrop-blur shadow-xl min-w-0 max-w-full overflow-hidden scroll-mt-6 animate-question-forward">
       
@@ -129,7 +131,7 @@ export function renderWizardQuestion(
       <!-- Top Quick Navigation Bar (Skip / Back / Confirm on top) -->
       <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-800/40 text-xs">
         <button id="btn-back-top" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-slate-300 hover:bg-slate-800 transition-all flex items-center gap-1 ${
-          state.history.length === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
+          !canGoBack ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
         }">
           <span>←</span> Previous
         </button>
@@ -253,7 +255,7 @@ export function renderWizardQuestion(
       <!-- Navigation Controls -->
       <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-800/80">
         <button id="btn-back" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 transition-all ${
-          state.history.length === 0 ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
+          !canGoBack ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
         }">
           ← Previous Question
         </button>

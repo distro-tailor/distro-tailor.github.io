@@ -69,6 +69,11 @@ export interface IAppStore {
   popHistory(): boolean;
 
   /**
+   * Steps back exactly one question in the wizard, falling back to taxonomy backtracking if history is empty.
+   */
+  stepBackQuestion(): boolean;
+
+  /**
    * Answers a specific question and stores criteria with compile-time type validation.
    */
   answerQuestion<K extends keyof UserCriteria>(

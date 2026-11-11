@@ -103,3 +103,28 @@ test('AppStore: removeChoice clears new dimensions like peripheralNeed and realt
   assert.equal(store.getState().criteria.peripheralNeed, undefined);
   assert.equal(store.getState().answeredQuestionIds.has('attached_peripherals'), false);
 });
+
+test('AppStore: stepBackQuestion steps back one question and stays in wizard tab', () => {
+  const store = new AppStore();
+
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'beginner');
+  store.answerQuestion('beginner_device', 'architecture', 'x86_64');
+  store.setTab('results'); // Simulate being on final results page
+
+  // Step back from results -> should land on wizard with beginner_device reopened
+  const stepped1 = store.stepBackQuestion();
+  assert.equal(stepped1, true);
+  assert.equal(store.getState().activeTab, 'wizard');
+  assert.equal(store.getState().criteria.architecture, undefined);
+  assert.equal(store.getState().criteria.experienceLevel, 'beginner');
+
+  // Step back again -> should land on wizard with user_familiarity reopened
+  const stepped2 = store.stepBackQuestion();
+  assert.equal(stepped2, true);
+  assert.equal(store.getState().activeTab, 'wizard');
+  assert.equal(store.getState().criteria.experienceLevel, undefined);
+
+  // Stepping back from beginning returns false
+  const stepped3 = store.stepBackQuestion();
+  assert.equal(stepped3, false);
+});

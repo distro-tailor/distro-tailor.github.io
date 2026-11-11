@@ -93,8 +93,37 @@ export class AppStore extends EventTarget implements IAppStore {
     const prev = this._state.history.pop()!;
     this._state.criteria = prev.criteria;
     this._state.answeredQuestionIds = prev.answeredQuestionIds;
+    this._state.activeTab = 'wizard';
     this.notify();
     return true;
+  }
+
+  public stepBackQuestion(): boolean {
+    if (this.popHistory()) {
+      return true;
+    }
+
+    if (this._state.answeredQuestionIds.size > 0) {
+      const answeredList = QUESTIONS.filter((q) => this._state.answeredQuestionIds.has(q.id));
+      const lastQ = answeredList[answeredList.length - 1];
+      if (lastQ) {
+        const newAnswered = new Set(this._state.answeredQuestionIds);
+        newAnswered.delete(lastQ.id);
+        const newCriteria = { ...this._state.criteria };
+        lastQ.options.forEach((opt) => {
+          Object.keys(opt.appliesCriteria).forEach((k) => {
+            delete newCriteria[k as keyof UserCriteria];
+          });
+        });
+        this._state.criteria = newCriteria;
+        this._state.answeredQuestionIds = newAnswered;
+        this._state.activeTab = 'wizard';
+        this.notify();
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public answerQuestion<K extends keyof UserCriteria>(

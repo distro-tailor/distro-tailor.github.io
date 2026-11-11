@@ -72,30 +72,10 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
   const returnToWizard = () => {
     const currentNext = flow.getNextQuestion(store.getState().criteria, store.getState().answeredQuestionIds);
     if (!currentNext) {
-      const popped = store.popHistory();
-      if (!popped) {
-        // Fallback for permalinks or direct landing without in-memory history: reopen the last answered question
-        const answeredList = QUESTIONS.filter((q) => store.getState().answeredQuestionIds.has(q.id));
-        const lastQ = answeredList[answeredList.length - 1];
-        if (lastQ) {
-          const newAnswered = new Set(store.getState().answeredQuestionIds);
-          newAnswered.delete(lastQ.id);
-          const newCriteria = { ...store.getState().criteria };
-          lastQ.options.forEach((opt) => {
-            Object.keys(opt.appliesCriteria).forEach((k) => {
-              delete newCriteria[k as keyof UserCriteria];
-            });
-          });
-          store.update({
-            criteria: newCriteria,
-            answeredQuestionIds: newAnswered,
-            activeTab: 'wizard'
-          });
-        }
-      }
+      store.stepBackQuestion();
     }
     store.setTab('wizard');
-    router.saveStateToUrl(store.getState(), true);
+    router.saveStateToUrl(store.getState(), false);
     scrollToQuestionCard();
   };
   document.getElementById('btn-modify-answers')?.addEventListener('click', returnToWizard);
@@ -110,7 +90,7 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
       if (key) {
         store.removeChoice(key);
         store.setTab('wizard');
-        router.saveStateToUrl(store.getState(), true);
+        router.saveStateToUrl(store.getState(), false);
         showToast(`Modify choice: ${key}`, '✏️');
         scrollToQuestionCard();
       }
@@ -337,13 +317,11 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
 
   // Back button (top and bottom)
   const handleBack = () => {
-    router.stepBack(() => {
-      const popped = store.popHistory();
-      if (popped) {
-        router.saveStateToUrl(store.getState(), false);
-        scrollToQuestionCard();
-      }
-    });
+    const stepped = store.stepBackQuestion();
+    if (stepped) {
+      router.saveStateToUrl(store.getState(), false);
+      scrollToQuestionCard();
+    }
   };
   document.getElementById('btn-back')?.addEventListener('click', handleBack);
   document.getElementById('btn-back-top')?.addEventListener('click', handleBack);
@@ -584,13 +562,11 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
         }
 
         if (e.key === 'Backspace' || e.key === 'ArrowLeft') {
-          router.stepBack(() => {
-            const popped = store.popHistory();
-            if (popped) {
-              router.saveStateToUrl(store.getState(), false);
-              scrollToQuestionCard();
-            }
-          });
+          const stepped = store.stepBackQuestion();
+          if (stepped) {
+            router.saveStateToUrl(store.getState(), false);
+            scrollToQuestionCard();
+          }
         }
       }
 
