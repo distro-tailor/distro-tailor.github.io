@@ -298,7 +298,7 @@ export function renderWizardQuestion(
 
       <!-- Navigation Controls -->
       <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-800/80">
-        <button id="btn-back" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 transition-all ${
+        <button id="btn-back" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-slate-100 hover:bg-slate-800 transition-all ${
           !canGoBack ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
         }">
           ← Previous Question
@@ -319,7 +319,7 @@ export function renderWizardQuestion(
           </button>
         `
               : `
-          <button id="btn-skip" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 transition-all cursor-pointer">
+          <button id="btn-skip" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-slate-100 hover:bg-slate-800 transition-all cursor-pointer">
             ${question.isOptional ? 'Skip (Use Default) →' : 'Skip for now →'}
           </button>
         `

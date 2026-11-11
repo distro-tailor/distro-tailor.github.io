@@ -18,6 +18,7 @@ test('Distro Modal: renders complete profile with specs, strengths, tradeoffs an
   assert.ok(html.includes('Min RAM'));
   assert.ok(html.includes('Footprint'));
   assert.ok(html.includes('btn-close-distro-modal'));
+  assert.ok(html.includes('id="btn-modal-load-distro"'));
   assert.ok(html.includes('data-load-distro="linux-mint"'));
   assert.ok(html.includes('Load Match'));
 });

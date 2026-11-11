@@ -118,6 +118,7 @@ export function renderDistroDetailModal(
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-800">
           <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <a
+              id="btn-modal-load-distro"
               href="${getDistroTargetUrl(distro.id)}"
               data-load-distro="${distro.id}"
               class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-cyan-400 hover:bg-cyan-300 text-slate-950 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-cyan-950/40 cursor-pointer"

@@ -37,6 +37,10 @@ test('Persona Presets: every preset has valid properties and deterministic URL s
 test('Persona Presets Panel: renders all persona cards with data-preset-id attributes', () => {
   const html = renderPersonaPresetsPanel();
   assert.ok(html.includes('Example Personas &amp; Deterministic VM Test Builds') || html.includes('Deterministic VM Test Builds'));
+  assert.ok(html.includes('persona-preset-card'));
+  assert.ok(html.includes('persona-preset-btn'));
+  assert.ok(html.includes('persona-winner-badge'));
+  assert.ok(html.includes('persona-target-badge'));
 
   for (const preset of PERSONA_PRESETS) {
     assert.ok(html.includes(`data-preset-id="${preset.id}"`), `Must render card for ${preset.id}`);

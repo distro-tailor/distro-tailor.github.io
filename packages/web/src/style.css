@@ -238,32 +238,42 @@
     color: #64748b !important;
   }
 
-  /* --- Wizard Top Bar & Quick Actions --- */
+  /* --- Wizard Top Bar & Navigation Controls --- */
   html.light #btn-back-top,
-  html.light #btn-skip-top {
+  html.light #btn-skip-top,
+  html.light #btn-back,
+  html.light #btn-skip {
     background-color: #ffffff !important;
     color: #334155 !important;
-    border-color: #cbd5e1 !important;
+    border: 1px solid #cbd5e1 !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
   }
 
   html.light #btn-back-top:hover:not(.opacity-30),
-  html.light #btn-skip-top:hover {
+  html.light #btn-skip-top:hover,
+  html.light #btn-back:hover:not(.opacity-30),
+  html.light #btn-skip:hover {
     background-color: #f8fafc !important;
     color: #0f172a !important;
     border-color: #94a3b8 !important;
   }
 
   html.light #btn-next-top,
-  html.light #btn-multiselect-confirm-top {
+  html.light #btn-multiselect-confirm-top,
+  html.light #btn-next,
+  html.light #btn-multiselect-confirm {
     background-color: #059669 !important;
     color: #ffffff !important;
+    border: 1px solid #047857 !important;
     box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25) !important;
   }
 
   html.light #btn-next-top:hover,
-  html.light #btn-multiselect-confirm-top:hover {
+  html.light #btn-multiselect-confirm-top:hover,
+  html.light #btn-next:hover,
+  html.light #btn-multiselect-confirm:hover {
     background-color: #047857 !important;
+    color: #ffffff !important;
   }
 
   html.light #btn-toggle-flow-mode {
@@ -327,6 +337,12 @@
   html.light .option-btn span.bg-slate-900.border-slate-700\/60 {
     background-color: #f8fafc !important;
     border-color: #e2e8f0 !important;
+  }
+
+  html.light .option-btn span.bg-emerald-500\/20 {
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
+    border-color: #6ee7b7 !important;
   }
 
   /* --- Final Results Page Sections --- */
@@ -645,6 +661,7 @@
   html.light #btn-fallback-fresh {
     background-color: #059669 !important;
     color: #ffffff !important;
+    border: 1px solid #047857 !important;
     box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25) !important;
   }
 
@@ -652,6 +669,23 @@
   html.light #btn-fallback-fresh:hover {
     background-color: #047857 !important;
     color: #ffffff !important;
+  }
+
+  html.light #btn-fallback-expert,
+  html.light #btn-start-fresh,
+  html.light #btn-cancel-expert {
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #btn-fallback-expert:hover,
+  html.light #btn-start-fresh:hover,
+  html.light #btn-cancel-expert:hover {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
   }
 
   html.light #btn-tweak-shared {
@@ -717,6 +751,19 @@
   html.light #btn-close-distro-modal:hover {
     background-color: #e2e8f0 !important;
     color: #0f172a !important;
+  }
+
+  html.light #btn-modal-load-distro {
+    background-color: #0284c7 !important;
+    color: #ffffff !important;
+    border: 1px solid #0369a1 !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25) !important;
+  }
+
+  html.light #btn-modal-load-distro:hover {
+    background-color: #0369a1 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 18px rgba(2, 132, 199, 0.35) !important;
   }
 
   html.light #btn-modal-official-site {
@@ -865,5 +912,92 @@
   html.light .shadow-2xl,
   html.light .shadow-xl {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  /* --- Persona Presets Panel --- */
+  html.light .persona-preset-card {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  html.light .persona-preset-card:hover {
+    border-color: #86efac !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1) !important;
+  }
+
+  html.light .persona-winner-badge {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border-color: #a7f3d0 !important;
+  }
+
+  html.light .persona-target-badge {
+    background-color: #f0f9ff !important;
+    color: #0369a1 !important;
+    border-color: #bae6fd !important;
+  }
+
+  html.light .persona-preset-btn {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    border: 1px solid #047857 !important;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.25) !important;
+  }
+
+  html.light .persona-preset-btn:hover {
+    background-color: #047857 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35) !important;
+  }
+
+  /* --- Sidebar & Footer Action Buttons --- */
+  html.light #btn-copy-cli {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    border: 1px solid #047857 !important;
+  }
+
+  html.light #btn-copy-cli:hover {
+    background-color: #047857 !important;
+    color: #ffffff !important;
+  }
+
+  html.light #btn-share-sidebar {
+    color: #047857 !important;
+  }
+
+  html.light #btn-share-sidebar:hover {
+    color: #065f46 !important;
+  }
+
+  html.light #btn-header-distros-count {
+    background-color: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  html.light #btn-header-distros-count:hover {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+  }
+
+  html.light #btn-reset-filter {
+    background-color: #ecfdf5 !important;
+    color: #047857 !important;
+    border: 1px solid #a7f3d0 !important;
+  }
+
+  html.light #btn-reset-filter:hover {
+    background-color: #d1fae5 !important;
+    color: #065f46 !important;
+  }
+
+  html.light #btn-toggle-all-contenders {
+    color: #047857 !important;
+  }
+
+  html.light #btn-toggle-all-contenders:hover {
+    color: #065f46 !important;
   }
 }

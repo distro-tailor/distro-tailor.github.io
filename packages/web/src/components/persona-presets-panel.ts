@@ -4,7 +4,7 @@ import { escapeHtml } from '../utils/dom.js';
 export function renderPersonaPresetsPanel(): string {
   const cardsHtml = PERSONA_PRESETS.map((p) => {
     return `
-      <div class="bg-slate-900/80 border border-slate-800/90 hover:border-slate-700/80 rounded-xl p-4 flex flex-col justify-between transition-all hover:shadow-lg group">
+      <div class="persona-preset-card bg-slate-900/80 border border-slate-800/90 hover:border-slate-700/80 rounded-xl p-4 flex flex-col justify-between transition-all hover:shadow-lg group">
         <div>
           <div class="flex items-center justify-between gap-2 mb-2">
             <h4 class="font-semibold text-slate-100 text-sm group-hover:text-emerald-400 transition-colors">
@@ -18,10 +18,10 @@ export function renderPersonaPresetsPanel(): string {
             ${escapeHtml(p.tagline)}
           </p>
           <div class="flex flex-wrap items-center gap-1.5 mb-3">
-            <span class="text-[11px] font-medium text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded-md">
+            <span class="persona-winner-badge text-[11px] font-medium text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-2 py-0.5 rounded-md">
               🥇 ${escapeHtml(p.winnerDistroName)}
             </span>
-            <span class="text-[10px] font-mono text-cyan-300 bg-cyan-950/50 border border-cyan-800/40 px-2 py-0.5 rounded-md">
+            <span class="persona-target-badge text-[10px] font-mono text-cyan-300 bg-cyan-950/50 border border-cyan-800/40 px-2 py-0.5 rounded-md">
               ⚡ ${escapeHtml(p.buildTargetDescription)}
             </span>
           </div>
@@ -30,7 +30,7 @@ export function renderPersonaPresetsPanel(): string {
           <a
             href="${escapeHtml(p.urlQuery)}"
             data-preset-id="${escapeHtml(p.id)}"
-            class="w-full text-center text-xs font-medium py-1.5 px-3 rounded-lg bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/40 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+            class="persona-preset-btn w-full text-center text-xs font-semibold py-2 px-3 rounded-lg bg-emerald-500/25 hover:bg-emerald-400 text-emerald-200 hover:text-slate-950 border border-emerald-400/50 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-400/50 shadow-sm"
           >
             Test Persona in VM & Recipe →
           </a>
