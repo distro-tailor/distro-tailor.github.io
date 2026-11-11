@@ -13,6 +13,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
+    "lint": "tsc --noEmit",
     "test": "tsx --test 'src/**/*.test.ts'"
   },
   "devDependencies": {

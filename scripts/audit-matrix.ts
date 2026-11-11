@@ -357,7 +357,7 @@ const ARCHETYPES: Archetype[] = [
     criteria: {
       experienceLevel: 'beginner',
       useCase: 'browser-wasm',
-      platform: 'web-browser'
+      platform: 'browser-wasm'
     },
     expectedDistroId: 'webvm-v86'
   },
@@ -369,7 +369,7 @@ const ARCHETYPES: Archetype[] = [
     criteria: {
       experienceLevel: 'intermediate',
       useCase: 'desktop',
-      statePreference: 'immutable-atomic',
+      statePreference: 'immutable-ostree',
       architecture: 'x86_64',
       prefersGui: true
     },

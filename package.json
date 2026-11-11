@@ -12,7 +12,7 @@
   "scripts": {
     "build": "npm run -w @distro-tailor/core build && npm run -w @distro-tailor/cli build && npm run -w @distro-tailor/web build",
     "test": "npm run --workspaces --if-present test && tsx --test 'scripts/**/*.test.ts' && npm run scoring:check",
-    "lint": "npm run --workspaces --if-present lint",
+    "lint": "npm run --workspaces --if-present lint && tsc --noEmit",
     "dev:cli": "npm run -w @distro-tailor/cli dev",
     "dev:web": "npm run -w @distro-tailor/web dev",
     "cli": "npm run -w @distro-tailor/cli start --",
