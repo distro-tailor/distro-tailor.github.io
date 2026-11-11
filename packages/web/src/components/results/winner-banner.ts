@@ -21,13 +21,13 @@ export function renderWinnerBanner(ctx: ResultsViewContext): string {
           </div>
 
           <div class="flex items-center gap-2 w-full lg:w-auto flex-wrap shrink-0 justify-start sm:justify-end">
-            <button id="btn-modify-answers" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-500 transition-all flex items-center gap-1.5 shadow-md cursor-pointer whitespace-nowrap" title="Return to questions to review or adjust choices">
+            <button id="btn-modify-answers" class="btn-secondary flex-1 sm:flex-none whitespace-nowrap" title="Return to questions to review or adjust choices">
               <span>←</span> Modify Choices
             </button>
-            <button id="btn-share-match" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 hover:border-emerald-500/50 transition-all flex items-center gap-1.5 shadow-md cursor-pointer whitespace-nowrap" title="Share this tailored match permalink">
+            <button id="btn-share-match" class="btn-secondary flex-1 sm:flex-none whitespace-nowrap" title="Share this tailored match permalink">
               <span>🔗</span> Share Match
             </button>
-            <a id="btn-official-site" href="${best.distro.website}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none justify-center px-3.5 py-2 sm:py-2.5 text-xs font-bold rounded-lg bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 whitespace-nowrap">
+            <a id="btn-official-site" href="${best.distro.website}" target="_blank" rel="noopener noreferrer" class="btn-primary flex-1 sm:flex-none whitespace-nowrap">
               Official Site ↗
             </a>
           </div>

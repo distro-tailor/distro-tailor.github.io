@@ -210,7 +210,7 @@ export function renderFooter(): string {
                 <code class="font-mono text-emerald-400 text-xs truncate block select-all">npx @distro-tailor/cli</code>
               </div>
             </div>
-            <button id="btn-copy-cli" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition-colors flex items-center gap-1 shrink-0 cursor-pointer" title="Copy CLI Command">
+            <button id="btn-copy-cli" class="btn-primary !px-2.5 !py-1.5 shrink-0" title="Copy CLI Command">
               <span>📋</span> Copy
             </button>
           </div>

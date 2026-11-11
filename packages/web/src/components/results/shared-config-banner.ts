@@ -24,7 +24,7 @@ export function renderSharedConfigBanner(ctx: ResultsViewContext): string {
             <button id="btn-tweak-shared" class="flex-1 sm:flex-none px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-all shadow-md cursor-pointer">
               Tweak Choices
             </button>
-            <button id="btn-start-fresh" class="flex-1 sm:flex-none px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 font-medium transition-all cursor-pointer">
+            <button id="btn-start-fresh" class="btn-secondary flex-1 sm:flex-none">
               Start Fresh
             </button>
           </div>

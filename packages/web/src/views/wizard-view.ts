@@ -24,10 +24,10 @@ export function renderUnsupportedSchemaFallback(notice: string): string {
       </div>
 
       <div class="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 w-full">
-        <button id="btn-fallback-fresh" class="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/40 transition-all cursor-pointer text-center">
+        <button id="btn-fallback-fresh" class="btn-primary w-full sm:w-auto text-center">
           Start Fresh 20 Questions
         </button>
-        <button id="btn-fallback-expert" class="w-full sm:w-auto px-5 sm:px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-medium text-xs transition-all cursor-pointer text-center">
+        <button id="btn-fallback-expert" class="btn-secondary w-full sm:w-auto text-center">
           Browse Contenders (Expert Matrix)
         </button>
       </div>
@@ -144,8 +144,8 @@ export function renderWizardQuestion(
 
       <!-- Top Quick Navigation Bar (Skip / Back / Confirm on top) -->
       <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-800/40 text-xs">
-        <button id="btn-back-top" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-slate-300 hover:bg-slate-800 transition-all flex items-center gap-1 ${
-          !canGoBack ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
+        <button id="btn-back-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1 ${
+          !canGoBack ? 'opacity-30 cursor-not-allowed' : ''
         }">
           <span>←</span> Previous
         </button>
@@ -153,27 +153,27 @@ export function renderWizardQuestion(
         ${
           question.isMultiSelect
             ? `
-          <button id="btn-multiselect-confirm-top" class="px-3.5 py-1.5 rounded-lg font-bold bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all shadow-md shadow-emerald-950/40 cursor-pointer flex items-center gap-1.5">
+          <button id="btn-multiselect-confirm-top" class="btn-primary !px-3.5 !py-1.5 rounded-lg flex items-center gap-1.5">
             <span>Confirm & Next</span>
             <span>→</span>
           </button>
         `
             : hasSelectedAnswer
               ? `
-          <button id="btn-next-top" class="px-3.5 py-1.5 rounded-lg font-bold bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all shadow-md shadow-emerald-950/40 cursor-pointer flex items-center gap-1.5">
+          <button id="btn-next-top" class="btn-primary !px-3.5 !py-1.5 rounded-lg flex items-center gap-1.5">
             <span>${progress.current === progress.total - 1 ? 'View Final Results' : 'Next Question'}</span>
             <span>→</span>
           </button>
         `
               : question.isOptional
                 ? `
-          <button id="btn-skip-top" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-slate-300 hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1">
+          <button id="btn-skip-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1">
             <span>Skip (Use Default)</span>
             <span>→</span>
           </button>
         `
                 : `
-          <button id="btn-skip-top" class="px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-slate-400 hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1">
+          <button id="btn-skip-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1">
             <span>Skip for now</span>
             <span>→</span>
           </button>
@@ -298,28 +298,28 @@ export function renderWizardQuestion(
 
       <!-- Navigation Controls -->
       <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-800/80">
-        <button id="btn-back" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-slate-100 hover:bg-slate-800 transition-all ${
-          !canGoBack ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
+        <button id="btn-back" class="btn-secondary ${
+          !canGoBack ? 'opacity-30 cursor-not-allowed' : ''
         }">
           ← Previous Question
         </button>
         ${
           question.isMultiSelect
             ? `
-          <button id="btn-multiselect-confirm" class="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all shadow-lg shadow-emerald-950/40 cursor-pointer flex items-center gap-1.5">
+          <button id="btn-multiselect-confirm" class="btn-primary">
             <span>Confirm Choices & Continue</span>
             <span>→</span>
           </button>
         `
             : hasSelectedAnswer
               ? `
-          <button id="btn-next" class="px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all shadow-lg shadow-emerald-950/40 cursor-pointer flex items-center gap-1.5">
+          <button id="btn-next" class="btn-primary">
             <span>${progress.current === progress.total - 1 ? 'View Final Results' : 'Next Question'}</span>
             <span>→</span>
           </button>
         `
               : `
-          <button id="btn-skip" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-800 bg-slate-900 text-slate-300 hover:text-slate-100 hover:bg-slate-800 transition-all cursor-pointer">
+          <button id="btn-skip" class="btn-secondary">
             ${question.isOptional ? 'Skip (Use Default) →' : 'Skip for now →'}
           </button>
         `

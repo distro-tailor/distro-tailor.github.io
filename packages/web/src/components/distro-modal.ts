@@ -121,19 +121,19 @@ export function renderDistroDetailModal(
               id="btn-modal-load-distro"
               href="${getDistroTargetUrl(distro.id)}"
               data-load-distro="${distro.id}"
-              class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-cyan-400 hover:bg-cyan-300 text-slate-950 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-cyan-950/40 cursor-pointer"
+              class="btn-accent flex-1 sm:flex-none"
               title="Apply criteria that makes ${escapeHtml(distro.name)} the #1 match"
             >
               <span>🎯 Load Match</span>
             </a>
-            <a id="btn-modal-official-site" href="${distro.website}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40">
+            <a id="btn-modal-official-site" href="${distro.website}" target="_blank" rel="noopener noreferrer" class="btn-primary flex-1 sm:flex-none">
               <span>Official Site</span>
               <span>↗</span>
             </a>
             ${
               distro.documentationUrl
                 ? `
-              <a id="btn-modal-docs" href="${distro.documentationUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center justify-center gap-1.5">
+              <a id="btn-modal-docs" href="${distro.documentationUrl}" target="_blank" rel="noopener noreferrer" class="btn-secondary flex-1 sm:flex-none">
                 <span>Docs</span>
                 <span>↗</span>
               </a>
@@ -141,7 +141,7 @@ export function renderDistroDetailModal(
                 : ''
             }
           </div>
-          <button id="btn-modal-dismiss" class="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all cursor-pointer">
+          <button id="btn-modal-dismiss" class="btn-secondary w-full sm:w-auto">
             Close Preview
           </button>
         </div>

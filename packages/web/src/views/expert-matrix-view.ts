@@ -38,10 +38,10 @@ export function renderExpertMatrix(state: AppState): string {
       </div>
 
       <div class="pt-4 border-t border-slate-800 flex items-center justify-between gap-3 flex-wrap">
-        <button id="btn-cancel-expert" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 rounded-xl transition-all cursor-pointer flex items-center gap-1.5">
+        <button id="btn-cancel-expert" class="btn-secondary">
           <span>← Back to 20 Questions</span>
         </button>
-        <button id="btn-apply-expert" class="w-full sm:w-auto px-5 py-2.5 text-xs font-bold rounded-xl bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all cursor-pointer shadow-lg shadow-emerald-950/40 text-center">
+        <button id="btn-apply-expert" class="btn-primary w-full sm:w-auto text-center">
           Apply Constraints & View Results →
         </button>
       </div>

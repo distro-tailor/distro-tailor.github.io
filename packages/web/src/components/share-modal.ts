@@ -57,7 +57,7 @@ export function renderShareModal(evaluation: RecommendationOutput, criteria: Use
             <label class="block text-xs font-semibold text-slate-300 mb-1.5">Direct Shareable Link (Preserves All Criteria)</label>
             <div class="flex items-center gap-2 min-w-0">
               <input type="text" readonly id="share-link-input" value="${escapeHtml(url)}" class="min-w-0 flex-1 bg-slate-950 border border-slate-700 text-slate-300 px-3 py-2 rounded-lg text-xs font-mono select-all focus:outline-none focus:border-emerald-500" />
-              <button id="btn-copy-share-url" class="px-3.5 py-2 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-xs shrink-0 transition-colors flex items-center gap-1.5 cursor-pointer">
+              <button id="btn-copy-share-url" class="btn-primary shrink-0">
                 <span>📋</span> Copy
               </button>
             </div>
