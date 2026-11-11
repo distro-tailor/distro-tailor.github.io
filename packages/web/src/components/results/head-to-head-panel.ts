@@ -1,12 +1,13 @@
 import { renderDecidingFactorsAndHeadToHead } from '../head-to-head.js';
+import { panelAttributes } from '../panel.js';
 import { ResultsViewContext } from './context.js';
 
 /** Panel 2: head-to-head comparison with the runner-up. */
 export function renderHeadToHeadPanel(ctx: ResultsViewContext): string {
-  const { evaluation, best } = ctx;
+  const { evaluation, best, state } = ctx;
   return `
       <!-- ⚔️ Panel 2: Head-to-Head Comparison with #2 Contender -->
-      <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl transition-all">
+      <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl transition-all" ${panelAttributes(state.panelOpen, 'head-to-head', false)}>
         <summary class="flex items-center justify-between p-4 sm:p-6 cursor-pointer select-none hover:bg-slate-800/40 transition-colors">
           <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
             <span class="text-xl sm:text-2xl p-1.5 sm:p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 shrink-0">⚔️</span>

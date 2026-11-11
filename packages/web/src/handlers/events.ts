@@ -7,6 +7,7 @@ import { bindExpertEvents } from './expert-events.js';
 import { bindKeyboardEvents } from './keyboard-events.js';
 import { bindModalEvents } from './modal-events.js';
 import { bindNavigationEvents } from './navigation-events.js';
+import { bindPanelEvents } from './panel-events.js';
 import { bindRecipeEvents } from './recipe-events.js';
 import { bindWizardEvents } from './wizard-events.js';
 
@@ -33,5 +34,6 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
   bindWizardEvents(ctx);
   bindRecipeEvents(ctx);
   bindExpertEvents();
+  bindPanelEvents();
   bindKeyboardEvents(nextQuestion);
 };

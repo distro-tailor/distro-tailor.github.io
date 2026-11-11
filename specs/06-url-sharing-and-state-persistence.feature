@@ -85,3 +85,10 @@ Feature: URL State Sharing and Collaborative Configuration
     Given a recipient is viewing a shared build they never answered questions for
     When they click "Tweak Choices" on the shared configuration banner
     Then the expert matrix opens with every criterion of the shared build editable at once
+
+  Scenario: Results panels remember whether the user opened or closed them
+    Given the user opens the "Head-to-Head" panel and closes the auto-opened "Build Recipe" panel
+    When any change re-renders the results view (switching recipe files, toggling layers, or changing theme)
+    Then each panel keeps the open or closed state the user chose
+    And untouched panels keep their default state
+    And panel state is never written to the shareable URL

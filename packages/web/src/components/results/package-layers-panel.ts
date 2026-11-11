@@ -1,4 +1,5 @@
 import { SUPPORTED_DESKTOP_ENVS } from '../../utils/context-detector.js';
+import { panelAttributes } from '../panel.js';
 import { ResultsViewContext } from './context.js';
 
 /** Panel 3: Distrobox, desktop compositor, and Nix / Flatpak package layers. */
@@ -6,7 +7,7 @@ export function renderPackageLayersPanel(ctx: ResultsViewContext): string {
   const { state, best, hasFrankenstein, hasFlatpakDefault } = ctx;
   return `
       <!-- 🧪 Panel 3: Supplemental App Layers & Package Overlays -->
-      <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl transition-all" ${hasFrankenstein ? 'open' : ''}>
+      <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl transition-all" ${panelAttributes(state.panelOpen, 'package-layers', hasFrankenstein)}>
         <summary class="flex items-center justify-between p-4 sm:p-6 cursor-pointer select-none hover:bg-slate-800/40 transition-colors">
           <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
             <span class="text-xl sm:text-2xl p-1.5 sm:p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 shrink-0">🧪</span>

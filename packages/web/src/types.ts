@@ -37,6 +37,8 @@ export interface AppState {
   searchQuery?: string;
   selectedDistroId?: string | null;
   theme?: 'dark' | 'light';
+  /** Panels the user explicitly opened (true) or closed (false). UI-only: never written to the URL. */
+  panelOpen?: Readonly<Record<string, boolean>>;
 }
 
 /**
@@ -123,6 +125,11 @@ export interface IAppStore {
    * Toggles visibility of all 31 contenders in the live sidebar leaderboard.
    */
   toggleAllContenders(): void;
+
+  /**
+   * Records that the user opened or closed a collapsible panel so re-renders keep it that way.
+   */
+  setPanelOpen(panelId: string, open: boolean): void;
 
   /**
    * Sets the live search query for filtering distributions in leaderboard and catalog.

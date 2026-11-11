@@ -150,3 +150,18 @@ test('AppStore: stepBackQuestion steps back one question and stays in wizard tab
   assert.equal(store.getState().activeTab, 'wizard');
   assert.equal(store.getState().viewingQuestionId, 'beginner_device');
 });
+
+test('AppStore: remembers panels the user opened or closed, and reset clears them', () => {
+  const s = new AppStore();
+  let notifications = 0;
+  s.addEventListener('statechange', () => notifications++);
+
+  s.setPanelOpen('build-recipe', true);
+  s.setPanelOpen('build-recipe', true); // unchanged: no extra re-render
+  s.setPanelOpen('head-to-head', false);
+  assert.deepEqual(s.getState().panelOpen, { 'build-recipe': true, 'head-to-head': false });
+  assert.equal(notifications, 2);
+
+  s.reset();
+  assert.deepEqual(s.getState().panelOpen, {});
+});

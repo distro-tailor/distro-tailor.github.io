@@ -9,11 +9,16 @@ import {
   UserCriteria
 } from '@distro-tailor/core';
 import { type AddonCombo, getAddonCombos } from '../data/addon-combos.js';
+import { panelAttributes } from './panel.js';
 
 export type { AddonCombo };
 export { getAddonCombos };
 
-export function renderDesktopAppSuite(criteria: UserCriteria, isPrimary: boolean): string {
+export function renderDesktopAppSuite(
+  criteria: UserCriteria,
+  isPrimary: boolean,
+  panelOpen?: Readonly<Record<string, boolean>>
+): string {
   const selectedCount = (criteria.desktopApps || []).length;
   const isExpanded = isPrimary || selectedCount > 0;
   const isNommu = criteria.architecture === 'nommu';
@@ -96,7 +101,7 @@ export function renderDesktopAppSuite(criteria: UserCriteria, isPrimary: boolean
   }
 
   return `
-    <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 min-w-0 overflow-hidden transition-all" ${isExpanded ? 'open' : ''}>
+    <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 min-w-0 overflow-hidden transition-all" ${panelAttributes(panelOpen, 'desktop-apps', isExpanded)}>
       <summary class="flex items-center justify-between cursor-pointer select-none text-xs font-semibold text-slate-300">
         <span class="flex items-center gap-2 flex-wrap">
           <span class="text-lg">📦</span>
@@ -112,7 +117,11 @@ export function renderDesktopAppSuite(criteria: UserCriteria, isPrimary: boolean
   `;
 }
 
-export function renderDockerServiceSuite(criteria: UserCriteria, isPrimary: boolean): string {
+export function renderDockerServiceSuite(
+  criteria: UserCriteria,
+  isPrimary: boolean,
+  panelOpen?: Readonly<Record<string, boolean>>
+): string {
   const hasDockerApp = criteria.dockerApp && criteria.dockerApp !== 'none';
   const isExpanded = isPrimary || !!hasDockerApp;
   const isNommu = criteria.architecture === 'nommu';
@@ -214,7 +223,7 @@ export function renderDockerServiceSuite(criteria: UserCriteria, isPrimary: bool
   }
 
   return `
-    <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 min-w-0 overflow-hidden transition-all" ${isExpanded ? 'open' : ''}>
+    <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 min-w-0 overflow-hidden transition-all" ${panelAttributes(panelOpen, 'docker-services', isExpanded)}>
       <summary class="flex items-center justify-between cursor-pointer select-none text-xs font-semibold text-slate-300">
         <span class="flex items-center gap-2 flex-wrap">
           <span class="text-lg">🐳</span>

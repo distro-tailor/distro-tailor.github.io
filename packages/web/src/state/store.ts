@@ -29,7 +29,8 @@ export function createDefaultState(): AppState {
     showAllContenders: false,
     searchQuery: '',
     selectedDistroId: null,
-    theme: getSavedTheme()
+    theme: getSavedTheme(),
+    panelOpen: {}
   };
 }
 
@@ -292,6 +293,12 @@ export class AppStore extends EventTarget implements IAppStore {
 
   public toggleAllContenders(): void {
     this._state.showAllContenders = !this._state.showAllContenders;
+    this.notify();
+  }
+
+  public setPanelOpen(panelId: string, open: boolean): void {
+    if (this._state.panelOpen?.[panelId] === open) return;
+    this._state.panelOpen = { ...this._state.panelOpen, [panelId]: open };
     this.notify();
   }
 

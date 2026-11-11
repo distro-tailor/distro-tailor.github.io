@@ -63,3 +63,22 @@ test('Results View: Arch Linux result does NOT display a Debian Debootstrap reci
   // Must include Arch quickstart
   assert.ok(html.includes('archinstall'));
 });
+
+test('Results View: panels keep the open / closed state the user chose', () => {
+  const state: AppState = {
+    criteria: { useCase: 'desktop', requiresCustomBuild: true },
+    answeredQuestionIds: new Set(),
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false,
+    panelOpen: { 'build-recipe': false, 'head-to-head': true }
+  };
+  const html = renderResultsView(evaluateCriteria(state.criteria), state);
+  assert.match(html, /data-panel-id="build-recipe" data-panel-default="open">/, 'auto-open recipe panel stays closed');
+  assert.match(html, /data-panel-id="head-to-head" data-panel-default="closed" open>/, 'opened panel stays open');
+  assert.match(html, /data-panel-id="verification-ladder" data-panel-default="closed">/, 'untouched panel keeps default');
+});

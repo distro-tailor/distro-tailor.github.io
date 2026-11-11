@@ -1,4 +1,5 @@
 import { renderDesktopAppSuite, renderDockerServiceSuite } from '../app-suites.js';
+import { panelAttributes } from '../panel.js';
 import { ResultsViewContext } from './context.js';
 
 /** Panel 1: add-on desktop apps, desktop environments, Docker services, and combos. */
@@ -6,7 +7,7 @@ export function renderAppSuitePanel(ctx: ResultsViewContext): string {
   const { state, best, combos, isServer, selectedAppsCount, hasSelectedApps } = ctx;
   return `
       <!-- 📦 Panel 1: Add-On Applications & Desktop Environment Suite -->
-      <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl transition-all" ${hasSelectedApps ? 'open' : ''}>
+      <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl transition-all" ${panelAttributes(state.panelOpen, 'app-suites', hasSelectedApps)}>
         <summary class="flex items-center justify-between p-4 sm:p-6 cursor-pointer select-none hover:bg-slate-800/40 transition-colors">
           <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
             <span class="text-xl sm:text-2xl p-1.5 sm:p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 shrink-0">📦</span>
@@ -29,12 +30,12 @@ export function renderAppSuitePanel(ctx: ResultsViewContext): string {
           ${
             isServer
               ? `
-            ${renderDockerServiceSuite(state.criteria, true)}
-            ${renderDesktopAppSuite(state.criteria, false)}
+            ${renderDockerServiceSuite(state.criteria, true, state.panelOpen)}
+            ${renderDesktopAppSuite(state.criteria, false, state.panelOpen)}
           `
               : `
-            ${renderDesktopAppSuite(state.criteria, true)}
-            ${renderDockerServiceSuite(state.criteria, false)}
+            ${renderDesktopAppSuite(state.criteria, true, state.panelOpen)}
+            ${renderDockerServiceSuite(state.criteria, false, state.panelOpen)}
           `
           }
 
