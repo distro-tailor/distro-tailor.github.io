@@ -12,7 +12,7 @@
 
 // Alpine Linux mini root filesystem.
 // Hashes: <ALPINE_MIRROR>/releases/<arch>/alpine-minirootfs-<version>-<arch>.tar.gz.sha256
-export const ALPINE_VERSION = '3.20.0';
+export const ALPINE_VERSION = '3.24.4';
 export const ALPINE_BRANCH = `v${ALPINE_VERSION.split('.').slice(0, 2).join('.')}`;
 export const ALPINE_MIRROR = `https://dl-cdn.alpinelinux.org/alpine/${ALPINE_BRANCH}`;
 export type AlpineArch = 'x86_64' | 'aarch64';
@@ -22,14 +22,14 @@ export function alpineMinirootfsUrl(arch: AlpineArch): string {
 }
 
 export const ALPINE_MINIROOTFS_SHA256: Readonly<Record<AlpineArch, string>> = {
-  x86_64: '602efda518516787c716320bd46a3f50e83a74bb749e55483c2f4a9c9f8b9a38',
-  aarch64: '83a79199bf3112c65e62ddf1732b051daf62ed2ddf5a8413c440dc25956116f0'
+  x86_64: 'cdaa38cb8de3537967ee5b6c9b6cd00cc962da2b018e6eea48696bb274923012',
+  aarch64: '4b14c18f7e90a063b61462ea1462a5732c154bf6adad594974fe6487cd98a8de'
 };
 
 // Buildroot source release. Hash: <BUILDROOT_DOWNLOADS>/buildroot-<version>.tar.gz.sign
-export const BUILDROOT_VERSION = '2024.02.1';
+export const BUILDROOT_VERSION = '2025.02.19';
 export const BUILDROOT_DOWNLOADS = 'https://buildroot.org/downloads';
-export const BUILDROOT_TARBALL_SHA256 = '7ebc1aab9f5eec758f47de0f902a5efff249771b9581e3419df212d8095a1182';
+export const BUILDROOT_TARBALL_SHA256 = 'dfcb74dcdc279385933fe28e270ce1c8a530c30b6d632dae0e1c453b8c044c03';
 
 // v86 WebAssembly x86 emulator (npm release on jsDelivr; npm versions are immutable).
 export const V86_NPM_VERSION = '0.5.473';
