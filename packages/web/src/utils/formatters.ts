@@ -1,4 +1,4 @@
-import { getDockerApp, RecommendationOutput, UserCriteria } from '@distro-tailor/core';
+import { DOCKER_APP_VALUES, getDockerApp, isCatalogValue, RecommendationOutput, UserCriteria } from '@distro-tailor/core';
 import { CONSTRAINT_DICTIONARY, type FormattedConstraint } from '../data/constraint-dictionary.js';
 import { escapeHtml } from './dom.js';
 
@@ -25,7 +25,7 @@ export function formatConstraint(key: string, value: unknown): FormattedConstrai
     return { label: value ? 'Custom Build Recipe Required' : 'Prebuilt ISO Preferred', icon: '🛠️' };
   }
   if (key === 'dockerApp') {
-    const app = typeof value === 'string' ? getDockerApp(value as any) : undefined;
+    const app = isCatalogValue(DOCKER_APP_VALUES, value) ? getDockerApp(value) : undefined;
     return {
       label: app ? `Docker: ${app.name}` : `Docker: ${escapeHtml(String(value))}`,
       icon: app ? app.icon : '🐳'

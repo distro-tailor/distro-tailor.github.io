@@ -4,6 +4,7 @@ import {
   DockerAppId,
   getDesktopApp,
   getDockerApp,
+  PeripheralNeed,
   Question,
   QuestionFlow,
   QUESTIONS,
@@ -253,11 +254,9 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
       if (opt && nextQuestion) {
         if (nextQuestion.isMultiSelect) {
           // Toggle item in multi-select list
-          const currentPeripherals = [
-            ...(store.getState().criteria.peripherals ||
-              (store.getState().criteria.peripheralNeed && store.getState().criteria.peripheralNeed !== 'standard'
-                ? [store.getState().criteria.peripheralNeed]
-                : []))
+          const { peripherals, peripheralNeed } = store.getState().criteria;
+          const currentPeripherals: PeripheralNeed[] = [
+            ...(peripherals || (peripheralNeed && peripheralNeed !== 'standard' ? [peripheralNeed] : []))
           ];
 
           if (opt.id === 'standard_peripherals') {
@@ -269,8 +268,9 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
               }
             });
           } else {
-            const pKey = opt.appliesCriteria.peripherals?.[0] || (opt.appliesCriteria.peripheralNeed as any);
-            const withoutStandard = currentPeripherals.filter((p) => p !== 'standard');
+            const pKey = opt.appliesCriteria.peripherals?.[0] ?? opt.appliesCriteria.peripheralNeed;
+            if (!pKey) return;
+            const withoutStandard: PeripheralNeed[] = currentPeripherals.filter((p) => p !== 'standard');
             const exists = withoutStandard.includes(pKey);
             const nextList = exists
               ? withoutStandard.filter((p) => p !== pKey)
