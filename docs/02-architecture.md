@@ -42,10 +42,9 @@ distro-tailor/
 │   │   └── vite.config.ts     # Aliased to core/src for instant HMR
 │   │
 │   └── cli/                   # Interactive terminal wizard & automation engine
-│       ├── src/
-│       │   ├── index.ts       # CLI entrypoint & JSON API
-│       │   └── wizard.ts      # Terminal interactive prompts
-│       └── distro-recipe/     # In-browser WASM WebVM runner (v86 + Bochs BIOS)
+│       └── src/
+│           ├── index.ts       # CLI entrypoint & JSON API
+│           └── wizard.ts      # Terminal interactive prompts
 │
 ├── specs/                     # Gherkin behavior specifications (.feature files)
 └── docs/                      # Architectural and product documentation

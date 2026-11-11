@@ -14,3 +14,7 @@ build/
 .env
 .env.local
 *.local
+
+# Recipe output from `distro-tailor export` (default --out ./distro-recipe)
+distro-recipe/
+*.iso
