@@ -43,6 +43,26 @@ test('AppRouter: parseRawUrlParams deserializes URL query strings and normalizes
   assert.equal(result.isSharedView, true);
 });
 
+test('AppRouter: preserves criteria without dropping parameters when stepping back with q param', () => {
+  const state = createDefaultState();
+  state.activeTab = 'wizard';
+  state.viewingQuestionId = 'beginner_goal';
+  state.criteria = {
+    useCase: 'gaming',
+    architecture: 'x86_64'
+  };
+
+  const params = serializeStateToParams(state);
+  assert.equal(params.get('q'), 'beginner_goal');
+  assert.equal(params.get('useCase'), 'gaming');
+  assert.equal(params.get('architecture'), 'x86_64');
+
+  const parsed = parseRawUrlParams(`?${params.toString()}`);
+  assert.equal(parsed.viewingQuestionId, 'beginner_goal');
+  assert.equal(parsed.criteria.useCase, 'gaming');
+  assert.equal(parsed.criteria.architecture, 'x86_64');
+});
+
 test('AppRouter: parseRawUrlParams detects unsupported schema versions (v=0 and v=99)', () => {
   const obsolete = parseRawUrlParams('?v=0&useCase=something');
   assert.equal(obsolete.supported, false);

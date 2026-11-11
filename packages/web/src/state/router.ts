@@ -24,6 +24,10 @@ export function serializeStateToParams(state: AppState): URLSearchParams {
     params.set('tab', state.activeTab);
   }
 
+  if (state.activeTab === 'wizard' && state.viewingQuestionId) {
+    params.set('q', state.viewingQuestionId);
+  }
+
   if (state.activeFileIndex > 0) {
     params.set('file', String(state.activeFileIndex));
   }
@@ -93,6 +97,9 @@ export function parseRawUrlParams(rawInput: string): ParsedUrlResult {
   }
 
   const params = new Map(Object.entries(migration.params));
+  const q = params.get('q');
+  const viewingQuestionId = q || null;
+
   const tab = params.get('tab');
   const activeTab: AppTab = tab === 'wizard' || tab === 'expert' || tab === 'results' ? tab : 'wizard';
 
@@ -117,6 +124,7 @@ export function parseRawUrlParams(rawInput: string): ParsedUrlResult {
     criteria,
     answeredQuestionIds,
     answeredQuestionOrder,
+    viewingQuestionId,
     activeTab,
     activeFileIndex,
     isSharedView

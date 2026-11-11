@@ -133,7 +133,7 @@ function handlePopState(): void {
       activeFileIndex: parsed.activeFileIndex,
       isSharedView: parsed.isSharedView,
       unsupportedSchemaNotice: undefined,
-      viewingQuestionId: null
+      viewingQuestionId: parsed.viewingQuestionId || null
     });
 
     scrollToQuestionCard();
@@ -160,7 +160,9 @@ function init(): void {
     const parsed = parseRawUrlParams(rawParams);
     if (parsed.supported) {
       let initialTab = parsed.activeTab;
-      if (Object.keys(parsed.criteria).length > 0 && !window.location.search.includes('tab=')) {
+      if (parsed.viewingQuestionId) {
+        initialTab = 'wizard';
+      } else if (Object.keys(parsed.criteria).length > 0 && !window.location.search.includes('tab=')) {
         const nextQ = flow.getNextQuestion(parsed.criteria, parsed.answeredQuestionIds);
         if (!nextQ) initialTab = 'results';
       }
@@ -168,6 +170,8 @@ function init(): void {
       store.update({
         criteria: parsed.criteria,
         answeredQuestionIds: parsed.answeredQuestionIds,
+        answeredQuestionOrder: parsed.answeredQuestionOrder || [],
+        viewingQuestionId: parsed.viewingQuestionId || null,
         activeTab: initialTab,
         activeFileIndex: parsed.activeFileIndex,
         isSharedView: parsed.isSharedView,

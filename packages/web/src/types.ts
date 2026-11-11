@@ -153,6 +153,7 @@ export interface ParsedUrlResult {
   criteria: UserCriteria;
   answeredQuestionIds: Set<string>;
   answeredQuestionOrder?: string[];
+  viewingQuestionId?: string | null;
   activeTab: AppTab;
   activeFileIndex: number;
   unsupportedNotice?: string;
