@@ -82,8 +82,9 @@
   }
 
   html.light header {
-    background-color: rgba(255, 255, 255, 0.92) !important;
+    background-color: rgba(255, 255, 255, 0.96) !important;
     border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04) !important;
   }
 
   html.light footer {
@@ -92,8 +93,10 @@
     color: #64748b !important;
   }
 
+  /* Structural Base Cards */
   html.light #wizard-question-card,
   html.light .bg-slate-900\/50,
+  html.light .bg-slate-900\/60,
   html.light .bg-slate-900\/80,
   html.light .bg-slate-900\/95,
   html.light .bg-slate-900 {
@@ -102,13 +105,20 @@
   }
 
   html.light .bg-slate-950,
+  html.light .bg-slate-950\/60,
   html.light .bg-slate-950\/70,
-  html.light .bg-slate-950\/80,
-  html.light .bg-slate-950\/60 {
+  html.light .bg-slate-950\/80 {
     background-color: #f8fafc !important;
     border-color: #e2e8f0 !important;
   }
 
+  html.light .bg-slate-800,
+  html.light .bg-slate-800\/80,
+  html.light .bg-slate-800\/90 {
+    background-color: #f1f5f9 !important;
+  }
+
+  /* Typography / Text Contrast */
   html.light .text-slate-100 {
     color: #0f172a !important;
   }
@@ -129,21 +139,465 @@
     color: #64748b !important;
   }
 
+  /* Borders */
   html.light .border-slate-800,
+  html.light .border-slate-800\/40,
+  html.light .border-slate-800\/60,
   html.light .border-slate-800\/80,
   html.light .border-slate-800\/90,
-  html.light .border-slate-800\/40,
   html.light .border-slate-700,
+  html.light .border-slate-700\/50,
   html.light .border-slate-700\/60,
   html.light .border-slate-700\/80 {
     border-color: #cbd5e1 !important;
   }
 
-  html.light .bg-slate-800,
-  html.light .bg-slate-800\/80,
-  html.light .bg-slate-800\/90 {
+  /* --- Top Header & Navbar Buttons --- */
+  html.light #nav-brand .w-9,
+  html.light #nav-brand .w-10 {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  html.light #btn-toggle-wizard,
+  html.light #btn-toggle-expert {
+    color: #475569 !important;
+    background-color: transparent !important;
+  }
+
+  html.light #btn-toggle-wizard:hover,
+  html.light #btn-toggle-expert:hover {
+    color: #0f172a !important;
     background-color: #f1f5f9 !important;
+  }
+
+  html.light #btn-toggle-wizard.bg-slate-100,
+  html.light #btn-toggle-expert.bg-slate-100 {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  html.light #btn-view-results:not(.bg-emerald-400) {
+    background-color: #ecfdf5 !important;
+    color: #047857 !important;
+    border-color: #6ee7b7 !important;
+    box-shadow: 0 1px 2px rgba(4, 120, 87, 0.08) !important;
+  }
+
+  html.light #btn-view-results:not(.bg-emerald-400):hover {
+    background-color: #d1fae5 !important;
+    border-color: #34d399 !important;
+    color: #065f46 !important;
+  }
+
+  html.light #btn-view-results.bg-emerald-400 {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25) !important;
+  }
+
+  html.light #btn-share-header {
+    background-color: #ffffff !important;
+    color: #047857 !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #btn-share-header:hover {
+    background-color: #f8fafc !important;
+    border-color: #10b981 !important;
+    color: #059669 !important;
+  }
+
+  html.light #btn-reset {
+    color: #64748b !important;
+  }
+
+  html.light #btn-reset:hover {
+    color: #ef4444 !important;
+  }
+
+  html.light #btn-toggle-theme,
+  html.light a[title*="GitHub"] {
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #btn-toggle-theme:hover,
+  html.light a[title*="GitHub"]:hover {
+    background-color: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+  }
+
+  html.light a[title*="GitHub"] svg.text-slate-400 {
+    color: #64748b !important;
+  }
+
+  /* --- Wizard Top Bar & Quick Actions --- */
+  html.light #btn-back-top,
+  html.light #btn-skip-top {
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #btn-back-top:hover:not(.opacity-30),
+  html.light #btn-skip-top:hover {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+  }
+
+  html.light #btn-next-top,
+  html.light #btn-multiselect-confirm-top {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25) !important;
+  }
+
+  html.light #btn-next-top:hover,
+  html.light #btn-multiselect-confirm-top:hover {
+    background-color: #047857 !important;
+  }
+
+  html.light #btn-toggle-flow-mode {
+    background-color: #f8fafc !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light #btn-toggle-flow-mode:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+  }
+
+  html.light #early-guess-banner {
+    background: linear-gradient(to right, #ecfdf5 0%, #f8fafc 50%, #ffffff 100%) !important;
+    border-color: #86efac !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1) !important;
+  }
+
+  html.light #early-guess-banner p {
+    color: #334155 !important;
+  }
+
+  html.light #early-guess-banner strong {
+    color: #065f46 !important;
+  }
+
+  html.light #btn-early-results {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+  }
+
+  html.light #btn-early-results:hover {
+    background-color: #047857 !important;
+  }
+
+  /* --- Question Option Cards --- */
+  html.light .option-btn {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  html.light .option-btn:hover {
+    background-color: #f8fafc !important;
+    border-color: #94a3b8 !important;
+  }
+
+  html.light .option-btn.border-emerald-400,
+  html.light .option-btn.bg-emerald-950\/30 {
+    background-color: #ecfdf5 !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12) !important;
+  }
+
+  html.light .option-btn.border-emerald-400 h3,
+  html.light .option-btn.bg-emerald-950\/30 h3 {
+    color: #065f46 !important;
+  }
+
+  html.light .option-btn span.bg-slate-900.border-slate-700\/60 {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  /* --- Final Results Page Sections --- */
+  /* Top Match Winner Card */
+  html.light .bg-gradient-to-br {
+    background-image: none !important;
+    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #f8fafc 100%) !important;
+    border-color: #86efac !important;
+    box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light .bg-gradient-to-br span.text-3xl.sm\:text-5xl {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  html.light .bg-gradient-to-br p.text-emerald-300 {
+    color: #047857 !important;
+  }
+
+  html.light #btn-modify-answers {
+    background-color: #ffffff !important;
     color: #1e293b !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #btn-modify-answers:hover {
+    background-color: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+  }
+
+  html.light #btn-share-match {
+    background-color: #ffffff !important;
+    color: #047857 !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  html.light #btn-share-match:hover {
+    background-color: #f8fafc !important;
+    border-color: #10b981 !important;
+    color: #059669 !important;
+  }
+
+  /* Strengths & Trade-offs */
+  html.light .bg-emerald-950\/30 {
+    background-color: #f0fdf4 !important;
+    border-color: #bbf7d0 !important;
+  }
+
+  html.light .bg-emerald-950\/30 h4 {
+    color: #15803d !important;
+  }
+
+  html.light .bg-emerald-950\/30 ul {
+    color: #166534 !important;
+  }
+
+  html.light .bg-amber-950\/20 {
+    background-color: #fffbeb !important;
+    border-color: #fde68a !important;
+  }
+
+  html.light .bg-amber-950\/20 h4 {
+    color: #b45309 !important;
+  }
+
+  html.light .bg-amber-950\/20 ul {
+    color: #92400e !important;
+  }
+
+  /* Blueprint Summary Bar & Chips */
+  html.light .blueprint-chip-btn {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #1e293b !important;
+  }
+
+  html.light .blueprint-chip-btn:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #10b981 !important;
+    color: #0f172a !important;
+  }
+
+  html.light #btn-tweak-blueprint {
+    background-color: #0f172a !important;
+    color: #34d399 !important;
+    border-color: #1e293b !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  html.light #btn-tweak-blueprint:hover {
+    background-color: #1e293b !important;
+    color: #6ee7b7 !important;
+  }
+
+  /* Accordions / Details Panels */
+  html.light details {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  html.light details summary:hover {
+    background-color: #f8fafc !important;
+  }
+
+  html.light details summary h3 {
+    color: #0f172a !important;
+  }
+
+  html.light details summary p {
+    color: #64748b !important;
+  }
+
+  /* App Suites & Combos */
+  html.light .btn-toggle-desktop-app {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light .btn-toggle-desktop-app:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+  }
+
+  html.light .btn-toggle-desktop-app.bg-emerald-950\/20 {
+    background-color: #ecfdf5 !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12) !important;
+  }
+
+  html.light .btn-toggle-combo {
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light .btn-toggle-combo.bg-emerald-500 {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    border-color: #059669 !important;
+  }
+
+  /* Head-to-Head & Deciding Factors */
+  html.light .bg-slate-950\/70.border-emerald-500\/30 {
+    background-color: #f0fdf4 !important;
+    border-color: #86efac !important;
+  }
+
+  html.light .bg-slate-950\/70.border-emerald-500\/30 span.text-slate-200 {
+    color: #0f172a !important;
+  }
+
+  html.light .bg-slate-950\/70.border-emerald-500\/30 p.text-slate-400 {
+    color: #166534 !important;
+  }
+
+  html.light [data-distro-id].bg-slate-950\/70.border-slate-800 {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light [data-distro-id].bg-slate-950\/70.border-slate-800:hover {
+    background-color: #f0fdf4 !important;
+    border-color: #86efac !important;
+  }
+
+  /* Supplemental App Layers (Distrobox, Nix, Flatpak, Compositor) */
+  html.light #btn-toggle-distrobox:not(.bg-emerald-500),
+  html.light #btn-toggle-nix:not(.bg-emerald-500),
+  html.light #btn-toggle-flatpak:not(.bg-emerald-500) {
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light .btn-select-desktop-env:not(.bg-emerald-500) {
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light .btn-select-desktop-env.bg-emerald-500 {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+  }
+
+  /* Developer Recipe Code Viewer & Tabs */
+  html.light .recipe-tab {
+    color: #64748b !important;
+  }
+
+  html.light .recipe-tab:hover {
+    color: #0f172a !important;
+  }
+
+  html.light .recipe-tab.bg-slate-950 {
+    background-color: #ffffff !important;
+    color: #047857 !important;
+    border-color: #059669 !important;
+  }
+
+  html.light pre,
+  html.light code {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light pre code {
+    background-color: transparent !important;
+    border: none !important;
+  }
+
+  html.light #btn-share-recipe,
+  html.light #btn-copy-recipe {
+    background-color: #ffffff !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  html.light #btn-share-recipe:hover,
+  html.light #btn-copy-recipe:hover {
+    background-color: #f8fafc !important;
+    border-color: #10b981 !important;
+    color: #047857 !important;
+  }
+
+  /* Leaderboard Search & Contender Cards */
+  html.light #input-search-leaderboard {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  html.light #input-search-leaderboard::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  html.light .distro-card-preview {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  html.light .distro-card-preview:hover {
+    background-color: #f8fafc !important;
+    border-color: #86efac !important;
+  }
+
+  /* Shared Config Banner */
+  html.light .bg-indigo-950\/40 {
+    background-color: #eef2ff !important;
+    border-color: #c7d2fe !important;
+  }
+
+  html.light .bg-indigo-950\/40 h4 {
+    color: #3730a3 !important;
+  }
+
+  html.light .bg-indigo-950\/40 p {
+    color: #4338ca !important;
+  }
+
+  /* Expert Matrix Inputs */
+  html.light select {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
   }
 
   html.light #distro-modal-card {
