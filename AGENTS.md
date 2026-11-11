@@ -17,6 +17,12 @@ This document provides system guidelines and mandatory invariants for AI coding 
   - Unit tests use native Node test runner (`node --test`) or `tsx --test`.
   - Always execute `npm test` before concluding your turn to verify zero regressions.
 
+### 2B. Scoring Changes Require a Reviewed Snapshot
+- `npm test` includes `npm run scoring:check`, a snapshot of matcher output over ~8,400 criteria cases.
+- Before changing scoring logic, affinities, distro profiles, or recipe selection, run `npm run scoring:compare -- HEAD --report scoring-report.md`, read the report, and summarize the top-pick transitions for the user.
+- Only run `npm run scoring:update` once the changes are confirmed as intended, and commit the fingerprint in the same commit as the change. Never update the fingerprint just to make a failing check pass.
+- Never commit large snapshot or report files: only the ~100-byte `scripts/fixtures/scoring-fingerprint.json` is tracked, and `scoring-report*.md` is gitignored.
+
 ### 3. Client-Side MVC & Web Standards Architecture
 - **Do NOT introduce frontend frameworks (No React, Angular, Vue):**
   - DistroTailor's web app runs on native Web Standards and Client-Side MVC.

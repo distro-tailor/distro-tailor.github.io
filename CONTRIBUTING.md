@@ -43,6 +43,21 @@ flowchart LR
   npm test
   ```
 
+### 4. Scoring Regression Snapshot (Matcher & Affinity Changes)
+`npm test` also runs `npm run scoring:check`, which evaluates the matcher over ~8,400 deterministic criteria combinations and compares a digest of the complete output with the ~100-byte `scripts/fixtures/scoring-fingerprint.json`. Any change to scores, reasons, or recipes fails the check, so algorithm changes are always deliberate and reviewable. On failure it automatically re-runs the matcher from the commit that last updated the fingerprint (straight from git, no stored snapshot) and prints what changed.
+
+When you intend to change scoring (`engine/matcher.ts`, `taxonomy/affinities.ts`, `taxonomy/distros.ts`, or recipe selection):
+1. Generate a review report against the last commit:
+   ```bash
+   npm run scoring:compare -- HEAD --report scoring-report.md
+   ```
+   The report lists how many top picks and recipes changed, and one representative case per top-pick transition with scores, profile facts, and match reasons before and after. It is sized for an AI assistant or reviewer to read in one pass.
+2. Confirm hand-picked archetypes still pass: `npm run audit:matrix`.
+3. Accept the new behaviour and commit the updated fingerprint alongside your change:
+   ```bash
+   npm run scoring:update
+   ```
+
 ---
 
 ## 🛠️ Development Workflow
