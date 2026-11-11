@@ -34,7 +34,9 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     workflowStyle: 'mobile-touch',
     releaseCadence: 'standard',
     driverPhilosophy: 'seamless-proprietary',
-    bootMedium: 'nvme-ssd'
+    bootMedium: 'nvme-ssd',
+    realtimeAudio: false,
+    peripheralNeed: 'standard'
   },
   openmediavault: {
     experienceLevel: 'beginner',
