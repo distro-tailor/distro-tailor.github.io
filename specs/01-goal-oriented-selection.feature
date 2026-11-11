@@ -125,3 +125,11 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And updates the URL query string to the persona's deterministic permalink
     And displays the recommended distribution, custom build recipe, and 3-tier VM test commands
 
+  Scenario: 100% Distro Reachability via Deterministic URL Permalinks
+    Given all 31 distributions are cataloged in the taxonomy registry
+    When a user or automated test queries any distribution by its canonical target URL
+    Then the decision engine must rank that distribution as the #1 champion
+    And the compatibility score must be at least 80%
+    And users can click "Load Match" directly from the distro preview modal to jump straight to its winning build recipe
+
+

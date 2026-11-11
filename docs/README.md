@@ -42,6 +42,9 @@ Welcome to the central documentation index for **DistroTailor**—the 20-Questio
   - Automated sanity evaluation over 27 real-world system archetypes
   - Reproducible URL state permalinks and CLI export test commands for each persona
 
+- **[Complete Distro URL & Recommendation Directory](distro-url-directory.md)**
+  - 100% reachability directory: deterministic criteria, match scores, and permalinks for all 31 registered Linux distributions
+
 - **[Contributing Guidelines](../CONTRIBUTING.md)**
   - The 3 Pillars of Contribution (Feature Spec, Client-Side MVC, 100% Automated Tests)
   - Monorepo package responsibilities and zero-hardcoding rules

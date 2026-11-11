@@ -1,6 +1,8 @@
+import { getDistroTargetCriteria } from '@distro-tailor/core';
 import { triggerDeviceShare } from '../components/share-modal.js';
+import { router } from '../state/router.js';
 import { store } from '../state/store.js';
-import { copyToClipboard } from '../utils/dom.js';
+import { copyToClipboard, showToast } from '../utils/dom.js';
 import { generateMarkdownSummary } from '../utils/formatters.js';
 import { HandlerContext } from './context.js';
 
@@ -28,6 +30,23 @@ export function bindModalEvents(ctx: HandlerContext): void {
     if ((e.target as HTMLElement).id === 'distro-modal-backdrop') {
       closeDistroModal();
     }
+  });
+
+  // Load Winning Match button in Distro Modal
+  document.querySelectorAll<HTMLElement>('[data-load-distro]').forEach((el) => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      const distroId = el.getAttribute('data-load-distro');
+      if (!distroId) return;
+      const targetCriteria = getDistroTargetCriteria(distroId);
+      if (!targetCriteria) return;
+
+      store.reset(targetCriteria);
+      store.setSelectedDistro(null);
+      store.setTab('results');
+      router.saveStateToUrl(store.getState(), true);
+      showToast(`Loaded winning criteria for ${distroId}!`, '🎯');
+    });
   });
 
   // Live Search in Leaderboard

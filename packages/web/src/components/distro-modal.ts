@@ -1,4 +1,4 @@
-import { DistroProfile, RecommendationOutput } from '@distro-tailor/core';
+import { DistroProfile, getDistroTargetUrl, RecommendationOutput } from '@distro-tailor/core';
 import { AppState } from '../types.js';
 import { escapeHtml } from '../utils/dom.js';
 
@@ -116,7 +116,15 @@ export function renderDistroDetailModal(
 
         <!-- Official Links and Footer -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-800">
-          <div class="flex items-center gap-2 w-full sm:w-auto">
+          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <a
+              href="${getDistroTargetUrl(distro.id)}"
+              data-load-distro="${distro.id}"
+              class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-cyan-400 hover:bg-cyan-300 text-slate-950 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-cyan-950/40 cursor-pointer"
+              title="Apply criteria that makes ${escapeHtml(distro.name)} the #1 match"
+            >
+              <span>🎯 Load Match</span>
+            </a>
             <a id="btn-modal-official-site" href="${distro.website}" target="_blank" rel="noopener noreferrer" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950/40">
               <span>Official Site</span>
               <span>↗</span>
