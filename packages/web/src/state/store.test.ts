@@ -92,3 +92,14 @@ test('AppStore: toggleAllContenders flips visibility state and notifies subscrib
   store.toggleAllContenders();
   assert.equal(store.getState().showAllContenders, false);
 });
+
+test('AppStore: removeChoice clears new dimensions like peripheralNeed and realtimeAudio', () => {
+  const store = new AppStore();
+  store.answerQuestion('attached_peripherals', 'peripheralNeed', 'touchscreen');
+  assert.equal(store.getState().criteria.peripheralNeed, 'touchscreen');
+  assert.ok(store.getState().answeredQuestionIds.has('attached_peripherals'));
+
+  store.removeChoice('peripheralNeed');
+  assert.equal(store.getState().criteria.peripheralNeed, undefined);
+  assert.equal(store.getState().answeredQuestionIds.has('attached_peripherals'), false);
+});

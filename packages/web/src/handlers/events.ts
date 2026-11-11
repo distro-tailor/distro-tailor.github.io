@@ -6,6 +6,7 @@ import {
   getDockerApp,
   Question,
   QuestionFlow,
+  QUESTIONS,
   RecommendationOutput,
   UserCriteria
 } from '@distro-tailor/core';
@@ -41,9 +42,14 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
 
   // Navigation tabs
   document.getElementById('btn-toggle-wizard')?.addEventListener('click', () => {
-    store.setTab('wizard');
-    router.saveStateToUrl(store.getState(), true);
-    scrollToQuestionCard();
+    const currentNext = flow.getNextQuestion(store.getState().criteria, store.getState().answeredQuestionIds);
+    if (!currentNext) {
+      returnToWizard();
+    } else {
+      store.setTab('wizard');
+      router.saveStateToUrl(store.getState(), true);
+      scrollToQuestionCard();
+    }
   });
 
   document.getElementById('btn-toggle-expert')?.addEventListener('click', () => {
@@ -64,6 +70,30 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
 
   // Return to wizard from results to review or modify choices
   const returnToWizard = () => {
+    const currentNext = flow.getNextQuestion(store.getState().criteria, store.getState().answeredQuestionIds);
+    if (!currentNext) {
+      const popped = store.popHistory();
+      if (!popped) {
+        // Fallback for permalinks or direct landing without in-memory history: reopen the last answered question
+        const answeredList = QUESTIONS.filter((q) => store.getState().answeredQuestionIds.has(q.id));
+        const lastQ = answeredList[answeredList.length - 1];
+        if (lastQ) {
+          const newAnswered = new Set(store.getState().answeredQuestionIds);
+          newAnswered.delete(lastQ.id);
+          const newCriteria = { ...store.getState().criteria };
+          lastQ.options.forEach((opt) => {
+            Object.keys(opt.appliesCriteria).forEach((k) => {
+              delete newCriteria[k as keyof UserCriteria];
+            });
+          });
+          store.update({
+            criteria: newCriteria,
+            answeredQuestionIds: newAnswered,
+            activeTab: 'wizard'
+          });
+        }
+      }
+    }
     store.setTab('wizard');
     router.saveStateToUrl(store.getState(), true);
     scrollToQuestionCard();
@@ -71,6 +101,21 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
   document.getElementById('btn-modify-answers')?.addEventListener('click', returnToWizard);
   document.getElementById('btn-tweak-blueprint')?.addEventListener('click', returnToWizard);
   document.getElementById('btn-tweak-shared')?.addEventListener('click', returnToWizard);
+
+  // Individual blueprint chip click to directly modify a specific constraint
+  document.querySelectorAll<HTMLButtonElement>('.blueprint-chip-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = btn.getAttribute('data-remove-key');
+      if (key) {
+        store.removeChoice(key);
+        store.setTab('wizard');
+        router.saveStateToUrl(store.getState(), true);
+        showToast(`Modify choice: ${key}`, '✏️');
+        scrollToQuestionCard();
+      }
+    });
+  });
 
   // Track download interactions and record client-side metrics counter
   document.querySelectorAll<HTMLAnchorElement>('a[target="_blank"]').forEach((el) => {

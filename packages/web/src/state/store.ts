@@ -119,6 +119,18 @@ export class AppStore extends EventTarget implements IAppStore {
       this._state.answeredQuestionIds.delete('system_immutability');
     } else if (criteriaKey === 'cLibPreference' || criteriaKey === 'initPreference') {
       this._state.answeredQuestionIds.delete('c_library_and_init');
+    } else if (criteriaKey === 'releaseCadence') {
+      this._state.answeredQuestionIds.delete('release_cadence');
+    } else if (criteriaKey === 'driverPhilosophy') {
+      this._state.answeredQuestionIds.delete('driver_philosophy');
+    } else if (criteriaKey === 'bootMedium') {
+      this._state.answeredQuestionIds.delete('boot_medium');
+    } else if (criteriaKey === 'realtimeAudio') {
+      this._state.answeredQuestionIds.delete('audio_latency');
+    } else if (criteriaKey === 'peripheralNeed') {
+      this._state.answeredQuestionIds.delete('attached_peripherals');
+    } else if (criteriaKey === 'prefersGui') {
+      this._state.answeredQuestionIds.delete('display_mode');
     }
 
     this.notify();

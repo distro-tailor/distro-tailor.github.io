@@ -28,7 +28,7 @@ function renderPrimaryContent(
     return renderUnsupportedSchemaFallback(state.unsupportedSchemaNotice);
   }
 
-  if (state.activeTab === 'results' || (!nextQuestion && state.activeTab === 'wizard')) {
+  if (state.activeTab === 'results') {
     return renderResultsView(evaluation, state);
   }
 

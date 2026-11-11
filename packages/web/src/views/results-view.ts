@@ -150,7 +150,10 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
               .filter(([k]) => !['desktopApps', 'dockerApp', 'desktopEnv', 'enableDistrobox', 'enableNix', 'enableFlatpak'].includes(k))
               .map(([k, v]) => {
                 const fc = formatConstraint(k, v);
-                return `<span class="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 font-mono flex items-center gap-1.5 shadow-sm">${fc.icon} ${fc.label}</span>`;
+                return `<button class="blueprint-chip-btn group px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-emerald-500/50 text-[11px] text-slate-300 font-mono flex items-center gap-1.5 shadow-sm transition-all cursor-pointer" data-remove-key="${k}" title="Click to tweak or change ${fc.label}">
+                  <span>${fc.icon} ${fc.label}</span>
+                  <span class="text-slate-500 group-hover:text-emerald-400 font-bold ml-0.5">✏️</span>
+                </button>`;
               })
               .join('')}
           </div>
