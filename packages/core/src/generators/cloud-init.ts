@@ -5,6 +5,7 @@ export function generateCloudInitRecipe(criteria: UserCriteria): GeneratedRecipe
   const arch = criteria.architecture || 'x86_64';
   const vmName = 'distro-tailor-cloud';
   const dockerAppDef = getDockerApp(criteria.dockerApp);
+  const appDir = dockerAppDef ? dockerAppDef.id : 'app';
 
   const userConfigYaml = `#cloud-config
 hostname: ${vmName}
@@ -35,8 +36,8 @@ runcmd:
   - systemctl enable --now qemu-guest-agent
   - echo "DistroTailor Cloud-Init VM initialized successfully!" > /etc/motd${dockerAppDef ? `
   - systemctl enable --now docker
-  - mkdir -p /opt/${criteria.dockerApp}
-  - cd /opt/${criteria.dockerApp} && docker compose up -d` : ''}
+  - mkdir -p /opt/${appDir}
+  - cd /opt/${appDir} && docker compose up -d` : ''}
 `;
 
   const metaDataYaml = `instance-id: distro-tailor-001
@@ -94,9 +95,9 @@ configure: rootfs
 	sudo cp meta-data $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net/meta-data
 
 	@if [ -f docker-compose.yml ]; then \\
-		echo "[+] Bundling docker-compose.yml into /opt/${criteria.dockerApp || 'app'}..."; \\
-		sudo mkdir -p $(ROOTFS_DIR)/opt/${criteria.dockerApp || 'app'}; \\
-		sudo cp docker-compose.yml $(ROOTFS_DIR)/opt/${criteria.dockerApp || 'app'}/docker-compose.yml; \\
+		echo "[+] Bundling docker-compose.yml into /opt/${appDir}..."; \\
+		sudo mkdir -p $(ROOTFS_DIR)/opt/${appDir}; \\
+		sudo cp docker-compose.yml $(ROOTFS_DIR)/opt/${appDir}/docker-compose.yml; \\
 	fi
 
 qcow2: configure

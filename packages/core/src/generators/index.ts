@@ -8,14 +8,17 @@ import { generateWasmRecipe } from './wasm.js';
 import { generateCloudInitRecipe } from './cloud-init.js';
 import { generateWslRecipe } from './wsl.js';
 import { generateLxcRecipe } from './lxc.js';
+import { sanitizeCriteria } from '../taxonomy/criteria-schema.js';
 
 export * from './docker-apps.js';
 export * from './desktop-apps.js';
 
 export function resolveRecipeGenerator(
   generatorId: RecipeGeneratorId,
-  criteria: UserCriteria
+  untrustedCriteria: UserCriteria
 ): GeneratedRecipe {
+  // Generators interpolate criteria into shell scripts; re-validate regardless of caller.
+  const criteria = sanitizeCriteria(untrustedCriteria);
   switch (generatorId) {
     case 'debootstrap-debian':
       return generateDebootstrapRecipe(criteria);

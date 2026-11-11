@@ -11,7 +11,7 @@ export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedReci
   const enableDistrobox = criteria.enableDistrobox ? '1' : '0';
   const enableNix = criteria.enableNix ? '1' : '0';
   const enableFlatpak = criteria.enableFlatpak ? '1' : '0';
-  const dockerApp = criteria.dockerApp && criteria.dockerApp !== 'none' ? criteria.dockerApp : 'none';
+  const dockerApp = dockerAppDef ? dockerAppDef.id : 'none';
 
   // Hardware Form Factor & Power/Battery Tuning
   const formFactor = criteria.formFactor || 'desktop';

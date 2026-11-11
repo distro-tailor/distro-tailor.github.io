@@ -10,6 +10,7 @@
  */
 
 import { UserCriteria } from '../types.js';
+import { sanitizeCriteria, UntrustedCriteria } from '../taxonomy/criteria-schema.js';
 
 export const CURRENT_SCHEMA_VERSION = 1;
 export const MINIMUM_SUPPORTED_SCHEMA_VERSION = 1;
@@ -161,60 +162,44 @@ export function migrateUrlParameters(rawParams: Record<string, string>): Migrati
  * ensuring complete parity across Web, CLI, and API consumers.
  */
 export function deserializeCriteriaFromParams(params: Record<string, string>): UserCriteria {
-  const criteria: UserCriteria = {};
+  const flag = (value: string | undefined): boolean | undefined =>
+    value === undefined ? undefined : value === 'true' || value === '1';
+  const list = (value: string | undefined): string[] | undefined =>
+    value ? value.split(',').filter(Boolean) : undefined;
 
-  if (params.useCase) criteria.useCase = params.useCase as any;
-  if (params.platform) criteria.platform = params.platform as any;
-  if (params.architecture) criteria.architecture = params.architecture as any;
-  if (params.formFactor) criteria.formFactor = params.formFactor as any;
-  if (params.footprint) criteria.footprint = params.footprint as any;
-  if (params.statePreference) criteria.statePreference = params.statePreference as any;
-  if (params.cLibPreference) criteria.cLibPreference = params.cLibPreference as any;
-  if (params.initPreference) criteria.initPreference = params.initPreference as any;
-  if (params.experienceLevel) criteria.experienceLevel = params.experienceLevel as any;
+  const raw: UntrustedCriteria = {
+    useCase: params.useCase,
+    platform: params.platform,
+    architecture: params.architecture,
+    formFactor: params.formFactor,
+    footprint: params.footprint,
+    statePreference: params.statePreference,
+    cLibPreference: params.cLibPreference,
+    initPreference: params.initPreference,
+    experienceLevel: params.experienceLevel,
+    maxRamMb: params.maxRamMb ? Number(params.maxRamMb) : undefined,
+    prefersGui: flag(params.prefersGui),
+    workflowStyle: params.workflowStyle,
+    releaseCadence: params.releaseCadence,
+    driverPhilosophy: params.driverPhilosophy,
+    bootMedium: params.bootMedium,
+    realtimeAudio: flag(params.realtimeAudio),
+    requiresCustomBuild: flag(params.requiresCustomBuild),
+    desktopEnv: params.desktopEnv,
+    enableDistrobox: flag(params.enableDistrobox),
+    enableNix: flag(params.enableNix),
+    enableFlatpak: flag(params.enableFlatpak),
+    dockerApp: params.dockerApp !== 'none' ? params.dockerApp : undefined,
+    desktopApps: list(params.desktopApps)
+  };
 
-  if (params.maxRamMb) {
-    const ram = Number(params.maxRamMb);
-    if (!isNaN(ram) && ram > 0) criteria.maxRamMb = ram;
-  }
-
-  if (params.prefersGui !== undefined) {
-    criteria.prefersGui = params.prefersGui === 'true' || params.prefersGui === '1';
-  }
-  if (params.workflowStyle) criteria.workflowStyle = params.workflowStyle as any;
-  if (params.releaseCadence) criteria.releaseCadence = params.releaseCadence as any;
-  if (params.driverPhilosophy) criteria.driverPhilosophy = params.driverPhilosophy as any;
-  if (params.bootMedium) criteria.bootMedium = params.bootMedium as any;
-  if (params.realtimeAudio !== undefined) {
-    criteria.realtimeAudio = params.realtimeAudio === 'true' || params.realtimeAudio === '1';
-  }
   if (params.peripherals) {
-    criteria.peripherals = params.peripherals.split(',').filter(Boolean) as any[];
+    raw.peripherals = list(params.peripherals);
   } else if (params.peripheralNeed) {
-    criteria.peripheralNeed = params.peripheralNeed as any;
-    criteria.peripherals = [params.peripheralNeed as any];
-  }
-  if (params.requiresCustomBuild !== undefined) {
-    criteria.requiresCustomBuild = params.requiresCustomBuild === 'true' || params.requiresCustomBuild === '1';
-  }
-  if (params.desktopEnv) {
-    criteria.desktopEnv = params.desktopEnv as any;
-  }
-  if (params.enableDistrobox !== undefined) {
-    criteria.enableDistrobox = params.enableDistrobox === 'true' || params.enableDistrobox === '1';
-  }
-  if (params.enableNix !== undefined) {
-    criteria.enableNix = params.enableNix === 'true' || params.enableNix === '1';
-  }
-  if (params.enableFlatpak !== undefined) {
-    criteria.enableFlatpak = params.enableFlatpak === 'true' || params.enableFlatpak === '1';
-  }
-  if (params.dockerApp && params.dockerApp !== 'none') {
-    criteria.dockerApp = params.dockerApp as any;
-  }
-  if (params.desktopApps) {
-    criteria.desktopApps = params.desktopApps.split(',').filter(Boolean) as any[];
+    raw.peripheralNeed = params.peripheralNeed;
+    raw.peripherals = [params.peripheralNeed];
   }
 
-  return criteria;
+  // Shared URLs are untrusted input: only allowlisted values may reach the matcher or recipe generators.
+  return sanitizeCriteria(raw);
 }

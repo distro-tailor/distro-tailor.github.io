@@ -7,7 +7,7 @@ export function generateAlpineRecipe(criteria: UserCriteria): GeneratedRecipe {
   const distroName = 'TailoredAlpine';
   const dockerAppDef = getDockerApp(criteria.dockerApp);
   const desktopApps = criteria.desktopApps || [];
-  const dockerApp = criteria.dockerApp && criteria.dockerApp !== 'none' ? criteria.dockerApp : 'none';
+  const dockerApp = dockerAppDef ? dockerAppDef.id : 'none';
 
   const makefileContent = `# ==============================================================================
 # DistroTailor: Alpine Linux Minimal RootFS / Diskless Builder

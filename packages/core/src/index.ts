@@ -6,3 +6,4 @@ export * from './engine/question-flow.js';
 export * from './generators/index.js';
 export * from './migrations/url-schema.js';
 export * from './taxonomy/alternatives.js';
+export * from './taxonomy/criteria-schema.js';
