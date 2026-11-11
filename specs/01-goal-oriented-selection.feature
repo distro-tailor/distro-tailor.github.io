@@ -110,3 +110,9 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     Then the affinity integrity test fails for any affinity referencing an unknown distro id
     And the matcher applies the first matching affinity tier without hardcoded distro id checks
     And criteria whose keys are all undefined fall back to the Universal Baseline
+
+  Scenario: Keyboard shortcuts always answer the question currently on screen
+    Given the user has answered the first question with the "1" key
+    When the next question renders and the user presses a number key again
+    Then the answer applies to the question currently displayed, not the first question
+    And ArrowLeft steps back and Escape closes open modals or the expert matrix
