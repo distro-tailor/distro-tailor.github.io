@@ -1,4 +1,9 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
+import { V86_ASSET_SHA256, V86_ASSETS_COMMIT, V86_NPM_VERSION } from './checksums.js';
+
+const V86_CDN = `https://cdn.jsdelivr.net/npm/v86@${V86_NPM_VERSION}/build`;
+const V86_BIOS_BASE = `https://raw.githubusercontent.com/copy/v86/${V86_ASSETS_COMMIT}/bios`;
+const V86_ISO_URL = 'https://copy.sh/v86/images/linux.iso';
 
 export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
   const htmlContent = `<!DOCTYPE html>
@@ -122,7 +127,12 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
       statusEl.style.color = color;
     }
 
-    async function fetchBufferWithLog(stepNum, name, url, fallbackUrl) {
+    async function sha256Hex(buffer) {
+      const digest = await crypto.subtle.digest("SHA-256", buffer);
+      return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function fetchBufferWithLog(stepNum, name, url, fallbackUrl, expectedSha256) {
       logStep(stepNum, "Fetching " + name + "... (" + url + ")");
       const startTime = performance.now();
       let res;
@@ -140,6 +150,10 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
         throw new Error("Failed to fetch " + name + " (" + url + "): HTTP " + res.status + " " + res.statusText);
       }
       const buffer = await res.arrayBuffer();
+      const actualSha256 = await sha256Hex(buffer);
+      if (actualSha256 !== expectedSha256) {
+        throw new Error(name + " failed SHA-256 verification (expected " + expectedSha256 + ", got " + actualSha256 + ")");
+      }
       const elapsed = Math.round(performance.now() - startTime);
       const sizeMb = (buffer.byteLength / (1024 * 1024)).toFixed(2);
       logStep(stepNum, "Loaded " + name + " (" + sizeMb + " MB) in " + elapsed + "ms", "#4ade80");
@@ -149,19 +163,19 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
     async function startVM() {
       try {
         logStep("1/4", "Importing V86 engine from CDN...");
-        const { V86 } = await import("https://cdn.jsdelivr.net/npm/v86/build/libv86.mjs");
+        const { V86 } = await import("${V86_CDN}/libv86.mjs");
         console.log("[DistroTailor] V86 module loaded successfully:", typeof V86);
 
         // Pre-fetch all binary assets into memory so V86 has 0 network latency/CORS stalls
-        const biosBuffer = await fetchBufferWithLog("2/4", "Bochs BIOS", "./bochs-bios.bin", "https://raw.githubusercontent.com/copy/v86/master/bios/bochs-bios.bin");
-        const vgaBiosBuffer = await fetchBufferWithLog("3/4", "Bochs VGABIOS", "./bochs-vgabios.bin", "https://raw.githubusercontent.com/copy/v86/master/bios/bochs-vgabios.bin");
-        const cdromBuffer = await fetchBufferWithLog("4/4", "Linux Live ISO", "./linux.iso", "https://copy.sh/v86/images/linux.iso");
+        const biosBuffer = await fetchBufferWithLog("2/4", "Bochs BIOS", "./bochs-bios.bin", "${V86_BIOS_BASE}/bochs-bios.bin", "${V86_ASSET_SHA256.bochsBios}");
+        const vgaBiosBuffer = await fetchBufferWithLog("3/4", "Bochs VGABIOS", "./bochs-vgabios.bin", "${V86_BIOS_BASE}/bochs-vgabios.bin", "${V86_ASSET_SHA256.bochsVgaBios}");
+        const cdromBuffer = await fetchBufferWithLog("4/4", "Linux Live ISO", "./linux.iso", "${V86_ISO_URL}", "${V86_ASSET_SHA256.linuxIso}");
 
         logStep("BOOTING", "Bochs BIOS Starting... Mounting ISO CD-ROM...");
         console.log("[DistroTailor] Creating V86 instance with buffers in memory...");
 
         const emulator = new V86({
-          wasm_path: "https://cdn.jsdelivr.net/npm/v86/build/v86.wasm",
+          wasm_path: "${V86_CDN}/v86.wasm",
           memory_size: 64 * 1024 * 1024,
           vga_memory_size: 2 * 1024 * 1024,
           screen_container: screenEl,
@@ -219,9 +233,15 @@ export function generateWasmRecipe(criteria: UserCriteria): GeneratedRecipe {
 # ==============================================================================
 
 PORT ?= 3000
-ISO_URL ?= https://copy.sh/v86/images/linux.iso
-BIOS_URL ?= https://raw.githubusercontent.com/copy/v86/master/bios/bochs-bios.bin
-VGABIOS_URL ?= https://raw.githubusercontent.com/copy/v86/master/bios/bochs-vgabios.bin
+ISO_URL ?= ${V86_ISO_URL}
+BIOS_URL ?= ${V86_BIOS_BASE}/bochs-bios.bin
+VGABIOS_URL ?= ${V86_BIOS_BASE}/bochs-vgabios.bin
+
+# Pinned SHA-256 checksums (override together with the URLs)
+ISO_SHA256 ?= ${V86_ASSET_SHA256.linuxIso}
+BIOS_SHA256 ?= ${V86_ASSET_SHA256.bochsBios}
+VGABIOS_SHA256 ?= ${V86_ASSET_SHA256.bochsVgaBios}
+SHA256SUM ?= $(shell command -v sha256sum >/dev/null 2>&1 && echo sha256sum || echo "shasum -a 256")
 
 .PHONY: all fetch serve clean
 
@@ -230,16 +250,18 @@ all: fetch serve
 fetch:
 	@if [ ! -f "linux.iso" ]; then \\
 		echo "[+] Downloading Linux Live ISO (5.5MB)..."; \\
-		curl -sSL "$(ISO_URL)" -o linux.iso; \\
+		curl -fsSL "$(ISO_URL)" -o linux.iso; \\
 	fi
 	@if [ ! -f "bochs-bios.bin" ]; then \\
 		echo "[+] Downloading Bochs BIOS (64KB)..."; \\
-		curl -sSL "$(BIOS_URL)" -o bochs-bios.bin; \\
+		curl -fsSL "$(BIOS_URL)" -o bochs-bios.bin; \\
 	fi
 	@if [ ! -f "bochs-vgabios.bin" ]; then \\
 		echo "[+] Downloading Bochs VGABIOS (42KB)..."; \\
-		curl -sSL "$(VGABIOS_URL)" -o bochs-vgabios.bin; \\
+		curl -fsSL "$(VGABIOS_URL)" -o bochs-vgabios.bin; \\
 	fi
+	@printf '%s  %s\\n' "$(ISO_SHA256)" linux.iso "$(BIOS_SHA256)" bochs-bios.bin "$(VGABIOS_SHA256)" bochs-vgabios.bin | $(SHA256SUM) -c - || \\
+		(echo "[-] Checksum mismatch: delete the file(s) above and re-run make, or update the *_SHA256 variables"; exit 1)
 	@echo "[✔] All VM binaries verified."
 
 serve: fetch

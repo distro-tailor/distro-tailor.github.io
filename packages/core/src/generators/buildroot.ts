@@ -1,4 +1,5 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
+import { BUILDROOT_TARBALL_SHA256 } from './checksums.js';
 
 export function generateBuildrootRecipe(criteria: UserCriteria): GeneratedRecipe {
   const isNoMmu = criteria.architecture === 'nommu';
@@ -13,6 +14,8 @@ export function generateBuildrootRecipe(criteria: UserCriteria): GeneratedRecipe
 
 BUILDROOT_VERSION ?= 2024.02.1
 BUILDROOT_URL     ?= https://buildroot.org/downloads/buildroot-$(BUILDROOT_VERSION).tar.gz
+# Published SHA-256 from buildroot-$(BUILDROOT_VERSION).tar.gz.sign (override when changing version)
+BUILDROOT_SHA256  ?= ${BUILDROOT_TARBALL_SHA256}
 SRC_DIR           ?= buildroot-$(BUILDROOT_VERSION)
 
 .PHONY: all fetch-buildroot configure build clean menuconfig
@@ -27,7 +30,9 @@ all: fetch-buildroot configure build
 fetch-buildroot:
 	@if [ ! -d "$(SRC_DIR)" ]; then \\
 		echo "[+] Fetching Buildroot source tree..."; \\
-		curl -sSL $(BUILDROOT_URL) | tar -xz; \\
+		curl -fsSL $(BUILDROOT_URL) -o buildroot.tar.gz && \\
+		echo "$(BUILDROOT_SHA256)  buildroot.tar.gz" | sha256sum -c - && \\
+		tar -xzf buildroot.tar.gz && rm buildroot.tar.gz; \\
 	fi
 
 configure: fetch-buildroot

@@ -1,4 +1,5 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
+import { ALPINE_MINIROOTFS_SHA256 } from './checksums.js';
 
 export function generateKioskRecipe(criteria: UserCriteria): GeneratedRecipe {
   const isAppliance = criteria.useCase === 'appliance-product';
@@ -34,7 +35,9 @@ prepare: check-root
 
 build: prepare
 	@echo "[+] Bootstrapping Alpine Base..."
-	curl -sSL "https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/alpine-minirootfs-3.20.0-x86_64.tar.gz" | tar -xz -C $(ROOTFS_DIR)
+	curl -fsSL "https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/alpine-minirootfs-3.20.0-x86_64.tar.gz" -o $(BUILD_DIR)/alpine-minirootfs.tar.gz
+	@echo "${ALPINE_MINIROOTFS_SHA256.x86_64}  $(BUILD_DIR)/alpine-minirootfs.tar.gz" | sha256sum -c -
+	tar -xzf $(BUILD_DIR)/alpine-minirootfs.tar.gz -C $(ROOTFS_DIR)
 	
 	@echo "[+] Installing Cage (Wayland Kiosk Compositor) & GUI dependencies..."
 	mount -t proc none $(ROOTFS_DIR)/proc

@@ -13,32 +13,29 @@ import { sanitizeCriteria } from '../taxonomy/criteria-schema.js';
 export * from './docker-apps.js';
 export * from './desktop-apps.js';
 
+/** Every recipe generator by id. Typed as a Record so adding a RecipeGeneratorId requires a generator. */
+export const RECIPE_GENERATORS: Readonly<Record<RecipeGeneratorId, (criteria: UserCriteria) => GeneratedRecipe>> = {
+  'debootstrap-debian': generateDebootstrapRecipe,
+  'alpine-chroot': generateAlpineRecipe,
+  'buildroot-embedded': generateBuildrootRecipe,
+  'kiosk-web': generateKioskRecipe,
+  'distroless-docker': generateContainerRecipe,
+  'wasm-browser': generateWasmRecipe,
+  'cloud-init-qcow2': generateCloudInitRecipe,
+  'wsl2-debian': generateWslRecipe,
+  'proxmox-lxc': generateLxcRecipe
+};
+
+export function isRecipeGeneratorId(value: unknown): value is RecipeGeneratorId {
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(RECIPE_GENERATORS, value);
+}
+
 export function resolveRecipeGenerator(
   generatorId: RecipeGeneratorId,
   untrustedCriteria: UserCriteria
 ): GeneratedRecipe {
   // Generators interpolate criteria into shell scripts; re-validate regardless of caller.
   const criteria = sanitizeCriteria(untrustedCriteria);
-  switch (generatorId) {
-    case 'debootstrap-debian':
-      return generateDebootstrapRecipe(criteria);
-    case 'alpine-chroot':
-      return generateAlpineRecipe(criteria);
-    case 'buildroot-embedded':
-      return generateBuildrootRecipe(criteria);
-    case 'kiosk-web':
-      return generateKioskRecipe(criteria);
-    case 'distroless-docker':
-      return generateContainerRecipe(criteria);
-    case 'wasm-browser':
-      return generateWasmRecipe(criteria);
-    case 'cloud-init-qcow2':
-      return generateCloudInitRecipe(criteria);
-    case 'wsl2-debian':
-      return generateWslRecipe(criteria);
-    case 'proxmox-lxc':
-      return generateLxcRecipe(criteria);
-    default:
-      return generateDebootstrapRecipe(criteria);
-  }
+  const generate = isRecipeGeneratorId(generatorId) ? RECIPE_GENERATORS[generatorId] : generateDebootstrapRecipe;
+  return generate(criteria);
 }

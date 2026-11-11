@@ -1,6 +1,7 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
 import { getDockerApp } from './docker-apps.js';
 import { generateBootstrapAppsScript } from './desktop-apps.js';
+import { ALPINE_MINIROOTFS_SHA256 } from './checksums.js';
 
 export function generateAlpineRecipe(criteria: UserCriteria): GeneratedRecipe {
   const arch = criteria.architecture === 'arm64' ? 'aarch64' : 'x86_64';
@@ -18,6 +19,8 @@ DISTRO_NAME ?= ${distroName}
 VERSION     ?= 3.20.0
 ARCH        ?= ${arch}
 ALPINE_MIRROR ?= https://dl-cdn.alpinelinux.org/alpine/v3.20
+# Published SHA-256 of alpine-minirootfs-$(VERSION)-$(ARCH).tar.gz (override when changing VERSION/ARCH)
+ALPINE_SHA256 ?= ${ALPINE_MINIROOTFS_SHA256[arch]}
 
 # Turnkey Docker App Layer
 DOCKER_APP  ?= ${dockerApp}
@@ -47,7 +50,9 @@ prepare: check-root
 
 rootfs: prepare
 	@echo "[+] Downloading Alpine Mini RootFS..."
-	curl -sSL "$(ALPINE_MIRROR)/releases/$(ARCH)/alpine-minirootfs-$(VERSION)-$(ARCH).tar.gz" -o $(BUILD_DIR)/base.tar.gz
+	curl -fsSL "$(ALPINE_MIRROR)/releases/$(ARCH)/alpine-minirootfs-$(VERSION)-$(ARCH).tar.gz" -o $(BUILD_DIR)/base.tar.gz
+	@echo "$(ALPINE_SHA256)  $(BUILD_DIR)/base.tar.gz" | sha256sum -c - || \\
+		(echo "[-] Checksum mismatch: set ALPINE_SHA256 to the published hash for $(VERSION)/$(ARCH)"; exit 1)
 	tar -xzf $(BUILD_DIR)/base.tar.gz -C $(ROOTFS_DIR)
 
 configure: rootfs

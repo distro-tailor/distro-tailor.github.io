@@ -53,3 +53,11 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
       | Tier 1 | In-Browser Instant Sandbox | WebAssembly v86 emulator test-drive with zero drive risk |
       | Tier 2 | Safe Virtual Machine Sandbox | Local QEMU, VirtualBox, or UTM hypervisor testing |
       | Tier 3 | Bare-Metal Live USB Boot | Flash via BalenaEtcher/Rufus and boot physical BIOS/UEFI |
+
+  Scenario: Generated recipes verify every downloaded artifact before use
+    Given a recipe downloads a base image, toolchain, BIOS, or ISO (Alpine, Buildroot, kiosk, WebVM)
+    When the user runs "make"
+    Then each download is checked against a pinned SHA-256 checksum before it is extracted or booted
+    And a mismatch stops the build with instructions to update the checksum variable
+    And third-party URLs are pinned to a fixed version or commit instead of "latest" or "master"
+    And the in-browser WebVM verifies its BIOS and ISO buffers with SubtleCrypto before booting

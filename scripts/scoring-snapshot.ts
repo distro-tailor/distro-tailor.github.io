@@ -195,7 +195,7 @@ function printReport(c: Comparison, beforeLabel: string, afterLabel: string): vo
   console.log(`Top pick changed          : ${c.topPickChanged.length} (${pct(c.topPickChanged.length)})`);
   console.log(`Recipe changed            : ${c.recipeChanged.length} (${pct(c.recipeChanged.length)})`);
   console.log(`Top-5 scores/order changed: ${c.rankingChanged} (top pick and recipe unchanged)`);
-  console.log(`Other changes             : ${c.detailOnlyChanged} (lower-ranked scores or reason text)`);
+  console.log(`Other changes             : ${c.detailOnlyChanged} (lower-ranked scores, reason text, or recipe file contents)`);
   if (c.added || c.removed) {
     console.log(`Cases added / removed     : ${c.added} / ${c.removed} (criteria catalogs changed)`);
   }
@@ -325,7 +325,7 @@ function buildMarkdownReport(
     `| Top pick changed | ${c.topPickChanged.length} | ${pct(c.topPickChanged.length)} |`,
     `| Recipe changed | ${c.recipeChanged.length} | ${pct(c.recipeChanged.length)} |`,
     `| Top-5 scores/order changed (same top pick and recipe) | ${c.rankingChanged} | ${pct(c.rankingChanged)} |`,
-    `| Other (lower-ranked scores or reason text) | ${c.detailOnlyChanged} | ${pct(c.detailOnlyChanged)} |`,
+    `| Other (lower-ranked scores, reason text, or recipe file contents) | ${c.detailOnlyChanged} | ${pct(c.detailOnlyChanged)} |`,
     `| Cases added / removed | ${c.added} / ${c.removed} | |`,
     '',
     '## Review Guidance',
