@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -12,7 +13,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
+  # PR runs only build and test, so they get their own group and never cancel a deploy.
+  group: ${{ github.event_name == 'pull_request' && format('ci-{0}', github.ref) || 'pages' }}
   cancel-in-progress: true
 
 jobs:
@@ -38,14 +40,17 @@ jobs:
         run: npm test
 
       - name: Setup Pages
+        if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
 
       - name: Upload Artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'packages/web/dist'
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
