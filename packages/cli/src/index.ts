@@ -5,6 +5,8 @@ import path from 'node:path';
 import pc from 'picocolors';
 import {
   evaluateCriteria,
+  isRecipeGeneratorId,
+  RECIPE_GENERATORS,
   resolveRecipeGenerator,
   RecipeGeneratorId,
   UserCriteria,
@@ -109,11 +111,15 @@ program
   .command('export')
   .description('Directly export a custom distro build recipe (Makefile/Dockerfile)')
   .option('--url <url>', 'Export recipe derived directly from a DistroTailor shared URL or query string')
-  .option('--recipe <recipeId>', 'Recipe ID (debootstrap-debian, alpine-chroot, buildroot-embedded, kiosk-web, distroless-docker, wasm-browser)')
+  .option('--recipe <recipeId>', `Recipe ID (${Object.keys(RECIPE_GENERATORS).join(', ')})`)
   .option('--out <outputDir>', 'Destination directory', './distro-recipe')
   .option('--arch <arch>', 'CPU architecture', 'x86_64')
   .action(async (options) => {
-    let recipeId = options.recipe as RecipeGeneratorId;
+    if (options.recipe !== undefined && !isRecipeGeneratorId(options.recipe)) {
+      console.error(pc.red(`\n✖ Unknown recipe "${options.recipe}". Valid recipes: ${Object.keys(RECIPE_GENERATORS).join(', ')}`));
+      process.exit(1);
+    }
+    let recipeId: RecipeGeneratorId | undefined = options.recipe;
     let arch = options.arch;
     let exportCriteria: UserCriteria = { architecture: arch };
 

@@ -61,3 +61,9 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     And a mismatch stops the build with instructions to update the checksum variable
     And third-party URLs are pinned to a fixed version or commit instead of "latest" or "master"
     And the in-browser WebVM verifies its BIOS and ISO buffers with SubtleCrypto before booting
+
+  Scenario: CLI export rejects unknown recipe identifiers
+    Given a user runs "distro-tailor export --recipe not-a-recipe"
+    When the CLI validates the recipe id
+    Then it exits with an error listing the valid recipe ids
+    And it does not silently fall back to a Debian recipe
