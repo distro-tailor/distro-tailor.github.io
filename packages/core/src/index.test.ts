@@ -443,6 +443,10 @@ test('Matcher: allMatches contains all 31 registered distributions ranked', () =
   const result = evaluateCriteria({});
   assert.equal(result.allMatches.length, 31);
   assert.equal(result.topMatches.length, 5);
+  // Unconstrained baseline recommends Linux Mint at 100% instead of arbitrary Alpine 0%
+  assert.equal(result.bestMatch.distro.id, 'linux-mint');
+  assert.equal(result.bestMatch.score, 100);
+  assert.equal(result.bestMatch.reasons[0].feature, 'Universal Baseline');
   // Ensure descending score order
   for (let i = 0; i < result.allMatches.length - 1; i++) {
     assert.ok(result.allMatches[i].score >= result.allMatches[i + 1].score);

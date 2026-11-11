@@ -335,6 +335,10 @@ export const attachEventHandlers: EventBinder = (nextQuestion, evaluation, flow)
   // Skip question button (top and bottom)
   const handleSkip = () => {
     if (nextQuestion) {
+      const defaultOpt = nextQuestion.options.find((o) => o.isDefault);
+      if (nextQuestion.isOptional && defaultOpt && Object.keys(defaultOpt.appliesCriteria).length > 0) {
+        store.answerQuestion(nextQuestion.id, defaultOpt.appliesCriteria);
+      }
       store.stepForwardQuestion(nextQuestion.id);
       router.saveStateToUrl(store.getState(), false);
       scrollToQuestionCard();

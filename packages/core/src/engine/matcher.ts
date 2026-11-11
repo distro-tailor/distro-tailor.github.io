@@ -47,6 +47,29 @@ export function evaluateCriteria(
     let hardDisqualificationReason = '';
     const reasons: MatchReason[] = [];
 
+    // 0. Unconstrained Baseline (Zero Constraints Specified)
+    if (Object.keys(criteria).length === 0) {
+      if (distro.id === 'linux-mint') {
+        earned = 100;
+        reasons.push({
+          feature: 'Universal Baseline',
+          matched: true,
+          explanation: 'Recommended standard out-of-the-box desktop Linux for everyday PC and laptop use.'
+        });
+      } else if (distro.id === 'ubuntu' || distro.id === 'fedora') {
+        earned = 90;
+        reasons.push({
+          feature: 'Universal Baseline',
+          matched: true,
+          explanation: 'Leading mainstream distribution with extensive community and hardware support.'
+        });
+      } else if (distro.experienceLevel === 'beginner' && distro.primaryUseCases.includes('desktop')) {
+        earned = 80;
+      } else {
+        earned = 50;
+      }
+    }
+
     // 1. Use Case Alignment (Weight: 25)
     if (criteria.useCase) {
       if (distro.primaryUseCases.includes(criteria.useCase)) {
@@ -588,6 +611,14 @@ export function evaluateCriteria(
       const aExp = a.distro.experienceLevel === criteria.experienceLevel;
       const bExp = b.distro.experienceLevel === criteria.experienceLevel;
       if (aExp !== bExp) return aExp ? -1 : 1;
+    }
+    const universalDefaults = ['linux-mint', 'ubuntu', 'fedora'];
+    const aDefIndex = universalDefaults.indexOf(a.distro.id);
+    const bDefIndex = universalDefaults.indexOf(b.distro.id);
+    if (aDefIndex !== -1 || bDefIndex !== -1) {
+      if (aDefIndex === -1) return 1;
+      if (bDefIndex === -1) return -1;
+      return aDefIndex - bDefIndex;
     }
     return a.distro.name.localeCompare(b.distro.name);
   });
