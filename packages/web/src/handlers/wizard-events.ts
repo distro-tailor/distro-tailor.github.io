@@ -60,14 +60,23 @@ export function bindWizardEvents(ctx: HandlerContext): void {
           return;
         }
 
-        btn.classList.remove('bg-slate-950/70', 'border-slate-700/60');
-        btn.classList.add('bg-emerald-500/20', 'border-emerald-400', 'ring-2', 'ring-emerald-400', 'scale-[0.985]');
+        const isAlreadyAnswered = store.getState().answeredQuestionIds.has(nextQuestion.id);
 
-        setTimeout(() => {
-          store.answerQuestion(nextQuestion.id, opt.appliesCriteria);
+        if (isAlreadyAnswered) {
+          // Review / Modify mode: update selection in-place without auto-advancing
+          store.answerQuestion(nextQuestion.id, opt.appliesCriteria, false);
           router.saveStateToUrl(store.getState(), false);
-          scrollToQuestionCard();
-        }, 80);
+        } else {
+          // First-time forward play: auto-advance with smooth ~140ms visual pulse
+          btn.classList.remove('bg-slate-950/70', 'border-slate-700/60');
+          btn.classList.add('bg-emerald-500/20', 'border-emerald-400', 'ring-2', 'ring-emerald-400', 'scale-[0.985]');
+
+          setTimeout(() => {
+            store.answerQuestion(nextQuestion.id, opt.appliesCriteria, true);
+            router.saveStateToUrl(store.getState(), false);
+            scrollToQuestionCard();
+          }, 140);
+        }
       }
     });
   });

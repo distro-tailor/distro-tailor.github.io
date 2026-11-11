@@ -175,13 +175,33 @@ export class AppStore extends EventTarget implements IAppStore {
   public answerQuestion<K extends keyof UserCriteria>(
     questionId: string,
     keyOrCriteria: K | Partial<UserCriteria>,
-    answerValue?: UserCriteria[K]
+    answerValueOrAutoAdvance?: UserCriteria[K] | boolean,
+    autoAdvanceParam = true
   ): void {
     this.pushHistory();
-    const criteriaPatch = (typeof keyOrCriteria === 'string'
-      ? { [keyOrCriteria]: answerValue }
-      : keyOrCriteria) as Partial<UserCriteria>;
 
+    let criteriaPatch: Partial<UserCriteria>;
+    let shouldAdvance: boolean;
+
+    if (typeof keyOrCriteria === 'string') {
+      criteriaPatch = { [keyOrCriteria]: answerValueOrAutoAdvance as UserCriteria[K] } as Partial<UserCriteria>;
+      shouldAdvance = autoAdvanceParam;
+    } else {
+      criteriaPatch = keyOrCriteria as Partial<UserCriteria>;
+      shouldAdvance = typeof answerValueOrAutoAdvance === 'boolean' ? answerValueOrAutoAdvance : true;
+    }
+
+    // 1. Clear old criteria keys applied by other options of this question to prevent ghost attributes
+    const targetQ = QUESTIONS.find((q) => q.id === questionId);
+    if (targetQ) {
+      for (const opt of targetQ.options) {
+        for (const k of Object.keys(opt.appliesCriteria)) {
+          delete (this._state.criteria as Record<string, unknown>)[k];
+        }
+      }
+    }
+
+    // 2. Apply new criteria
     this._state.criteria = {
       ...this._state.criteria,
       ...criteriaPatch
@@ -192,17 +212,76 @@ export class AppStore extends EventTarget implements IAppStore {
       order.push(questionId);
     }
 
+    // 3. Reconcile tree: automatically prune any downstream questions that are no longer eligible
+    this.reconcileIneligibleCriteria();
+
+    // 4. Handle navigation transition
+    if (shouldAdvance) {
+      const flow = new QuestionFlow(QUESTIONS);
+      const eligible = flow.getEligibleQuestions(this._state.criteria);
+      const currentIdx = eligible.findIndex((q) => q.id === questionId);
+      if (currentIdx !== -1 && currentIdx < eligible.length - 1) {
+        this._state.viewingQuestionId = eligible[currentIdx + 1].id;
+        this._state.activeTab = 'wizard';
+      } else {
+        this._state.viewingQuestionId = null;
+        this._state.activeTab = 'results';
+      }
+    } else {
+      // Stay in-place on the current question when reviewing/modifying
+      this._state.viewingQuestionId = questionId;
+      this._state.activeTab = 'wizard';
+    }
+
+    this.notify();
+  }
+
+  /**
+   * Prunes any answered questions and their applied criteria that are no longer eligible
+   * due to upstream criteria changes (e.g. changing platform to container, changing to beginner mode, etc.).
+   */
+  public reconcileIneligibleCriteria(): void {
+    if (this._state.flowMode === 'expert') return;
+
     const flow = new QuestionFlow(QUESTIONS);
     const eligible = flow.getEligibleQuestions(this._state.criteria);
-    const currentIdx = eligible.findIndex((q) => q.id === questionId);
-    if (currentIdx !== -1 && currentIdx < eligible.length - 1) {
-      this._state.viewingQuestionId = eligible[currentIdx + 1].id;
-      this._state.activeTab = 'wizard';
-    } else {
-      this._state.viewingQuestionId = null;
-      this._state.activeTab = 'results';
+    const eligibleIds = new Set(eligible.map((q) => q.id));
+
+    // Find answered questions that are no longer eligible
+    const ineligibleAnswered = QUESTIONS.filter(
+      (q) => !eligibleIds.has(q.id) && this._state.answeredQuestionIds.has(q.id)
+    );
+
+    if (ineligibleAnswered.length === 0) return;
+
+    // Determine which criteria keys are still owned by still-eligible answered questions
+    const stillEligibleAnswered = QUESTIONS.filter(
+      (q) => eligibleIds.has(q.id) && this._state.answeredQuestionIds.has(q.id)
+    );
+    const preservedKeys = new Set<string>();
+    for (const eq of stillEligibleAnswered) {
+      for (const opt of eq.options) {
+        for (const k of Object.keys(opt.appliesCriteria)) {
+          preservedKeys.add(k);
+        }
+      }
     }
-    this.notify();
+
+    // Clean up ineligible questions and their orphaned criteria keys
+    for (const inelig of ineligibleAnswered) {
+      this._state.answeredQuestionIds.delete(inelig.id);
+      this._state.answeredQuestionOrder = (this._state.answeredQuestionOrder || []).filter(
+        (id) => id !== inelig.id
+      );
+
+      for (const opt of inelig.options) {
+        for (const key of Object.keys(opt.appliesCriteria)) {
+          if (!preservedKeys.has(key)) {
+            delete (this._state.criteria as Record<string, unknown>)[key];
+          }
+        }
+      }
+    }
   }
 
   public removeChoice(criteriaKey: string): void {

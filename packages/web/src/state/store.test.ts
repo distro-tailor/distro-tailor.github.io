@@ -165,3 +165,40 @@ test('AppStore: remembers panels the user opened or closed, and reset clears the
   s.reset();
   assert.deepEqual(s.getState().panelOpen, {});
 });
+
+test('AppStore: answerQuestion supports in-place update when autoAdvance is false', () => {
+  const store = new AppStore();
+
+  // First question with autoAdvance = true (default) advances to beginner_goal
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'beginner');
+  assert.equal(store.getState().viewingQuestionId, 'beginner_goal');
+
+  // Updating beginner_goal with autoAdvance = false stays in-place on beginner_goal
+  store.answerQuestion('beginner_goal', { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal' }, false);
+  assert.equal(store.getState().viewingQuestionId, 'beginner_goal');
+  assert.equal(store.getState().criteria.useCase, 'gaming');
+  assert.ok(store.getState().answeredQuestionIds.has('beginner_goal'));
+});
+
+test('AppStore: reconcileIneligibleCriteria prunes downstream questions when upstream decision conflicts', () => {
+  const store = new AppStore();
+
+  // 1. Answer in beginner mode
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'beginner');
+  store.answerQuestion('beginner_goal', { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal' });
+  store.answerQuestion('beginner_device', { platform: 'bare-metal', architecture: 'x86_64' });
+
+  assert.ok(store.getState().answeredQuestionIds.has('beginner_goal'));
+  assert.ok(store.getState().answeredQuestionIds.has('beginner_device'));
+  assert.equal(store.getState().criteria.useCase, 'gaming');
+
+  // 2. User goes back to Question 1 and changes from beginner to systems-engineer
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'systems-engineer', false);
+
+  // beginner_goal and beginner_device are no longer eligible for systems-engineer!
+  assert.equal(store.getState().answeredQuestionIds.has('beginner_goal'), false, 'beginner_goal must be pruned');
+  assert.equal(store.getState().answeredQuestionIds.has('beginner_device'), false, 'beginner_device must be pruned');
+  assert.equal(store.getState().criteria.useCase, undefined, 'Orphaned useCase from beginner_goal must be deleted');
+  assert.equal(store.getState().criteria.experienceLevel, 'systems-engineer', 'New experienceLevel must be preserved');
+});
+

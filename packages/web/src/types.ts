@@ -89,11 +89,13 @@ export interface IAppStore {
 
   /**
    * Answers a specific question and stores criteria with compile-time type validation.
+   * When autoAdvance is true (default), moves to the next question. When false, updates in-place.
    */
   answerQuestion<K extends keyof UserCriteria>(
     questionId: string,
     keyOrCriteria: K | Partial<UserCriteria>,
-    answerValue?: UserCriteria[K]
+    answerValueOrAutoAdvance?: UserCriteria[K] | boolean,
+    autoAdvance?: boolean
   ): void;
 
   /**

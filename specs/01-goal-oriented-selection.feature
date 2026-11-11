@@ -172,4 +172,28 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And users can click "Load Match" directly from the distro preview modal to jump straight to its winning build recipe
     And all relevant questionnaire steps in the wizard display their selected cards with zero blank pages
 
+  Scenario: Smart adaptive wizard navigation and in-place review
+    Given the user is answering a question for the first time in the wizard
+    When the user clicks or presses a key to select an option
+    Then the option flashes an emerald pulse and automatically advances to the next question
+    When the user navigates back to review or modify a previously answered question
+    And selects a different option
+    Then the criteria update immediately in-place without auto-advancing
+    And the wizard remains on the current question to let the user review or adjust
+
+  Scenario: Dynamic decision-tree conflict reconciliation on upstream modification
+    Given the user previously answered questions along a specific technical branch
+    When the user changes an upstream answer such that downstream questions are no longer eligible
+    Then the engine automatically prunes the answered state of those downstream questions
+    And clears the orphaned criteria keys while preserving expert overrides and eligible criteria
+
+  Scenario: Visual distinction between system default placeholder and manual selection
+    Given an optional question with a standard default is presented in the wizard
+    When the user has not manually selected any option
+    Then the "★ Standard Default" badge displays a distinct emerald outline
+    And the card itself remains unselected with no active glow
+    When the user explicitly clicks the default option or another option
+    Then the chosen card receives the full active selection border, glow, and "✓ Selected" badge
+    And the "Return to Results" button is available in the header if a match was already reached
+
 
