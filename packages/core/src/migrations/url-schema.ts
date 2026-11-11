@@ -181,6 +181,7 @@ export function deserializeCriteriaFromParams(params: Record<string, string>): U
   if (params.prefersGui !== undefined) {
     criteria.prefersGui = params.prefersGui === 'true' || params.prefersGui === '1';
   }
+  if (params.workflowStyle) criteria.workflowStyle = params.workflowStyle as any;
   if (params.releaseCadence) criteria.releaseCadence = params.releaseCadence as any;
   if (params.driverPhilosophy) criteria.driverPhilosophy = params.driverPhilosophy as any;
   if (params.bootMedium) criteria.bootMedium = params.bootMedium as any;

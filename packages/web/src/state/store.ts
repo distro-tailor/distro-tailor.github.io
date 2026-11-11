@@ -248,6 +248,8 @@ export class AppStore extends EventTarget implements IAppStore {
       this._state.answeredQuestionIds.delete('attached_peripherals');
     } else if (criteriaKey === 'prefersGui') {
       this._state.answeredQuestionIds.delete('display_mode');
+    } else if (criteriaKey === 'workflowStyle') {
+      this._state.answeredQuestionIds.delete('desktop_workflow_style');
     }
 
     this.notify();

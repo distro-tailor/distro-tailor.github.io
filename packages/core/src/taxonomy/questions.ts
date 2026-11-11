@@ -593,6 +593,67 @@ export const QUESTIONS: Question[] = [
     ]
   },
 
+  // --- STEP 5B: DESKTOP WORKFLOW & INTERFACE FAMILIARITY ---
+  {
+    id: 'desktop_workflow_style',
+    order: 5,
+    isOptional: true,
+    prompt: 'What desktop layout and interface style feels most natural to you?',
+    subtext: 'We tailor the desktop environment and distribution to match your muscle memory.',
+    category: 'software',
+    shouldAsk: (criteria) =>
+      criteria.prefersGui === true &&
+      criteria.workflowStyle === undefined &&
+      criteria.useCase !== 'browser-wasm' &&
+      criteria.useCase !== 'container-base' &&
+      criteria.useCase !== 'k8s-cluster' &&
+      criteria.platform !== 'container' &&
+      criteria.platform !== 'k8s-node',
+    tip: {
+      icon: '🎨',
+      title: 'Muscle Memory Matters',
+      text: 'Switching to Linux is easiest when your desktop layout feels familiar! Linux distributions offer desktop environments tailored for Windows switchers (Linux Mint), macOS users (Pop!_OS/COSMIC, GNOME), or touch and Chromebook/tablet interfaces (Endless OS).'
+    },
+    options: [
+      {
+        id: 'windows_style',
+        label: 'Windows-Style (Taskbar & Start Menu)',
+        description: 'Bottom taskbar, system tray on the right, traditional Start menu (Linux Mint Cinnamon, KDE Plasma)',
+        icon: '🪟',
+        appliesCriteria: { workflowStyle: 'windows' }
+      },
+      {
+        id: 'macos_style',
+        label: 'macOS-Style (Dock, Top Bar & Gestures)',
+        description: 'Centered app dock, global top bar, Spotlight-style app launcher, and smooth trackpad gestures (Pop!_OS, GNOME, Ubuntu)',
+        icon: '🍏',
+        appliesCriteria: { workflowStyle: 'macos' }
+      },
+      {
+        id: 'mobile_touch_style',
+        label: 'Tablet / Mobile / Chromebook (Icon Grid & Touch First)',
+        description: 'Full-screen app grid, large tap targets, and touch gestures similar to iPadOS, Android, and ChromeOS (Endless OS, GNOME Touch)',
+        icon: '📱',
+        appliesCriteria: { workflowStyle: 'mobile-touch' }
+      },
+      {
+        id: 'compact_traditional_style',
+        label: 'Lightweight / Traditional Linux Desktop',
+        description: 'Minimalist, low-RAM interface with traditional menus and maximum responsiveness on older hardware (antiX, XFCE)',
+        icon: '🪶',
+        appliesCriteria: { workflowStyle: 'traditional-compact' }
+      },
+      {
+        id: 'no_preference_workflow',
+        label: 'No Preference / Open to Any Style',
+        description: 'Recommend whatever best fits my hardware and technical use case',
+        icon: '⚖️',
+        isDefault: true,
+        appliesCriteria: { workflowStyle: 'no-preference' }
+      }
+    ]
+  },
+
   // --- STEP 6: RELEASE CADENCE ---
   {
     id: 'release_cadence',

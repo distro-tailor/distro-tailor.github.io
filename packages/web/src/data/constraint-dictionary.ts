@@ -96,6 +96,13 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     'free-software-only': { label: '100% Free / Open Source Only', icon: '🕊️' },
     'no-preference': { label: 'Standard Driver Balance', icon: '⚖️' }
   },
+  workflowStyle: {
+    windows: { label: 'Windows-Style (Taskbar & Start Menu)', icon: '🪟' },
+    macos: { label: 'macOS-Style (Dock, Top Bar & Gestures)', icon: '🍏' },
+    'mobile-touch': { label: 'Tablet / Mobile / Chromebook (Touch Grid)', icon: '📱' },
+    'traditional-compact': { label: 'Traditional / Lightweight Minimal', icon: '🪶' },
+    'no-preference': { label: 'Any Desktop Workflow', icon: '⚖️' }
+  },
   bootMedium: {
     'nvme-ssd': { label: 'Internal SSD / NVMe Storage', icon: '⚡' },
     'sd-card-usb': { label: 'MicroSD / USB Flash Drive', icon: '💾' },

@@ -28,6 +28,7 @@ export function evaluateCriteria(
   if (criteria.driverPhilosophy && criteria.driverPhilosophy !== 'no-preference') maxWeight += 10;
   if (criteria.bootMedium) maxWeight += 10;
   if (criteria.prefersGui !== undefined) maxWeight += 10;
+  if (criteria.workflowStyle && criteria.workflowStyle !== 'no-preference') maxWeight += 10;
   if (criteria.realtimeAudio) maxWeight += 15;
   const selectedPeripherals = (
     criteria.peripherals ||
@@ -436,6 +437,82 @@ export function evaluateCriteria(
           matched: true,
           explanation: 'Optimized for headless server, container, or terminal-first operations.'
         });
+      }
+    }
+
+    // 9B. Desktop Workflow & Interface Familiarity (Weight: 10)
+    if (criteria.workflowStyle && criteria.workflowStyle !== 'no-preference') {
+      if (criteria.workflowStyle === 'windows') {
+        if (['linux-mint'].includes(distro.id)) {
+          earned += 10;
+          reasons.push({
+            feature: 'Interface Familiarity',
+            matched: true,
+            explanation: 'Cinnamon desktop provides an intuitive, familiar Windows-style layout with taskbar and start menu.'
+          });
+        } else if (['fedora', 'debian', 'ubuntu-studio'].includes(distro.id)) {
+          earned += 5;
+          reasons.push({
+            feature: 'Interface Familiarity',
+            matched: true,
+            explanation: 'Features configurable KDE Plasma or XFCE environments readily styled to a Windows layout.'
+          });
+        }
+      } else if (criteria.workflowStyle === 'macos') {
+        if (['pop-os'].includes(distro.id)) {
+          earned += 10;
+          reasons.push({
+            feature: 'Interface Familiarity',
+            matched: true,
+            explanation: 'COSMIC desktop features centered dock, top bar, spotlight launcher, and smooth trackpad navigation familiar to macOS users.'
+          });
+        } else if (['fedora', 'fedora-silverblue', 'ubuntu', 'asahi-linux'].includes(distro.id)) {
+          earned += 8;
+          reasons.push({
+            feature: 'Interface Familiarity',
+            matched: true,
+            explanation: 'GNOME desktop features macOS-style top bar, smooth multi-touch gestures, and dynamic workspaces.'
+          });
+        }
+      } else if (criteria.workflowStyle === 'mobile-touch') {
+        if (['endless-os'].includes(distro.id)) {
+          earned += 10;
+          reasons.push({
+            feature: 'Interface Familiarity',
+            matched: true,
+            explanation: 'Clean, full-screen app grid launcher and touch-friendly design familiar to tablet, iPad, Android, and Chromebook users.'
+          });
+        } else if (['postmarketos'].includes(distro.id)) {
+          earned += 8;
+          reasons.push({
+            feature: 'Interface Familiarity',
+            matched: true,
+            explanation: 'Mobile-first Linux environment (Phosh/Plasma Mobile) tailored specifically for touchscreens and portable devices.'
+          });
+        } else if (['fedora', 'fedora-silverblue', 'bazzite'].includes(distro.id)) {
+          earned += 6;
+          reasons.push({
+            feature: 'Interface Familiarity',
+            matched: true,
+            explanation: 'Modern Wayland gestures and full-screen app grid suitable for 2-in-1 touchscreen devices.'
+          });
+        }
+      } else if (criteria.workflowStyle === 'traditional-compact') {
+        if (['antix'].includes(distro.id)) {
+          earned += 10;
+          reasons.push({
+            feature: 'Interface Familiarity',
+            matched: true,
+            explanation: 'Ultra-fast, low-RAM traditional window manager interface with classic menus and minimal resource usage.'
+          });
+        } else if (['debian', 'dietpi'].includes(distro.id)) {
+          earned += 6;
+          reasons.push({
+            feature: 'Interface Familiarity',
+            matched: true,
+            explanation: 'Highly modular base easily paired with lightweight classic desktop environments.'
+          });
+        }
       }
     }
 

@@ -519,6 +519,42 @@ test('QuestionFlow: Presents expanded questions (display mode, release cadence, 
   assert.ok(eligible.some(q => q.id === 'audio_latency'), 'Must include audio_latency');
 });
 
+test('QuestionFlow & Matcher: Evaluates desktop workflow familiarity (Windows, macOS, Mobile/Touch)', () => {
+  const flow = new QuestionFlow(QUESTIONS);
+  const eligible = flow.getEligibleQuestions({ experienceLevel: 'intermediate', useCase: 'desktop', prefersGui: true });
+  assert.ok(eligible.some(q => q.id === 'desktop_workflow_style'), 'Must include desktop_workflow_style for GUI users');
+
+  // 1. Mobile / Touch / Chromebook familiarity favors Endless OS
+  const mobileRes = evaluateCriteria({
+    useCase: 'desktop',
+    prefersGui: true,
+    workflowStyle: 'mobile-touch'
+  });
+  const endlessMatch = mobileRes.allMatches.find(m => m.distro.id === 'endless-os');
+  assert.ok(endlessMatch);
+  assert.ok(endlessMatch.reasons.some(r => r.feature === 'Interface Familiarity' && r.matched));
+
+  // 2. Windows familiarity favors Linux Mint
+  const winRes = evaluateCriteria({
+    useCase: 'desktop',
+    prefersGui: true,
+    workflowStyle: 'windows'
+  });
+  const mintMatch = winRes.allMatches.find(m => m.distro.id === 'linux-mint');
+  assert.ok(mintMatch);
+  assert.ok(mintMatch.reasons.some(r => r.feature === 'Interface Familiarity' && r.matched));
+
+  // 3. macOS familiarity favors Pop!_OS and GNOME
+  const macRes = evaluateCriteria({
+    useCase: 'desktop',
+    prefersGui: true,
+    workflowStyle: 'macos'
+  });
+  const popMatch = macRes.allMatches.find(m => m.distro.id === 'pop-os');
+  assert.ok(popMatch);
+  assert.ok(popMatch.reasons.some(r => r.feature === 'Interface Familiarity' && r.matched));
+});
+
 test('Matcher: Evaluates release cadence (rolling vs LTS)', () => {
   const rollingRes = evaluateCriteria({
     useCase: 'desktop',

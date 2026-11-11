@@ -116,6 +116,19 @@ export const EXPERT_FIELDS: ExpertFieldConfig[] = [
     ]
   },
   {
+    id: 'expert-workflow-style',
+    label: 'Desktop Interface / Workflow Style',
+    criteriaKey: 'workflowStyle',
+    placeholder: 'Any Workflow Style',
+    options: [
+      { value: 'windows', label: 'Windows-Style (Taskbar & Start Menu)' },
+      { value: 'macos', label: 'macOS-Style (Dock, Top Bar & Gestures)' },
+      { value: 'mobile-touch', label: 'Tablet / Mobile / Chromebook (Icon Grid & Touch)' },
+      { value: 'traditional-compact', label: 'Lightweight / Traditional Minimal' },
+      { value: 'no-preference', label: 'No Preference' }
+    ]
+  },
+  {
     id: 'expert-boot-medium',
     label: 'Boot Medium',
     criteriaKey: 'bootMedium',

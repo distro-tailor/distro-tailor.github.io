@@ -198,6 +198,13 @@ export type FormFactor =
   | 'sbc'
   | 'server';
 
+export type DesktopWorkflowStyle =
+  | 'windows'
+  | 'macos'
+  | 'mobile-touch'
+  | 'traditional-compact'
+  | 'no-preference';
+
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
   platform?: PlatformTarget;
@@ -210,6 +217,7 @@ export interface UserCriteria {
   statePreference?: StateModel | 'no-preference';
   experienceLevel?: ExperienceLevel;
   prefersGui?: boolean;
+  workflowStyle?: DesktopWorkflowStyle;
   requiresCustomBuild?: boolean;
   releaseCadence?: ReleaseCadence;
   driverPhilosophy?: DriverPhilosophy;
