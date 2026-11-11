@@ -50,7 +50,6 @@ export function bindNavigationEvents(ctx: HandlerContext): void {
   };
   document.getElementById('btn-modify-answers')?.addEventListener('click', returnToWizard);
   document.getElementById('btn-tweak-blueprint')?.addEventListener('click', returnToWizard);
-  document.getElementById('btn-tweak-shared')?.addEventListener('click', returnToWizard);
 
   // Individual blueprint chip click to directly modify a specific constraint
   document.querySelectorAll<HTMLButtonElement>('.blueprint-chip-btn').forEach((btn) => {
@@ -108,7 +107,8 @@ export function bindNavigationEvents(ctx: HandlerContext): void {
     router.saveStateToUrl(store.getState(), true);
   });
 
-  // Tweak choices from shared banner
+  // Tweak choices from shared banner: recipients never answered the wizard, so open the
+  // expert matrix where every criterion of the shared build can be edited at once.
   document.getElementById('btn-tweak-shared')?.addEventListener('click', () => {
     store.setTab('expert');
     router.saveStateToUrl(store.getState(), true);

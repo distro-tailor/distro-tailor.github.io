@@ -80,3 +80,8 @@ Feature: URL State Sharing and Collaborative Configuration
     Then all action buttons (Copy Link, Download Image, Official Site, Review Answers) must render with dark high-contrast typography
     And social quick-share cards (Reddit, X/Twitter, WhatsApp) must feature light-adapted backgrounds and high-contrast text
     And key strengths and trade-offs sections must render high-contrast emerald and amber tones without unreadable white-on-white text
+
+  Scenario: Tweaking a shared build opens the expert matrix
+    Given a recipient is viewing a shared build they never answered questions for
+    When they click "Tweak Choices" on the shared configuration banner
+    Then the expert matrix opens with every criterion of the shared build editable at once
