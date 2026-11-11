@@ -2,9 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { evaluateCriteria } from '@distro-tailor/core';
 import { getPersonaPresetById, PERSONA_PRESETS } from './persona-presets.js';
-import { renderPersonaPresetsPanel } from '../components/persona-presets-panel.js';
 
-test('Persona Presets: every preset has valid properties and deterministic URL state', () => {
+test('Persona Presets: every developer test preset has valid properties and deterministic URL state', () => {
   assert.ok(PERSONA_PRESETS.length >= 8, 'Must provide at least 8 persona presets');
 
   for (const preset of PERSONA_PRESETS) {
@@ -31,20 +30,5 @@ test('Persona Presets: every preset has valid properties and deterministic URL s
         `${preset.id} must resolve recipe ${preset.recipeId}`
       );
     }
-  }
-});
-
-test('Persona Presets Panel: renders all persona cards with data-preset-id attributes', () => {
-  const html = renderPersonaPresetsPanel();
-  assert.ok(html.includes('Example Personas &amp; Deterministic VM Test Builds') || html.includes('Deterministic VM Test Builds'));
-  assert.ok(html.includes('persona-preset-card'));
-  assert.ok(html.includes('persona-preset-btn'));
-  assert.ok(html.includes('persona-winner-badge'));
-  assert.ok(html.includes('persona-target-badge'));
-
-  for (const preset of PERSONA_PRESETS) {
-    assert.ok(html.includes(`data-preset-id="${preset.id}"`), `Must render card for ${preset.id}`);
-    assert.ok(html.includes(preset.id), `Must render preset id for ${preset.id}`);
-    assert.ok(html.includes(preset.badge), `Must render badge for ${preset.badge}`);
   }
 });

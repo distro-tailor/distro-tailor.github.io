@@ -117,12 +117,11 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     Then the answer applies to the question currently displayed, not the first question
     And ArrowLeft steps back and Escape closes open modals or the expert matrix
 
-  Scenario: Loading an Example Persona Preset and Inspecting Deterministic Test Builds
-    Given the user is on the questionnaire wizard view
-    When the user selects an example persona preset card such as "Declarative NixOS Workstation"
-    Then the application applies the preset criteria directly to the active state
+  Scenario: Testing Deterministic Builds via Example Persona URL Permalinks
+    Given a developer wants to test-drive custom build recipes in VMs or emulators
+    When the developer queries an example persona permalink such as "Declarative NixOS Workstation"
+    Then the decision engine applies the preset criteria directly to the active state
     And transitions immediately to the results view
-    And updates the URL query string to the persona's deterministic permalink
     And displays the recommended distribution, custom build recipe, and 3-tier VM test commands
 
   Scenario: 100% Distro Reachability via Deterministic URL Permalinks

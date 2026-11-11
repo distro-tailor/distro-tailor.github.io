@@ -1,5 +1,4 @@
 import { PeripheralNeed } from '@distro-tailor/core';
-import { getPersonaPresetById } from '../data/persona-presets.js';
 import { router } from '../state/router.js';
 import { store } from '../state/store.js';
 import { scrollToQuestionCard, showToast } from '../utils/dom.js';
@@ -120,20 +119,4 @@ export function bindWizardEvents(ctx: HandlerContext): void {
   };
   document.getElementById('btn-multiselect-confirm')?.addEventListener('click', handleMultiSelectConfirm);
   document.getElementById('btn-multiselect-confirm-top')?.addEventListener('click', handleMultiSelectConfirm);
-
-  // Persona preset quick-loader buttons
-  document.querySelectorAll<HTMLElement>('[data-preset-id]').forEach((el) => {
-    el.addEventListener('click', (e) => {
-      e.preventDefault();
-      const presetId = el.getAttribute('data-preset-id');
-      if (!presetId) return;
-      const preset = getPersonaPresetById(presetId);
-      if (!preset) return;
-
-      store.reset(preset.criteria);
-      store.setTab('results');
-      router.saveStateToUrl(store.getState(), true);
-      showToast(`Loaded ${preset.name} preset!`, '🎯');
-    });
-  });
 }
