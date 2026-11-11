@@ -65,3 +65,10 @@ Feature: URL State Sharing and Collaborative Configuration
     When URL state persistence generates links
     Then the schema version remains "v=1" without premature bumps
     And schema version increments are strictly gated to breaking taxonomy changes upon deployment
+
+  Scenario: High-Contrast Light Theme Accessibility in Share Modal and Detail Previews
+    Given the user switches the application to "Light Theme"
+    When the user opens the "Share Match" modal or "Distro Preview" popup
+    Then all action buttons (Copy Link, Download Image, Official Site, Review Answers) must render with dark high-contrast typography
+    And social quick-share cards (Reddit, X/Twitter, WhatsApp) must feature light-adapted backgrounds and high-contrast text
+    And key strengths and trade-offs sections must render high-contrast emerald and amber tones without unreadable white-on-white text

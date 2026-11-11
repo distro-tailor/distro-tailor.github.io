@@ -174,6 +174,39 @@ flowchart LR
 
 ---
 
+## 🎨 10. Desktop Workflow & Interface Familiarity (Windows, Mac & Touch/Mobile)
+
+### Q10.1: How do we respect muscle memory for switchers coming from Windows, macOS, Android, iOS, and ChromeOS?
+* **Problem:** Telling a new user "just pick Linux Mint" or "just pick Fedora" can trigger frustration if the desktop layout contradicts their ingrained spatial habits (e.g. looking for a bottom-left Start button vs top-bar global menus vs an iPad-style app grid).
+* **Decision:** DistroTailor prompts users selecting a graphical desktop with the **Desktop Workflow Style** dimension (`workflowStyle`):
+  1. 🪟 **Windows-Style (Taskbar & Start Menu):** Bottom taskbar, system tray on the right, traditional Start menu.
+     - *Distro Affinity:* **Linux Mint Cinnamon**, **KDE Plasma** (Debian, openSUSE).
+  2. 🍏 **macOS-Style (Dock, Top Bar & Gestures):** Centered app dock, global status bar, Spotlight launcher, and trackpad gestures.
+     - *Distro Affinity:* **Pop!_OS (COSMIC)**, **Fedora / Ubuntu (GNOME)**.
+  3. 📱 **Tablet / Mobile / Chromebook (Icon Grid & Touch First):** Full-screen icon grid, large tap targets, and touch gestures. Covers iOS, iPadOS, Android, and ChromeOS mental models seamlessly without option bloat.
+     - *Distro Affinity:* **Endless OS**, **postmarketOS**, GNOME Touch.
+  4. 🪶 **Traditional / Lightweight Minimal:** Low-RAM classic window managers.
+     - *Distro Affinity:* **antiX**, XFCE.
+
+---
+
+## 💡 11. Lessons Learned & Production Invariants
+
+### 11.1 Skip Defaults Must Set Real Criteria, Not Empty Sets
+* **Symptom:** Previously, clicking "Skip (Use Default)" bypassed a question without registering criteria (`{}`). If a user skipped all optional questions, the criteria remained completely unconstrained. Every distribution tied at 0%, and Alpine Linux won purely due to alphabetical tie-breaking (`localeCompare`).
+* **Root Cause & Fix:**
+  1. **Default Registration:** `handleSkip` now extracts `defaultOpt.appliesCriteria` and records it directly in the store, guaranteeing that choices reflect default assumptions and highlight properly when stepping back.
+  2. **Universal Baseline Fallback:** In `matcher.ts`, if an unconstrained profile `{}` is evaluated, the engine explicitly awards **#1 Linux Mint (100% Universal Baseline)** and #2 Ubuntu/Fedora (90%), eliminating arbitrary alphabetical winners.
+
+### 11.2 High-Contrast Light Theme Accessibility (WCAG 2.1 AA)
+* **Lesson:** Dark-theme-first applications frequently suffer from inverted low-contrast anti-patterns when light mode is added (e.g. neon text on dark backgrounds or transparent pills that turn unreadable white-on-white).
+* **Fix:**
+  - Standardized all button hierarchies in light theme: Emerald `#059669` (Official Site), Slate-800 `#1e293b` (Review Answers), Indigo `#4f46e5` (Download Image).
+  - High-contrast card surfaces in Share Modal: Reddit (`#fff7ed`), X/Twitter (`#f0f9ff`), WhatsApp (`#f0fdf4`).
+  - Distro Detail Preview sections: Key Strengths rendered in `#065f46` with bold checkmarks; Trade-offs in `#92400e`.
+
+---
+
 ## 📋 Summary Table of Archetypes & Flagships
 
 | User Goal / Hardware Archetype | Flagship Recommendation | Key Architectural Trait |

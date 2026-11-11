@@ -67,8 +67,10 @@ $$\text{Score} = \max\left(0, \min\left(100, \text{round}\left(\frac{\sum W_{\te
 | **Platform Target** | **20 pts** | Soft (-10 penalty) | Direct match against `distro.platforms` |
 | **CPU Architecture** | **20 pts** | **Hard Gate (-40 penalty)** | Heavy penalty for incompatible hardware (e.g. x86 binary on ARM) |
 | **Storage & RAM Footprint** | **15 pts** | Soft (-15 penalty) | Ordered hierarchy check (`micro` < `minimal` < `lean` < `standard` < `full`) |
+| **Desktop Workflow Style** | **10 pts** | Soft | Evaluates Windows, macOS, Mobile/Touch, or Traditional ergonomics |
 | **State Immutability** | **10 pts** | Soft | Compares `mutable`, `declarative`, `immutable-ostree`, `stateless-ram` |
 | **C Library & Init** | **10 pts** | Soft (5 pts each) | `musl` vs. `glibc` and `systemd` vs. `busybox`/`openrc` |
+| **Release Cadence & Drivers** | **10 pts each** | Soft | LTS vs Rolling, and Proprietary vs 100% Free Software |
 | **Experience Level** | **5 pts** | Soft (-15 penalty) | Penalizes source-compilation systems (Buildroot) for beginners |
 
 ---

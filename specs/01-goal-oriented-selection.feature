@@ -78,4 +78,21 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     Then the system should provide data-driven comparative rationales against household names
     And explain why Linux Mint is chosen over Vanilla Ubuntu (native packaging, zero Snap overhead, familiar Cinnamon desktop)
     And explain why Fedora Workstation is chosen over Red Hat Enterprise Linux (official modern upstream workstation, zero subscription paywalls, fresh office productivity tools)
+
+  Scenario: Desktop Workflow Familiarity Tailoring for Windows, Mac, and Touch/Chromebook Users
+    Given the user selects a graphical desktop system (prefersGui: true)
+    When the wizard prompts for desktop workflow and interface familiarity
+    Then the user can choose between "Windows-Style", "macOS-Style", "Tablet / Mobile / Chromebook", or "Traditional / Lightweight"
+    And selecting "Windows-Style" awards an affinity bonus to Linux Mint Cinnamon and KDE Plasma
+    And selecting "macOS-Style" awards an affinity bonus to Pop!_OS COSMIC and Fedora/Ubuntu GNOME
+    And selecting "Tablet / Mobile / Chromebook" awards an affinity bonus to Endless OS with its full-screen app grid and touch navigation
+    And selecting "Traditional / Lightweight" awards an affinity bonus to antiX and lightweight window managers
+
+  Scenario: Skip Default Behavior Applies Question Defaults Cleanly
+    Given the user is answering an optional question with a default recommendation
+    When the user clicks "Skip (Use Default)"
+    Then the question's default criteria is applied to the active profile
+    And the user advances to the next question with their choices accurately tracked
+    And stepping back highlights the applied default option without leaving unconstrained empty criteria
+    And skipping all questions falls back gracefully to Linux Mint as the Universal Baseline at 100% instead of unconstrained ties
     And allow additional alternative comparisons to grow dynamically in the data registry
