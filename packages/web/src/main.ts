@@ -45,6 +45,23 @@ function renderPrimaryContent(
 }
 
 function render(): void {
+  // Capture active input focus and cursor selection to restore after reactive re-render
+  let activeId: string | null = null;
+  let selectionStart: number | null = null;
+  let selectionEnd: number | null = null;
+
+  if (typeof document !== 'undefined' && document.activeElement) {
+    const el = document.activeElement as HTMLElement;
+    if (el.id && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+      activeId = el.id;
+      const inputEl = el as HTMLInputElement;
+      try {
+        selectionStart = inputEl.selectionStart;
+        selectionEnd = inputEl.selectionEnd;
+      } catch {}
+    }
+  }
+
   const app = getAppElement();
   const state = store.getState();
   const evaluation = evaluateCriteria(state.criteria);
@@ -102,6 +119,19 @@ function render(): void {
   `;
 
   attachEventHandlers(currentQuestion, evaluation, flow);
+
+  // Restore focus and cursor position if user was typing in an input
+  if (activeId && typeof document !== 'undefined') {
+    const restoredEl = document.getElementById(activeId) as HTMLInputElement | HTMLTextAreaElement | null;
+    if (restoredEl && typeof restoredEl.focus === 'function') {
+      restoredEl.focus();
+      if (selectionStart !== null && selectionEnd !== null && typeof restoredEl.setSelectionRange === 'function') {
+        try {
+          restoredEl.setSelectionRange(selectionStart, selectionEnd);
+        } catch {}
+      }
+    }
+  }
 }
 
 function handlePopState(): void {
