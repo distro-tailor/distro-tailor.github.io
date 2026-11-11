@@ -13,6 +13,23 @@ export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedReci
   const enableFlatpak = criteria.enableFlatpak ? '1' : '0';
   const dockerApp = criteria.dockerApp && criteria.dockerApp !== 'none' ? criteria.dockerApp : 'none';
 
+  // Hardware Form Factor & Power/Battery Tuning
+  const formFactor = criteria.formFactor || 'desktop';
+  const isLaptop = formFactor === 'laptop';
+  const isHandheld = formFactor === 'handheld';
+  const isLowPower = formFactor === 'low-power';
+  const isMac = formFactor === 'mac';
+  const isServer = formFactor === 'server';
+  const powerTuningProfile = isLaptop
+    ? 'laptop-battery'
+    : isLowPower
+      ? 'low-power-idle'
+      : isHandheld
+        ? 'handheld-tdp'
+        : isServer
+          ? 'server-performance'
+          : 'desktop-balanced';
+
   const makefileContent = `# ==============================================================================
 # DistroTailor: Debootstrap Minimal Linux Builder
 # Target: Debian Minimal (bootable ISO & rootfs)
@@ -26,8 +43,12 @@ SUITE           ?= bookworm
 MIRROR          ?= http://deb.debian.org/debian
 
 # --- MODULAR HARDWARE & DESKTOP TUNING ---
-# HARDWARE_TARGET: generic-x86 | rpi | intel-nuc | vm
-HARDWARE_TARGET ?= generic-x86
+# HARDWARE_TARGET: generic-x86 | rpi | intel-nuc | vm | mac | handheld
+HARDWARE_TARGET ?= ${isMac ? 'mac-hardware' : isHandheld ? 'handheld-device' : 'generic-x86'}
+# FORM_FACTOR: desktop | laptop | handheld | low-power | mac | sbc | server
+FORM_FACTOR     ?= ${formFactor}
+# POWER_TUNING: laptop-battery | low-power-idle | handheld-tdp | server-performance | desktop-balanced
+POWER_TUNING    ?= ${powerTuningProfile}
 # PRUNE_FIRMWARE: 1 = Strips 1.8GB of unused vendor blobs, keeps only essential free firmware
 PRUNE_FIRMWARE  ?= 1
 # DESKTOP_ENV: none (headless) | cage (wayland kiosk) | xfce | kde | gnome
@@ -57,7 +78,8 @@ MKSQUASHFS  ?= mksquashfs
 all: detect-hardware clean prepare rootfs configure iso
 	@echo "===================================================="
 	@echo " Build Complete! Image: $(OUTPUT_DIR)/$(ISO_NAME)"
-	@echo " Hardware Profile:      $(HARDWARE_TARGET)"
+	@echo " Hardware Profile:      $(HARDWARE_TARGET) ($(FORM_FACTOR))"
+	@echo " Power & Battery Tuning: $(POWER_TUNING)"
 	@echo " Firmware Pruning:      $(if $(filter 1,$(PRUNE_FIRMWARE)),ENABLED (-1.8GB bloat stripped),DISABLED)"
 	@echo " Desktop Environment:   $(DESKTOP_ENV)"
 	@echo " Distrobox Hybrid:      $(if $(filter 1,$(ENABLE_DISTROBOX)),ENABLED (Arch AUR / Podman),DISABLED)"
@@ -120,6 +142,22 @@ configure: rootfs
 			apt-get install -y --no-install-recommends plasma-workspace-wayland sddm; \\
 		elif [ '$(DESKTOP_ENV)' = 'gnome' ]; then \\
 			apt-get install -y --no-install-recommends gnome-session gdm3; \\
+		fi && \\
+		\\
+		# Power, TDP & Battery Optimization Layer \\
+		if [ '$(POWER_TUNING)' = 'laptop-battery' ]; then \\
+			apt-get install -y --no-install-recommends tlp tlp-rdw thermald acpi-support powertop && \\
+			systemctl enable tlp; \\
+		elif [ '$(POWER_TUNING)' = 'low-power-idle' ]; then \\
+			apt-get install -y --no-install-recommends thermald cpufrequtils && \\
+			echo 'GOVERNOR=\"powersave\"' > /etc/default/cpufrequtils; \\
+		elif [ '$(POWER_TUNING)' = 'handheld-tdp' ]; then \\
+			apt-get install -y --no-install-recommends power-profiles-daemon steam-devices; \\
+		fi && \\
+		\\
+		# Hardware Quirk Fixes (Mac Broadcom Wi-Fi & Dual EFI) \\
+		if [ '$(HARDWARE_TARGET)' = 'mac-hardware' ]; then \\
+			apt-get install -y --no-install-recommends bcmwl-kernel-source; \\
 		fi && \\
 		\\
 		# Optional Frankenstein Hybrid Engine (Distrobox) \\
@@ -207,6 +245,8 @@ This recipe builds a bare-metal bootable ISO based on a stripped Debian \`minbas
 
 ## Configured Layers:
 * **Architecture:** \`${arch}\`
+* **Form Factor:** \`${formFactor}\`
+* **Power & Battery Profile:** \`${powerTuningProfile}\`
 * **Desktop Environment:** \`${desktopEnv}\`
 * **Distrobox Hybrid:** \`${enableDistrobox === '1' ? 'Enabled (Arch AUR on Debian)' : 'Disabled'}\`
 * **Nix Package Layer:** \`${enableNix === '1' ? 'Enabled' : 'Disabled'}\`

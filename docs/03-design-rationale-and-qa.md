@@ -77,6 +77,15 @@ flowchart LR
     ```
     This runs `lspci -nnk`, cross-references active device IDs against `modules.alias`, and generates a streamlined kernel configuration via `make localmodconfig`, shedding gigabytes of unnecessary drivers.
 
+### Q4.2: How do Form Factor, TDP, and Battery Profiles alter the generated build recipe?
+* **The Core Invariant: "If We Ask, The Recipe Must Reflect It":**
+  Asking users questions about hardware form factors (Laptop vs Desktop vs Handheld vs Low-Power) is meaningless unless the final custom build recipe actually changes.
+* **Concrete Recipe Manifestations:**
+  - **Laptop (`laptop`):** Automatically injects `POWER_TUNING ?= laptop-battery`, installs and enables `tlp`, `tlp-rdw`, `thermald`, and `powertop` inside the chroot, enabling active C-state sleep, Wi-Fi power saving, and thermal management.
+  - **Low-Power / Ancient PC (`low-power`):** Injects `POWER_TUNING ?= low-power-idle`, sets CPU frequency governor to `powersave` via `/etc/default/cpufrequtils`, avoiding thermal throttling on fanless or passive heatsinks.
+  - **Handheld Gaming PC (`handheld`):** Injects `POWER_TUNING ?= handheld-tdp`, installs `power-profiles-daemon` for 15W APU TDP switching, and provisions `steam-devices` controller udev rules.
+  - **Apple Mac (`mac`):** Injects `HARDWARE_TARGET ?= mac-hardware`, automatically installing `bcmwl-kernel-source` for proprietary Broadcom Wi-Fi and Apple audio stubs.
+
 ---
 
 ## 🖧 5. Enterprise Server Racks & Homelab Virtualization

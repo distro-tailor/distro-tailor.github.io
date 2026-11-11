@@ -60,3 +60,12 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     And given a user configures a target system with only 512 MB RAM
     When viewing high-memory applications like "Immich" or "Chromium"
     Then the UI must display a clear RAM constraint warning indicating the application exceeds the hardware budget
+
+  Scenario: Form Factor and TDP/Battery Power Profiles Reflected in Custom Build Recipes
+    Given the user specifies hardware form factor as "laptop"
+    When the custom Debian live ISO recipe is generated
+    Then the generated Makefile must configure "FORM_FACTOR ?= laptop" and "POWER_TUNING ?= laptop-battery"
+    And the chroot configuration must install and enable "tlp", "tlp-rdw", and "thermald" for active battery saving
+    And if the user specifies "low-power", the Makefile must configure "powersave" CPU governors and "cpufrequtils"
+    And if the user specifies "handheld", the Makefile must configure "power-profiles-daemon" and game controller udev rules
+    And if the user specifies "mac", the Makefile must inject "bcmwl-kernel-source" for proprietary Mac Broadcom Wi-Fi
