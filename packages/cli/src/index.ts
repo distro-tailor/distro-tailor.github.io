@@ -147,6 +147,7 @@ program
     if (!recipeId) {
       console.error(pc.red('\n✖ Error: Please specify either --recipe <recipeId> or --url <sharedUrl>.'));
       process.exit(1);
+      return;
     }
 
     const targetDir = path.resolve(process.cwd(), options.out);

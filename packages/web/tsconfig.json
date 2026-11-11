@@ -9,6 +9,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
     "paths": {
       "@distro-tailor/core": ["../core/src/index.ts"]
     }

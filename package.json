@@ -23,7 +23,8 @@
     "check:pins": "tsx scripts/check-pins.ts"
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "tsx": "^4.23.15",
-    "typescript": "^5.7.3"
+    "typescript": "^7.0.2"
   }
 }
