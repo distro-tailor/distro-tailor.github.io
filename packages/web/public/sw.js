@@ -1,5 +1,5 @@
 // DistroTailor Service Worker - Offline PWA Support
-const CACHE_NAME = 'distro-tailor-v1';
+const CACHE_NAME = 'distro-tailor-v2';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -30,6 +30,11 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
+
+  // Bypass service worker entirely for localhost and local development
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.port !== '') {
+    return;
+  }
 
   // Only cache same-origin assets
   if (url.origin !== self.location.origin) return;

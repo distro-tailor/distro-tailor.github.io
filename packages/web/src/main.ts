@@ -146,7 +146,26 @@ function handlePopState(): void {
 }
 
 function registerServiceWorker(): void {
-  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+
+  // Never register service worker in Vite dev server, and clean up any existing registrations
+  if (import.meta.env.DEV || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister();
+      }
+    });
+    if (typeof caches !== 'undefined') {
+      caches.keys().then((keys) => {
+        for (const key of keys) {
+          caches.delete(key);
+        }
+      });
+    }
+    return;
+  }
+
+  if (window.location.protocol.startsWith('http')) {
     window.addEventListener('load', () => {
       navigator.serviceWorker
         .register('./sw.js')
