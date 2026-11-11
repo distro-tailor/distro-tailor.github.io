@@ -141,6 +141,56 @@ test('Core Matcher: Pinpoints FreeDOS for micro-footprint real-mode PC appliance
   assert.equal(result.bestMatch.distro.osFamily, 'dos');
 });
 
+test('Core Matcher: Pinpoints SmartOS for stateless Illumos hypervisors and Solaris Zones', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'systems-engineer',
+    useCase: 'hypervisor-vms',
+    platform: 'server',
+    architecture: 'x86_64',
+    statePreference: 'stateless-ram',
+    footprint: 'standard',
+    maxRamMb: 8192
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'smartos');
+  assert.ok(result.bestMatch.score >= 80);
+  assert.equal(result.bestMatch.distro.osFamily, 'illumos');
+});
+
+test('Core Matcher: Pinpoints ReactOS for open-source Windows NT compatibility on legacy PCs', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'intermediate',
+    useCase: 'desktop',
+    platform: 'bare-metal',
+    architecture: 'x86_64',
+    maxRamMb: 512,
+    footprint: 'lean',
+    cLibPreference: 'none',
+    workflowStyle: 'windows'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'reactos');
+  assert.ok(result.bestMatch.score >= 80);
+  assert.equal(result.bestMatch.distro.osFamily, 'nt-compatible');
+});
+
+test('Core Matcher: Pinpoints Haiku for responsive personal desktop computing', () => {
+  const result = evaluateCriteria({
+    experienceLevel: 'intermediate',
+    useCase: 'desktop',
+    platform: 'bare-metal',
+    architecture: 'x86_64',
+    maxRamMb: 1024,
+    footprint: 'lean',
+    cLibPreference: 'none',
+    workflowStyle: 'traditional-compact'
+  });
+
+  assert.equal(result.bestMatch.distro.id, 'haiku');
+  assert.ok(result.bestMatch.score >= 80);
+  assert.equal(result.bestMatch.distro.osFamily, 'independent');
+});
+
 test('Core Matcher: Pinpoints Endless OS for kids school and education', () => {
   const result = evaluateCriteria({
     experienceLevel: 'beginner',
@@ -470,9 +520,9 @@ test('Matcher: RAM constraints evaluate maxRamMb against minRamMb', () => {
   assert.equal(ramReason.matched, true);
 });
 
-test('Matcher: allMatches contains all 33 registered distributions ranked', () => {
+test('Matcher: allMatches contains all 36 registered distributions ranked', () => {
   const result = evaluateCriteria({});
-  assert.equal(result.allMatches.length, 33);
+  assert.equal(result.allMatches.length, 36);
   assert.equal(result.topMatches.length, 5);
   // Unconstrained baseline recommends Linux Mint at 100% instead of arbitrary Alpine 0%
   assert.equal(result.bestMatch.distro.id, 'linux-mint');

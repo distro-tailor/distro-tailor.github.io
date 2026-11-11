@@ -66,6 +66,15 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     maxRamMb: 16384,
     footprint: 'full'
   },
+  smartos: {
+    experienceLevel: 'systems-engineer',
+    useCase: 'hypervisor-vms',
+    platform: 'server',
+    architecture: 'x86_64',
+    statePreference: 'stateless-ram',
+    footprint: 'standard',
+    maxRamMb: 8192
+  },
   'asahi-linux': {
     experienceLevel: 'intermediate',
     useCase: 'desktop',
@@ -110,6 +119,26 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     footprint: 'micro',
     maxRamMb: 16,
     cLibPreference: 'none'
+  },
+  reactos: {
+    experienceLevel: 'intermediate',
+    useCase: 'desktop',
+    platform: 'bare-metal',
+    architecture: 'x86_64',
+    maxRamMb: 512,
+    footprint: 'lean',
+    cLibPreference: 'none',
+    workflowStyle: 'windows'
+  },
+  haiku: {
+    experienceLevel: 'intermediate',
+    useCase: 'desktop',
+    platform: 'bare-metal',
+    architecture: 'x86_64',
+    maxRamMb: 1024,
+    footprint: 'lean',
+    cLibPreference: 'none',
+    workflowStyle: 'traditional-compact'
   },
   'linux-mint': {
     experienceLevel: 'beginner',
@@ -220,6 +249,7 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
   'cage-appliance': {
     experienceLevel: 'intermediate',
     useCase: 'appliance-product',
+    platform: 'kiosk',
     architecture: 'x86_64',
     prefersGui: true
   },

@@ -114,7 +114,7 @@ export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
       explanation: 'Controller-driven arcade interface designed for portable gaming consoles.'
     },
     {
-      distroIds: ['proxmox-ve', 'talos', 'openwrt', 'opnsense', 'buildroot', 'cage-appliance'],
+      distroIds: ['proxmox-ve', 'talos', 'openwrt', 'opnsense', 'smartos', 'buildroot', 'cage-appliance'],
       points: -20,
       feature: 'Handheld Gaming Optimization',
       explanation: 'Server/appliance distribution lacks handheld controller support and graphical game UI.'
@@ -175,7 +175,7 @@ export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
   ],
   server: [
     {
-      distroIds: ['proxmox-ve', 'truenas-scale', 'debian', 'ubuntu', 'talos', 'opnsense'],
+      distroIds: ['proxmox-ve', 'truenas-scale', 'debian', 'ubuntu', 'talos', 'opnsense', 'smartos'],
       points: 15,
       feature: 'Server Hardware',
       explanation: 'Designed for dedicated 24/7 server hardware, IPMI remote management, and rack infrastructure.'
@@ -186,10 +186,10 @@ export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
 export const WORKFLOW_STYLE_AFFINITIES: AffinityTable<DesktopWorkflowStyle> = {
   windows: [
     {
-      distroIds: ['linux-mint'],
+      distroIds: ['linux-mint', 'reactos'],
       points: 10,
       feature: 'Interface Familiarity',
-      explanation: 'Cinnamon desktop provides an intuitive, familiar Windows-style layout with taskbar and start menu.'
+      explanation: 'Provides an intuitive, familiar Windows-style layout with taskbar and start menu.'
     },
     {
       distroIds: ['fedora', 'debian', 'ubuntu-studio'],
@@ -234,7 +234,7 @@ export const WORKFLOW_STYLE_AFFINITIES: AffinityTable<DesktopWorkflowStyle> = {
   ],
   'traditional-compact': [
     {
-      distroIds: ['antix'],
+      distroIds: ['antix', 'haiku'],
       points: 10,
       feature: 'Interface Familiarity',
       explanation: 'Ultra-fast, low-RAM traditional window manager interface with classic menus and minimal resource usage.'
@@ -280,7 +280,7 @@ export const BOOT_MEDIUM_AFFINITIES: AffinityTable<BootMedium> = {
   ],
   'pxe-diskless': [
     {
-      distroIds: ['talos', 'alpine', 'proxmox-ve'],
+      distroIds: ['talos', 'alpine', 'proxmox-ve', 'smartos'],
       points: 10,
       feature: 'Diskless Boot',
       explanation: 'Native support for diskless PXE network booting and run-from-RAM architectures.'

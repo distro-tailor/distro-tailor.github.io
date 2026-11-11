@@ -51,6 +51,30 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the recommended OS family should be "dos"
     And the recommendation should highlight 100% MS-DOS compatibility and sub-second boot times
 
+  Scenario: Enterprise cloud architect needs a stateless hypervisor with Solaris Zones and ZFS
+    Given the criteria specify "hypervisor-vms" use case
+    And the user specifies a stateless RAM boot model on x86 server hardware
+    When the engine evaluates the candidate distributions
+    Then the engine should recommend "SmartOS" with a match score of at least 80%
+    And the recommended OS family should be "illumos"
+    And the recommendation should highlight Solaris Zones, DTrace, and Crossbow network virtualization
+
+  Scenario: Industrial technician needs native Windows NT driver and software compatibility without Windows
+    Given the criteria specify "desktop" use case
+    And the user specifies a Windows-style interface on low RAM with no standard C library
+    When the engine evaluates the candidate distributions
+    Then the engine should recommend "ReactOS" with a match score of at least 80%
+    And the recommended OS family should be "nt-compatible"
+    And the recommendation should highlight clean-room NT architecture and binary driver compatibility
+
+  Scenario: Power user wants an ultra-responsive, non-Unix personal desktop operating system
+    Given the criteria specify "desktop" use case
+    And the user specifies a compact traditional workflow on lean hardware with no Unix C library
+    When the engine evaluates the candidate distributions
+    Then the engine should recommend "Haiku" with a match score of at least 80%
+    And the recommended OS family should be "independent"
+    And the recommendation should highlight BeOS heritage, OpenBFS filesystem indexing, and 3-second boot times
+
   Scenario: Freelancer needs a reliable home office workstation for documents and video calls
     Given the user selects experience level "New to Linux / Just have a goal in mind"
     When the user selects goal "Home Office & Freelancing (Word, Excel, Invoicing, Zoom, Slack)"

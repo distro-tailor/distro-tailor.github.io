@@ -264,6 +264,62 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       downloadUrl: 'https://www.truenas.com/download-truenas-scale/'
     }
   },
+  {
+    id: 'smartos',
+    name: 'SmartOS',
+    osFamily: 'illumos',
+    tagline: 'Converged stateless hypervisor combining Solaris Zones, KVM/bhyve, and native OpenZFS',
+    description:
+      'A specialized, stateless type-1 hypervisor derived from OpenSolaris and Illumos. Boots entirely into RAM from USB or PXE, combining enterprise OpenZFS storage, DTrace kernel tracing, Crossbow network virtualization, and ultra-secure lightweight Solaris Zones.',
+    website: 'https://www.smartos.org',
+    documentationUrl: 'https://docs.smartos.org',
+    logoEmoji: '☀️',
+    platforms: ['server', 'bare-metal'],
+    architectures: ['x86_64'],
+    footprint: 'standard',
+    minRamMb: 4096,
+    initSystems: ['custom'],
+    cLibraries: ['none'],
+    stateModel: 'stateless-ram',
+    experienceLevel: 'systems-engineer',
+    primaryUseCases: ['hypervisor-vms', 'server', 'container-base'],
+    packageManager: 'pkgsrc',
+    rollingRelease: false,
+    highlights: [
+      'Stateless RAM boot architecture: pristine immutable OS boots fresh from USB/PXE every time',
+      'Solaris Zones: zero-overhead operating-system-level virtualization older and more secure than Docker',
+      'First-class upstream OpenZFS with integrated ARC cache, snapshots, and replication',
+      'Crossbow network virtualization: create virtual switches, VNICs, and bandwidth-capped VLANs dynamically',
+      'Deep dynamic kernel tracing via DTrace for real-time latency and syscall diagnostics'
+    ],
+    tradeoffs: [
+      'Strictly headless server and hypervisor: no local desktop environment or graphical display server',
+      'Illumos kernel requires enterprise server hardware with Intel VT-x/AMD-V and supported NICs'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Proxmox VE',
+        relation: 'competitor',
+        headline: 'Why SmartOS instead of Proxmox VE for Hypervisors?',
+        whyThisInstead:
+          'SmartOS boots completely into RAM as an immutable hypervisor, meaning host disk failure never corrupts the base OS. Its Solaris Zones offer hardware-level multi-tenant security isolation superior to Linux LXC containers.',
+        tradeoffNotice:
+          'Proxmox VE has a much friendlier consumer Web GUI, broader consumer PC hardware support, and a massive community.'
+      },
+      {
+        popularAlternative: 'Oracle Solaris',
+        relation: 'upstream',
+        headline: 'Why SmartOS instead of Oracle Solaris?',
+        whyThisInstead:
+          'SmartOS is 100% open-source community Illumos software with zero Oracle licensing fees, combined with modern bhyve/KVM virtualization and Triton datacenter orchestration.',
+        tradeoffNotice:
+          'Oracle Solaris retains enterprise support contracts for legacy SPARC server hardware.'
+      }
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://smartos.org/install-smartos/'
+    }
+  },
   // --- APPLE SILICON & ARM64 LAPTOPS ---
   {
     id: 'asahi-linux',
@@ -507,6 +563,116 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     ],
     prebuiltImage: {
       downloadUrl: 'https://www.freedos.org/download/'
+    }
+  },
+  {
+    id: 'reactos',
+    name: 'ReactOS',
+    osFamily: 'nt-compatible',
+    tagline: 'Open-source clean-room reimplementation of the Windows NT architecture',
+    description:
+      'A free, open-source operating system written from scratch to be binary-compatible with Microsoft Windows NT/2000/XP applications and device drivers, running Win32 software natively on bare metal without a Windows license.',
+    website: 'https://reactos.org',
+    documentationUrl: 'https://reactos.org/wiki',
+    logoEmoji: '⚛️',
+    platforms: ['bare-metal', 'desktop', 'vm'],
+    architectures: ['x86_64'],
+    footprint: 'lean',
+    minRamMb: 256,
+    initSystems: ['custom'],
+    cLibraries: ['none'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['appliance-product', 'desktop'],
+    packageManager: 'ReactOS Applications Manager (RAPPS)',
+    rollingRelease: false,
+    highlights: [
+      'Clean-room open-source Windows NT kernel, HAL, Win32k subsystem, and Explorer shell',
+      'Native compatibility with thousands of 32-bit Windows XP/2000 applications and drivers',
+      'Runs comfortably on ancient hardware with just 256MB–512MB RAM',
+      'Zero Microsoft proprietary code or telemetry—100% open source under GPL/LGPL'
+    ],
+    tradeoffs: [
+      'Alpha-stage software: not yet recommended for mission-critical daily production or modern web banking',
+      'Lacks support for modern 64-bit DirectX 12 AAA games and Windows 10/11-only applications'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Windows XP / 7',
+        relation: 'upstream',
+        headline: 'Why ReactOS instead of legacy Windows XP or 7?',
+        whyThisInstead:
+          'ReactOS is 100% free and open-source with no license keys, activation, or telemetry. It allows keeping legacy Win32 control software and industrial equipment running legally without unpatched security risks of abandoned proprietary Windows.',
+        tradeoffNotice:
+          'Proprietary Windows XP has 100% complete hardware driver compatibility on period-accurate PCs.'
+      },
+      {
+        popularAlternative: 'Linux + Wine',
+        relation: 'competitor',
+        headline: 'Why ReactOS instead of Linux with Wine?',
+        whyThisInstead:
+          'ReactOS runs Windows NT kernel-mode drivers (.sys) natively on bare metal, allowing proprietary hardware interfaces (automotive OBD scanners, legacy serial/parallel instruments) that user-space Wine on Linux cannot drive.',
+        tradeoffNotice:
+          'Modern Linux with Wine/Proton offers superior stability and performance for modern desktop apps and web browsing.'
+      }
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://reactos.org/download/'
+    }
+  },
+  {
+    id: 'haiku',
+    name: 'Haiku',
+    osFamily: 'independent',
+    tagline: 'Fast, responsive personal desktop operating system inspired by BeOS',
+    description:
+      'A completely independent, open-source personal computer operating system built from the ground up for desktop responsiveness. Features per-thread multithreading, modular C++ architecture, an indexed database filesystem (BFS), and boots to a full desktop in under 3 seconds.',
+    website: 'https://www.haiku-os.org',
+    documentationUrl: 'https://www.haiku-os.org/docs/',
+    logoEmoji: '⚡',
+    platforms: ['bare-metal', 'desktop', 'vm'],
+    architectures: ['x86_64'],
+    footprint: 'lean',
+    minRamMb: 1024,
+    initSystems: ['custom'],
+    cLibraries: ['none'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['desktop'],
+    packageManager: 'pkgman',
+    rollingRelease: false,
+    highlights: [
+      'Blazing desktop responsiveness: per-thread preemptive multitasking ensures the UI never stutters',
+      'Database-backed OpenBFS filesystem allows tagging, querying, and instant indexing of file attributes',
+      'Boots into a full graphical desktop in under 3 seconds on older PCs or laptops',
+      'Cohesive native C++ API: consistent UI and zero bloat compared to modern heavy web-wrapped desktop apps'
+    ],
+    tradeoffs: [
+      'Independent OS ecosystem: cannot run native Linux binaries directly (uses ports or native apps)',
+      'Hardware Wi-Fi and modern GPU acceleration drivers are more limited than standard Linux'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'BeOS',
+        relation: 'upstream',
+        headline: 'Why Haiku instead of BeOS?',
+        whyThisInstead:
+          'Haiku is a modern, 100% open-source (MIT licensed) continuation of the BeOS dream, updated for 64-bit multi-core CPUs, modern WebKit browsing, and active community package management.',
+        tradeoffNotice:
+          'Original BeOS R5 runs only on vintage 1990s hardware.'
+      },
+      {
+        popularAlternative: 'Lubuntu / Xubuntu',
+        relation: 'competitor',
+        headline: 'Why Haiku instead of a lightweight Linux desktop?',
+        whyThisInstead:
+          'Haiku is not Linux with a lightweight window manager slapped on top; it was architected from the kernel up purely for personal desktop computing with unified C++ APIs and zero Unix multi-user overhead.',
+        tradeoffNotice:
+          'Lightweight Linux distros have vastly wider hardware compatibility, Wi-Fi drivers, and can run Google Chrome, Steam, and Spotify.'
+      }
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.haiku-os.org/get-haiku/'
     }
   },
   {
