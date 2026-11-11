@@ -194,6 +194,21 @@ test('Wizard View: highlights Standard Default badge when question has no active
   // Default badge is no longer placeholder-highlighted
   assert.ok(!selectedHtml.includes('border-emerald-500/50'), 'Standard Default should drop emerald highlight once an option is selected');
   assert.ok(selectedHtml.includes('border-slate-700/80'), 'Standard Default drops back to neutral slate border');
+
+  // 3. When the user manually selects the default option itself (nvme-ssd)
+  const defaultSelectedState: AppState = {
+    ...unselectedState,
+    criteria: { ...unselectedState.criteria, bootMedium: 'nvme-ssd' }
+  };
+
+  const defaultSelectedHtml = renderWizardQuestion(
+    bootQuestion,
+    { current: 5, total: 10 },
+    defaultSelectedState
+  );
+
+  assert.ok(defaultSelectedHtml.includes('✓ Selected'), 'Selected default option must display ✓ Selected');
+  assert.ok(!defaultSelectedHtml.includes('★ Standard Default'), 'Do not show Standard Default badge if that option is already selected');
 });
 
 test('Wizard View: displays Return to Results button when user has an unlocked match', () => {

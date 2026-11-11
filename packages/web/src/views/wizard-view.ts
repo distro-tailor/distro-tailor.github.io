@@ -301,7 +301,7 @@ export function renderWizardQuestion(
                           : ''
                       }
                       ${
-                        opt.isDefault
+                        opt.isDefault && !isSelected
                           ? isPlaceholderDefault
                             ? `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/50 shrink-0" title="Standard distribution default choice (active fallback)">★ Standard Default</span>`
                             : `<span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-800 text-slate-400 border border-slate-700/80 shrink-0" title="Standard distribution default choice">★ Standard Default</span>`

@@ -192,8 +192,9 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     When the user has not manually selected any option
     Then the "★ Standard Default" badge displays a distinct emerald outline
     And the card itself remains unselected with no active glow
-    When the user explicitly clicks the default option or another option
+    When the user explicitly clicks the default option
     Then the chosen card receives the full active selection border, glow, and "✓ Selected" badge
+    And the redundant "★ Standard Default" badge is hidden on that card to eliminate visual noise
     And the "Return to Results" button is available in the header if a match was already reached
 
 
