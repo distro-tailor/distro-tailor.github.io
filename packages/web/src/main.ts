@@ -145,6 +145,18 @@ function handlePopState(): void {
   }
 }
 
+function registerServiceWorker(): void {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('./sw.js')
+        .catch((err) => {
+          console.debug('ServiceWorker registration skipped or failed:', err);
+        });
+    });
+  }
+}
+
 function init(): void {
   // Subscribe UI render to store changes
   store.subscribe(() => {
@@ -187,6 +199,7 @@ function init(): void {
   }
 
   render();
+  registerServiceWorker();
 }
 
 // Boot application

@@ -1,0 +1,20 @@
+{
+  "name": "DistroTailor — Linux Selector & Recipe Generator",
+  "short_name": "DistroTailor",
+  "description": "Adaptive 20-questions Linux selector and custom distro build recipe generator",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "categories": ["utilities", "developer tools", "education"],
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

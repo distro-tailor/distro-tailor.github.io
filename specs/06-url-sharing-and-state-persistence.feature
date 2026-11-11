@@ -92,3 +92,11 @@ Feature: URL State Sharing and Collaborative Configuration
     Then each panel keeps the open or closed state the user chose
     And untouched panels keep their default state
     And panel state is never written to the shareable URL
+
+  Scenario: Progressive Web App (PWA) Offline Capability
+    Given the DistroTailor web application is loaded in a modern web browser
+    When the browser requests the web app manifest
+    Then the manifest must define standalone display, dark theme color, and application metadata
+    And the service worker must cache the core application shell for offline execution
+    And navigation requests must succeed even when disconnected from the network
+
