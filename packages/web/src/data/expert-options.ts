@@ -220,6 +220,40 @@ export const EXPERT_FIELDS: ExpertFieldConfig[] = [
     ]
   },
   {
+    id: 'expert-virt-host',
+    label: 'Virtualization Host',
+    criteriaKey: 'virtHost',
+    placeholder: 'Not a Hypervisor Host',
+    options: [
+      { value: 'kvm-qemu', label: 'KVM / QEMU + libvirt' },
+      { value: 'xen', label: 'Xen (dom0)' },
+      { value: 'bhyve', label: 'bhyve (FreeBSD / illumos)' },
+      { value: 'container-only', label: 'Containers Only (Podman / Docker)' }
+    ]
+  },
+  {
+    id: 'expert-device-passthrough',
+    label: 'Device Passthrough',
+    criteriaKey: 'devicePassthrough',
+    placeholder: 'None',
+    options: [
+      { value: 'gpu-vfio', label: 'GPU Passthrough (IOMMU / VFIO)' },
+      { value: 'pci-devices', label: 'Any PCI Device (VFIO)' }
+    ]
+  },
+  {
+    id: 'expert-guest-platform',
+    label: 'Guest Hypervisor (VM Image)',
+    criteriaKey: 'guestPlatform',
+    placeholder: 'Default (KVM / QEMU)',
+    options: [
+      { value: 'kvm', label: 'KVM / QEMU (qemu-guest-agent)' },
+      { value: 'vmware', label: 'VMware (open-vm-tools)' },
+      { value: 'hyperv', label: 'Hyper-V (hyperv-daemons)' },
+      { value: 'virtualbox', label: 'VirtualBox (guest utils)' }
+    ]
+  },
+  {
     id: 'expert-networking-stack',
     label: 'Networking Daemon',
     criteriaKey: 'networkingStack',

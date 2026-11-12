@@ -279,6 +279,12 @@ export type SecureBootPolicy = 'required' | 'own-keys';
 
 export type TpmUsage = 'measured-boot' | 'disk-unlock';
 
+export type VirtualizationHost = 'kvm-qemu' | 'xen' | 'bhyve' | 'container-only';
+
+export type DevicePassthrough = 'gpu-vfio' | 'pci-devices';
+
+export type GuestPlatform = 'kvm' | 'vmware' | 'hyperv' | 'virtualbox';
+
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
   platform?: PlatformTarget;
@@ -309,6 +315,9 @@ export interface UserCriteria {
   firmwareMode?: FirmwareMode;
   secureBoot?: SecureBootPolicy;
   tpmUsage?: TpmUsage;
+  virtHost?: VirtualizationHost;
+  devicePassthrough?: DevicePassthrough;
+  guestPlatform?: GuestPlatform;
 
   // Interactive Recipe Modifiers (App Suites & Turnkey Services)
   desktopEnv?: DesktopEnvId;

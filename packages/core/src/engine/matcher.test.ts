@@ -79,3 +79,23 @@ test('Matcher Scoring: firmware, Secure Boot, and TPM affinities apply only when
   const freedos = tpm.allMatches.find((m) => m.distro.id === 'freedos');
   assert.ok(freedos && freedos.score < tpm.bestMatch.score);
 });
+
+test('Matcher Scoring: virtualization host and device passthrough affinities apply only when selected', () => {
+  const kvm = evaluateCriteria({ virtHost: 'kvm-qemu' });
+  assert.ok(['proxmox-ve', 'truenas-scale', 'smartos'].includes(kvm.bestMatch.distro.id));
+  const freedosKvm = kvm.allMatches.find((m) => m.distro.id === 'freedos');
+  assert.ok(freedosKvm && freedosKvm.score < kvm.bestMatch.score);
+
+  const bhyve = evaluateCriteria({ virtHost: 'bhyve' });
+  const opnsense = bhyve.allMatches.find((m) => m.distro.id === 'opnsense');
+  const debian = bhyve.allMatches.find((m) => m.distro.id === 'debian');
+  assert.ok(opnsense && debian && opnsense.score > debian.score);
+
+  const xen = evaluateCriteria({ virtHost: 'xen' });
+  assert.ok(['debian', 'alpine'].includes(xen.bestMatch.distro.id));
+
+  const vfio = evaluateCriteria({ devicePassthrough: 'gpu-vfio' });
+  assert.ok(vfio.bestMatch.reasons.some((r) => r.feature === 'Device Passthrough' && r.matched));
+
+  assert.equal(evaluateCriteria({ guestPlatform: 'vmware' }).bestMatch.distro.id, evaluateCriteria({ guestPlatform: 'kvm' }).bestMatch.distro.id);
+});

@@ -243,3 +243,20 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     Given the user specifies Secure Boot "own-keys" and TPM usage "disk-unlock"
     When the engine evaluates the candidate distributions
     Then "NixOS", "Talos Linux", or "Arch Linux" should rank at the top
+
+  Scenario: Homelab builder wants a KVM/QEMU virtualization host
+    Given the user specifies virtualization host "kvm-qemu"
+    When the engine evaluates the candidate distributions
+    Then "Proxmox VE", "TrueNAS SCALE", or "SmartOS" should rank at the top
+    And distributions without KVM support such as "FreeDOS" should be penalized
+
+  Scenario: Networking engineer wants a bhyve hypervisor host
+    Given the user specifies virtualization host "bhyve"
+    When the engine evaluates the candidate distributions
+    Then "OPNsense" should outrank Linux distributions that only offer KVM or Xen
+
+  Scenario: Gamer wants GPU passthrough into a virtual machine
+    Given the user specifies device passthrough "gpu-vfio"
+    When the engine evaluates the candidate distributions
+    Then distributions with documented IOMMU / VFIO support should be boosted
+    And distributions with no passthrough support should be penalized

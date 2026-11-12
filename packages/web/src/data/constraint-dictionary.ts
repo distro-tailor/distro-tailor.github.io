@@ -158,6 +158,22 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     'measured-boot': { label: 'TPM 2.0 Measured Boot', icon: '📟' },
     'disk-unlock': { label: 'TPM-Sealed Disk Unlock', icon: '🔐' }
   },
+  virtHost: {
+    'kvm-qemu': { label: 'KVM / QEMU Hypervisor Host', icon: '🖧' },
+    xen: { label: 'Xen Hypervisor (dom0)', icon: '🧊' },
+    bhyve: { label: 'bhyve Hypervisor (FreeBSD)', icon: '😈' },
+    'container-only': { label: 'Container Host (No VM Hypervisor)', icon: '📦' }
+  },
+  devicePassthrough: {
+    'gpu-vfio': { label: 'GPU Passthrough (IOMMU / VFIO)', icon: '🎮' },
+    'pci-devices': { label: 'PCI Device Passthrough (VFIO)', icon: '🔌' }
+  },
+  guestPlatform: {
+    kvm: { label: 'Guest on KVM / QEMU', icon: '🖥️' },
+    vmware: { label: 'Guest on VMware', icon: '☁️' },
+    hyperv: { label: 'Guest on Hyper-V', icon: '🪟' },
+    virtualbox: { label: 'Guest on VirtualBox', icon: '📦' }
+  },
   networkingStack: {
     networkmanager: { label: 'NetworkManager (Desktop & Wi-Fi)', icon: '📶' },
     'systemd-networkd': { label: 'systemd-networkd Daemon', icon: '⚙️' },

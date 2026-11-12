@@ -17,6 +17,14 @@ export function generateCloudInitRecipe(criteria: UserCriteria): GeneratedRecipe
   const qemuTpmFlags = criteria.tpmUsage
     ? ' -chardev socket,id=chrtpm,path=/tmp/swtpm-sock -tpmdev emulator,id=tpm0,chardev=chrtpm -device tpm-tis,tpmdev=tpm0'
     : '';
+  const guest = criteria.guestPlatform || 'kvm';
+  const GUEST_AGENTS: Record<string, { pkg: string; service: string }> = {
+    kvm: { pkg: 'qemu-guest-agent', service: 'qemu-guest-agent' },
+    vmware: { pkg: 'open-vm-tools', service: 'open-vm-tools' },
+    hyperv: { pkg: 'hyperv-daemons', service: 'hv-kvp-daemon' },
+    virtualbox: { pkg: 'virtualbox-guest-utils', service: 'virtualbox-guest-utils' }
+  };
+  const guestAgent = GUEST_AGENTS[guest];
   const tpmNote = criteria.tpmUsage
     ? '\t@echo "[i] TPM 2.0: start a software TPM first: swtpm socket --tpm2 --tpmstate dir=/tmp --ctrl type=unixio,path=/tmp/swtpm-sock"\n'
     : '';
@@ -49,7 +57,7 @@ chpasswd:
       type: RANDOM
 
 packages:
-  - qemu-guest-agent
+  - ${guestAgent.pkg}
   - curl
   - htop
   - net-tools${dockerAppDef ? `
@@ -57,7 +65,7 @@ packages:
   - docker-compose-v2` : ''}
 
 runcmd:
-  - systemctl enable --now qemu-guest-agent
+  - systemctl enable --now ${guestAgent.service}
   - echo "DistroTailor Cloud-Init VM initialized successfully!" > /etc/motd${dockerAppDef ? `
   - systemctl enable --now docker
   - mkdir -p /opt/${appDir}
@@ -71,6 +79,8 @@ local-hostname: __HOSTNAME__
   const makefileContent = `SHELL       := /bin/bash
 IMAGE_NAME  := ${vmName}
 DISK_SIZE   := 10G
+# GUEST_PLATFORM: kvm | vmware | hyperv | virtualbox (selects the guest agent installed in the image)
+GUEST_PLATFORM ?= ${guest}
 ARCH        := ${arch}
 OUTPUT_DIR  := ./output
 
@@ -118,7 +128,7 @@ configure: rootfs
 			linux-image-cloud-amd64 \\
 			systemd-sysv \\
 			cloud-init \\
-			qemu-guest-agent \\
+			${guestAgent.pkg} \\
 			openssh-server \\
 			sudo && \\
 		apt-get clean && \\

@@ -116,3 +116,17 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     And the Makefile must install TPM 2.0 tooling including "clevis-tpm2"
     And selecting "own-keys" Secure Boot must add a "sign-boot" target that signs the kernel with "sbsign"
     And the NixOS recipe must enable lanzaboote for "own-keys" and legacy GRUB for "legacy-bios"
+
+  Scenario: Generating a KVM Host Recipe with GPU Passthrough
+    Given the criteria specify virtualization host "kvm-qemu" and device passthrough "gpu-vfio"
+    When the recipe generator resolves "debootstrap-debian"
+    Then the generated Makefile must install QEMU, libvirt, and OVMF packages
+    And the Makefile must add "intel_iommu=on amd_iommu=on iommu=pt" kernel arguments and load the vfio modules
+    And the Makefile must expose a "VFIO_IDS" variable for binding devices at boot
+    And the NixOS recipe must enable libvirtd with a single user group list
+
+  Scenario: Generating a VM Image for a Specific Guest Hypervisor
+    Given the criteria specify guest platform "vmware"
+    When the recipe generator resolves "cloud-init-qcow2"
+    Then the image must install "open-vm-tools" instead of "qemu-guest-agent"
+    And the Makefile must expose a "GUEST_PLATFORM" variable

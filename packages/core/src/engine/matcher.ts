@@ -11,6 +11,7 @@ import {
   BOOT_MEDIUM_AFFINITIES,
   BOOTLOADER_AFFINITIES,
   DESKTOP_USE_CASES,
+  DEVICE_PASSTHROUGH_AFFINITIES,
   DRIVER_PHILOSOPHY_AFFINITIES,
   FILESYSTEM_AFFINITIES,
   FIRMWARE_MODE_AFFINITIES,
@@ -26,6 +27,7 @@ import {
   TPM_USAGE_AFFINITIES,
   UNCONSTRAINED_BASELINE,
   UNIVERSAL_DEFAULT_DISTRO_IDS,
+  VIRT_HOST_AFFINITIES,
   WORKFLOW_STYLE_AFFINITIES,
   findAffinityTier
 } from '../taxonomy/affinities.js';
@@ -67,6 +69,8 @@ export function evaluateCriteria(
   if (criteria.firmwareMode) maxWeight += 15;
   if (criteria.secureBoot) maxWeight += 20;
   if (criteria.tpmUsage) maxWeight += 15;
+  if (criteria.virtHost) maxWeight += 20;
+  if (criteria.devicePassthrough) maxWeight += 15;
   const selectedPeripherals = (
     criteria.peripherals ||
     (criteria.peripheralNeed && criteria.peripheralNeed !== 'standard' ? [criteria.peripheralNeed] : [])
@@ -411,6 +415,14 @@ export function evaluateCriteria(
     }
     if (criteria.tpmUsage) {
       applyAffinity(TPM_USAGE_AFFINITIES[criteria.tpmUsage]);
+    }
+
+    // 16. Virtualization Host & Device Passthrough
+    if (criteria.virtHost) {
+      applyAffinity(VIRT_HOST_AFFINITIES[criteria.virtHost]);
+    }
+    if (criteria.devicePassthrough) {
+      applyAffinity(DEVICE_PASSTHROUGH_AFFINITIES[criteria.devicePassthrough]);
     }
 
     // Normalized relative compatibility score (0 - 100%). Hard disqualifications are locked to 0%.

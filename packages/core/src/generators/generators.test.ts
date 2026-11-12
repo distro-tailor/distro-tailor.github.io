@@ -346,3 +346,49 @@ test('Recipe Generator: makefiles expose overridable OS installer parameters (ho
   assert.match(userData, /timezone: __TIMEZONE__/);
   assert.match(userData, /locale: __LOCALE__/);
 });
+
+test('Recipe Generator: debootstrap wires KVM/Xen host packages and VFIO passthrough', () => {
+  const mk = (c: UserCriteria) =>
+    generateDebootstrapRecipe({ architecture: 'x86_64', ...c }).files.find((f) => f.filename === 'Makefile')?.content ?? '';
+
+  const kvm = mk({ virtHost: 'kvm-qemu', devicePassthrough: 'gpu-vfio' });
+  assert.match(kvm, /VIRT_HOST\s+\?=\s+kvm-qemu/);
+  assert.match(kvm, /qemu-system-x86 qemu-utils libvirt-daemon-system/);
+  assert.match(kvm, /DEVICE_PASSTHROUGH\s+\?=\s+gpu-vfio/);
+  assert.match(kvm, /intel_iommu=on amd_iommu=on iommu=pt/);
+  assert.match(kvm, /vfio_pci/);
+  assert.match(kvm, /VFIO_IDS\s+\?=/);
+
+  assert.match(mk({ virtHost: 'xen' }), /xen-system-amd64/);
+  assert.match(mk({ virtHost: 'bhyve' }), /bhyve is a FreeBSD/);
+
+  const plain = mk({});
+  assert.match(plain, /VIRT_HOST\s+\?=\s+none/);
+  assert.doesNotMatch(plain, /libvirt/);
+  assert.doesNotMatch(plain, /vfio_pci/);
+});
+
+test('Recipe Generator: nixos enables libvirt/Xen and VFIO, with a single extraGroups list', () => {
+  const cfg = (c: UserCriteria) =>
+    generateNixosRecipe({ architecture: 'x86_64', ...c }).files.find((f) => f.filename === 'configuration.nix')?.content ?? '';
+  const kvm = cfg({ virtHost: 'kvm-qemu', devicePassthrough: 'pci-devices', dockerApp: 'jellyfin' });
+  assert.match(kvm, /virtualisation\.libvirtd\.enable = true;/);
+  assert.match(kvm, /boot\.kernelModules = \[ "vfio" "vfio_iommu_type1" "vfio_pci" \];/);
+  assert.match(kvm, /extraGroups = \[ "wheel" "networkmanager" "docker" "libvirtd" \];/);
+  assert.equal((kvm.match(/extraGroups/g) ?? []).length, 1);
+  assert.match(cfg({ virtHost: 'xen' }), /virtualisation\.xen\.enable = true;/);
+});
+
+test('Recipe Generator: cloud-init installs the guest agent for the chosen hypervisor', () => {
+  const files = (g?: UserCriteria['guestPlatform']) => generateCloudInitRecipe({ guestPlatform: g }).files;
+  const userData = (g?: UserCriteria['guestPlatform']) => files(g).find((f) => f.filename === 'user-data')?.content ?? '';
+  const makefile = (g?: UserCriteria['guestPlatform']) => files(g).find((f) => f.filename === 'Makefile')?.content ?? '';
+
+  assert.match(userData(), /- qemu-guest-agent/);
+  assert.match(makefile(), /GUEST_PLATFORM\s+\?=\s+kvm/);
+  assert.match(userData('vmware'), /- open-vm-tools/);
+  assert.match(makefile('vmware'), /\topen-vm-tools \\/);
+  assert.doesNotMatch(makefile('vmware'), /\tqemu-guest-agent \\/);
+  assert.match(userData('hyperv'), /systemctl enable --now hv-kvp-daemon/);
+  assert.match(userData('virtualbox'), /virtualbox-guest-utils/);
+});

@@ -6,6 +6,7 @@ import {
   DesktopAppId,
   DesktopEnvId,
   DesktopWorkflowStyle,
+  DevicePassthrough,
   DockerAppId,
   DriverPhilosophy,
   EmulatorAppId,
@@ -13,6 +14,7 @@ import {
   FileSystemPreference,
   FirmwareMode,
   FormFactor,
+  GuestPlatform,
   InitSystem,
   KernelFlavor,
   NavigationAppId,
@@ -26,7 +28,8 @@ import {
   StateModel,
   StorageFootprint,
   TpmUsage,
-  UserCriteria
+  UserCriteria,
+  VirtualizationHost
 } from '../types.js';
 
 /**
@@ -215,6 +218,25 @@ export const TPM_USAGE_VALUES: EnumCatalog<TpmUsage> = {
   'disk-unlock': true
 };
 
+export const VIRT_HOST_VALUES: EnumCatalog<VirtualizationHost> = {
+  'kvm-qemu': true,
+  xen: true,
+  bhyve: true,
+  'container-only': true
+};
+
+export const DEVICE_PASSTHROUGH_VALUES: EnumCatalog<DevicePassthrough> = {
+  'gpu-vfio': true,
+  'pci-devices': true
+};
+
+export const GUEST_PLATFORM_VALUES: EnumCatalog<GuestPlatform> = {
+  kvm: true,
+  vmware: true,
+  hyperv: true,
+  virtualbox: true
+};
+
 export const NETWORKING_STACK_VALUES: EnumCatalog<NetworkingStack> = {
   networkmanager: true,
   'systemd-networkd': true,
@@ -350,6 +372,9 @@ export function sanitizeCriteria(input: UntrustedCriteria): UserCriteria {
     firmwareMode: pickEnum(FIRMWARE_MODE_VALUES, input.firmwareMode),
     secureBoot: pickEnum(SECURE_BOOT_VALUES, input.secureBoot),
     tpmUsage: pickEnum(TPM_USAGE_VALUES, input.tpmUsage),
+    virtHost: pickEnum(VIRT_HOST_VALUES, input.virtHost),
+    devicePassthrough: pickEnum(DEVICE_PASSTHROUGH_VALUES, input.devicePassthrough),
+    guestPlatform: pickEnum(GUEST_PLATFORM_VALUES, input.guestPlatform),
     desktopEnv: pickEnum(DESKTOP_ENV_VALUES, input.desktopEnv),
     enableDistrobox: pickBoolean(input.enableDistrobox),
     enableNix: pickBoolean(input.enableNix),

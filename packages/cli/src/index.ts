@@ -58,6 +58,9 @@ program
   .option('--firmware <mode>', 'Firmware mode (uefi, legacy-bios)')
   .option('--secure-boot <policy>', 'Secure Boot policy (required, own-keys)')
   .option('--tpm <usage>', 'TPM 2.0 usage (measured-boot, disk-unlock)')
+  .option('--virt-host <host>', 'Virtualization host (kvm-qemu, xen, bhyve, container-only)')
+  .option('--passthrough <mode>', 'Device passthrough (gpu-vfio, pci-devices)')
+  .option('--guest-platform <platform>', 'Guest hypervisor for VM images (kvm, vmware, hyperv, virtualbox)')
   .option('--json', 'Output results as machine-readable JSON')
   .action((options) => {
     let criteria: UserCriteria = {
@@ -75,7 +78,10 @@ program
       networkingStack: options.network,
       firmwareMode: options.firmware,
       secureBoot: options.secureBoot,
-      tpmUsage: options.tpm
+      tpmUsage: options.tpm,
+      virtHost: options.virtHost,
+      devicePassthrough: options.passthrough,
+      guestPlatform: options.guestPlatform
     };
 
     if (options.url) {

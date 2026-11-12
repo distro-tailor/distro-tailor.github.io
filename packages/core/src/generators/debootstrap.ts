@@ -58,6 +58,17 @@ export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedReci
   const firmwareMode = criteria.firmwareMode;
   const secureBoot = criteria.secureBoot;
   const tpmUsage = criteria.tpmUsage;
+  const virtHost = criteria.virtHost;
+  const passthrough = criteria.devicePassthrough;
+  const qemuPkg = arch === 'arm64' ? 'qemu-system-arm' : 'qemu-system-x86';
+  const virtPkgs =
+    virtHost === 'kvm-qemu'
+      ? `${qemuPkg} qemu-utils libvirt-daemon-system libvirt-clients virtinst bridge-utils ovmf`
+      : virtHost === 'xen'
+        ? `xen-system-${arch} xen-utils`
+        : virtHost === 'container-only'
+          ? 'podman'
+          : '';
   const firmwareLabel = firmwareMode || 'auto';
   const secureBootLabel = secureBoot || 'off';
   const tpmLabel = tpmUsage || 'off';
@@ -82,7 +93,9 @@ export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedReci
     networkingStack === 'nftables-pf' ? 'nftables' : '',
     secureBoot === 'own-keys' ? 'sbsigntool efitools openssl' : '',
     tpmUsage === 'measured-boot' ? 'tpm2-tools' : '',
-    tpmUsage === 'disk-unlock' ? 'tpm2-tools cryptsetup clevis-tpm2 clevis-luks clevis-initramfs' : ''
+    tpmUsage === 'disk-unlock' ? 'tpm2-tools cryptsetup clevis-tpm2 clevis-luks clevis-initramfs' : '',
+    virtPkgs,
+    passthrough ? 'pciutils' : ''
   ].filter(Boolean).join(' ');
 
   const makefileContent = `# ==============================================================================
@@ -114,6 +127,12 @@ FIRMWARE_MODE   ?= ${firmwareLabel}
 SECURE_BOOT     ?= ${secureBootLabel}
 # TPM_USAGE: off | measured-boot | disk-unlock (Clevis TPM2 LUKS binding)
 TPM_USAGE       ?= ${tpmLabel}
+# VIRT_HOST: none | kvm-qemu | xen | bhyve | container-only
+VIRT_HOST       ?= ${virtHost || 'none'}
+# DEVICE_PASSTHROUGH: none | gpu-vfio | pci-devices
+DEVICE_PASSTHROUGH ?= ${passthrough || 'none'}
+# VFIO_IDS: comma-separated vendor:device IDs to bind to vfio-pci (find them with: lspci -nn)
+VFIO_IDS        ?=
 
 # --- SYSTEM INSTALLATION & LOCALIZATION (Installer Defaults) ---
 # (Standard OS installer settings: override with make TIMEZONE=America/New_York KEYMAP=uk, etc.)
@@ -285,7 +304,15 @@ configure: rootfs
 
 ${credentialSetupSteps({ rootfs: '$(ROOTFS_DIR)', user: 'root', home: '/root', sudo: '', expire: true })}
 
-	# Swapfile generation (if SWAP_SIZE_MB > 0)
+${passthrough ? `	# IOMMU / VFIO device passthrough: kernel arguments and modules
+	@mkdir -p $(ROOTFS_DIR)/etc/modules-load.d $(ROOTFS_DIR)/etc/default/grub.d
+	@printf 'vfio\\nvfio_iommu_type1\\nvfio_pci\\n' > $(ROOTFS_DIR)/etc/modules-load.d/vfio.conf
+	@printf 'GRUB_CMDLINE_LINUX_DEFAULT="$$GRUB_CMDLINE_LINUX_DEFAULT intel_iommu=on amd_iommu=on iommu=pt$(if $(VFIO_IDS), vfio-pci.ids=$(VFIO_IDS))"\\n' > $(ROOTFS_DIR)/etc/default/grub.d/10-vfio.cfg
+	@echo "[+] VFIO passthrough configured (${passthrough}); set VFIO_IDS=vendor:device,... to bind devices at boot"
+
+` : ''}${virtHost === 'bhyve' ? `	@echo "[!] VIRT_HOST=bhyve: bhyve is a FreeBSD / illumos hypervisor and is not available on this Debian image; use KVM or Xen here."
+
+` : ''}	# Swapfile generation (if SWAP_SIZE_MB > 0)
 	@if [ "$$(echo $(SWAP_SIZE_MB))" -gt 0 ] 2>/dev/null; then \\
 		echo "[+] Allocating $(SWAP_SIZE_MB)MB swapfile..."; \\
 		fallocate -l $(SWAP_SIZE_MB)M $(ROOTFS_DIR)/swapfile 2>/dev/null || dd if=/dev/zero of=$(ROOTFS_DIR)/swapfile bs=1M count=$(SWAP_SIZE_MB) status=none; \\

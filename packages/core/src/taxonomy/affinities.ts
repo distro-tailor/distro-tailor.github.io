@@ -2,6 +2,7 @@ import {
   BootloaderPreference,
   BootMedium,
   DesktopWorkflowStyle,
+  DevicePassthrough,
   DistroProfile,
   DriverPhilosophy,
   FileSystemPreference,
@@ -14,7 +15,8 @@ import {
   SecureBootPolicy,
   SecurityProfile,
   TpmUsage,
-  UserCriteria
+  UserCriteria,
+  VirtualizationHost
 } from '../types.js';
 
 /**
@@ -749,4 +751,101 @@ const TPM_AFFINITY_TIERS: readonly AffinityTier[] = [
 export const TPM_USAGE_AFFINITIES: AffinityTable<TpmUsage> = {
   'measured-boot': TPM_AFFINITY_TIERS,
   'disk-unlock': TPM_AFFINITY_TIERS
+};
+
+// ---------------------------------------------------------------------------
+// Virtualization Host & Device Passthrough Affinities (scored only when selected)
+// ---------------------------------------------------------------------------
+
+const NON_VIRT_HOST_IDS = ['freedos', 'haiku', 'reactos'] as const;
+
+export const VIRT_HOST_AFFINITIES: AffinityTable<VirtualizationHost> = {
+  'kvm-qemu': [
+    {
+      distroIds: ['proxmox-ve', 'truenas-scale', 'smartos'],
+      points: 20,
+      feature: 'Virtualization Host',
+      explanation: 'Purpose-built KVM/QEMU hypervisor host with VM management, storage and networking built in.'
+    },
+    {
+      distroIds: ['fedora', 'ubuntu', 'debian', 'arch', 'nixos', 'pop-os', 'linux-mint', 'alpine'],
+      points: 10,
+      feature: 'Virtualization Host',
+      explanation: 'Mainline Linux KVM with QEMU and libvirt available from the standard package repositories.'
+    },
+    {
+      distroIds: [...NON_VIRT_HOST_IDS, 'openwrt', 'buildroot'],
+      points: -15,
+      feature: 'Virtualization Host',
+      explanation: 'No KVM kernel support or QEMU/libvirt stack for hosting virtual machines.'
+    }
+  ],
+  xen: [
+    {
+      distroIds: ['debian', 'alpine'],
+      points: 15,
+      feature: 'Virtualization Host',
+      explanation: 'Maintained Xen dom0 packages and boot support in the official repositories.'
+    },
+    {
+      distroIds: ['fedora', 'ubuntu', 'nixos'],
+      points: 8,
+      feature: 'Virtualization Host',
+      explanation: 'Xen dom0 is available, though not the primary supported hypervisor path.'
+    },
+    {
+      distroIds: [...NON_VIRT_HOST_IDS, 'openwrt', 'buildroot'],
+      points: -15,
+      feature: 'Virtualization Host',
+      explanation: 'No Xen dom0 support.'
+    }
+  ],
+  bhyve: [
+    {
+      distroIds: ['opnsense'],
+      points: 15,
+      feature: 'Virtualization Host',
+      explanation: 'FreeBSD base includes the bhyve hypervisor and vmm kernel module.'
+    },
+    {
+      distroIds: ['smartos'],
+      points: 10,
+      feature: 'Virtualization Host',
+      explanation: 'illumos zones plus a bhyve brand for hardware virtual machines.'
+    },
+    {
+      appliesTo: (d) => d.osFamily === 'linux',
+      points: -10,
+      feature: 'Virtualization Host',
+      explanation: 'bhyve is a FreeBSD / illumos hypervisor; Linux hosts use KVM or Xen instead.'
+    }
+  ],
+  'container-only': [
+    {
+      distroIds: ['talos', 'chainguard-distroless', 'alpine', 'fedora-silverblue', 'nixos'],
+      points: 12,
+      feature: 'Virtualization Host',
+      explanation: 'Minimal or immutable base built around OCI containers without a full VM hypervisor stack.'
+    }
+  ]
+};
+
+const PASSTHROUGH_TIERS: readonly AffinityTier[] = [
+  {
+    distroIds: ['proxmox-ve', 'truenas-scale', 'fedora', 'arch', 'nixos', 'ubuntu', 'pop-os', 'debian'],
+    points: 15,
+    feature: 'Device Passthrough',
+    explanation: 'Well-documented IOMMU / VFIO passthrough with current kernels and libvirt or Proxmox tooling.'
+  },
+  {
+    distroIds: [...NON_VIRT_HOST_IDS, 'openwrt', 'buildroot', 'chainguard-distroless'],
+    points: -15,
+    feature: 'Device Passthrough',
+    explanation: 'No IOMMU / VFIO device passthrough support.'
+  }
+];
+
+export const DEVICE_PASSTHROUGH_AFFINITIES: AffinityTable<DevicePassthrough> = {
+  'gpu-vfio': PASSTHROUGH_TIERS,
+  'pci-devices': PASSTHROUGH_TIERS
 };

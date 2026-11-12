@@ -359,6 +359,9 @@ export class AppStore extends EventTarget implements IAppStore {
       delete cleaned.firmwareMode;
       delete cleaned.secureBoot;
       delete cleaned.tpmUsage;
+      delete cleaned.virtHost;
+      delete cleaned.devicePassthrough;
+      delete cleaned.guestPlatform;
       this._state.criteria = cleaned;
       this._state.answeredQuestionIds.delete('c_library_and_init');
       this._state.answeredQuestionIds.delete('system_immutability');
