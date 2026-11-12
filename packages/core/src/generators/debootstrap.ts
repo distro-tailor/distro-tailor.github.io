@@ -115,6 +115,14 @@ SECURE_BOOT     ?= ${secureBootLabel}
 # TPM_USAGE: off | measured-boot | disk-unlock (Clevis TPM2 LUKS binding)
 TPM_USAGE       ?= ${tpmLabel}
 
+# --- SYSTEM INSTALLATION & LOCALIZATION (Installer Defaults) ---
+# (Standard OS installer settings: override with make TIMEZONE=America/New_York KEYMAP=uk, etc.)
+HOSTNAME        ?= $(DISTRO_NAME)
+TIMEZONE        ?= UTC
+LOCALE          ?= en_US.UTF-8
+KEYMAP          ?= us
+SWAP_SIZE_MB    ?= 2048
+
 # --- MODULAR HARDWARE & DESKTOP TUNING ---
 # HARDWARE_TARGET: generic-x86 | rpi | intel-nuc | vm | mac | handheld
 HARDWARE_TARGET ?= ${isMac ? 'mac-hardware' : isHandheld ? 'handheld-device' : 'generic-x86'}
@@ -207,6 +215,7 @@ configure: rootfs
 			iputils-ping \\
 			netbase \\
 			ca-certificates \\
+			locales \\
 			curl && \\
 		\\
 		# Desktop Environment Injection \\
@@ -256,7 +265,15 @@ configure: rootfs
 			mkdir -p /opt/$(DOCKER_APP); \\
 		fi && \\
 		\\
-		echo '${distroName}' > /etc/hostname && \\
+		# System Localization & Hostname \\
+		echo '$(HOSTNAME)' > /etc/hostname && \\
+		printf '127.0.0.1\\tlocalhost\\n127.0.1.1\\t%s\\n' '$(HOSTNAME)' > /etc/hosts && \\
+		ln -sf /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime && \\
+		echo '$(TIMEZONE)' > /etc/timezone && \\
+		echo 'KEYMAP=$(KEYMAP)' > /etc/vconsole.conf && \\
+		(sed -i 's/^# *$(LOCALE)/$(LOCALE)/' /etc/locale.gen 2>/dev/null || echo '$(LOCALE) UTF-8' >> /etc/locale.gen) && \\
+		locale-gen && \\
+		echo 'LANG=$(LOCALE)' > /etc/default/locale && \\
 		apt-get clean && \\
 		rm -rf /var/lib/apt/lists/*"
 
@@ -267,6 +284,15 @@ configure: rootfs
 	fi
 
 ${credentialSetupSteps({ rootfs: '$(ROOTFS_DIR)', user: 'root', home: '/root', sudo: '', expire: true })}
+
+	# Swapfile generation (if SWAP_SIZE_MB > 0)
+	@if [ "$$(echo $(SWAP_SIZE_MB))" -gt 0 ] 2>/dev/null; then \\
+		echo "[+] Allocating $(SWAP_SIZE_MB)MB swapfile..."; \\
+		fallocate -l $(SWAP_SIZE_MB)M $(ROOTFS_DIR)/swapfile 2>/dev/null || dd if=/dev/zero of=$(ROOTFS_DIR)/swapfile bs=1M count=$(SWAP_SIZE_MB) status=none; \\
+		chmod 600 $(ROOTFS_DIR)/swapfile; \\
+		mkswap $(ROOTFS_DIR)/swapfile >/dev/null; \\
+		echo '/swapfile none swap sw 0 0' >> $(ROOTFS_DIR)/etc/fstab; \\
+	fi
 
 	# Safe unmount
 	umount -l $(ROOTFS_DIR)/dev/pts || true
@@ -284,7 +310,7 @@ iso: configure
 	
 	@echo 'set timeout=3' > $(BUILD_DIR)/iso/boot/grub/grub.cfg
 	@echo 'set default=0' >> $(BUILD_DIR)/iso/boot/grub/grub.cfg
-	@echo 'menuentry "${distroName} Live" {' >> $(BUILD_DIR)/iso/boot/grub/grub.cfg
+	@echo 'menuentry "$(HOSTNAME) Live" {' >> $(BUILD_DIR)/iso/boot/grub/grub.cfg
 	@echo '    linux /boot/vmlinuz quiet boot=live console=tty0' >> $(BUILD_DIR)/iso/boot/grub/grub.cfg
 	@echo '    initrd /boot/initrd.img' >> $(BUILD_DIR)/iso/boot/grub/grub.cfg
 	@echo '}' >> $(BUILD_DIR)/iso/boot/grub/grub.cfg

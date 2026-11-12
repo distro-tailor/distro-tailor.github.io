@@ -315,3 +315,34 @@ test('Recipe Generator: cloud-init, buildroot, and alpine honor firmware and TPM
     .files.find((f) => f.filename === 'Makefile')?.content ?? '';
   assert.match(al, /tpm2-tools sbsigntool efitools/);
 });
+
+test('Recipe Generator: makefiles expose overridable OS installer parameters (hostname, timezone, locale, keymap, swap)', () => {
+  const debRecipe = generateDebootstrapRecipe({ architecture: 'x86_64' });
+  const debMakefile = debRecipe.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(debMakefile, /HOSTNAME\s+\?=/);
+  assert.match(debMakefile, /TIMEZONE\s+\?=\s+UTC/);
+  assert.match(debMakefile, /LOCALE\s+\?=\s+en_US\.UTF-8/);
+  assert.match(debMakefile, /KEYMAP\s+\?=\s+us/);
+  assert.match(debMakefile, /SWAP_SIZE_MB\s+\?=\s+2048/);
+  assert.match(debMakefile, /echo '\$\(HOSTNAME\)' > \/etc\/hostname/);
+  assert.match(debMakefile, /ln -sf \/usr\/share\/zoneinfo\/\$\(TIMEZONE\) \/etc\/localtime/);
+  assert.match(debMakefile, /fallocate -l \$\(SWAP_SIZE_MB\)M/);
+
+  const alpineRecipe = generateAlpineRecipe({ architecture: 'x86_64' });
+  const alpineMakefile = alpineRecipe.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(alpineMakefile, /HOSTNAME\s+\?=/);
+  assert.match(alpineMakefile, /TIMEZONE\s+\?=\s+UTC/);
+  assert.match(alpineMakefile, /KEYMAP\s+\?=\s+us/);
+  assert.match(alpineMakefile, /setup-timezone|\/usr\/share\/zoneinfo\/\$\(TIMEZONE\)/);
+
+  const cloudRecipe = generateCloudInitRecipe({ architecture: 'x86_64' });
+  const cloudMakefile = cloudRecipe.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  const userData = cloudRecipe.files.find((f) => f.filename === 'user-data')?.content ?? '';
+  assert.match(cloudMakefile, /HOSTNAME\s+\?=/);
+  assert.match(cloudMakefile, /ADMIN_USER\s+\?=\s+tailor/);
+  assert.match(cloudMakefile, /TIMEZONE\s+\?=\s+UTC/);
+  assert.match(cloudMakefile, /LOCALE\s+\?=\s+en_US\.UTF-8/);
+  assert.match(userData, /hostname: __HOSTNAME__/);
+  assert.match(userData, /timezone: __TIMEZONE__/);
+  assert.match(userData, /locale: __LOCALE__/);
+});

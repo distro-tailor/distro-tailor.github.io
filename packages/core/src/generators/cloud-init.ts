@@ -23,11 +23,13 @@ export function generateCloudInitRecipe(criteria: UserCriteria): GeneratedRecipe
   const fsType = criteria.fileSystem === 'btrfs' ? 'btrfs' : criteria.fileSystem === 'xfs' ? 'xfs' : 'ext4';
 
   const userConfigYaml = `#cloud-config
-hostname: ${vmName}
+hostname: __HOSTNAME__
 manage_etc_hosts: true
+timezone: __TIMEZONE__
+locale: __LOCALE__
 
 users:
-  - name: tailor
+  - name: __ADMIN_USER__
     gecos: DistroTailor Cloud Admin
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
@@ -43,7 +45,7 @@ ssh_pwauth: __SSH_PWAUTH__
 chpasswd:
   expire: true
   users:
-    - name: tailor
+    - name: __ADMIN_USER__
       type: RANDOM
 
 packages:
@@ -63,7 +65,7 @@ runcmd:
 `;
 
   const metaDataYaml = `instance-id: distro-tailor-001
-local-hostname: ${vmName}
+local-hostname: __HOSTNAME__
 `;
 
   const makefileContent = `SHELL       := /bin/bash
@@ -72,7 +74,13 @@ DISK_SIZE   := 10G
 ARCH        := ${arch}
 OUTPUT_DIR  := ./output
 
-# SSH public key to authorize for the tailor user (default: your id_ed25519 / id_ecdsa / id_rsa .pub)
+# --- SYSTEM INSTALLATION & LOCALIZATION (Installer Defaults) ---
+HOSTNAME    ?= $(IMAGE_NAME)
+ADMIN_USER  ?= tailor
+TIMEZONE    ?= UTC
+LOCALE      ?= en_US.UTF-8
+
+# SSH public key to authorize for the $(ADMIN_USER) user (default: your id_ed25519 / id_ecdsa / id_rsa .pub)
 INVOKING_HOME ?= $(shell getent passwd "$\${SUDO_USER:-$$(id -un)}" | cut -d: -f6)
 SSH_PUBKEY    ?= $(firstword $(wildcard $(INVOKING_HOME)/.ssh/id_ed25519.pub $(INVOKING_HOME)/.ssh/id_ecdsa.pub $(INVOKING_HOME)/.ssh/id_rsa.pub))
 ROOTFS_DIR  := ./build/rootfs
@@ -120,15 +128,21 @@ configure: rootfs
 	sudo mkdir -p $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net
 	@set -e; key=''; \\
 	if [ -n '$(SSH_PUBKEY)' ] && [ -f '$(SSH_PUBKEY)' ]; then key=$$(head -n 1 '$(SSH_PUBKEY)'); fi; \\
+	sed -e "s|__HOSTNAME__|$(HOSTNAME)|g" \\
+	    -e "s|__ADMIN_USER__|$(ADMIN_USER)|g" \\
+	    -e "s|__TIMEZONE__|$(TIMEZONE)|g" \\
+	    -e "s|__LOCALE__|$(LOCALE)|g" \\
+	    user-data > ./build/user-data; \\
 	if [ -n "$$key" ]; then \\
-		sed -e "s|__SSH_PUBKEY__|$$key|" -e 's|__SSH_PWAUTH__|false|' user-data > ./build/user-data; \\
+		sed -i -e "s|__SSH_PUBKEY__|$$key|" -e 's|__SSH_PWAUTH__|false|' ./build/user-data; \\
 		echo "[+] Authorized SSH key $(SSH_PUBKEY); SSH password login disabled"; \\
 	else \\
-		sed -e '/ssh_authorized_keys:/,+1d' -e 's|__SSH_PWAUTH__|true|' user-data > ./build/user-data; \\
+		sed -i -e '/ssh_authorized_keys:/,+1d' -e 's|__SSH_PWAUTH__|true|' ./build/user-data; \\
 		echo "[!] No SSH public key found (set SSH_PUBKEY=path/to/key.pub); random console password only"; \\
 	fi
 	sudo install -m 600 ./build/user-data $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net/user-data
-	sudo cp meta-data $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net/meta-data
+	sed -e "s|__HOSTNAME__|$(HOSTNAME)|g" meta-data > ./build/meta-data
+	sudo install -m 600 ./build/meta-data $(ROOTFS_DIR)/var/lib/cloud/seed/nocloud-net/meta-data
 
 	@if [ -f docker-compose.yml ]; then \\
 		echo "[+] Bundling docker-compose.yml into /opt/${appDir}..."; \\

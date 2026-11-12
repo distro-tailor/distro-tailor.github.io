@@ -30,6 +30,11 @@ ALPINE_SHA256 ?= ${ALPINE_MINIROOTFS_SHA256[arch]}
 # Turnkey Docker App Layer
 DOCKER_APP  ?= ${dockerApp}
 
+# --- SYSTEM INSTALLATION & LOCALIZATION (Installer Defaults) ---
+HOSTNAME      ?= $(DISTRO_NAME)
+TIMEZONE      ?= UTC
+KEYMAP        ?= us
+
 BUILD_DIR   ?= ./build
 ROOTFS_DIR  ?= $(BUILD_DIR)/rootfs
 OUTPUT_DIR  ?= ./output
@@ -83,7 +88,11 @@ configure: rootfs
 			rc-update add docker default && \\
 			mkdir -p /opt/$(DOCKER_APP); \\
 		fi && \\
-		echo '${distroName}' > /etc/hostname"
+		apk add --no-cache tzdata && \\
+		cp /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime && \\
+		echo '$(TIMEZONE)' > /etc/timezone && \\
+		echo 'keymap=\"$(KEYMAP)\"' > /etc/conf.d/loadkmap && \\
+		echo '$(HOSTNAME)' > /etc/hostname"
 
 ${credentialSetupSteps({ rootfs: '$(ROOTFS_DIR)', user: 'root', home: '/root', sudo: '', expire: false })}
 

@@ -211,9 +211,10 @@ ${bootloaderConfig}${kernelConfig ? '\n' + kernelConfig : ''}${fsConfig ? '\n' +
   networking.hostName = "${hostname}";
 ${networkConfig}
 
-  # Localization & Time
+  # Localization & Time (Installer Defaults)
   time.timeZone = "UTC";
   i18n.defaultLocale = "en_US.UTF-8";
+  console.keyMap = "us";
 
 ${desktopConfig ? desktopConfig + '\n' : ''}${audioConfig ? audioConfig + '\n' : ''}${containerConfig ? containerConfig + '\n' : ''}
   # User Account (Non-root with sudo privileges)
