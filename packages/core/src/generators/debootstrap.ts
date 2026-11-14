@@ -1,5 +1,6 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
 import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
+import { debootstrapCrossArchRootfsStep, debootstrapCrossArchVars, dockerBuildTarget } from './cross-build.js';
 import { getDockerApp } from './docker-apps.js';
 import { generateBootstrapAppsScript } from './desktop-apps.js';
 import { generateBootstrapEmulatorsScript } from './emulator-apps.js';
@@ -111,6 +112,7 @@ VERSION         ?= 1.0.0
 ARCH            ?= ${arch}
 SUITE           ?= bookworm
 MIRROR          ?= http://deb.debian.org/debian
+${debootstrapCrossArchVars()}
 
 # --- SYSTEMS ENGINEERING & FILESYSTEM ---
 # ROOT_FS: ext4 | btrfs | zfs | xfs | f2fs | fat32
@@ -212,7 +214,7 @@ prepare: check-root
 
 rootfs: prepare
 	@echo "[+] Bootstrapping base Debian system using debootstrap..."
-	$(DEBOOTSTRAP) --arch=$(ARCH) --variant=minbase $(SUITE) $(ROOTFS_DIR) $(MIRROR)
+${debootstrapCrossArchRootfsStep({ sudoPrefix: '', suite: '$(SUITE)', mirror: '$(MIRROR)' })}
 
 configure: rootfs
 	@echo "[+] Configuring custom kernel, systemd, and networking..."
@@ -328,6 +330,13 @@ ${passthrough ? `	# IOMMU / VFIO device passthrough: kernel arguments and module
 	umount -l $(ROOTFS_DIR)/dev || true
 	umount -l $(ROOTFS_DIR)/sys || true
 	umount -l $(ROOTFS_DIR)/proc || true
+	rm -f $(ROOTFS_DIR)/usr/bin/$(QEMU_USER_STATIC)
+
+${dockerBuildTarget({
+  image: 'debian:bookworm',
+  platform: arch === 'arm64' ? 'linux/arm64' : 'linux/amd64',
+  installCmd: `apt-get update && apt-get install -y --no-install-recommends make debootstrap genisoimage squashfs-tools ${arch === 'arm64' ? 'grub-efi-arm64-bin dosfstools' : firmwareMode === 'legacy-bios' ? 'grub-pc-bin' : 'grub-pc-bin grub-efi-amd64-bin'} mtools xorriso curl ca-certificates`
+})}
 
 iso: configure
 	@echo "[+] Compressing rootfs into live squashfs image..."

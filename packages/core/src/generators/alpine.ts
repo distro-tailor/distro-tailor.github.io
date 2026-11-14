@@ -1,5 +1,6 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
 import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
+import { dockerBuildTarget } from './cross-build.js';
 import { getDockerApp } from './docker-apps.js';
 import { generateBootstrapAppsScript } from './desktop-apps.js';
 import { generateBootstrapEmulatorsScript } from './emulator-apps.js';
@@ -137,6 +138,10 @@ rootfs: prepare
 	@echo "$(ALPINE_SHA256)  $(BUILD_DIR)/base.tar.gz" | sha256sum -c - || \\
 		(echo "[-] Checksum mismatch: set ALPINE_SHA256 to the published hash for $(VERSION)/$(ARCH)"; exit 1)
 	tar -xzf $(BUILD_DIR)/base.tar.gz -C $(ROOTFS_DIR)
+	@if [ "$$(uname -m)" != "$(ARCH)" ]; then \\
+		command -v qemu-$(ARCH)-static >/dev/null || (echo "[-] Install qemu-user-static for cross-arch builds (or run: make docker-build)"; exit 1); \\
+		cp "$$(command -v qemu-$(ARCH)-static)" $(ROOTFS_DIR)/usr/bin/; \\
+	fi
 
 configure: rootfs
 	@echo "[+] Configuring OpenRC services, networking, and applications..."
@@ -176,6 +181,13 @@ ${credentialSetupSteps({ rootfs: '$(ROOTFS_DIR)', user: 'root', home: '/root', s
 	umount -l $(ROOTFS_DIR)/dev || true
 	umount -l $(ROOTFS_DIR)/sys || true
 	umount -l $(ROOTFS_DIR)/proc || true
+	rm -f $(ROOTFS_DIR)/usr/bin/qemu-$(ARCH)-static
+
+${dockerBuildTarget({
+  image: `alpine:${ALPINE_VERSION.split('.').slice(0, 2).join('.')}`,
+  platform: arch === 'aarch64' ? 'linux/arm64' : 'linux/amd64',
+  installCmd: 'apk add --no-cache make curl ca-certificates tar gzip'
+})}
 
 tarball: configure
 	@echo "[+] Bundling rootfs into portable tarball..."

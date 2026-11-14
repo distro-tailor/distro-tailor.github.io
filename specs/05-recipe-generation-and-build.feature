@@ -148,3 +148,9 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     When the recipe generator resolves "debootstrap-debian" and "cloud-init-qcow2"
     Then "debootstrap-debian" must use "grub-efi-arm64-bin" without "grub-pc-bin"
     And "cloud-init-qcow2" must use "ARCH := arm64" and "linux-image-cloud-arm64"
+
+  Scenario: Cross-Architecture and Containerized Host Builds
+    Given the criteria specify architecture "arm64"
+    When the recipe generator resolves "debootstrap-debian", "alpine-chroot", "cloud-init-qcow2", or "buildroot-embedded"
+    Then each generated Makefile must include a "docker-build" target for macOS and cross-platform hosts
+    And rootfs chroot Makefiles must support "qemu-user-static" when the host architecture differs from the target architecture

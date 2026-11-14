@@ -1,4 +1,5 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
+import { debootstrapCrossArchRootfsStep, debootstrapCrossArchVars, dockerBuildTarget } from './cross-build.js';
 import { getDockerApp } from './docker-apps.js';
 
 export function generateCloudInitRecipe(criteria: UserCriteria): GeneratedRecipe {
@@ -97,8 +98,9 @@ QCOW2_FILE  := $(OUTPUT_DIR)/$(IMAGE_NAME).qcow2
 
 QEMU_IMG    ?= qemu-img
 DEBOOTSTRAP ?= debootstrap
+${debootstrapCrossArchVars()}
 
-.PHONY: all clean prepare rootfs configure qcow2 test-qemu
+.PHONY: all clean prepare rootfs configure qcow2 test-qemu docker-build
 
 all: clean prepare rootfs configure qcow2
 	@echo "===================================================="
@@ -117,7 +119,7 @@ prepare:
 
 rootfs: prepare
 	@echo "[+] Bootstrapping stripped Debian Cloud base..."
-	sudo $(DEBOOTSTRAP) --arch=$(ARCH) --variant=minbase bookworm $(ROOTFS_DIR) http://deb.debian.org/debian/
+${debootstrapCrossArchRootfsStep({ sudoPrefix: 'sudo ', suite: 'bookworm', mirror: 'http://deb.debian.org/debian/' })}
 
 configure: rootfs
 	@echo "[+] Installing cloud-init, Linux cloud kernel, and QEMU guest agent..."
@@ -162,7 +164,14 @@ qcow2: configure
 	@echo "[+] Generating sparse bootable QCOW2 virtual disk image ($(DISK_SIZE))..."
 	$(QEMU_IMG) create -f qcow2 $(QCOW2_FILE) $(DISK_SIZE)
 	@echo "[+] Converting rootfs to partitioned QCOW2 (${fsType})..."
+	sudo rm -f $(ROOTFS_DIR)/usr/bin/$(QEMU_USER_STATIC)
 	sudo virt-make-fs --partition=${partitionTable} --type=${fsType} --format=qcow2 --size=$(DISK_SIZE) $(ROOTFS_DIR) $(QCOW2_FILE)
+
+${dockerBuildTarget({
+  image: 'debian:bookworm',
+  platform: debArch === 'arm64' ? 'linux/arm64' : 'linux/amd64',
+  installCmd: 'apt-get update && apt-get install -y --no-install-recommends make sudo debootstrap qemu-utils libguestfs-tools'
+})}
 
 test-qemu:
 	@echo "[+] Booting VM with QEMU (Forwarding SSH to localhost:2222)..."

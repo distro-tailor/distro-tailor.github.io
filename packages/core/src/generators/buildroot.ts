@@ -1,5 +1,6 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
 import { BUILDROOT_DOWNLOADS, BUILDROOT_TARBALL_SHA256, BUILDROOT_VERSION } from './checksums.js';
+import { dockerBuildTarget } from './cross-build.js';
 import { generateBootstrapNavigationScript } from './navigation-apps.js';
 
 export function generateBuildrootRecipe(criteria: UserCriteria): GeneratedRecipe {
@@ -20,7 +21,14 @@ BUILDROOT_URL     ?= ${BUILDROOT_DOWNLOADS}/buildroot-$(BUILDROOT_VERSION).tar.g
 BUILDROOT_SHA256  ?= ${BUILDROOT_TARBALL_SHA256}
 SRC_DIR           ?= buildroot-$(BUILDROOT_VERSION)
 
-.PHONY: all fetch-buildroot configure build clean menuconfig
+.PHONY: all fetch-buildroot configure build clean menuconfig docker-build
+
+${dockerBuildTarget({
+  image: 'debian:bookworm',
+  platform: 'linux/amd64',
+  installCmd:
+    'apt-get update && apt-get install -y --no-install-recommends make curl ca-certificates xz-utils bzip2 build-essential bison flex libncurses-dev libssl-dev rsync unzip file bc cpio python3'
+})}
 
 all: fetch-buildroot configure build
 	@echo "===================================================="

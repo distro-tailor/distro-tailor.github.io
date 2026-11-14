@@ -460,3 +460,29 @@ test('Recipe Generator: arm64 uses arm64 Debian packages instead of amd64 or x86
   assert.match(ciArmMk, /linux-image-cloud-arm64/);
   assert.doesNotMatch(ciArmMk, /linux-image-cloud-amd64/);
 });
+
+test('Recipe Generator: Makefiles include docker-build and qemu-user-static cross-arch support', () => {
+  const debArm =
+    generateDebootstrapRecipe({ architecture: 'arm64' }).files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(debArm, /qemu-\$\(TARGET_UNAME_ARCH\)-static/);
+  assert.match(debArm, /--foreign/);
+  assert.match(debArm, /--second-stage/);
+  assert.match(debArm, /docker-build:/);
+  assert.match(debArm, /--platform linux\/arm64/);
+
+  const alpineArm =
+    generateAlpineRecipe({ architecture: 'arm64' }).files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(alpineArm, /qemu-\$\(ARCH\)-static/);
+  assert.match(alpineArm, /docker-build:/);
+  assert.match(alpineArm, /--platform linux\/arm64/);
+
+  const cloudArm =
+    generateCloudInitRecipe({ architecture: 'arm64' }).files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(cloudArm, /qemu-\$\(TARGET_UNAME_ARCH\)-static/);
+  assert.match(cloudArm, /docker-build:/);
+
+  const br =
+    generateBuildrootRecipe({ architecture: 'arm64' }).files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(br, /docker-build:/);
+  assert.match(br, /--platform linux\/amd64/);
+});
