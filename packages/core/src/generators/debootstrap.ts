@@ -239,8 +239,6 @@ ${extraSystemsPkgs ? `\t\t\t${extraSystemsPkgs} \\\n` : ''}			iproute2 \\
 			ca-certificates \\
 			locales \\
 			curl && \\
-		\\
-		# Desktop Environment Injection \\
 		if [ '$(DESKTOP_ENV)' = 'cage' ]; then \\
 			apt-get install -y --no-install-recommends cage xwayland libgl1-mesa-dri; \\
 		elif [ '$(DESKTOP_ENV)' = 'xfce' ]; then \\
@@ -250,8 +248,6 @@ ${extraSystemsPkgs ? `\t\t\t${extraSystemsPkgs} \\\n` : ''}			iproute2 \\
 		elif [ '$(DESKTOP_ENV)' = 'gnome' ]; then \\
 			apt-get install -y --no-install-recommends gnome-session gdm3; \\
 		fi && \\
-		\\
-		# Power, TDP & Battery Optimization Layer \\
 		if [ '$(POWER_TUNING)' = 'laptop-battery' ]; then \\
 			apt-get install -y --no-install-recommends tlp tlp-rdw thermald acpi-support powertop && \\
 			systemctl enable tlp; \\
@@ -261,33 +257,23 @@ ${extraSystemsPkgs ? `\t\t\t${extraSystemsPkgs} \\\n` : ''}			iproute2 \\
 		elif [ '$(POWER_TUNING)' = 'handheld-tdp' ]; then \\
 			apt-get install -y --no-install-recommends power-profiles-daemon steam-devices; \\
 		fi && \\
-		\\
-		# Hardware Quirk Fixes (Mac Broadcom Wi-Fi & Dual EFI) \\
 		if [ '$(HARDWARE_TARGET)' = 'mac-hardware' ]; then \\
 			apt-get install -y --no-install-recommends bcmwl-kernel-source; \\
 		fi && \\
-		\\
-		# Optional Frankenstein Hybrid Engine (Distrobox) \\
 		if [ '$(ENABLE_DISTROBOX)' = '1' ]; then \\
 			apt-get install -y --no-install-recommends podman distrobox; \\
 		fi && \\
-		\\
-		# Universal Package Layers (Nix & Flatpak) \\
 		if [ '$(ENABLE_FLATPAK)' = '1' ]; then \\
 			apt-get install -y --no-install-recommends flatpak; \\
 		fi && \\
 		if [ '$(ENABLE_NIX)' = '1' ]; then \\
 			apt-get install -y --no-install-recommends xz-utils sudo; \\
 		fi && \\
-		\\
-		# Turnkey 1-Click Docker Application Layer \\
 		if [ '$(DOCKER_APP)' != 'none' ]; then \\
 			apt-get install -y --no-install-recommends docker.io docker-compose && \\
 			systemctl enable docker && \\
 			mkdir -p /opt/$(DOCKER_APP); \\
 		fi && \\
-		\\
-		# System Localization & Hostname \\
 		echo '$(HOSTNAME)' > /etc/hostname && \\
 		printf '127.0.0.1\\tlocalhost\\n127.0.1.1\\t%s\\n' '$(HOSTNAME)' > /etc/hosts && \\
 		ln -sf /usr/share/zoneinfo/$(TIMEZONE) /etc/localtime && \\
