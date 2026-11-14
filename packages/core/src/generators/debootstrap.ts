@@ -406,20 +406,35 @@ This recipe builds a bare-metal bootable ISO based on a stripped Debian \`minbas
 * **Turnkey Docker App:** \`${dockerAppDef ? `${dockerAppDef.name} (${dockerAppDef.tagline})` : 'None (Pure Minimal OS)'}\`
 
 ## Prerequisites
-On your host Debian/Ubuntu system, install the required build tools:
+- **macOS / Windows / non-Debian hosts:** Install **Docker** (and **QEMU** if you want to simulate-boot the ISO locally), then skip \`apt-get\` and use \`make docker-build\`.
+- **Debian / Ubuntu Linux hosts:** Install the native build tools (add \`qemu-user-static\` if cross-building for a different architecture):
 \`\`\`bash
 sudo apt-get update
 sudo apt-get install -y debootstrap genisoimage ${arch === 'arm64' ? 'grub-efi-arm64-bin' : 'grub-pc-bin grub-efi-amd64-bin'} mtools xorriso
 \`\`\`
 
 ## Build
-Run with root permissions on a Debian/Ubuntu Linux host:
+Run inside a privileged Docker container (recommended on macOS, Windows, and cross-architecture hosts):
+\`\`\`bash
+make docker-build
+\`\`\`
+Or run natively with root permissions on a Debian/Ubuntu Linux host:
 \`\`\`bash
 sudo make
 \`\`\`
-Or build inside a privileged Docker container (works on macOS, Windows, and cross-architecture hosts):
+${
+  desktopApps.length > 0 || emulatorApps.length > 0 || navigationApps.length > 0
+    ? `
+## 1-Click Application Bootstrap Scripts
+Once the ISO is booted on your target machine or VM, run the included setup script(s):
 \`\`\`bash
-make docker-build
+${desktopApps.length > 0 ? 'sudo bash bootstrap-apps.sh\n' : ''}${emulatorApps.length > 0 ? 'sudo bash bootstrap-emulators.sh\n' : ''}${navigationApps.length > 0 ? 'sudo bash bootstrap-navigation.sh\n' : ''}\`\`\`
+`
+    : ''
+}
+## Regenerate via DistroTailor CLI
+\`\`\`bash
+npx tsx packages/cli/src/index.ts export --recipe debootstrap-debian --arch ${criteria.architecture || 'x86_64'} --out .
 \`\`\`
 
 ${dockerAppDef ? `

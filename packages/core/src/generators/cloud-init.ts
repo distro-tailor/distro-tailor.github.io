@@ -184,7 +184,8 @@ ${tpmNote}	qemu-system-x86_64 -m 2048 -enable-kvm${qemuFirmwareFlags}${qemuTpmFl
 This recipe compiles a stripped, bootable **QCOW2 virtual machine disk image** pre-configured with **cloud-init** and the **QEMU Guest Agent**.
 
 ## Prerequisites
-On Debian/Ubuntu host:
+- **macOS / Windows / non-Debian hosts:** Install **Docker** (and **QEMU** for local VM testing), then skip \`apt-get\` and use \`make docker-build\`.
+- **Debian / Ubuntu Linux hosts:**
 \`\`\`bash
 sudo apt-get update
 sudo apt-get install -y qemu-utils debootstrap libguestfs-tools
@@ -192,8 +193,13 @@ sudo apt-get install -y qemu-utils debootstrap libguestfs-tools
 
 ## Build
 \`\`\`bash
-make               # Debian/Ubuntu Linux host
 make docker-build  # macOS, Windows, or cross-architecture host via Docker
+make               # Native Debian/Ubuntu Linux host
+\`\`\`
+
+## Regenerate via DistroTailor CLI
+\`\`\`bash
+npx tsx packages/cli/src/index.ts export --recipe cloud-init-qcow2 --arch ${arch} --out .
 \`\`\`
 
 ## 1. Import into Proxmox VE (Server Racks / Homelabs)
