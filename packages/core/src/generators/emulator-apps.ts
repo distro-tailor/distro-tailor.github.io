@@ -135,7 +135,6 @@ export const EMULATOR_APPS_REGISTRY: EmulatorAppDefinition[] = [
     description: 'Sony PlayStation Portable (PSP) emulator with full-HD rendering and cross-platform save states.',
     minRamMb: 512,
     architectures: ['x86_64', 'arm64', 'armv7'],
-    aptPackages: ['ppsspp'],
     flatpakId: 'org.ppsspp.PPSSPP'
   },
   {
@@ -175,6 +174,7 @@ exit 0
     .filter((app): app is EmulatorAppDefinition => !!app);
 
   const aptList: string[] = [];
+  const apkList: string[] = [];
   const flatpakList: string[] = [];
 
   for (const app of selectedApps) {
@@ -182,6 +182,9 @@ exit 0
       aptList.push(...app.aptPackages);
     } else if (app.flatpakId) {
       flatpakList.push(app.flatpakId);
+    }
+    if (app.apkPackages && app.apkPackages.length > 0) {
+      apkList.push(...app.apkPackages);
     }
   }
 
@@ -247,9 +250,9 @@ if [ "$PKG_MGR" = "apt" ]; then
   apt-get install -y --no-install-recommends \\
     ${Array.from(new Set(aptList)).join(' \\\n    ')}
 elif [ "$PKG_MGR" = "apk" ]; then
-  apk update
+${apkList.length > 0 ? `  apk update
   apk add --no-cache \\
-    ${Array.from(new Set(aptList)).join(' \\\n    ')}
+    ${Array.from(new Set(apkList)).join(' \\\n    ')}` : '  echo "[+] No native Alpine packages required for selected emulators."'}
 elif [ "$PKG_MGR" = "dnf" ]; then
   dnf install -y \\
     ${Array.from(new Set(aptList)).join(' \\\n    ')}

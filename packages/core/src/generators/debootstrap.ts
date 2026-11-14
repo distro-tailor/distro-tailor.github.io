@@ -81,11 +81,13 @@ export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedReci
   const bootloaderPkgs =
     bootloader === 'systemd-boot' && firmwareMode !== 'legacy-bios'
       ? 'systemd-boot'
-      : firmwareMode === 'legacy-bios'
-        ? 'grub-pc-bin'
-        : firmwareMode === 'uefi'
-          ? efiGrubPkgs
-          : `grub-pc-bin ${efiGrubPkgs}`;
+      : arch === 'arm64'
+        ? efiGrubPkgs
+        : firmwareMode === 'legacy-bios'
+          ? 'grub-pc-bin'
+          : firmwareMode === 'uefi'
+            ? efiGrubPkgs
+            : `grub-pc-bin ${efiGrubPkgs}`;
   const extraSystemsPkgs = [
     securityProfile === 'selinux' ? 'selinux-basics selinux-policy-default auditd' : '',
     securityProfile === 'apparmor' ? 'apparmor apparmor-utils' : '',
@@ -222,7 +224,7 @@ configure: rootfs
 
 	# Configure inside chroot
 	chroot $(ROOTFS_DIR) /bin/bash -c "export DEBIAN_FRONTEND=noninteractive && \\
-		apt-get update && \\
+${fileSystem === 'zfs' ? '\t\tsed -i "s/ main$/ main contrib/" /etc/apt/sources.list && \\\n' : ''}\t\tapt-get update && \\
 		apt-get install -y --no-install-recommends \\
 			${kernelPkg} \\
 			systemd-sysv \\
@@ -279,7 +281,7 @@ configure: rootfs
 		\\
 		# Turnkey 1-Click Docker Application Layer \\
 		if [ '$(DOCKER_APP)' != 'none' ]; then \\
-			apt-get install -y --no-install-recommends docker.io docker-compose-v2 && \\
+			apt-get install -y --no-install-recommends docker.io docker-compose && \\
 			systemctl enable docker && \\
 			mkdir -p /opt/$(DOCKER_APP); \\
 		fi && \\
@@ -398,7 +400,7 @@ This recipe builds a bare-metal bootable ISO based on a stripped Debian \`minbas
 On your host Debian/Ubuntu system, install the required build tools:
 \`\`\`bash
 sudo apt-get update
-sudo apt-get install -y debootstrap genisoimage grub-pc-bin grub-efi-amd64-bin mtools libisoburn
+sudo apt-get install -y debootstrap genisoimage ${arch === 'arm64' ? 'grub-efi-arm64-bin' : 'grub-pc-bin grub-efi-amd64-bin'} mtools xorriso
 \`\`\`
 
 ## Build
@@ -476,7 +478,7 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable
   });
 
   const quickstartCommands = [
-    'sudo apt-get install -y debootstrap genisoimage grub-pc-bin libisoburn',
+    `sudo apt-get install -y debootstrap genisoimage ${arch === 'arm64' ? 'grub-efi-arm64-bin' : 'grub-pc-bin'} xorriso`,
     'make detect-hardware  # (Optional: audit active NIC, Wi-Fi & GPU inventory)',
     'sudo make             # Automatically audits & builds custom zero-bloat ISO'
   ];
@@ -509,7 +511,7 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable
       : 'Compiles a lean, standalone Debian distribution (~250MB) with a tailored kernel, systemd, and bootable GRUB ISO.',
     targetFormat: 'iso',
     estimatedBuildTimeMinutes: 5,
-    hostDependencies: ['debootstrap', 'genisoimage', 'grub-pc-bin', 'libisoburn'],
+    hostDependencies: ['debootstrap', 'genisoimage', arch === 'arm64' ? 'grub-efi-arm64-bin' : 'grub-pc-bin', 'xorriso'],
     files,
     quickstartCommands
   };

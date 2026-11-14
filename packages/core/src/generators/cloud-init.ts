@@ -3,6 +3,7 @@ import { getDockerApp } from './docker-apps.js';
 
 export function generateCloudInitRecipe(criteria: UserCriteria): GeneratedRecipe {
   const arch = criteria.architecture || 'x86_64';
+  const debArch = arch === 'arm64' ? 'arm64' : 'amd64';
   const vmName = 'distro-tailor-cloud';
   const dockerAppDef = getDockerApp(criteria.dockerApp);
   const appDir = dockerAppDef ? dockerAppDef.id : 'app';
@@ -22,7 +23,7 @@ export function generateCloudInitRecipe(criteria: UserCriteria): GeneratedRecipe
     kvm: { pkg: 'qemu-guest-agent', service: 'qemu-guest-agent' },
     vmware: { pkg: 'open-vm-tools', service: 'open-vm-tools' },
     hyperv: { pkg: 'hyperv-daemons', service: 'hv-kvp-daemon' },
-    virtualbox: { pkg: 'virtualbox-guest-utils', service: 'virtualbox-guest-utils' }
+    virtualbox: { pkg: '', service: '' }
   };
   const guestAgent = GUEST_AGENTS[guest];
   const tpmNote = criteria.tpmUsage
@@ -57,16 +58,14 @@ chpasswd:
       type: RANDOM
 
 packages:
-  - ${guestAgent.pkg}
-  - curl
+${guestAgent.pkg ? `  - ${guestAgent.pkg}\n` : ''}  - curl
   - htop
   - net-tools${dockerAppDef ? `
   - docker.io
-  - docker-compose-v2` : ''}
+  - docker-compose` : ''}
 
 runcmd:
-  - systemctl enable --now ${guestAgent.service}
-  - echo "DistroTailor Cloud-Init VM initialized successfully!" > /etc/motd${dockerAppDef ? `
+${guestAgent.service ? `  - systemctl enable --now ${guestAgent.service}\n` : '  # VirtualBox: attach VBoxGuestAdditions.iso inside the VM if guest tools are needed\n'}  - echo "DistroTailor Cloud-Init VM initialized successfully!" > /etc/motd${dockerAppDef ? `
   - systemctl enable --now docker
   - mkdir -p /opt/${appDir}
   - cd /opt/${appDir} && docker compose up -d` : ''}
@@ -81,7 +80,7 @@ IMAGE_NAME  := ${vmName}
 DISK_SIZE   := 10G
 # GUEST_PLATFORM: kvm | vmware | hyperv | virtualbox (selects the guest agent installed in the image)
 GUEST_PLATFORM ?= ${guest}
-ARCH        := ${arch}
+ARCH        := ${debArch}
 OUTPUT_DIR  := ./output
 
 # --- SYSTEM INSTALLATION & LOCALIZATION (Installer Defaults) ---
@@ -125,11 +124,10 @@ configure: rootfs
 	sudo chroot $(ROOTFS_DIR) /bin/bash -c "\\
 		apt-get update && \\
 		DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \\
-			linux-image-cloud-amd64 \\
+			linux-image-cloud-${debArch} \\
 			systemd-sysv \\
 			cloud-init \\
-			${guestAgent.pkg} \\
-			openssh-server \\
+			${guestAgent.pkg ? `${guestAgent.pkg} \\\n\t\t\t` : ''}openssh-server \\
 			sudo && \\
 		apt-get clean && \\
 		rm -rf /var/lib/apt/lists/*"

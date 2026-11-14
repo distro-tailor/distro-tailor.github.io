@@ -268,7 +268,7 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     description: 'Blazing fast system information terminal display with distro logo.',
     minRamMb: 32,
     architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
-    aptPackages: ['fastfetch'],
+    aptPackages: ['neofetch'],
     apkPackages: ['fastfetch']
   }
 ];
@@ -297,6 +297,7 @@ exit 0
     .filter((app): app is DesktopAppDefinition => !!app);
 
   const aptList: string[] = [];
+  const apkList: string[] = [];
   const flatpakList: string[] = [];
 
   for (const app of selectedApps) {
@@ -304,6 +305,9 @@ exit 0
       aptList.push(...app.aptPackages);
     } else if (app.flatpakId) {
       flatpakList.push(app.flatpakId);
+    }
+    if (app.apkPackages && app.apkPackages.length > 0) {
+      apkList.push(...app.apkPackages);
     }
   }
 
@@ -348,9 +352,9 @@ if [ "$PKG_MGR" = "apt" ]; then
   apt-get install -y --no-install-recommends \\
     ${Array.from(new Set(aptList)).join(' \\\n    ')}
 elif [ "$PKG_MGR" = "apk" ]; then
-  apk update
+${apkList.length > 0 ? `  apk update
   apk add --no-cache \\
-    ${Array.from(new Set(aptList)).join(' \\\n    ')}
+    ${Array.from(new Set(apkList)).join(' \\\n    ')}` : '  echo "[+] No native Alpine packages required for selected apps."'}
 elif [ "$PKG_MGR" = "dnf" ]; then
   dnf install -y \\
     ${Array.from(new Set(aptList)).join(' \\\n    ')}

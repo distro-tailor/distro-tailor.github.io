@@ -125,6 +125,11 @@ program
       console.log(`  Title:  ${result.recommendedRecipe.title}`);
       console.log(`  Files:  ${result.recommendedRecipe.files.map((f) => f.filename).join(', ')}`);
       console.log(`  Quickstart: ${result.recommendedRecipe.quickstartCommands[0] || 'make'}`);
+      if (result.recommendedRecipe.warnings?.length) {
+        for (const w of result.recommendedRecipe.warnings) {
+          console.log(pc.yellow(`  ⚠ ${w}`));
+        }
+      }
     }
   });
 
@@ -186,6 +191,11 @@ program
     }
 
     console.log(pc.green(`\n✔ Recipe "${recipe.title}" exported to: ${pc.bold(targetDir)}`));
+    if (recipe.warnings?.length) {
+      for (const w of recipe.warnings) {
+        console.log(pc.yellow(`⚠ ${w}`));
+      }
+    }
     console.log(pc.cyan(`Next command:\n  cd ${options.out} && ${recipe.quickstartCommands[0] || 'make'}\n`));
   });
 

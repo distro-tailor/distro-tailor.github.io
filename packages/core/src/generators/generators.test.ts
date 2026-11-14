@@ -390,5 +390,73 @@ test('Recipe Generator: cloud-init installs the guest agent for the chosen hyper
   assert.match(makefile('vmware'), /\topen-vm-tools \\/);
   assert.doesNotMatch(makefile('vmware'), /\tqemu-guest-agent \\/);
   assert.match(userData('hyperv'), /systemctl enable --now hv-kvp-daemon/);
-  assert.match(userData('virtualbox'), /virtualbox-guest-utils/);
+  assert.match(userData('virtualbox'), /VBoxGuestAdditions\.iso/);
+});
+
+test('Recipe Generator: capability warnings flag unsupported options and architecture mismatches', () => {
+  const wsl = resolveRecipeGenerator('wsl2-debian', {
+    architecture: 'x86_64',
+    secureBoot: 'required',
+    fileSystem: 'zfs'
+  });
+  assert.ok(wsl.warnings && wsl.warnings.length >= 2);
+  assert.ok(wsl.warnings.some((w) => w.includes('Secure Boot')));
+  assert.ok(wsl.warnings.some((w) => w.includes('Filesystem')));
+
+  const debArm = resolveRecipeGenerator('debootstrap-debian', {
+    architecture: 'arm64',
+    firmwareMode: 'legacy-bios'
+  });
+  assert.ok(debArm.warnings?.some((w) => w.includes('Legacy BIOS boot is not supported on ARM64')));
+
+  const ciVbox = resolveRecipeGenerator('cloud-init-qcow2', {
+    architecture: 'x86_64',
+    guestPlatform: 'virtualbox'
+  });
+  assert.ok(ciVbox.warnings?.some((w) => w.includes('virtualbox-guest-utils')));
+});
+
+test('Recipe Generator: alpine and buildroot wire expert kernel, filesystem, virt, and networking options', () => {
+  const alpineMk =
+    generateAlpineRecipe({
+      architecture: 'x86_64',
+      kernelFlavor: 'lts-stable',
+      fileSystem: 'btrfs',
+      virtHost: 'kvm-qemu',
+      networkingStack: 'nftables-pf',
+      bootloader: 'efistub',
+      devicePassthrough: 'gpu-vfio'
+    }).files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(alpineMk, /linux-lts/);
+  assert.match(alpineMk, /btrfs-progs/);
+  assert.match(alpineMk, /qemu-system-x86_64 libvirt bridge-utils ovmf/);
+  assert.match(alpineMk, /nftables/);
+  assert.match(alpineMk, /efibootmgr/);
+  assert.match(alpineMk, /vfio_pci/);
+
+  const brDef =
+    generateBuildrootRecipe({
+      architecture: 'arm64',
+      fileSystem: 'f2fs',
+      bootloader: 'u-boot',
+      networkingStack: 'nftables-pf',
+      virtHost: 'kvm-qemu'
+    }).files.find((f) => f.filename === 'distro.defconfig')?.content ?? '';
+  assert.match(brDef, /BR2_TARGET_ROOTFS_F2FS=y/);
+  assert.match(brDef, /BR2_TARGET_UBOOT=y/);
+  assert.match(brDef, /BR2_PACKAGE_NFTABLES=y/);
+  assert.match(brDef, /BR2_PACKAGE_QEMU_SYSTEM=y/);
+});
+
+test('Recipe Generator: arm64 uses arm64 Debian packages instead of amd64 or x86 BIOS packages', () => {
+  const debArmMk =
+    generateDebootstrapRecipe({ architecture: 'arm64' }).files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(debArmMk, /grub-efi-arm64-bin/);
+  assert.doesNotMatch(debArmMk, /grub-pc-bin/);
+
+  const ciArmMk =
+    generateCloudInitRecipe({ architecture: 'arm64' }).files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(ciArmMk, /ARCH\s+:=\s+arm64/);
+  assert.match(ciArmMk, /linux-image-cloud-arm64/);
+  assert.doesNotMatch(ciArmMk, /linux-image-cloud-amd64/);
 });

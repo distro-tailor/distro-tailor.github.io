@@ -394,6 +394,7 @@ export interface GeneratedRecipe {
     executable?: boolean;
   }>;
   quickstartCommands: string[];
+  warnings?: string[];
 }
 
 export interface RecommendationOutput {

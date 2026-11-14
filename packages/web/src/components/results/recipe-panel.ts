@@ -50,6 +50,21 @@ export function renderRecipePanel(ctx: ResultsViewContext): string {
                 📦 Host Tools: ${recipe.hostDependencies.join(', ')}
               </span>
             </div>
+${
+  recipe.warnings && recipe.warnings.length > 0
+    ? `
+            <!-- Capability Warnings -->
+            <div class="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-1">
+              <div class="font-semibold text-amber-300 flex items-center gap-1.5">
+                <span>⚠️</span> Recipe Compatibility Notes
+              </div>
+              <ul class="list-disc list-inside space-y-0.5 text-amber-200/90">
+                ${recipe.warnings.map((w) => `<li>${escapeHtml(w)}</li>`).join('')}
+              </ul>
+            </div>
+`
+    : ''
+}
 
             <!-- File Tabs -->
             <div class="flex items-center gap-1.5 sm:gap-2 border-b border-slate-800 mb-0 overflow-x-auto max-w-full pb-0.5 no-scrollbar">

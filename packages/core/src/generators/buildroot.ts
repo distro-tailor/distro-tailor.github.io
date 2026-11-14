@@ -82,11 +82,49 @@ BR2_TARGET_ROOTFS_TAR=y
 BR2_TARGET_ROOTFS_EXT2=y
 BR2_TARGET_ROOTFS_EXT2_4=y
 ${
-  !isNoMmu && targetArch === 'x86_64' && criteria.firmwareMode
+  criteria.fileSystem === 'f2fs'
+    ? 'BR2_TARGET_ROOTFS_F2FS=y\n'
+    : criteria.fileSystem === 'btrfs'
+      ? 'BR2_TARGET_ROOTFS_BTRFS=y\n'
+      : criteria.fileSystem === 'xfs' || criteria.fileSystem === 'zfs'
+        ? `# Note: ${criteria.fileSystem} is not a built-in Buildroot rootfs target; using ext4\n`
+        : ''
+}${
+  criteria.bootloader === 'u-boot'
+    ? '\n# Bootloader: U-Boot\nBR2_TARGET_UBOOT=y\n'
+    : criteria.bootloader === 'systemd-boot'
+      ? '\n# Note: systemd-boot is not used with BusyBox/musl; configure GRUB2 or U-Boot\n'
+      : ''
+}${
+  !isNoMmu && (targetArch === 'x86_64' || targetArch === 'aarch64') && (criteria.firmwareMode || criteria.bootloader === 'grub-hybrid')
     ? `
-# Bootloader firmware mode: ${criteria.firmwareMode}
-${criteria.firmwareMode === 'legacy-bios' ? 'BR2_TARGET_GRUB2=y\nBR2_TARGET_GRUB2_I386_PC=y' : 'BR2_TARGET_GRUB2=y\nBR2_TARGET_GRUB2_X86_64_EFI=y'}
+# Bootloader firmware mode: ${criteria.firmwareMode || 'uefi'}
+${
+  targetArch === 'aarch64'
+    ? 'BR2_TARGET_GRUB2=y\nBR2_TARGET_GRUB2_ARM64_EFI=y'
+    : criteria.firmwareMode === 'legacy-bios'
+      ? 'BR2_TARGET_GRUB2=y\nBR2_TARGET_GRUB2_I386_PC=y'
+      : 'BR2_TARGET_GRUB2=y\nBR2_TARGET_GRUB2_X86_64_EFI=y'
+}
 `
+    : ''
+}${
+  criteria.networkingStack === 'nftables-pf'
+    ? '\n# Networking: nftables\nBR2_PACKAGE_NFTABLES=y\n'
+    : criteria.networkingStack === 'networkmanager' && !isNoMmu
+      ? '\n# Networking: NetworkManager\nBR2_PACKAGE_NETWORK_MANAGER=y\n'
+      : ''
+}${
+  criteria.virtHost === 'kvm-qemu' && !isNoMmu
+    ? '\n# Virtualization host: QEMU/KVM\nBR2_PACKAGE_QEMU=y\nBR2_PACKAGE_QEMU_SYSTEM=y\n'
+    : ''
+}${
+  criteria.kernelFlavor === 'realtime-rt'
+    ? '\n# PREEMPT_RT: enable CONFIG_PREEMPT_RT in `make menuconfig` -> linux-menuconfig\n'
+    : ''
+}${
+  criteria.devicePassthrough
+    ? '\n# VFIO passthrough: enable CONFIG_VFIO and CONFIG_VFIO_PCI in `make menuconfig` -> linux-menuconfig\n'
     : ''
 }${
   criteria.tpmUsage

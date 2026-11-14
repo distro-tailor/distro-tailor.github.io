@@ -64,8 +64,7 @@ export const NAVIGATION_APPS_REGISTRY: NavigationAppDefinition[] = [
     description: 'Ultra-lightweight modular car navigation system with offline OpenStreetMap routing. Runs directly on Linux framebuffer (/dev/fb0) or GUI.',
     minRamMb: 32,
     architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
-    aptPackages: ['navit', 'navit-gui-internal'],
-    apkPackages: ['navit']
+    aptPackages: ['navit', 'navit-gui-internal']
   },
   {
     id: 'gpsd',
@@ -96,7 +95,6 @@ export const NAVIGATION_APPS_REGISTRY: NavigationAppDefinition[] = [
     description: 'Full-featured chartplotter and marine GPS navigation tool supporting NOAA raster and S-57 vector nautical charts.',
     minRamMb: 256,
     architectures: ['x86_64', 'arm64', 'armv7'],
-    aptPackages: ['opencpn'],
     flatpakId: 'org.opencpn.OpenCPN'
   },
   {

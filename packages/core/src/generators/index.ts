@@ -10,12 +10,14 @@ import { generateWslRecipe } from './wsl.js';
 import { generateLxcRecipe } from './lxc.js';
 import { generateNixosRecipe } from './nixos.js';
 import { sanitizeCriteria } from '../taxonomy/criteria-schema.js';
+import { computeRecipeWarnings } from './capabilities.js';
 
 export * from './docker-apps.js';
 export * from './desktop-apps.js';
 export * from './emulator-apps.js';
 export * from './navigation-apps.js';
 export * from './nixos.js';
+export * from './capabilities.js';
 
 /** Every recipe generator by id. Typed as a Record so adding a RecipeGeneratorId requires a generator. */
 export const RECIPE_GENERATORS: Readonly<Record<RecipeGeneratorId, (criteria: UserCriteria) => GeneratedRecipe>> = {
@@ -41,6 +43,8 @@ export function resolveRecipeGenerator(
 ): GeneratedRecipe {
   // Generators interpolate criteria into shell scripts; re-validate regardless of caller.
   const criteria = sanitizeCriteria(untrustedCriteria);
-  const generate = isRecipeGeneratorId(generatorId) ? RECIPE_GENERATORS[generatorId] : generateDebootstrapRecipe;
-  return generate(criteria);
+  const id: RecipeGeneratorId = isRecipeGeneratorId(generatorId) ? generatorId : 'debootstrap-debian';
+  const recipe = RECIPE_GENERATORS[id](criteria);
+  const warnings = computeRecipeWarnings(id, criteria);
+  return warnings.length > 0 ? { ...recipe, warnings } : recipe;
 }

@@ -15,6 +15,76 @@ export function generateAlpineRecipe(criteria: UserCriteria): GeneratedRecipe {
   const navigationApps = criteria.navigationApps || [];
   const dockerApp = dockerAppDef ? dockerAppDef.id : 'none';
 
+  const kernelPkg = criteria.kernelFlavor ? 'linux-lts' : '';
+  const fsPkg =
+    criteria.fileSystem === 'btrfs'
+      ? 'btrfs-progs'
+      : criteria.fileSystem === 'xfs'
+        ? 'xfsprogs'
+        : criteria.fileSystem === 'zfs'
+          ? 'zfs'
+          : criteria.fileSystem === 'f2fs'
+            ? 'f2fs-tools'
+            : criteria.fileSystem === 'fat32'
+              ? 'dosfstools'
+              : criteria.fileSystem === 'ext4'
+                ? 'e2fsprogs'
+                : '';
+  const virtPkgs =
+    criteria.virtHost === 'kvm-qemu'
+      ? `qemu-system-${arch} libvirt bridge-utils${arch === 'x86_64' ? ' ovmf' : ''}`
+      : criteria.virtHost === 'xen' && arch === 'x86_64'
+        ? 'xen'
+        : criteria.virtHost === 'container-only'
+          ? 'podman'
+          : '';
+  const netPkgs =
+    criteria.networkingStack === 'nftables-pf'
+      ? 'nftables'
+      : criteria.networkingStack === 'networkmanager'
+        ? 'networkmanager'
+        : '';
+  const bootPkgs =
+    criteria.bootloader === 'efistub'
+      ? 'efibootmgr'
+      : criteria.bootloader === 'grub-hybrid'
+        ? `grub${criteria.firmwareMode === 'uefi' || arch === 'aarch64' ? ' grub-efi' : ''}`
+        : '';
+  const extraApkPkgs = [
+    kernelPkg,
+    fsPkg,
+    virtPkgs,
+    netPkgs,
+    bootPkgs,
+    criteria.tpmUsage ? 'tpm2-tools' : '',
+    criteria.secureBoot === 'own-keys' ? 'sbsigntool efitools' : ''
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const alpineNotes = [
+    criteria.kernelFlavor === 'realtime-rt'
+      ? '# Note: Alpine does not ship a PREEMPT_RT kernel package; using linux-lts.'
+      : '',
+    criteria.kernelFlavor === 'hardened'
+      ? '# Note: Alpine does not ship a separate linux-hardened package; using linux-lts.'
+      : '',
+    criteria.bootloader === 'systemd-boot'
+      ? '# Note: systemd-boot is not supported on OpenRC/Alpine; use grub or efistub.'
+      : '',
+    criteria.networkingStack === 'systemd-networkd'
+      ? '# Note: Alpine uses OpenRC networking (systemd-networkd is not used on musl/OpenRC).'
+      : '',
+    criteria.securityProfile === 'selinux' || criteria.securityProfile === 'apparmor'
+      ? `# Note: ${criteria.securityProfile} is not enabled by default in Alpine OpenRC recipes.`
+      : '',
+    criteria.virtHost === 'xen' && arch === 'aarch64'
+      ? '# Note: Xen host packages in Alpine are only available for x86_64.'
+      : ''
+  ]
+    .filter(Boolean)
+    .join('\n');
+
   const makefileContent = `# ==============================================================================
 # DistroTailor: Alpine Linux Minimal RootFS / Diskless Builder
 # Target: Alpine Linux (${arch}) with musl libc + OpenRC
@@ -26,6 +96,7 @@ ARCH        ?= ${arch}
 ALPINE_MIRROR ?= ${ALPINE_MIRROR}
 # Published SHA-256 of alpine-minirootfs-$(VERSION)-$(ARCH).tar.gz (override when changing VERSION/ARCH)
 ALPINE_SHA256 ?= ${ALPINE_MINIROOTFS_SHA256[arch]}
+${alpineNotes ? `\n${alpineNotes}\n` : ''}
 
 # Turnkey Docker App Layer
 DOCKER_APP  ?= ${dockerApp}
@@ -79,11 +150,11 @@ configure: rootfs
 
 	chroot $(ROOTFS_DIR) /bin/sh -c "\\
 		apk update && \\
-		apk add --no-cache openrc util-linux ca-certificates openssh-server curl${[criteria.tpmUsage ? ' tpm2-tools' : '', criteria.secureBoot === 'own-keys' ? ' sbsigntool efitools' : ''].join('')} && \\
+		apk add --no-cache openrc util-linux ca-certificates openssh-server curl${extraApkPkgs ? ` ${extraApkPkgs}` : ''} && \\
 		rc-update add bootmisc boot && \\
 		rc-update add hostname boot && \\
 		rc-update add networking boot && \\
-		if [ '$(DOCKER_APP)' != 'none' ]; then \\
+${criteria.networkingStack === 'nftables-pf' ? '\t\trc-update add nftables default && \\\n' : ''}${criteria.networkingStack === 'networkmanager' ? '\t\trc-update add networkmanager default && \\\n' : ''}${criteria.devicePassthrough ? '\t\tmkdir -p /etc/modules-load.d && printf "vfio\\nvfio_iommu_type1\\nvfio_pci\\n" > /etc/modules-load.d/vfio.conf && \\\n' : ''}		if [ '$(DOCKER_APP)' != 'none' ]; then \\
 			apk add --no-cache docker docker-cli-compose && \\
 			rc-update add docker default && \\
 			mkdir -p /opt/$(DOCKER_APP); \\

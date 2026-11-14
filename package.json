@@ -21,6 +21,7 @@
     "scoring:update": "tsx scripts/scoring-snapshot.ts update",
     "scoring:compare": "tsx scripts/scoring-snapshot.ts compare",
     "check:pins": "tsx scripts/check-pins.ts",
+    "check:packages": "tsx scripts/check-packages.ts",
     "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {

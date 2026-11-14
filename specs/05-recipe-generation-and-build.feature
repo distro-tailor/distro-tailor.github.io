@@ -130,3 +130,21 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     When the recipe generator resolves "cloud-init-qcow2"
     Then the image must install "open-vm-tools" instead of "qemu-guest-agent"
     And the Makefile must expose a "GUEST_PLATFORM" variable
+
+  Scenario: Surfacing Recipe Compatibility Warnings for Unsupported Options
+    Given the criteria specify Secure Boot "required" and filesystem "zfs"
+    When the recipe generator resolves "wsl2-debian"
+    Then the recipe must include warnings noting that Secure Boot and Filesystem are not configured by "wsl2-debian"
+
+  Scenario: Wiring Expert Options into Alpine and Buildroot Recipes
+    Given the criteria specify kernel flavor "lts-stable", filesystem "btrfs", virtualization host "kvm-qemu", and networking stack "nftables-pf"
+    When the recipe generator resolves "alpine-chroot"
+    Then the generated Makefile must install "linux-lts", "btrfs-progs", "qemu-system-x86_64", and "nftables"
+    And when the recipe generator resolves "buildroot-embedded" with "f2fs" and "u-boot"
+    Then "distro.defconfig" must enable "BR2_TARGET_ROOTFS_F2FS=y" and "BR2_TARGET_UBOOT=y"
+
+  Scenario: Selecting Architecture-Appropriate Packages on ARM64
+    Given the criteria specify architecture "arm64"
+    When the recipe generator resolves "debootstrap-debian" and "cloud-init-qcow2"
+    Then "debootstrap-debian" must use "grub-efi-arm64-bin" without "grub-pc-bin"
+    And "cloud-init-qcow2" must use "ARCH := arm64" and "linux-image-cloud-arm64"
