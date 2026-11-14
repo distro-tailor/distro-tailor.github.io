@@ -183,7 +183,7 @@ ${navigationApps.includes('navit') ? 'BR2_PACKAGE_NAVIT=y\nBR2_PACKAGE_TSLIB=y' 
 
   const quickstartCommands = [
     'sudo apt-get install -y build-essential bison flex libncurses-dev rsync',
-    'make configure',
+    'make configure     # Linux host (or: make docker-build on macOS / Windows)',
     'make build'
   ];
 

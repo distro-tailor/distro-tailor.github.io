@@ -485,4 +485,11 @@ test('Recipe Generator: Makefiles include docker-build and qemu-user-static cros
     generateBuildrootRecipe({ architecture: 'arm64' }).files.find((f) => f.filename === 'Makefile')?.content ?? '';
   assert.match(br, /docker-build:/);
   assert.match(br, /--platform linux\/amd64/);
+
+  const debArmRecipe = generateDebootstrapRecipe({ architecture: 'arm64' });
+  const debArmReadme = debArmRecipe.files.find((f) => f.filename === 'README.md')?.content ?? '';
+  assert.match(debArmReadme, /make docker-build/);
+  assert.match(debArmReadme, /qemu-system-aarch64/);
+  assert.ok(debArmRecipe.quickstartCommands.some((c) => c.includes('make docker-build')));
+  assert.ok(debArmRecipe.quickstartCommands.some((c) => c.includes('qemu-system-aarch64')));
 });

@@ -413,9 +413,13 @@ sudo apt-get install -y debootstrap genisoimage ${arch === 'arm64' ? 'grub-efi-a
 \`\`\`
 
 ## Build
-Run with root permissions:
+Run with root permissions on a Debian/Ubuntu Linux host:
 \`\`\`bash
 sudo make
+\`\`\`
+Or build inside a privileged Docker container (works on macOS, Windows, and cross-architecture hosts):
+\`\`\`bash
+make docker-build
 \`\`\`
 
 ${dockerAppDef ? `
@@ -432,7 +436,15 @@ docker compose up -d
 ## 🧪 3-Tier Verification & Testing Ladder
 \`\`\`bash
 # Safe VM Sandbox (QEMU):
-qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable-kvm
+${
+  arch === 'arm64'
+    ? `qemu-system-aarch64 -M virt -m 2048 -cpu cortex-a57 -bios /usr/share/AAVMF/AAVMF_CODE.fd -cdrom output/${distroName}-1.0.0-${arch}.iso
+# On Apple Silicon macOS (Hypervisor.framework acceleration):
+qemu-system-aarch64 -M virt -accel hvf -cpu host -m 2048 -bios "$(brew --prefix qemu)/share/qemu/edk2-aarch64-code.fd" -cdrom output/${distroName}-1.0.0-${arch}.iso -device virtio-gpu-pci -display cocoa -device qemu-xhci -device usb-kbd`
+    : `qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable-kvm
+# On macOS (omit -enable-kvm):
+qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -display cocoa`
+}
 \`\`\`
 * **Login:** no fixed password. \`make\` sets a random root password (saved to \`output/credentials.txt\`, must be changed at first login) and authorizes your SSH public key if one is found (\`make SSH_PUBKEY=path/to/key.pub\` / \`LOGIN_PASSWORD=...\` to override)
 `;
@@ -489,7 +501,7 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable
   const quickstartCommands = [
     `sudo apt-get install -y debootstrap genisoimage ${arch === 'arm64' ? 'grub-efi-arm64-bin' : 'grub-pc-bin'} xorriso`,
     'make detect-hardware  # (Optional: audit active NIC, Wi-Fi & GPU inventory)',
-    'sudo make             # Automatically audits & builds custom zero-bloat ISO'
+    'sudo make             # Linux host (or: make docker-build on macOS / Windows / cross-arch)'
   ];
 
   if (desktopApps.length > 0) {
@@ -507,7 +519,11 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -enable
   if (dockerAppDef) {
     quickstartCommands.push(`docker compose up -d  # Launch ${dockerAppDef.name} at ${dockerAppDef.webUrl}`);
   } else if (desktopApps.length === 0 && emulatorApps.length === 0 && navigationApps.length === 0) {
-    quickstartCommands.push(`qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 1024`);
+    quickstartCommands.push(
+      arch === 'arm64'
+        ? `qemu-system-aarch64 -M virt -m 2048 -cdrom output/${distroName}-1.0.0-${arch}.iso  # See README.md for macOS HVF flags`
+        : `qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 1024`
+    );
   }
 
   return {

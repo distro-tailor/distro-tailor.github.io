@@ -191,7 +191,8 @@ sudo apt-get install -y qemu-utils debootstrap libguestfs-tools
 
 ## Build
 \`\`\`bash
-make
+make               # Debian/Ubuntu Linux host
+make docker-build  # macOS, Windows, or cross-architecture host via Docker
 \`\`\`
 
 ## 1. Import into Proxmox VE (Server Racks / Homelabs)
@@ -259,7 +260,7 @@ console and \`/var/log/cloud-init-output.log\`, and requires you to change it at
 
   const quickstartCommands = [
     'sudo apt-get install -y qemu-utils debootstrap libguestfs-tools',
-    'make'
+    'make               # Linux host (or: make docker-build on macOS / Windows / cross-arch)'
   ];
 
   if (dockerAppDef) {

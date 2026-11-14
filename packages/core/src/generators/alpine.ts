@@ -254,7 +254,7 @@ clean:
     });
   }
 
-  const quickstartCommands = ['sudo make'];
+  const quickstartCommands = ['sudo make  # Linux host (or: make docker-build on macOS / Windows / cross-arch)'];
   if (desktopApps.length > 0) {
     quickstartCommands.push(`sudo bash bootstrap-apps.sh  # 1-Click install ${desktopApps.length} desktop app(s)`);
   }
