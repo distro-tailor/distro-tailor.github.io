@@ -96,7 +96,47 @@ ${
           </div>
         </details>
       `
-          : ''
+          : `
+        <details class="group bg-slate-900/40 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl transition-all" ${panelAttributes(state.panelOpen, 'build-recipe', false)}>
+          <summary class="flex items-center justify-between p-4 sm:p-6 cursor-pointer select-none hover:bg-slate-800/40 transition-colors">
+            <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+              <span class="text-xl sm:text-2xl p-1.5 sm:p-2 rounded-xl bg-sky-500/10 border border-sky-500/20 shrink-0">🛠️</span>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="text-sm sm:text-base font-bold text-slate-200 break-words">Custom Build Recipe (Makefile)</h3>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono text-sky-400 bg-sky-500/10 border border-sky-500/20">Prebuilt Recommended</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-0.5 break-words">
+                  No custom Makefile is needed — ${escapeHtml(best.distro.name)} already ships a prebuilt image for your requirements.
+                </p>
+              </div>
+            </div>
+            <span class="text-slate-500 group-open:rotate-180 transition-transform duration-200 text-base ml-2 shrink-0">▼</span>
+          </summary>
+
+          <div class="p-4 sm:p-6 pt-0 border-t border-slate-800/60 mt-2 space-y-3 text-xs text-slate-300">
+            <p class="leading-relaxed">
+              ${
+                best.distro.id === 'arch'
+                  ? 'Arch Linux uses its own rolling base install (<code class="px-1 py-0.5 rounded bg-slate-950 text-emerald-400 font-mono">archinstall</code>) rather than a generated Debian build Makefile.'
+                  : `For your selected use case, <strong>${escapeHtml(best.distro.name)}</strong> provides a ready-to-boot prebuilt image, which is faster and better tested than compiling a custom rootfs from scratch.`
+              }
+            </p>
+            ${
+              best.distro.id !== 'arch'
+                ? `<p class="text-slate-400">
+              Want a custom build <code class="px-1 py-0.5 rounded bg-slate-950 text-slate-300 font-mono">Makefile</code> anyway? Pick a 1-Click app in <strong>Panel 1</strong> or enable a package layer in <strong>Panel 3</strong> to generate a tailored image recipe.
+            </p>`
+                : ''
+            }
+            <div>
+              <a href="${escapeHtml(best.distro.website)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-500/15 text-sky-300 border border-sky-500/30 hover:bg-sky-500/25 font-semibold transition-colors">
+                <span>⬇️</span> Download Prebuilt ${escapeHtml(best.distro.name)} Image
+              </a>
+            </div>
+          </div>
+        </details>
+      `
       }
 `;
 }

@@ -82,3 +82,30 @@ test('Results View: panels keep the open / closed state the user chose', () => {
   assert.match(html, /data-panel-id="head-to-head" data-panel-default="closed" open>/, 'opened panel stays open');
   assert.match(html, /data-panel-id="verification-ladder" data-panel-default="closed">/, 'untouched panel keeps default');
 });
+
+test('Results View: renders empty-state Makefile notice when prebuilt image is recommended', () => {
+  const state: AppState = {
+    criteria: {
+      experienceLevel: 'beginner',
+      useCase: 'media-center',
+      architecture: 'x86_64',
+      formFactor: 'laptop',
+      maxRamMb: 4096,
+      prefersGui: true
+    },
+    answeredQuestionIds: new Set(),
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const evaluation = evaluateCriteria(state.criteria);
+  assert.equal(evaluation.recommendedRecipe, undefined);
+  const html = renderResultsView(evaluation, state);
+  assert.match(html, /data-panel-id="build-recipe"/);
+  assert.match(html, /Prebuilt Recommended/);
+  assert.match(html, /No custom Makefile is needed/);
+});
