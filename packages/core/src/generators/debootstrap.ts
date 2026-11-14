@@ -233,8 +233,7 @@ ${fileSystem === 'zfs' ? '\t\tsed -i "s/ main$/ main contrib/" /etc/apt/sources.
 			live-boot \\
 			${bootloaderPkgs} \\
 			${fsPkg} \\
-			${extraSystemsPkgs ? extraSystemsPkgs + ' \\\\' : ''}
-			iproute2 \\
+${extraSystemsPkgs ? `\t\t\t${extraSystemsPkgs} \\\n` : ''}			iproute2 \\
 			iputils-ping \\
 			netbase \\
 			ca-certificates \\

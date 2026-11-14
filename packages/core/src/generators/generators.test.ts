@@ -492,4 +492,5 @@ test('Recipe Generator: Makefiles include docker-build and qemu-user-static cros
   assert.match(debArmReadme, /qemu-system-aarch64/);
   assert.ok(debArmRecipe.quickstartCommands.some((c) => c.includes('make docker-build')));
   assert.ok(debArmRecipe.quickstartCommands.some((c) => c.includes('qemu-system-aarch64')));
+  assert.doesNotMatch(debArm, /\\\\$/m, 'Makefile must not emit double-backslash line continuations');
 });
