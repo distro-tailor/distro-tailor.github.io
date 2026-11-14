@@ -109,3 +109,27 @@ test('Results View: renders empty-state Makefile notice when prebuilt image is r
   assert.match(html, /Prebuilt Recommended/);
   assert.match(html, /No custom Makefile is needed/);
 });
+
+test('Results View: verification ladder adapts QEMU and deployment guidance to arm64 SBC', () => {
+  const state: AppState = {
+    criteria: {
+      useCase: 'gaming',
+      platform: 'embedded-sbc',
+      architecture: 'arm64',
+      formFactor: 'sbc',
+      emulatorApps: ['mame']
+    },
+    answeredQuestionIds: new Set(),
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const html = renderResultsView(evaluateCriteria(state.criteria), state);
+  assert.match(html, /make docker-build/);
+  assert.match(html, /qemu-system-aarch64/);
+  assert.match(html, /SBC SD Card/);
+});
