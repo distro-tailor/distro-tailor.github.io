@@ -323,7 +323,7 @@ test('Recipe Generator: makefiles expose overridable OS installer parameters (ho
   assert.match(debMakefile, /TIMEZONE\s+\?=\s+UTC/);
   assert.match(debMakefile, /LOCALE\s+\?=\s+en_US\.UTF-8/);
   assert.match(debMakefile, /KEYMAP\s+\?=\s+us/);
-  assert.match(debMakefile, /SWAP_SIZE_MB\s+\?=\s+2048/);
+  assert.match(debMakefile, /SWAP_SIZE_MB\s+\?=\s+0/);
   assert.match(debMakefile, /echo '\$\(HOSTNAME\)' > \/etc\/hostname/);
   assert.match(debMakefile, /ln -sf \/usr\/share\/zoneinfo\/\$\(TIMEZONE\) \/etc\/localtime/);
   assert.match(debMakefile, /fallocate -l \$\(SWAP_SIZE_MB\)M/);

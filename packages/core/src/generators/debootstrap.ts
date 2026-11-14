@@ -144,7 +144,8 @@ HOSTNAME        ?= $(DISTRO_NAME)
 TIMEZONE        ?= UTC
 LOCALE          ?= en_US.UTF-8
 KEYMAP          ?= us
-SWAP_SIZE_MB    ?= 2048
+# Live ISO (live-boot overlayfs) does not support swapfiles; set > 0 only for writable disk installs
+SWAP_SIZE_MB    ?= 0
 
 # --- MODULAR HARDWARE & DESKTOP TUNING ---
 # HARDWARE_TARGET: generic-x86 | rpi | intel-nuc | vm | mac | handheld
@@ -307,7 +308,7 @@ ${passthrough ? `	# IOMMU / VFIO device passthrough: kernel arguments and module
 		fallocate -l $(SWAP_SIZE_MB)M $(ROOTFS_DIR)/swapfile 2>/dev/null || dd if=/dev/zero of=$(ROOTFS_DIR)/swapfile bs=1M count=$(SWAP_SIZE_MB) status=none; \\
 		chmod 600 $(ROOTFS_DIR)/swapfile; \\
 		mkswap $(ROOTFS_DIR)/swapfile >/dev/null; \\
-		echo '/swapfile none swap sw 0 0' >> $(ROOTFS_DIR)/etc/fstab; \\
+		echo '/swapfile none swap sw,nofail 0 0' >> $(ROOTFS_DIR)/etc/fstab; \\
 	fi
 
 	# Safe unmount
