@@ -191,7 +191,7 @@ ${dockerBuildTarget({
 
 tarball: configure
 	@echo "[+] Bundling rootfs into portable tarball..."
-	cd $(ROOTFS_DIR) && tar -czf ../../$(OUTPUT_DIR)/$(TARBALL_NAME) .
+	tar -C $(ROOTFS_DIR) -czf $(OUTPUT_DIR)/$(TARBALL_NAME) .
 	@echo "[+] Built: $(OUTPUT_DIR)/$(TARBALL_NAME)"
 
 app-up:

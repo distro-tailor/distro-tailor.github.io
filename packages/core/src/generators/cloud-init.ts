@@ -93,7 +93,8 @@ LOCALE      ?= en_US.UTF-8
 # SSH public key to authorize for the $(ADMIN_USER) user (default: your id_ed25519 / id_ecdsa / id_rsa .pub)
 INVOKING_HOME ?= $(shell getent passwd "$\${SUDO_USER:-$$(id -un)}" | cut -d: -f6)
 SSH_PUBKEY    ?= $(firstword $(wildcard $(INVOKING_HOME)/.ssh/id_ed25519.pub $(INVOKING_HOME)/.ssh/id_ecdsa.pub $(INVOKING_HOME)/.ssh/id_rsa.pub))
-ROOTFS_DIR  := ./build/rootfs
+BUILD_DIR   ?= ./build
+ROOTFS_DIR  ?= $(BUILD_DIR)/rootfs
 QCOW2_FILE  := $(OUTPUT_DIR)/$(IMAGE_NAME).qcow2
 
 QEMU_IMG    ?= qemu-img
@@ -112,10 +113,10 @@ all: clean prepare rootfs configure qcow2
 
 clean:
 	@echo "[+] Cleaning artifacts..."
-	@rm -rf ./build $(OUTPUT_DIR)
+	@rm -rf $(BUILD_DIR) $(OUTPUT_DIR)
 
 prepare:
-	@mkdir -p ./build $(OUTPUT_DIR) $(ROOTFS_DIR)
+	@mkdir -p $(BUILD_DIR) $(OUTPUT_DIR) $(ROOTFS_DIR)
 
 rootfs: prepare
 	@echo "[+] Bootstrapping stripped Debian Cloud base..."

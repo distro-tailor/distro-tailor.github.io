@@ -14,8 +14,9 @@ export function dockerBuildTarget(opts: DockerBuildOptions): string {
   const target = opts.makeTarget || 'all';
   return `DOCKER ?= docker
 # Build inside a privileged Linux container (works on macOS, Windows, and cross-arch hosts)
+# BUILD_DIR=/tmp/dt-build keeps rootfs/mknod on native Linux overlayfs instead of macOS/Windows bind mounts
 docker-build:
-	$(DOCKER) run --rm --privileged --platform ${opts.platform} -v "$$(pwd)":/work -w /work ${opts.image} sh -c '${opts.installCmd} && make ${target}'`;
+	$(DOCKER) run --rm --privileged --platform ${opts.platform} -v "$$(pwd)":/work -w /work ${opts.image} sh -c '${opts.installCmd} && make BUILD_DIR=/tmp/dt-build ${target}'`;
 }
 
 export function debootstrapCrossArchVars(): string {
