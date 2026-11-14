@@ -38,7 +38,7 @@ export function credentialSetupSteps({ rootfs, user, home, sudo, expire }: Crede
   return `	@echo "[+] Creating login credentials for ${user}..."
 	@set -e; umask 077; \\
 	pw='$(LOGIN_PASSWORD)'; \\
-	[ -n "$$pw" ] || pw=$$(head -c 48 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 20); \\
+	[ -n "$$pw" ] || pw=$$(head -c 48 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | head -c 10); \\
 	printf '%s:%s\\n' '${user}' "$$pw" | ${sudo}chroot ${rootfs} chpasswd; \\${expireStep}
 	mkdir -p $(OUTPUT_DIR); \\
 	printf 'user: %s\\npassword: %s\\n%s\\n' '${user}' "$$pw" '${passwordNote}' > $(CREDENTIALS_FILE); \\
