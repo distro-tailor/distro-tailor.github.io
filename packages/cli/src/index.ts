@@ -196,7 +196,18 @@ program
         console.log(pc.yellow(`⚠ ${w}`));
       }
     }
-    console.log(pc.cyan(`Next command:\n  cd ${options.out} && ${recipe.quickstartCommands[0] || 'make'}\n`));
+    const hasDockerBuild = recipe.files.some(
+      (f) => f.filename === 'Makefile' && /^docker-build:/m.test(f.content)
+    );
+    if (process.platform !== 'linux' && hasDockerBuild) {
+      console.log(pc.cyan(`Next command (Docker on ${process.platform}):\n  cd ${options.out} && make docker-build\n`));
+    } else {
+      console.log(pc.cyan(`Next command:\n  cd ${options.out} && ${recipe.quickstartCommands[0] || 'make'}`));
+      if (hasDockerBuild) {
+        console.log(pc.dim(`  # Or via Docker (cross-arch / non-Debian host): cd ${options.out} && make docker-build`));
+      }
+      console.log('');
+    }
   });
 
 program.parse();

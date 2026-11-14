@@ -47,9 +47,22 @@ npm install
 npm run build
 ```
 
-### Interactive CLI
+### Interactive CLI & Headless Export
 ```bash
+# Interactive 20-Questions wizard
 npm run cli
+
+# Non-interactive recommendation (JSON)
+npx tsx packages/cli/src/index.ts recommend --use-case desktop --arch x86_64 --json
+
+# Export a custom build recipe from a Web UI share URL or explicit recipe ID
+npx tsx packages/cli/src/index.ts export --url "<share-url>" --out ./my-distro
+npx tsx packages/cli/src/index.ts export --recipe debootstrap-debian --arch arm64 --out ./my-distro
+
+# Build the exported image:
+cd ./my-distro
+make docker-build   # macOS, Windows, or cross-arch Linux (requires Docker)
+sudo make           # Native Debian/Ubuntu Linux host
 ```
 
 ### Web App

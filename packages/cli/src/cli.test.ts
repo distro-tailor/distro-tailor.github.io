@@ -43,8 +43,9 @@ test('CLI recommend: shell payloads in a shared URL never reach the JSON recipe 
 test('CLI export: writes recipe files with checksum-verified downloads', () => {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'distro-tailor-cli-'));
   try {
-    const { code } = runCli(['export', '--recipe', 'alpine-chroot', '--arch', 'arm64', '--out', outDir]);
+    const { code, stdout } = runCli(['export', '--recipe', 'alpine-chroot', '--arch', 'arm64', '--out', outDir]);
     assert.equal(code, 0);
+    assert.match(stdout, /make docker-build/);
     const makefile = fs.readFileSync(path.join(outDir, 'Makefile'), 'utf8');
     assert.match(makefile, /ALPINE_SHA256 \?= [0-9a-f]{64}/);
     assert.match(makefile, /sha256sum -c -/);
