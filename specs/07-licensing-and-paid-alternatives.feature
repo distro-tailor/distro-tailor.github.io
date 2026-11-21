@@ -119,3 +119,18 @@ Feature: Free & Open-Source Licensing Policy and Paid Alternatives
     Then "Splynx" should only appear as a paid alternative, priced per subscriber
     And the "Wi-Fi Router or Outdoor Radio" device should only be offered for network goals
     And specialist builds (LibreMesh, Internet-in-a-Box) should not win requests outside their specialty
+
+  Scenario Outline: Remote and off-grid sites get systems that suit their power and connection
+    Given the user is building a community or remote-site machine (community Wi-Fi, offline library, or a community server)
+    When the wizard asks "How is this machine powered?" and the user answers "<power>"
+    And the wizard asks "What internet connection does the site have?" and the user answers "<uplink>"
+    Then a community server on a desktop PC should recommend "<pick>"
+
+    Examples:
+      | power                    | uplink                      | pick   |
+      | Reliable Mains Power     | Reliable Broadband or Fibre | Ubuntu |
+      | Solar Panel or Battery   | No Internet (Offline Site)  | DietPi |
+
+  Scenario: Power and connection questions stay out of everyday flows
+    Given the user is building a home server, desktop, or other non-community machine
+    Then the wizard should not ask about power supply or the site's internet connection

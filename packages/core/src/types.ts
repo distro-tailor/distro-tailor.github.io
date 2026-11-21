@@ -358,6 +358,12 @@ export type GuestPlatform = 'kvm' | 'vmware' | 'hyperv' | 'virtualbox';
  */
 export type DeploymentSite = 'home' | 'office' | 'datacenter' | 'community';
 
+/** How the machine is powered; off-grid and unreliable power favour light, power-cut-proof systems. */
+export type PowerSupply = 'mains' | 'unreliable' | 'solar-battery';
+
+/** The site's internet connection; offline and slow sites favour offline-first, rarely-updated systems. */
+export type InternetUplink = 'fast' | 'slow' | 'none';
+
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
   platform?: PlatformTarget;
@@ -392,6 +398,8 @@ export interface UserCriteria {
   devicePassthrough?: DevicePassthrough;
   guestPlatform?: GuestPlatform;
   deploymentSite?: DeploymentSite;
+  powerSupply?: PowerSupply;
+  uplink?: InternetUplink;
 
   // Interactive Recipe Modifiers (App Suites & Turnkey Services)
   desktopEnv?: DesktopEnvId;

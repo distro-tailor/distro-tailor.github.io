@@ -184,6 +184,16 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     datacenter: { label: 'Runs in a Datacenter / Hosting / ISP Network', icon: '🏭' },
     community: { label: 'Runs at a Community or Remote Site', icon: '🏘️' }
   },
+  powerSupply: {
+    mains: { label: 'Reliable Mains Power', icon: '🔌' },
+    unreliable: { label: 'Unreliable Power (Frequent Cuts)', icon: '⚡' },
+    'solar-battery': { label: 'Solar or Battery Power', icon: '☀️' }
+  },
+  uplink: {
+    fast: { label: 'Fast Internet', icon: '🚀' },
+    slow: { label: 'Slow or Metered Internet', icon: '🐢' },
+    none: { label: 'No Internet (Offline Site)', icon: '🏝️' }
+  },
   networkingStack: {
     networkmanager: { label: 'NetworkManager (Desktop & Wi-Fi)', icon: '📶' },
     'systemd-networkd': { label: 'systemd-networkd Daemon', icon: '⚙️' },

@@ -83,6 +83,8 @@ function buildCases(): Record<string, unknown>[] {
     virtHost: values(core.VIRT_HOST_VALUES),
     devicePassthrough: values(core.DEVICE_PASSTHROUGH_VALUES),
     guestPlatform: values(core.GUEST_PLATFORM_VALUES),
+    powerSupply: values(core.POWER_SUPPLY_VALUES),
+    uplink: values(core.UPLINK_VALUES),
     desktopEnv: values(core.DESKTOP_ENV_VALUES),
     dockerApp: values(core.DOCKER_APP_VALUES),
     maxRamMb: [256, 1024, 4096, 16384],

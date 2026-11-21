@@ -183,3 +183,28 @@ test('Option visibility: the Wi-Fi router device is only offered for network goa
   assert.ok(!ids('desktop').includes('wifi_router'));
   assert.ok(ids('desktop').includes('standard_desktop'));
 });
+
+test('Remote sites: power and internet questions appear only for community builds and steer picks', () => {
+  const flow = new QuestionFlow(QUESTIONS);
+  const asked = (c: Parameters<typeof evaluateCriteria>[0]) => flow.getEligibleQuestions(c).map((q) => q.id);
+  for (const c of [{ useCase: 'community-network' }, { useCase: 'offline-library' }, { useCase: 'server', deploymentSite: 'community' }] as const) {
+    assert.ok(asked({ experienceLevel: 'beginner', ...c }).includes('power_supply'), JSON.stringify(c));
+    assert.ok(asked({ experienceLevel: 'beginner', ...c }).includes('internet_uplink'), JSON.stringify(c));
+  }
+  assert.ok(!asked({ experienceLevel: 'beginner', useCase: 'server', deploymentSite: 'home' }).includes('power_supply'));
+  assert.ok(!asked({ experienceLevel: 'beginner', useCase: 'desktop' }).includes('internet_uplink'));
+
+  const pc = { experienceLevel: 'beginner', useCase: 'server', architecture: 'x86_64', platform: 'bare-metal', formFactor: 'desktop', prefersGui: false, deploymentSite: 'community' } as const;
+  assert.equal(evaluateCriteria({ ...pc, powerSupply: 'mains', uplink: 'fast' }).bestMatch.distro.id, 'ubuntu');
+  assert.equal(evaluateCriteria({ ...pc, powerSupply: 'solar-battery', uplink: 'none' }).bestMatch.distro.id, 'dietpi');
+
+  // Offline sites mark down rolling releases
+  const offline = evaluateCriteria({ useCase: 'desktop', uplink: 'none' });
+  const arch = offline.allMatches.find((m) => m.distro.id === 'arch')!;
+  assert.ok(arch.reasons.some((r) => r.feature === 'Offline-First' && !r.matched));
+
+  const params = serializeCriteriaToParams({ powerSupply: 'solar-battery', uplink: 'slow' });
+  const back = deserializeCriteriaFromParams(params);
+  assert.equal(back.powerSupply, 'solar-battery');
+  assert.equal(back.uplink, 'slow');
+});

@@ -8,9 +8,11 @@ import {
   FileSystemPreference,
   FirmwareMode,
   FormFactor,
+  InternetUplink,
   KernelFlavor,
   NetworkingStack,
   PeripheralNeed,
+  PowerSupply,
   PrimaryUseCase,
   SecureBootPolicy,
   SecurityProfile,
@@ -914,4 +916,68 @@ const PASSTHROUGH_TIERS: readonly AffinityTier[] = [
 export const DEVICE_PASSTHROUGH_AFFINITIES: AffinityTable<DevicePassthrough> = {
   'gpu-vfio': PASSTHROUGH_TIERS,
   'pci-devices': PASSTHROUGH_TIERS
+};
+
+/** Systems that keep a site working with no upstream internet. */
+const OFFLINE_FIRST_DISTRO_IDS: readonly string[] = ['internet-in-a-box', 'libremesh'];
+
+/** Off-grid and unreliable power: light systems and ones that survive sudden power loss. */
+export const POWER_SUPPLY_AFFINITIES: AffinityTable<PowerSupply> = {
+  mains: [],
+  unreliable: [
+    {
+      appliesTo: (d) =>
+        ['read-only-rootfs', 'stateless-ram', 'immutable-ostree'].includes(d.stateModel) || d.id === 'dietpi',
+      points: 10,
+      feature: 'Survives Power Cuts',
+      explanation: 'Read-only, image-based, or RAM-logging system that comes back cleanly after sudden power loss.'
+    }
+  ],
+  'solar-battery': [
+    {
+      appliesTo: (d) => d.footprint === 'micro' || d.footprint === 'minimal' || d.minRamMb <= 512,
+      points: 10,
+      feature: 'Low Power Draw',
+      explanation: 'Runs on low-power hardware that a small solar panel or battery can keep running.'
+    },
+    {
+      appliesTo: (d) => d.footprint === 'full' || d.minRamMb > 2048,
+      points: -10,
+      feature: 'Low Power Draw',
+      explanation: 'Needs heavier hardware that drains a solar or battery supply quickly.'
+    }
+  ]
+};
+
+/** No or slow internet: offline-first systems and long-term releases that rarely need big updates. */
+export const UPLINK_AFFINITIES: AffinityTable<InternetUplink> = {
+  fast: [],
+  slow: [
+    {
+      appliesTo: (d) => d.rollingRelease,
+      points: -5,
+      feature: 'Update Size',
+      explanation: 'Rolling releases push large, frequent updates over a slow or metered link.'
+    },
+    {
+      appliesTo: (d) => d.footprint === 'micro' || d.footprint === 'minimal',
+      points: 5,
+      feature: 'Update Size',
+      explanation: 'Small system with small updates that fit a slow or metered link.'
+    }
+  ],
+  none: [
+    {
+      appliesTo: (d) => OFFLINE_FIRST_DISTRO_IDS.includes(d.id),
+      points: 10,
+      feature: 'Offline-First',
+      explanation: 'Keeps serving the local network with no upstream internet.'
+    },
+    {
+      appliesTo: (d) => d.rollingRelease,
+      points: -10,
+      feature: 'Offline-First',
+      explanation: 'Rolling releases expect frequent online updates; they break more easily when updates are rare.'
+    }
+  ]
 };

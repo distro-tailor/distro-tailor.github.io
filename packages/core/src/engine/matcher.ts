@@ -20,6 +20,8 @@ import {
   FORM_FACTOR_AFFINITIES,
   GUI_CAPABLE_DISTRO_IDS,
   HARDWARE_BOOT_SUPPORT,
+  POWER_SUPPLY_AFFINITIES,
+  UPLINK_AFFINITIES,
   HARDWARE_LOCK_PENALTY,
   SPECIALIST_DISTRO_USE_CASES,
   SPECIALIST_PENALTY,
@@ -65,6 +67,9 @@ export function evaluateCriteria(
   if (criteria.releaseCadence) maxWeight += 10;
   if (criteria.driverPhilosophy && criteria.driverPhilosophy !== 'no-preference') maxWeight += 10;
   if (criteria.bootMedium) maxWeight += 10;
+  if (criteria.powerSupply && criteria.powerSupply !== 'mains') maxWeight += 10;
+  if (criteria.uplink === 'none') maxWeight += 10;
+  if (criteria.uplink === 'slow') maxWeight += 5;
   if (criteria.prefersGui !== undefined) maxWeight += 10;
   if (criteria.workflowStyle && criteria.workflowStyle !== 'no-preference') maxWeight += 10;
   if (criteria.realtimeAudio) maxWeight += 15;
@@ -406,6 +411,14 @@ export function evaluateCriteria(
     // 11. Boot Medium (Weight: 10)
     if (criteria.bootMedium) {
       applyAffinity(BOOT_MEDIUM_AFFINITIES[criteria.bootMedium]);
+    }
+
+    // 11B. Power Supply (Weight: 10) and Internet Uplink (Weight: 5-10) for remote and off-grid sites
+    if (criteria.powerSupply) {
+      applyAffinity(POWER_SUPPLY_AFFINITIES[criteria.powerSupply]);
+    }
+    if (criteria.uplink) {
+      applyAffinity(UPLINK_AFFINITIES[criteria.uplink]);
     }
 
     // 12. Realtime Pro Audio (Weight: 15)

@@ -17,6 +17,12 @@ const NON_INTERACTIVE_PLATFORMS = new Set([
   'wsl2'
 ]);
 
+/** Community and remote-site builds: these get the power and internet-connection questions. */
+const isRemoteSiteBuild = (criteria: UserCriteria): boolean =>
+  criteria.useCase === 'community-network' ||
+  criteria.useCase === 'offline-library' ||
+  criteria.deploymentSite === 'community';
+
 const NON_AUDIO_USE_CASES = new Set([
   'browser-wasm',
   'server',
@@ -989,6 +995,82 @@ export const QUESTIONS: Question[] = [
         description: 'Diskless boot over Ethernet; runs entirely in RAM with no local persistent disk required',
         icon: '🌐',
         appliesCriteria: { bootMedium: 'pxe-diskless' }
+      }
+    ]
+  },
+
+  // --- REMOTE & OFF-GRID SITES: POWER AND INTERNET ---
+  {
+    id: 'power_supply',
+    order: 8,
+    isOptional: true,
+    prompt: 'How is this machine powered?',
+    subtext: 'Off-grid sites need light systems that survive sudden power loss.',
+    category: 'hardware',
+    shouldAsk: (criteria) => isRemoteSiteBuild(criteria),
+    tip: {
+      icon: '🔋',
+      title: 'Power cuts corrupt ordinary installs',
+      text: 'A system with a read-only or image-based root filesystem comes back cleanly after the power drops. On solar or battery, a Raspberry Pi-class board draws a few watts, versus 30–100 W for an old PC.'
+    },
+    options: [
+      {
+        id: 'mains_reliable',
+        label: 'Reliable Mains Power',
+        description: 'Grid power that rarely cuts out',
+        icon: '🔌',
+        appliesCriteria: { powerSupply: 'mains' }
+      },
+      {
+        id: 'mains_unreliable',
+        label: 'Mains With Frequent Cuts',
+        description: 'Grid or generator power that drops out regularly',
+        icon: '⚡',
+        appliesCriteria: { powerSupply: 'unreliable' }
+      },
+      {
+        id: 'solar_battery',
+        label: 'Solar Panel or Battery',
+        description: 'Off-grid: every watt counts',
+        icon: '☀️',
+        appliesCriteria: { powerSupply: 'solar-battery' }
+      }
+    ]
+  },
+  {
+    id: 'internet_uplink',
+    order: 8,
+    isOptional: true,
+    prompt: 'What internet connection does the site have?',
+    subtext: 'Offline and slow sites need systems that rarely need big updates.',
+    category: 'lifecycle',
+    shouldAsk: (criteria) => isRemoteSiteBuild(criteria),
+    tip: {
+      icon: '🛰️',
+      title: 'Plan updates around the connection',
+      text: 'With little or no internet, prefer long-term releases and download content or updates where bandwidth exists, then carry them in on a USB drive.'
+    },
+    options: [
+      {
+        id: 'uplink_fast',
+        label: 'Reliable Broadband or Fibre',
+        description: 'Updates and downloads are not a problem',
+        icon: '🚀',
+        appliesCriteria: { uplink: 'fast' }
+      },
+      {
+        id: 'uplink_slow',
+        label: 'Slow, Metered, or Satellite',
+        description: 'Every gigabyte costs time or money',
+        icon: '🐢',
+        appliesCriteria: { uplink: 'slow' }
+      },
+      {
+        id: 'uplink_none',
+        label: 'No Internet (Offline Site)',
+        description: 'Local network only; updates arrive on a USB drive',
+        icon: '🏝️',
+        appliesCriteria: { uplink: 'none' }
       }
     ]
   },

@@ -16,6 +16,8 @@ import {
   FormFactor,
   GuestPlatform,
   DeploymentSite,
+  InternetUplink,
+  PowerSupply,
   InitSystem,
   KernelFlavor,
   NavigationAppId,
@@ -248,6 +250,18 @@ export const DEPLOYMENT_SITE_VALUES: EnumCatalog<DeploymentSite> = {
   community: true
 };
 
+export const POWER_SUPPLY_VALUES: EnumCatalog<PowerSupply> = {
+  mains: true,
+  unreliable: true,
+  'solar-battery': true
+};
+
+export const UPLINK_VALUES: EnumCatalog<InternetUplink> = {
+  fast: true,
+  slow: true,
+  none: true
+};
+
 export const NETWORKING_STACK_VALUES: EnumCatalog<NetworkingStack> = {
   networkmanager: true,
   'systemd-networkd': true,
@@ -387,6 +401,8 @@ export function sanitizeCriteria(input: UntrustedCriteria): UserCriteria {
     devicePassthrough: pickEnum(DEVICE_PASSTHROUGH_VALUES, input.devicePassthrough),
     guestPlatform: pickEnum(GUEST_PLATFORM_VALUES, input.guestPlatform),
     deploymentSite: pickEnum(DEPLOYMENT_SITE_VALUES, input.deploymentSite),
+    powerSupply: pickEnum(POWER_SUPPLY_VALUES, input.powerSupply),
+    uplink: pickEnum(UPLINK_VALUES, input.uplink),
     desktopEnv: pickEnum(DESKTOP_ENV_VALUES, input.desktopEnv),
     enableDistrobox: pickBoolean(input.enableDistrobox),
     enableNix: pickBoolean(input.enableNix),

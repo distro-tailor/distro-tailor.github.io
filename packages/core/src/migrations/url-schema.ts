@@ -197,6 +197,8 @@ export function deserializeCriteriaFromParams(params: Record<string, string>): U
     devicePassthrough: params.devicePassthrough,
     guestPlatform: params.guestPlatform,
     deploymentSite: params.deploymentSite,
+    powerSupply: params.powerSupply,
+    uplink: params.uplink,
     desktopEnv: params.desktopEnv,
     enableDistrobox: flag(params.enableDistrobox),
     enableNix: flag(params.enableNix),
