@@ -19,6 +19,7 @@ import {
   FIRMWARE_MODE_AFFINITIES,
   FORM_FACTOR_AFFINITIES,
   GUI_CAPABLE_DISTRO_IDS,
+  DEPLOYMENT_SITE_AFFINITIES,
   HARDWARE_BOOT_SUPPORT,
   POWER_SUPPLY_AFFINITIES,
   UPLINK_AFFINITIES,
@@ -419,6 +420,11 @@ export function evaluateCriteria(
     }
     if (criteria.uplink) {
       applyAffinity(UPLINK_AFFINITIES[criteria.uplink]);
+    }
+
+    // 11C. Deployment site: shared and remote sites favour long-term releases (penalty only)
+    if (criteria.deploymentSite) {
+      applyAffinity(DEPLOYMENT_SITE_AFFINITIES[criteria.deploymentSite]);
     }
 
     // 12. Realtime Pro Audio (Weight: 15)

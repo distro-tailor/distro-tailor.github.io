@@ -1,4 +1,5 @@
 import { Question, UserCriteria } from '../types.js';
+import { SERVER_SITE_USE_CASES } from './affinities.js';
 
 /**
  * In Goal Mode a value already inferred from the goal or device skips its question (20-questions style).
@@ -16,6 +17,7 @@ const NON_INTERACTIVE_PLATFORMS = new Set([
   'vm',
   'wsl2'
 ]);
+
 
 /** Community and remote-site builds: these get the power and internet-connection questions. */
 const isRemoteSiteBuild = (criteria: UserCriteria): boolean =>
@@ -200,28 +202,28 @@ export const QUESTIONS: Question[] = [
         label: 'Simple Home Server & Private Cloud',
         description: 'Run Plex/Jellyfin media streaming, Pi-hole ad-blocking, or self-hosted apps on cheap low-power hardware',
         icon: '🏠',
-        appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false, releaseCadence: 'lts' }
+        appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'home' }
       },
       {
         id: 'game_server_lan',
         label: 'Minecraft or LAN Party Game Server',
         description: 'Host Minecraft, Valheim, Terraria, or Steam dedicated servers for friends, or a LAN party download cache',
         icon: '🎮',
-        appliesCriteria: { useCase: 'game-server', footprint: 'lean', platform: 'bare-metal', prefersGui: false, releaseCadence: 'lts' }
+        appliesCriteria: { useCase: 'game-server', footprint: 'lean', platform: 'bare-metal', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'home' }
       },
       {
         id: 'community_wifi',
         label: 'Community Wi-Fi or Village Internet',
         description: 'Share internet across a neighbourhood, village, or campus with rooftop Wi-Fi links or a self-healing mesh of cheap routers',
         icon: '📶',
-        appliesCriteria: { useCase: 'community-network', platform: 'router-firewall', footprint: 'minimal', prefersGui: false, releaseCadence: 'lts' }
+        appliesCriteria: { useCase: 'community-network', platform: 'router-firewall', footprint: 'minimal', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'community' }
       },
       {
         id: 'offline_library',
         label: 'Offline Library & Learning Server',
         description: 'Serve Wikipedia, maps, books, and courses over local Wi-Fi to phones and laptops, with little or no internet',
         icon: '📚',
-        appliesCriteria: { useCase: 'offline-library', platform: 'embedded-sbc', footprint: 'lean', prefersGui: false, releaseCadence: 'lts' }
+        appliesCriteria: { useCase: 'offline-library', platform: 'embedded-sbc', footprint: 'lean', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'community' }
       },
       {
         id: 'community_server',
@@ -235,21 +237,21 @@ export const QUESTIONS: Question[] = [
         label: 'Family Photo/Video Backup & Home Storage (NAS)',
         description: 'Auto-backup family phone photos and videos over Wi-Fi, share files at home, and ditch monthly cloud fees',
         icon: '📦',
-        appliesCriteria: { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal', prefersGui: false, releaseCadence: 'lts' }
+        appliesCriteria: { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'home' }
       },
       {
         id: 'smart_home',
         label: 'Smart Home Automation Hub (Home Assistant)',
         description: 'Turn a Raspberry Pi or mini PC into a private smart home controller for Zigbee, Matter, lights, and sensors with zero cloud fees',
         icon: '🏡',
-        appliesCriteria: { useCase: 'smart-home', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false, releaseCadence: 'lts' }
+        appliesCriteria: { useCase: 'smart-home', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'home' }
       },
       {
         id: 'cheap_router',
         label: 'Home Router & Wi-Fi Firewall',
         description: 'Turn an old PC or box into a fast home router, ditch ISP rental fees, and block ads network-wide',
         icon: '📡',
-        appliesCriteria: { useCase: 'router-networking', footprint: 'micro', platform: 'router-firewall', prefersGui: false, releaseCadence: 'lts' }
+        appliesCriteria: { useCase: 'router-networking', footprint: 'micro', platform: 'router-firewall', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'home' }
       },
       {
         id: 'offline_navigation',
@@ -284,7 +286,7 @@ export const QUESTIONS: Question[] = [
         label: 'Homelab Virtualization & Hypervisor Host (Proxmox / KVM / LXC)',
         description: 'Run multiple isolated Linux/Windows virtual machines, Docker apps, and ZFS storage pools on a single powerful host or Craigslist server rack',
         icon: '🖧',
-        appliesCriteria: { useCase: 'hypervisor-vms', footprint: 'standard', platform: 'server', prefersGui: false, releaseCadence: 'lts' }
+        appliesCriteria: { useCase: 'hypervisor-vms', footprint: 'standard', platform: 'server', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'home' }
       },
       {
         id: 'ai_ml_server',
@@ -916,17 +918,16 @@ export const QUESTIONS: Question[] = [
     order: 7,
     isOptional: true,
     prompt: 'Where will this machine run?',
-    subtext: 'Some driver licences treat a home rig and a datacenter rack differently.',
+    subtext: 'Shared and remote sites favour long-term releases, and some driver licences treat a home rig and a datacenter rack differently.',
     category: 'hardware',
     shouldAsk: (criteria) =>
-      criteria.driverPhilosophy !== 'free-software-only' &&
-      (criteria.useCase === 'ai-gpu-compute' ||
-        (criteria.driverPhilosophy === 'seamless-proprietary' &&
-          (criteria.platform === 'server' || criteria.useCase === 'hypervisor-vms'))),
+      !decidedInGoalMode(criteria, 'deploymentSite') &&
+      ((!!criteria.useCase && SERVER_SITE_USE_CASES.has(criteria.useCase)) ||
+        (criteria.driverPhilosophy === 'seamless-proprietary' && criteria.platform === 'server')),
     tip: {
       icon: '⚖️',
       title: 'Why we ask',
-      text: "NVIDIA's free GeForce/Titan driver licence does not cover datacenter deployment. Home rigs and homelabs are fine; racks serving customers (hosting, colocation, ISP networks) should use data-center GPUs or check the licence."
+      text: "Offices, datacenters, and community sites need systems that stay stable with little hands-on care, so we favour long-term releases there. NVIDIA's free GeForce/Titan driver licence also does not cover datacenter deployment; home rigs and homelabs are fine."
     },
     options: [
       {
@@ -942,6 +943,13 @@ export const QUESTIONS: Question[] = [
         description: 'A server closet or small rack at a shop, office, school, or club',
         icon: '🏢',
         appliesCriteria: { deploymentSite: 'office' }
+      },
+      {
+        id: 'community_remote',
+        label: 'Community or Remote Site',
+        description: 'A school, clinic, village, or co-op, often with limited power or internet',
+        icon: '🏘️',
+        appliesCriteria: { deploymentSite: 'community' }
       },
       {
         id: 'datacenter_hosting_isp',

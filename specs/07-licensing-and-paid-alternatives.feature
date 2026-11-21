@@ -87,10 +87,13 @@ Feature: Free & Open-Source Licensing Policy and Paid Alternatives
       | Seamless Proprietary  | (question skipped)                               | shown     |
       | 100% Free Software    | (question not asked)                             | hidden    |
 
-  Scenario: The deployment-site question is asked only when it matters and never changes scores
-    Given the build does not use NVIDIA's proprietary driver on a GPU or server machine
-    Then the wizard should not ask "Where will this machine run?"
-    And answering it should only change legal notes, never distro scores
+  Scenario: Where the machine runs shapes server picks without slowing down beginners
+    Given the user is building a machine that serves others (server, NAS, game server, community network, GPU compute, and similar)
+    Then the wizard should ask "Where will this machine run?" with Home or Homelab, Office or Small-Business, Community or Remote Site, and Datacenter/Hosting/ISP answers
+    And in Goal Mode the answer should be inferred from the goal (home for home servers, community for community goals) instead of asked
+    And office, datacenter, and community sites should mark down rolling-release server distributions in favour of long-term releases
+    But a workstation such as a pentest laptop at an office should not be marked down
+    And desktops should never be asked this question
 
   Scenario: Hosting a Minecraft or LAN party game server
     Given the user picks the goal "Minecraft or LAN Party Game Server"

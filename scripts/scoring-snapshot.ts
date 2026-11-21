@@ -83,6 +83,7 @@ function buildCases(): Record<string, unknown>[] {
     virtHost: values(core.VIRT_HOST_VALUES),
     devicePassthrough: values(core.DEVICE_PASSTHROUGH_VALUES),
     guestPlatform: values(core.GUEST_PLATFORM_VALUES),
+    deploymentSite: values(core.DEPLOYMENT_SITE_VALUES),
     powerSupply: values(core.POWER_SUPPLY_VALUES),
     uplink: values(core.UPLINK_VALUES),
     desktopEnv: values(core.DESKTOP_ENV_VALUES),

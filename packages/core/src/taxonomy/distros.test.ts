@@ -108,20 +108,34 @@ test('Legal caveats: the NVIDIA note follows the driver choice and where the mac
   assert.ok(evaluateCriteria({ ...gpu, deploymentSite: 'home' }).legalCaveats.some((x) => x.id === 'crypto-mining-law'));
 });
 
-test('Deployment site: asked only for GPU or proprietary-driver servers, never scored, and URL-safe', () => {
+test('Deployment site: asked for server builds, inferred in Goal mode, tunes stability, and URL-safe', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const asked = (c: Parameters<typeof evaluateCriteria>[0]) => flow.getEligibleQuestions(c).some((q) => q.id === 'deployment_site');
   assert.equal(asked({ experienceLevel: 'intermediate', useCase: 'ai-gpu-compute' }), true);
-  assert.equal(asked({ experienceLevel: 'intermediate', useCase: 'server', platform: 'server', driverPhilosophy: 'seamless-proprietary' }), true);
-  assert.equal(asked({ experienceLevel: 'intermediate', useCase: 'ai-gpu-compute', driverPhilosophy: 'free-software-only' }), false);
+  assert.equal(asked({ experienceLevel: 'intermediate', useCase: 'server' }), true);
+  assert.equal(asked({ experienceLevel: 'intermediate', useCase: 'community-network' }), true);
   assert.equal(asked({ experienceLevel: 'intermediate', useCase: 'desktop' }), false);
+  // Goal mode infers it for home and community goals, so beginners are not asked again
+  assert.equal(asked({ experienceLevel: 'beginner', useCase: 'server', deploymentSite: 'home' }), false);
 
-  const base = { useCase: 'ai-gpu-compute', platform: 'server' } as const;
-  const scores = (r: ReturnType<typeof evaluateCriteria>) => r.allMatches.map((m) => `${m.distro.id}:${m.score}`);
-  assert.deepEqual(scores(evaluateCriteria({ ...base, deploymentSite: 'datacenter' })), scores(evaluateCriteria(base)));
+  // Shared and remote sites mark down rolling releases; home has no preference
+  const score = (c: Parameters<typeof evaluateCriteria>[0], id: string) => evaluateCriteria(c).allMatches.find((m) => m.distro.id === id)!.score;
+  // Pick a rolling distro that scores above zero for a server request, so the penalty is visible
+  const base = { useCase: 'server' } as const;
+  const rolling = evaluateCriteria(base).allMatches.find((m) => m.distro.rollingRelease && m.score > 0)!;
+  assert.ok(rolling, 'needs a rolling distro with a positive server score');
+  const id = rolling.distro.id;
+  assert.equal(score({ ...base, deploymentSite: 'home' }, id), score(base, id));
+  assert.ok(score({ ...base, deploymentSite: 'datacenter' }, id) < score(base, id));
+  assert.equal(score({ ...base, deploymentSite: 'datacenter' }, 'debian'), score(base, 'debian'));
+  // Workstations at an office are not penalised (e.g. a rolling pentest distro)
+  assert.equal(
+    evaluateCriteria({ useCase: 'security-pentest', deploymentSite: 'office' }).bestMatch.distro.id,
+    evaluateCriteria({ useCase: 'security-pentest' }).bestMatch.distro.id
+  );
 
-  const params = serializeCriteriaToParams({ ...base, deploymentSite: 'office' });
-  assert.equal(deserializeCriteriaFromParams(params).deploymentSite, 'office');
+  const params = serializeCriteriaToParams({ ...base, deploymentSite: 'community' });
+  assert.equal(deserializeCriteriaFromParams(params).deploymentSite, 'community');
   assert.equal(deserializeCriteriaFromParams({ ...params, deploymentSite: 'moon-base' }).deploymentSite, undefined);
 });
 

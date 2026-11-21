@@ -2,6 +2,7 @@ import {
   BootloaderPreference,
   BootMedium,
   DesktopWorkflowStyle,
+  DeploymentSite,
   DevicePassthrough,
   DistroProfile,
   DriverPhilosophy,
@@ -980,4 +981,35 @@ export const UPLINK_AFFINITIES: AffinityTable<InternetUplink> = {
       explanation: 'Rolling releases expect frequent online updates; they break more easily when updates are rare.'
     }
   ]
+};
+
+/** Machines that serve others; shared with the "Where will this machine run?" question. */
+export const SERVER_SITE_USE_CASES: ReadonlySet<PrimaryUseCase> = new Set<PrimaryUseCase>([
+  'server',
+  'game-server',
+  'nas-storage',
+  'smart-home',
+  'hypervisor-vms',
+  'k8s-cluster',
+  'router-networking',
+  'community-network',
+  'offline-library',
+  'ai-gpu-compute'
+]);
+
+const PRODUCTION_STABILITY_TIER = {
+  // Servers only: a workstation at an office (e.g. a pentest laptop) may still want a rolling distro
+  appliesTo: (d: DistroProfile, c: UserCriteria) =>
+    d.rollingRelease && (!c.useCase || SERVER_SITE_USE_CASES.has(c.useCase)),
+  points: -5,
+  feature: 'Production Stability',
+  explanation: 'Rolling releases need frequent hands-on updates; shared and remote sites usually run long-term releases.'
+} as const;
+
+/** Sites that serve others favour long-term releases; a home rig has no preference. */
+export const DEPLOYMENT_SITE_AFFINITIES: AffinityTable<DeploymentSite> = {
+  home: [],
+  office: [PRODUCTION_STABILITY_TIER],
+  datacenter: [PRODUCTION_STABILITY_TIER],
+  community: [PRODUCTION_STABILITY_TIER]
 };
