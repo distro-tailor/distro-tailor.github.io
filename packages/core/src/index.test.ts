@@ -1055,3 +1055,24 @@ test('Matcher: Apple Silicon Macs only get distros that boot on them; VMs and In
   assert.notEqual(intelMac.bestMatch.distro.id, 'asahi-linux');
   assert.ok(intelMac.bestMatch.reasons.some((r) => r.feature === 'Mac Hardware Support' && r.matched));
 });
+
+test('Matcher: Asahi Linux only surfaces for Apple Silicon Macs', () => {
+  const generic = evaluateCriteria({ experienceLevel: 'intermediate', useCase: 'desktop', platform: 'bare-metal', prefersGui: true });
+  assert.notEqual(generic.bestMatch.distro.id, 'asahi-linux');
+  const asahi = generic.allMatches.find((m) => m.distro.id === 'asahi-linux')!;
+  assert.ok(asahi.reasons.some((r) => r.feature === 'Hardware Lock' && !r.matched));
+
+  const m1 = evaluateCriteria({ useCase: 'desktop', architecture: 'arm64', platform: 'bare-metal', formFactor: 'mac' });
+  assert.equal(m1.bestMatch.distro.id, 'asahi-linux');
+});
+
+test('Matcher: Asahi stays available for arm64 requests without a form factor, but not on other ARM hardware', () => {
+  // Available (no lock penalty, top score) for a plain arm64 request; Ubuntu may still win the tie
+  const plain = evaluateCriteria({ useCase: 'desktop', architecture: 'arm64', platform: 'bare-metal' });
+  const asahi = plain.allMatches.find((m) => m.distro.id === 'asahi-linux')!;
+  assert.ok(!asahi.reasons.some((r) => r.feature === 'Hardware Lock'));
+  assert.equal(asahi.score, plain.bestMatch.score);
+  for (const formFactor of ['sbc', 'laptop', 'low-power'] as const) {
+    assert.notEqual(evaluateCriteria({ useCase: 'desktop', architecture: 'arm64', platform: 'bare-metal', formFactor }).bestMatch.distro.id, 'asahi-linux', formFactor);
+  }
+});

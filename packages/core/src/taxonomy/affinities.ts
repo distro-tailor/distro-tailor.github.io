@@ -120,6 +120,11 @@ export const HARDWARE_LOCKED_DISTROS: Readonly<Record<string, HardwareLock>> = {
   'raspberry-pi-os': {
     requires: (c) => (c.platform === 'embedded-sbc' || c.formFactor === 'sbc') && c.formFactor !== 'low-power',
     explanation: 'Only boots on Raspberry Pi boards; other ARM boards and TV boxes need Armbian or DietPi.'
+  },
+  'asahi-linux': {
+    // arm64 with a Mac form factor, or arm64 with no form factor (Technical mode can only say "arm64")
+    requires: (c) => c.architecture === 'arm64' && (c.formFactor === 'mac' || c.formFactor === undefined),
+    explanation: 'Only boots on Apple Silicon Macs (M1–M4); other computers need a regular distribution.'
   }
 };
 

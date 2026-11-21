@@ -101,3 +101,8 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     And for the kid-safe goal it should recommend "Endless OS"
     And the image card should explain that budget Windows laptops install like any PC from USB
     And that Chromebooks can use the reversible built-in Linux environment, or the MrChromebox firmware route
+
+  Scenario: Asahi Linux is only offered for Apple Silicon Macs
+    Given the criteria do not describe an Apple Silicon Mac (for example a generic desktop with no hardware chosen)
+    Then "Asahi Linux" should not be recommended, because it only boots on Apple M-series Macs
+    But on an Apple Silicon Mac it should remain the recommendation, and for an arm64 request with no form factor (as Technical Mode expresses it) it should stay available
