@@ -40,6 +40,7 @@ build: prepare
 	tar -xzf $(BUILD_DIR)/alpine-minirootfs.tar.gz -C $(ROOTFS_DIR)
 	
 	@echo "[+] Installing Cage (Wayland Kiosk Compositor) & GUI dependencies..."
+	cp /etc/resolv.conf $(ROOTFS_DIR)/etc/resolv.conf 2>/dev/null || echo "nameserver 1.1.1.1" > $(ROOTFS_DIR)/etc/resolv.conf
 	mount -t proc none $(ROOTFS_DIR)/proc
 	mount -o bind /sys $(ROOTFS_DIR)/sys
 	mount -o bind /dev $(ROOTFS_DIR)/dev

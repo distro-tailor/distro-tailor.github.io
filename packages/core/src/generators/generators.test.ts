@@ -494,3 +494,22 @@ test('Recipe Generator: Makefiles include docker-build and qemu-user-static cros
   assert.ok(debArmRecipe.quickstartCommands.some((c) => c.includes('qemu-system-aarch64')));
   assert.doesNotMatch(debArm, /\\\\$/m, 'Makefile must not emit double-backslash line continuations');
 });
+
+test('nixos-flake configuration.nix defines a default root fileSystems."/" entry', () => {
+  const recipe = resolveRecipeGenerator('nixos-flake', { architecture: 'x86_64' });
+  const config = recipe.files.find((f) => f.filename === 'configuration.nix')?.content ?? '';
+  assert.match(config, /fileSystems\."\/"\s*=\s*lib\.mkDefault/);
+  assert.match(config, /fsType\s*=\s*"ext4"/);
+  assert.match(config, /nixpkgs\.config\.allowUnfree = true;/);
+
+  const flossRecipe = resolveRecipeGenerator('nixos-flake', {
+    architecture: 'x86_64',
+    driverPhilosophy: 'free-software-only'
+  });
+  const flossConfig = flossRecipe.files.find((f) => f.filename === 'configuration.nix')?.content ?? '';
+  assert.doesNotMatch(flossConfig, /allowUnfree = true/);
+
+  const zfsRecipe = resolveRecipeGenerator('nixos-flake', { architecture: 'x86_64', fileSystem: 'zfs' });
+  const zfsConfig = zfsRecipe.files.find((f) => f.filename === 'configuration.nix')?.content ?? '';
+  assert.match(zfsConfig, /fsType\s*=\s*"zfs"/);
+});

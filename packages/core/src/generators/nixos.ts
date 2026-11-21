@@ -102,6 +102,14 @@ export function generateNixosRecipe(criteria: UserCriteria): GeneratedRecipe {
     kernelConfig = '\n  # PREEMPT_RT Realtime Low-Latency Kernel\n  boot.kernelPackages = pkgs.linuxPackages_rt;';
   }
 
+  const rootFsType = criteria.fileSystem && criteria.fileSystem !== 'fat32' ? criteria.fileSystem : 'ext4';
+  const rootFsDevice = rootFsType === 'zfs' ? 'zroot/root' : '/dev/disk/by-label/nixos';
+  const rootFsConfig = `  # Default root filesystem (override or import ./hardware-configuration.nix on target hardware)
+  fileSystems."/" = lib.mkDefault {
+    device = "${rootFsDevice}";
+    fsType = "${rootFsType}";
+  };`;
+
   let fsConfig = '';
   if (criteria.fileSystem === 'zfs') {
     fsConfig = '\n  # OpenZFS Storage Pool Support\n  boot.supportedFilesystems = [ "zfs" ];';
@@ -235,7 +243,8 @@ export function generateNixosRecipe(criteria: UserCriteria): GeneratedRecipe {
 {
   system.stateVersion = "24.11";
 
-${bootloaderConfig}${kernelConfig ? '\n' + kernelConfig : ''}${fsConfig ? '\n' + fsConfig : ''}${tpmConfig}
+${bootloaderConfig}${kernelConfig ? '\n' + kernelConfig : ''}${fsConfig ? '\n' + fsConfig : ''}
+${rootFsConfig}${tpmConfig}
 
   # Networking
   networking.hostName = "${hostname}";
@@ -261,7 +270,7 @@ ${packagesFormatted}
   ];
 
   # Nix Flakes & Command Line Tools
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];${criteria.driverPhilosophy !== 'free-software-only' ? '\n  nixpkgs.config.allowUnfree = true;' : ''}
 
   # Security & Firewall
   networking.firewall.enable = true;
