@@ -4,7 +4,7 @@ Feature: Free & Open-Source Licensing Policy and Paid Alternatives
   So that I never have to pay to use the feature I chose, while still knowing which paid products exist
 
   Background:
-    Given devices are assumed to be owned by the user, not managed by a school, employer, or other third party
+    Given whoever sets up the devices owns or manages them (a person, family, school, club, community group, or small business setting up its own equipment)
     And every registered distribution declares its license and a licensing model
     And the allowed licensing models are "foss", "foss-optional-paid", and "foss-with-firmware"
 

@@ -95,7 +95,7 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
 
   Scenario: Kids and adults with a Chromebook or budget laptop get a safe starter route
     Given the user picks the device "Chromebook or Budget Laptop (Intel or AMD)"
-    And devices are assumed to be owned by the user, not managed by a school or company
+    And whoever sets it up owns or manages the device (including a school or club setting up its own laptops)
     When the user picks an everyday, office, or coding goal
     Then the engine should recommend a distribution with standard Intel/AMD drivers and community Chromebook fixes ("Ubuntu", "Linux Mint", or "Fedora")
     And for the kid-safe goal it should recommend "Endless OS"
