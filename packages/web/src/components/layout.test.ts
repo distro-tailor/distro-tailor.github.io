@@ -37,3 +37,22 @@ test('Leaderboard Layout: live search filters contenders by name and tagline', (
   assert.ok(html.includes('1 found') || html.includes('found'));
   assert.ok(!html.includes('Batocera.linux')); // should be filtered out
 });
+
+test('Leaderboard Layout: labels advanced and expert distros when experienceLevel is beginner', () => {
+  const beginnerEval = evaluateCriteria({ experienceLevel: 'beginner' });
+  const state = createDefaultState();
+  state.criteria = { experienceLevel: 'beginner' };
+  state.showAllContenders = true;
+
+  const beginnerHtml = renderLeaderboard(beginnerEval, state);
+  assert.ok(beginnerHtml.includes('id="leaderboard-scroll-container"'));
+  assert.ok(beginnerHtml.includes('>Advanced</span>'));
+  assert.ok(beginnerHtml.includes('>Expert</span>'));
+
+  const expertState = createDefaultState();
+  expertState.criteria = { experienceLevel: 'systems-engineer' };
+  expertState.showAllContenders = true;
+  const expertHtml = renderLeaderboard(evaluateCriteria({ experienceLevel: 'systems-engineer' }), expertState);
+  assert.ok(!expertHtml.includes('>Advanced</span>'));
+  assert.ok(!expertHtml.includes('>Expert</span>'));
+});

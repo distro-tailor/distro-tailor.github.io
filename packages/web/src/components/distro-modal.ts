@@ -13,8 +13,8 @@ export function renderDistroDetailModal(
   const score = match ? match.score : undefined;
 
   return `
-    <div id="distro-modal-backdrop" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in">
-      <div id="distro-modal-card" class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full p-4 sm:p-7 shadow-2xl relative my-auto min-w-0 max-h-[92vh] overflow-y-auto select-text">
+    <div id="distro-modal-backdrop" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-hidden overscroll-contain animate-in fade-in">
+      <div id="distro-modal-card" class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full p-4 sm:p-7 shadow-2xl relative my-auto min-w-0 max-h-[90vh] overflow-y-auto overscroll-contain select-text">
         
         <!-- Close Button -->
         <button id="btn-close-distro-modal" class="absolute top-4 right-4 w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-100 flex items-center justify-center text-sm transition-colors cursor-pointer" title="Close (Esc)">

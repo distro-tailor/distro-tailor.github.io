@@ -135,7 +135,7 @@ export function renderLeaderboard(evaluation: RecommendationOutput, state: AppSt
     </div>
 
     <!-- Contender Cards (Scrollable when expanded) -->
-    <div class="space-y-2.5 ${isExpanded ? 'max-h-[520px] overflow-y-auto pr-1' : ''}">
+    <div id="leaderboard-scroll-container" class="space-y-2.5 ${isExpanded ? 'max-h-[520px] overflow-y-auto pr-1' : ''}">
       ${
         displayMatches.length === 0
           ? `
@@ -157,6 +157,13 @@ export function renderLeaderboard(evaluation: RecommendationOutput, state: AppSt
               <span class="truncate group-hover:text-emerald-300 transition-colors">${m.distro.name}</span>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
+              ${
+                state.criteria.experienceLevel === 'beginner' && m.distro.experienceLevel === 'advanced'
+                  ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30" title="Designed for advanced Linux users">Advanced</span>'
+                  : state.criteria.experienceLevel === 'beginner' && m.distro.experienceLevel === 'systems-engineer'
+                    ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30" title="Requires systems engineering / source-level know-how">Expert</span>'
+                    : ''
+              }
               <span class="font-mono text-xs font-bold ${
                 m.score >= 80 ? 'text-emerald-400' : m.score >= 50 ? 'text-yellow-400' : 'text-slate-500'
               }">

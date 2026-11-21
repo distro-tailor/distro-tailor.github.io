@@ -45,6 +45,12 @@ function renderPrimaryContent(
 }
 
 function render(): void {
+  // Preserve viewport and leaderboard scroll across full-root re-renders (e.g. opening/closing modals).
+  const savedScrollX = typeof window !== 'undefined' ? window.scrollX : 0;
+  const savedScrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+  const savedLeaderboardScrollTop =
+    typeof document !== 'undefined' ? (document.getElementById('leaderboard-scroll-container')?.scrollTop ?? 0) : 0;
+
   // Capture active input focus and cursor selection to restore after reactive re-render
   let activeId: string | null = null;
   let selectionStart: number | null = null;
@@ -122,13 +128,28 @@ function render(): void {
     })()}
   `;
 
+  if (typeof document !== 'undefined') {
+    const isModalOpen = Boolean(state.showShareModal || state.selectedDistroId);
+    document.body?.classList.toggle('overflow-hidden', isModalOpen);
+  }
+
   attachEventHandlers(currentQuestion, evaluation, flow);
+
+  if (typeof window !== 'undefined' && typeof window.scrollTo === 'function' && (savedScrollX !== 0 || savedScrollY !== 0)) {
+    window.scrollTo(savedScrollX, savedScrollY);
+  }
+  if (typeof document !== 'undefined' && savedLeaderboardScrollTop > 0) {
+    const leaderboardContainer = document.getElementById('leaderboard-scroll-container');
+    if (leaderboardContainer) {
+      leaderboardContainer.scrollTop = savedLeaderboardScrollTop;
+    }
+  }
 
   // Restore focus and cursor position if user was typing in an input
   if (activeId && typeof document !== 'undefined') {
     const restoredEl = document.getElementById(activeId) as HTMLInputElement | HTMLTextAreaElement | null;
     if (restoredEl && typeof restoredEl.focus === 'function') {
-      restoredEl.focus();
+      restoredEl.focus({ preventScroll: true });
       if (selectionStart !== null && selectionEnd !== null && typeof restoredEl.setSelectionRange === 'function') {
         try {
           restoredEl.setSelectionRange(selectionStart, selectionEnd);
