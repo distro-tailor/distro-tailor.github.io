@@ -143,6 +143,40 @@ export const EXPERT_FIELDS: ExpertFieldConfig[] = [
     ]
   },
   {
+    id: 'expert-deployment-site',
+    label: 'Where It Runs',
+    criteriaKey: 'deploymentSite',
+    placeholder: 'Any Site',
+    options: [
+      { value: 'home', label: 'Home or Homelab' },
+      { value: 'office', label: 'Office or Small-Business Server Room' },
+      { value: 'community', label: 'Community or Remote Site' },
+      { value: 'datacenter', label: 'Datacenter, Colocation, Hosting, or ISP' }
+    ]
+  },
+  {
+    id: 'expert-power-supply',
+    label: 'Power Supply',
+    criteriaKey: 'powerSupply',
+    placeholder: 'Any Power',
+    options: [
+      { value: 'mains', label: 'Reliable Mains Power' },
+      { value: 'unreliable', label: 'Unreliable Power (Frequent Cuts)' },
+      { value: 'solar-battery', label: 'Solar Panel or Battery' }
+    ]
+  },
+  {
+    id: 'expert-uplink',
+    label: 'Internet Connection',
+    criteriaKey: 'uplink',
+    placeholder: 'Any Connection',
+    options: [
+      { value: 'fast', label: 'Reliable Broadband or Fibre' },
+      { value: 'slow', label: 'Slow, Metered, or Satellite' },
+      { value: 'none', label: 'No Internet (Offline Site)' }
+    ]
+  },
+  {
     id: 'expert-filesystem',
     label: 'Root Filesystem',
     criteriaKey: 'fileSystem',

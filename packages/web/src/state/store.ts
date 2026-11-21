@@ -1,4 +1,11 @@
-import { UserCriteria, QUESTIONS, QuestionFlow, evaluateCriteria } from '@distro-tailor/core';
+import {
+  UserCriteria,
+  QUESTIONS,
+  QuestionFlow,
+  evaluateCriteria,
+  findQuestionForCriteriaKey,
+  isQuestionSubject
+} from '@distro-tailor/core';
 import { AppState, AppTab, FlowMode, IAppStore } from '../types.js';
 
 export type { AppState, AppTab, FlowMode, IAppStore };
@@ -255,10 +262,11 @@ export class AppStore extends EventTarget implements IAppStore {
     const flow = new QuestionFlow(QUESTIONS);
     const answered = this._state.answeredQuestionIds;
     const eligible = flow.getEligibleQuestions(this._state.criteria, answered);
-    let idx = fromId ? eligible.findIndex((q) => q.id === fromId) : -1;
+    const idx = fromId ? eligible.findIndex((q) => q.id === fromId) : -1;
     if (idx === -1) {
-      const firstOpen = eligible.find((q) => !answered.has(q.id));
-      idx = firstOpen ? eligible.indexOf(firstOpen) - 1 : -1;
+      // Not on an eligible question (none yet, or it no longer applies): go to the first open one,
+      // or to results when everything is answered
+      return eligible.find((q) => !answered.has(q.id))?.id ?? null;
     }
     if (idx + 1 < eligible.length) return eligible[idx + 1].id;
     return this.firstUnansweredQuestionId();
@@ -348,13 +356,14 @@ export class AppStore extends EventTarget implements IAppStore {
     delete newCriteria[criteriaKey as keyof UserCriteria];
     this._state.criteria = newCriteria;
 
-    // Remove matching question from answered set
-    const q = QUESTIONS.find((question) =>
-      question.options.some((opt) => opt.appliesCriteria && criteriaKey in opt.appliesCriteria)
-    );
+    // Re-open the question this choice belongs to. Only un-answer it when the key is what it asks
+    // (e.g. release_cadence), not when the value was merely inferred by a goal or device answer.
+    const q = findQuestionForCriteriaKey(criteriaKey, newCriteria);
     if (q) {
-      this._state.answeredQuestionIds.delete(q.id);
-      this._state.answeredQuestionOrder = (this._state.answeredQuestionOrder || []).filter((id) => id !== q.id);
+      if (isQuestionSubject(q, criteriaKey)) {
+        this._state.answeredQuestionIds.delete(q.id);
+        this._state.answeredQuestionOrder = (this._state.answeredQuestionOrder || []).filter((id) => id !== q.id);
+      }
       this._state.viewingQuestionId = q.id;
     }
 

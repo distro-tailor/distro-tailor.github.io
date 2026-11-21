@@ -106,3 +106,11 @@ test('CLI recommend: --deployment-site home drops the NVIDIA datacenter note', (
   assert.ok(ids(away.stdout).includes('nvidia-geforce-datacenter'));
   assert.ok(!ids(home.stdout).includes('nvidia-geforce-datacenter'));
 });
+
+test('CLI recommend: remote-site and privacy flags reach the matcher', () => {
+  const { code, stdout } = runCli(['recommend', '--use-case', 'desktop', '--uplink', 'none', '--power-supply', 'solar-battery', '--privacy', '--json']);
+  assert.equal(code, 0);
+  const result = JSON.parse(stdout);
+  const features = result.bestMatch.reasons.map((r: { feature: string }) => r.feature);
+  assert.ok(features.includes('Privacy by Default') || features.includes('Low Power Draw') || features.includes('Offline-First'));
+});

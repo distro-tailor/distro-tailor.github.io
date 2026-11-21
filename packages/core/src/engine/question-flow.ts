@@ -87,3 +87,30 @@ export function withVisibleOptions(question: Question, criteria: UserCriteria): 
   if (visible.length === question.options.length || visible.length === 0) return question;
   return { ...question, options: visible };
 }
+
+/** Every criteria key any option of the question can set. */
+function optionKeys(question: Question): Set<string> {
+  return new Set(question.options.flatMap((opt) => Object.keys(opt.appliesCriteria)));
+}
+
+/**
+ * The question a criteria key belongs to, for reviewing or removing that one choice. Goal and device
+ * questions also infer keys such as releaseCadence or bootMedium, so prefer, among the questions that
+ * apply to `criteria`, the most specific one (fewest keys): the dedicated question when it applies,
+ * otherwise the goal or device answer the value was inferred from.
+ */
+export function findQuestionForCriteriaKey(
+  key: string,
+  criteria: UserCriteria,
+  questions: Question[] = QUESTIONS
+): Question | undefined {
+  const owners = questions.filter((q) => optionKeys(q).has(key));
+  const applicable = owners.filter((q) => !q.shouldAsk || q.shouldAsk(criteria));
+  const pool = applicable.length > 0 ? applicable : owners;
+  return [...pool].sort((a, b) => optionKeys(a).size - optionKeys(b).size)[0];
+}
+
+/** True when every option of the question sets the key, i.e. the key is what the question asks. */
+export function isQuestionSubject(question: Question, key: string): boolean {
+  return question.options.every((opt) => key in opt.appliesCriteria);
+}

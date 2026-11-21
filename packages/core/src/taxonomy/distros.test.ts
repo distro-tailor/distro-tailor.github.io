@@ -278,3 +278,9 @@ test('Small business office: a quiet file and backup server with a data-protecti
   const ids = flow.getEligibleQuestions({ experienceLevel: 'beginner', ...opt('beginner_goal', 'small_business_office') }).map((q) => q.id);
   assert.ok(!ids.includes('deployment_site'));
 });
+
+test('Matcher: a clear error, not a crash, when no free/open-source candidate is left', () => {
+  const base = DISTRO_REGISTRY.find((d) => d.id === 'ubuntu')!;
+  const paidOnly: DistroProfile = { ...base, id: 'paid-only', licensing: { model: 'proprietary', license: 'Proprietary' } };
+  assert.throws(() => evaluateCriteria({ useCase: 'desktop' }, [paidOnly]), /licensing policy/);
+});

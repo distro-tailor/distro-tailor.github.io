@@ -1,4 +1,4 @@
-import { QUESTIONS } from '@distro-tailor/core';
+import { findQuestionForCriteriaKey } from '@distro-tailor/core';
 import { router } from '../state/router.js';
 import { store } from '../state/store.js';
 import { scrollToQuestionCard, showToast } from '../utils/dom.js';
@@ -71,9 +71,7 @@ export function bindNavigationEvents(ctx: HandlerContext): void {
       e.stopPropagation();
       const key = btn.getAttribute('data-remove-key');
       if (key) {
-        const q = QUESTIONS.find((question) =>
-          question.options.some((opt) => opt.appliesCriteria && key in opt.appliesCriteria)
-        );
+        const q = findQuestionForCriteriaKey(key, store.getState().criteria);
         if (q) {
           store.setViewingQuestion(q.id);
         }

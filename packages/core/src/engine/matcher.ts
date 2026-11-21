@@ -103,6 +103,11 @@ export function evaluateCriteria(
 
   // Only free/open-source systems can be recommended; paid ones appear as paidAlternatives instead
   const candidates = distros.filter((d) => ALLOWED_LICENSE_MODELS.includes(d.licensing.model));
+  if (candidates.length === 0) {
+    throw new Error(
+      'evaluateCriteria: no free/open-source distributions to score (every candidate failed the licensing policy)'
+    );
+  }
   const scoredDistros: DistroScore[] = candidates.map((distro) => {
     let earned = 0;
     let isHardDisqualified = false;

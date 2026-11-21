@@ -417,3 +417,36 @@ test('AppStore: leaving results for the wizard captures a baseline once until di
   store.stepBackQuestion();
   assert.equal(store.getState().resultsBaseline?.criteria.useCase, 'nas-storage');
 });
+
+test('AppStore: removing an inferred chip re-opens its own question without un-answering the goal or device', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', { experienceLevel: 'beginner' }, false);
+  store.answerQuestion('beginner_goal', { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'home' }, false);
+  store.answerQuestion('beginner_device', { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'desktop', bootMedium: 'nvme-ssd' }, false);
+
+  store.removeChoice('bootMedium');
+  let state = store.getState();
+  assert.ok(state.answeredQuestionIds.has('beginner_device'), 'device answer stays');
+  assert.equal(state.viewingQuestionId, 'boot_medium');
+
+  store.removeChoice('releaseCadence');
+  state = store.getState();
+  assert.ok(state.answeredQuestionIds.has('beginner_goal'), 'goal answer stays');
+  assert.equal(state.viewingQuestionId, 'release_cadence');
+  assert.equal(state.criteria.useCase, 'server');
+
+  // Removing the goal's subject (use case) still re-opens the goal
+  store.removeChoice('useCase');
+  assert.ok(!store.getState().answeredQuestionIds.has('beginner_goal'));
+});
+
+test('AppStore: Next from a question that no longer applies goes to results once everything is answered', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', { experienceLevel: 'intermediate' }, false);
+  store.answerQuestion('technical_use_case', { useCase: 'container-base', platform: 'container' }, false);
+  while (store.firstUnansweredQuestionId()) {
+    store.stepForwardQuestion(store.firstUnansweredQuestionId()!);
+  }
+  // display_mode does not apply to containers
+  assert.equal(store.nextQuestionIdAfter('display_mode'), null);
+});

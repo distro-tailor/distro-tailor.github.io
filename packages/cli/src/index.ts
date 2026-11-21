@@ -63,7 +63,10 @@ program
   .option('--virt-host <host>', 'Virtualization host (kvm-qemu, xen, bhyve, container-only)')
   .option('--passthrough <mode>', 'Device passthrough (gpu-vfio, pci-devices)')
   .option('--guest-platform <platform>', 'Guest hypervisor for VM images (kvm, vmware, hyperv, virtualbox)')
-  .option('--deployment-site <site>', 'Where the machine runs (home, office, datacenter); affects legal notes such as driver licences')
+  .option('--deployment-site <site>', 'Where the machine runs (home, office, datacenter, community)')
+  .option('--power-supply <power>', 'How the machine is powered (mains, unreliable, solar-battery)')
+  .option('--uplink <uplink>', 'Site internet connection (fast, slow, none)')
+  .option('--privacy', 'Prefer privacy-by-default distros (no telemetry, installer disk encryption)')
   .option('--json', 'Output results as machine-readable JSON')
   .action((options) => {
     let criteria: UserCriteria = sanitizeCriteria({
@@ -85,7 +88,10 @@ program
       virtHost: options.virtHost,
       devicePassthrough: options.passthrough,
       guestPlatform: options.guestPlatform,
-      deploymentSite: options.deploymentSite
+      deploymentSite: options.deploymentSite,
+      powerSupply: options.powerSupply,
+      uplink: options.uplink,
+      privacyFocus: options.privacy ? true : undefined
     });
 
     if (options.url) {
