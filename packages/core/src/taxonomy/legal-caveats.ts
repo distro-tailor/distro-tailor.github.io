@@ -38,6 +38,13 @@ export const LEGAL_CAVEATS: readonly LegalCaveat[] = [
     appliesTo: (c) => c.useCase === 'ai-gpu-compute'
   },
   {
+    id: 'game-server-terms',
+    title: "Follow each game's server terms",
+    text: "Game server software comes with its own terms. Minecraft's server will not start until you accept Mojang's EULA, and Minecraft's usage guidelines limit how you can charge players (for example, no selling gameplay advantages). Check a game's terms before charging for access or perks.",
+    appliesTo: (c) => c.useCase === 'game-server',
+    sourceUrl: 'https://www.minecraft.net/en-us/usage-guidelines'
+  },
+  {
     id: 'kodi-third-party-addons',
     title: 'Stick to official Kodi add-ons',
     text: 'Install add-ons from the official Kodi repository. Many third-party add-ons stream pirated movies and TV, which is illegal in most countries.',

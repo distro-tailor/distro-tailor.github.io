@@ -65,6 +65,7 @@ export const USE_CASE_VALUES: EnumCatalog<PrimaryUseCase> = {
   'kiosk-signage': true,
   'router-networking': true,
   'security-pentest': true,
+  'game-server': true,
   'browser-wasm': true
 };
 

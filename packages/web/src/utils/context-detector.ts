@@ -16,6 +16,7 @@ const SERVER_PLATFORMS = new Set<string>([
 
 const SERVER_USE_CASES = new Set<string>([
   'server',
+  'game-server',
   'nas-storage',
   'smart-home',
   'hypervisor-vms',

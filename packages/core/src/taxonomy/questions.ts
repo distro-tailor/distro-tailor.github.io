@@ -20,6 +20,7 @@ const NON_INTERACTIVE_PLATFORMS = new Set([
 const NON_AUDIO_USE_CASES = new Set([
   'browser-wasm',
   'server',
+  'game-server',
   'nas-storage',
   'smart-home',
   'hypervisor-vms',
@@ -36,6 +37,7 @@ const NON_AUDIO_USE_CASES = new Set([
 const NON_PERIPHERAL_USE_CASES = new Set([
   'browser-wasm',
   'server',
+  'game-server',
   'nas-storage',
   'hypervisor-vms',
   'ai-gpu-compute',
@@ -191,6 +193,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false, releaseCadence: 'lts' }
       },
       {
+        id: 'game_server_lan',
+        label: 'Minecraft or LAN Party Game Server',
+        description: 'Host Minecraft, Valheim, Terraria, or Steam dedicated servers for friends, or a LAN party download cache',
+        icon: '🎮',
+        appliesCriteria: { useCase: 'game-server', footprint: 'lean', platform: 'bare-metal', prefersGui: false, releaseCadence: 'lts' }
+      },
+      {
         id: 'nas_photo_backup',
         label: 'Family Photo/Video Backup & Home Storage (NAS)',
         description: 'Auto-backup family phone photos and videos over Wi-Fi, share files at home, and ditch monthly cloud fees',
@@ -297,6 +306,13 @@ export const QUESTIONS: Question[] = [
         description: 'Reliable backend services, databases, web servers, or virtual machines',
         icon: '🖧',
         appliesCriteria: { useCase: 'server', platform: 'vm' }
+      },
+      {
+        id: 'game_server_hosting',
+        label: 'Dedicated Game Server',
+        description: 'Minecraft (Java/Bedrock), SteamCMD dedicated servers, LinuxGSM, or a LAN cache for game downloads',
+        icon: '🎮',
+        appliesCriteria: { useCase: 'game-server', platform: 'server', prefersGui: false }
       },
       {
         id: 'container_base',

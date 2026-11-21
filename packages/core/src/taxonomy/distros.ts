@@ -1125,7 +1125,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     cLibraries: ['glibc'],
     stateModel: 'mutable',
     experienceLevel: 'beginner',
-    primaryUseCases: ['server', 'iot-embedded', 'kiosk-signage', 'appliance-product'],
+    primaryUseCases: ['server', 'iot-embedded', 'kiosk-signage', 'appliance-product', 'game-server'],
     packageManager: 'apt',
     rollingRelease: false,
     licensing: {
@@ -1563,7 +1563,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     cLibraries: ['glibc'],
     stateModel: 'mutable',
     experienceLevel: 'intermediate',
-    primaryUseCases: ['server', 'desktop'],
+    primaryUseCases: ['server', 'desktop', 'game-server'],
     packageManager: 'apt',
     rollingRelease: false,
     licensing: {
@@ -1638,7 +1638,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     cLibraries: ['glibc'],
     stateModel: 'mutable',
     experienceLevel: 'beginner',
-    primaryUseCases: ['desktop', 'server', 'gaming', 'ai-gpu-compute'],
+    primaryUseCases: ['desktop', 'server', 'gaming', 'ai-gpu-compute', 'game-server'],
     packageManager: 'apt / snap',
     rollingRelease: false,
     licensing: {

@@ -77,6 +77,7 @@ export type PrimaryUseCase =
   | 'kiosk-signage'
   | 'router-networking'
   | 'security-pentest'
+  | 'game-server'
   | 'browser-wasm';
 
 export interface AlternativeComparison {

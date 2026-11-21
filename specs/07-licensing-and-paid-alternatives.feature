@@ -45,6 +45,7 @@ Feature: Free & Open-Source Licensing Policy and Paid Alternatives
       | Home Router & Firewall   | pfSense Plus           | OPNsense               |
       | Store Display & Kiosk    | Porteus Kiosk          | Cage Wayland Appliance |
       | In-Browser Linux (WASM)  | WebVM (CheerpX engine) | v86 (Linux in WebAssembly) |
+      | Game & LAN Party Server  | Minecraft Realms       | Ubuntu                 |
 
   Scenario: No paid alternatives section when none applies
     Given the user chooses a use case with no well-known paid system (e.g. "Everyday Desktop")
@@ -90,3 +91,11 @@ Feature: Free & Open-Source Licensing Policy and Paid Alternatives
     Given the build does not use NVIDIA's proprietary driver on a GPU or server machine
     Then the wizard should not ask "Where will this machine run?"
     And answering it should only change legal notes, never distro scores
+
+  Scenario: Hosting a Minecraft or LAN party game server
+    Given the user picks the goal "Minecraft or LAN Party Game Server"
+    When the user picks a standard desktop PC
+    Then the engine should recommend "Ubuntu" (or "DietPi" on a Raspberry Pi or other low-power board)
+    And the wizard should not ask about pro audio or desktop peripherals
+    And the results should list "AMP (CubeCoders)" and "Minecraft Realms" only as paid alternatives with caveats
+    And the legal notes should remind the user to follow each game's server terms, such as Minecraft's EULA and usage guidelines

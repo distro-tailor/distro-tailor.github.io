@@ -85,6 +85,7 @@ export const EXPERT_FIELDS: ExpertFieldConfig[] = [
       { value: 'media-center', label: 'Living Room Media Center (Kodi)' },
       { value: 'education-kids', label: 'Kids & Education' },
       { value: 'nas-storage', label: 'NAS & Family Photo Backups' },
+      { value: 'game-server', label: 'Game & LAN Party Server' },
       { value: 'router-networking', label: 'Router & Firewall' },
       { value: 'kiosk-signage', label: 'Kiosk & Digital Signage' },
       { value: 'container-base', label: 'Container Base Image' },

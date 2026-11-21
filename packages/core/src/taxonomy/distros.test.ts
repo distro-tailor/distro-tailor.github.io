@@ -124,3 +124,25 @@ test('Deployment site: asked only for GPU or proprietary-driver servers, never s
   assert.equal(deserializeCriteriaFromParams(params).deploymentSite, 'office');
   assert.equal(deserializeCriteriaFromParams({ ...params, deploymentSite: 'moon-base' }).deploymentSite, undefined);
 });
+
+test('Game servers: free server OS on the hardware you have, with paid hosts only as alternatives', () => {
+  const goal = QUESTIONS.find((q) => q.id === 'beginner_goal')!.options.find((o) => o.id === 'game_server_lan')!;
+  const device = (id: string) => QUESTIONS.find((q) => q.id === 'beginner_device')!.options.find((o) => o.id === id)!.appliesCriteria;
+
+  // As in the wizard, the device answer replaces every hardware key it owns (platform, footprint, …)
+  const deviceKeys = new Set(QUESTIONS.find((q) => q.id === 'beginner_device')!.options.flatMap((o) => Object.keys(o.appliesCriteria)));
+  const goalOnly = Object.fromEntries(Object.entries(goal.appliesCriteria).filter(([k]) => !deviceKeys.has(k)));
+  const pc = evaluateCriteria({ experienceLevel: 'beginner', ...goalOnly, ...device('standard_desktop') });
+  assert.equal(pc.bestMatch.distro.id, 'ubuntu');
+  const pi = evaluateCriteria({ experienceLevel: 'beginner', useCase: 'game-server', prefersGui: false, ...device('raspberry_pi') });
+  assert.equal(pi.bestMatch.distro.id, 'dietpi');
+
+  assert.deepEqual(pc.paidAlternatives.map((a) => a.id), ['cubecoders-amp', 'minecraft-realms']);
+  assert.ok(pc.legalCaveats.some((c) => c.id === 'game-server-terms'));
+
+  // Headless server: no audio or peripheral questions
+  const flow = new QuestionFlow(QUESTIONS);
+  const ids = flow.getEligibleQuestions({ experienceLevel: 'beginner', useCase: 'game-server', platform: 'bare-metal' }).map((q) => q.id);
+  assert.ok(!ids.includes('audio_latency'));
+  assert.ok(!ids.includes('attached_peripherals'));
+});

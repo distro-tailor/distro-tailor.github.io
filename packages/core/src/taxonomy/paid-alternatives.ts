@@ -75,6 +75,34 @@ export const PAID_ALTERNATIVES: readonly PaidAlternative[] = [
     pitch: 'Mature firewall with a large package ecosystem, preinstalled on Netgate appliances.',
     caveat: 'Closed source, and it needs a paid subscription unless it came preinstalled on Netgate hardware.',
     freeOptionIds: ['opnsense', 'openwrt']
+  },
+  {
+    id: 'cubecoders-amp',
+    name: 'AMP (CubeCoders Application Management Panel)',
+    website: 'https://cubecoders.com/AMP',
+    useCases: ['game-server'],
+    licensing: {
+      model: 'proprietary',
+      license: 'Proprietary',
+      note: 'Needs a paid licence; tiers depend on how many server instances you run.'
+    },
+    pitch: 'Polished web panel to install, update, and back up Minecraft, Valheim, and dozens of Steam game servers.',
+    caveat: 'Closed source, and it needs a paid licence. Free panels such as Pterodactyl, or LinuxGSM on Ubuntu/Debian, cover the same job.',
+    freeOptionIds: ['ubuntu', 'debian', 'dietpi']
+  },
+  {
+    id: 'minecraft-realms',
+    name: 'Minecraft Realms',
+    website: 'https://www.minecraft.net/realms',
+    useCases: ['game-server'],
+    licensing: {
+      model: 'proprietary',
+      license: 'Proprietary hosted service',
+      note: 'A monthly subscription hosted by Mojang/Microsoft.'
+    },
+    pitch: 'Always-online Minecraft world for a few friends, hosted by Mojang with no setup.',
+    caveat: 'A monthly subscription, and you do not get a server you control (limited mods and plugins). Hosting your own Minecraft server is free.',
+    freeOptionIds: ['ubuntu', 'dietpi']
   }
 ];
 
