@@ -92,9 +92,9 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     busybox: { label: 'BusyBox Init (Embedded)', icon: '🧰' }
   },
   releaseCadence: {
-    lts: { label: 'Stable Long-Term Support (LTS)', icon: '🛡️' },
-    rolling: { label: 'Bleeding-Edge Rolling Release', icon: '🔄' },
-    standard: { label: 'Standard Release Cycle', icon: '⏱️' }
+    lts: { label: 'Stable Updates (LTS)', icon: '🛡️' },
+    rolling: { label: 'Always-Latest Updates (Rolling)', icon: '🔄' },
+    standard: { label: 'Updates Every Few Months', icon: '⏱️' }
   },
   driverPhilosophy: {
     'seamless-proprietary': { label: 'Proprietary Drivers (NVIDIA/Wi-Fi)', icon: '🎮' },

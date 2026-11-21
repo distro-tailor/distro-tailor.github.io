@@ -155,7 +155,7 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     Given the user progresses through the tailored question flow
     When navigating beyond basic goals and hardware platforms
     Then the engine should adaptively prompt for display mode (Screen / Display Attached vs No Screen / Headless)
-    And prompt for release update cadence (Stable Long-Term Support LTS vs Bleeding-Edge Rolling)
+    And in Technical Mode ask "How often do you want big software updates?" (Rarely: Keep It Stable, Every Few Months, Always the Latest)
     And prompt for hardware driver preference (Seamless Proprietary vs 100% Free Software)
     And prompt for boot storage medium (NVMe/SSD vs SD Card/Flash vs Diskless PXE)
     And if multimedia or audio production is targeted, prompt for real-time low-latency audio kernel
@@ -333,5 +333,5 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     Given the user is in "Goal Mode"
     When the user picks any goal
     Then the release model should be inferred from the goal (stable LTS for most goals; standard releases for coding, creative work, modern gaming, and security)
-    And the wizard should not ask "What is your preferred software update and release model?"
+    And the wizard should not ask "How often do you want big software updates?"
     But "Technical Mode" should still ask it for fine-tuning

@@ -855,37 +855,37 @@ export const QUESTIONS: Question[] = [
     id: 'release_cadence',
     order: 6,
     isOptional: true,
-    prompt: 'What is your preferred software update and release model?',
-    subtext: 'Predictable rock-solid LTS point releases vs continuous bleeding-edge rolling updates.',
+    prompt: 'How often do you want big software updates?',
+    subtext: 'Fewer changes keep things stable; more frequent updates bring newer apps and drivers.',
     category: 'lifecycle',
     shouldAsk: (criteria) => criteria.useCase !== 'browser-wasm' && !decidedInGoalMode(criteria, 'releaseCadence'),
     tip: {
       icon: '🔄',
-      title: 'LTS vs. Rolling Release',
-      text: 'Long Term Support (LTS) distributions like Debian or Ubuntu LTS prioritize stability and rarely change system libraries. Rolling distributions like Arch Linux continuously ship the newest Linux kernels, compilers, and desktop environments.'
+      title: 'Stable vs. latest',
+      text: 'Long-term support (LTS) systems such as Debian or Ubuntu LTS get security fixes for years but keep the same app versions. Rolling systems such as Arch update everything continuously, so you always have the newest versions but things change more often. Not sure? Stable is the safe choice.'
     },
     options: [
       {
         id: 'lts_stable',
-        label: 'Rock-Solid Long-Term Support (LTS)',
-        description: 'Battle-tested point releases; packages stay frozen with backported security fixes (e.g. Debian, Ubuntu LTS, Rocky)',
+        label: 'Rarely: Keep It Stable (LTS)',
+        description: 'Security fixes for years, with few changes to how things look or work (e.g. Debian, Ubuntu LTS, Linux Mint)',
         icon: '🛡️',
         isDefault: true,
         appliesCriteria: { releaseCadence: 'lts' }
       },
       {
-        id: 'rolling_bleeding',
-        label: 'Continuous Bleeding-Edge Rolling Release',
-        description: 'Install once and continuously update; always running the latest Linux kernel and bleeding-edge software (e.g. Arch, Void, openSUSE Tumbleweed)',
-        icon: '🔄',
-        appliesCriteria: { releaseCadence: 'rolling' }
-      },
-      {
         id: 'standard_release',
-        label: 'Standard Scheduled Releases (Every 6 Months)',
-        description: 'Modern updated software refreshed every 6 months without the volatility of daily rolling updates (e.g. Fedora, Ubuntu standard)',
+        label: 'Every Few Months (Standard Releases)',
+        description: 'A bigger upgrade about twice a year, with fairly new apps in between (e.g. Fedora, Ubuntu standard)',
         icon: '⏱️',
         appliesCriteria: { releaseCadence: 'standard' }
+      },
+      {
+        id: 'rolling_bleeding',
+        label: 'Always the Latest (Rolling)',
+        description: 'Install once and keep updating; always the newest apps and drivers, with more frequent changes (e.g. Arch, openSUSE Tumbleweed)',
+        icon: '🔄',
+        appliesCriteria: { releaseCadence: 'rolling' }
       }
     ]
   },

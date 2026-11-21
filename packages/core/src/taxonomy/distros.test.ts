@@ -311,3 +311,10 @@ test('Goal mode never asks beginners the release-model question: every goal infe
   // Technical mode still asks it
   assert.ok(flow.getEligibleQuestions({ experienceLevel: 'intermediate', useCase: 'desktop' }).some((q) => q.id === 'release_cadence'));
 });
+
+test('Release question speaks plainly and orders answers from calm to fast', () => {
+  const q = QUESTIONS.find((x) => x.id === 'release_cadence')!;
+  assert.equal(q.prompt, 'How often do you want big software updates?');
+  assert.deepEqual(q.options.map((o) => o.appliesCriteria.releaseCadence), ['lts', 'standard', 'rolling']);
+  assert.ok(!/bleeding-edge|point releases|release model/i.test(`${q.prompt} ${q.subtext} ${q.options.map((o) => o.label).join(' ')}`));
+});

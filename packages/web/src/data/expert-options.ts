@@ -98,13 +98,13 @@ export const EXPERT_FIELDS: ExpertFieldConfig[] = [
   },
   {
     id: 'expert-release-cadence',
-    label: 'Release Cadence',
+    label: 'How Often to Update',
     criteriaKey: 'releaseCadence',
-    placeholder: 'Any Release Model',
+    placeholder: 'Any Update Pace',
     options: [
-      { value: 'lts', label: 'Long Term Support (LTS)' },
-      { value: 'rolling', label: 'Rolling Release' },
-      { value: 'standard', label: 'Standard Release Cycle' }
+      { value: 'lts', label: 'Rarely: Keep It Stable (LTS)' },
+      { value: 'standard', label: 'Every Few Months (Standard Releases)' },
+      { value: 'rolling', label: 'Always the Latest (Rolling)' }
     ]
   },
   {
