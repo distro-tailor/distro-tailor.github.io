@@ -7,15 +7,20 @@ import {
   QuestionFlow,
   QUESTIONS,
   UserCriteria,
-  withVisibleOptions
+  withVisibleOptions,
+  applyAnswer,
+  type AnswerState
 } from '@distro-tailor/core';
 
 export async function runInteractiveWizard(): Promise<void> {
   console.clear();
   p.intro(pc.bold(pc.cyan('🐧 DistroTailor — Linux Distro Selector & Recipe Generator')));
 
-  const criteria: UserCriteria = {};
-  const answeredQuestionIds = new Set<string>();
+  // Same answer handling as the web wizard (applyAnswer): later questions win, and the device
+  // replaces the goal's hardware guesses, so CLI and web turn the same answers into the same picks
+  let answers: AnswerState = { criteria: {}, patches: {}, answeredIds: new Set<string>() };
+  let criteria: UserCriteria = answers.criteria;
+  let answeredQuestionIds = answers.answeredIds;
   const flow = new QuestionFlow(QUESTIONS);
 
   let nextQuestion = flow.getNextQuestion(criteria, answeredQuestionIds);
@@ -40,11 +45,9 @@ export async function runInteractiveWizard(): Promise<void> {
     }
 
     const matchedOption = nextQuestion.options.find((opt) => opt.id === selectedOptionId);
-    if (matchedOption) {
-      Object.assign(criteria, matchedOption.appliesCriteria);
-    }
-
-    answeredQuestionIds.add(nextQuestion.id);
+    answers = applyAnswer(answers, nextQuestion.id, matchedOption ? matchedOption.appliesCriteria : {});
+    criteria = answers.criteria;
+    answeredQuestionIds = answers.answeredIds;
     nextQuestion = flow.getNextQuestion(criteria, answeredQuestionIds);
   }
 

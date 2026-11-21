@@ -5,6 +5,7 @@ import { PAID_ALTERNATIVES } from './paid-alternatives.js';
 import { getDistroLegalCaveats, LEGAL_CAVEATS } from './legal-caveats.js';
 import { evaluateCriteria } from '../engine/matcher.js';
 import { QuestionFlow, withVisibleOptions } from '../engine/question-flow.js';
+import { applyAnswer, type AnswerState } from '../engine/answer-replay.js';
 import { QUESTIONS } from './questions.js';
 import { deserializeCriteriaFromParams, serializeCriteriaToParams } from '../migrations/url-schema.js';
 import { DistroProfile } from '../types.js';
@@ -283,4 +284,18 @@ test('Matcher: a clear error, not a crash, when no free/open-source candidate is
   const base = DISTRO_REGISTRY.find((d) => d.id === 'ubuntu')!;
   const paidOnly: DistroProfile = { ...base, id: 'paid-only', licensing: { model: 'proprietary', license: 'Proprietary' } };
   assert.throws(() => evaluateCriteria({ useCase: 'desktop' }, [paidOnly]), /licensing policy/);
+});
+
+test('applyAnswer: shared web/CLI answer handling lets the device replace the goal hardware guesses', () => {
+  const opt = (q: string, id: string) => QUESTIONS.find((x) => x.id === q)!.options.find((o) => o.id === id)!.appliesCriteria;
+  let s: AnswerState = { criteria: {}, patches: {}, answeredIds: new Set<string>() };
+  s = applyAnswer(s, 'user_familiarity', opt('user_familiarity', 'beginner'));
+  s = applyAnswer(s, 'beginner_goal', opt('beginner_goal', 'home_server'));
+  assert.equal(s.criteria.footprint, 'lean');
+  assert.equal(s.criteria.platform, 'embedded-sbc');
+  s = applyAnswer(s, 'beginner_device', opt('beginner_device', 'standard_desktop'));
+  assert.equal(s.criteria.platform, 'bare-metal', 'device platform wins');
+  assert.equal(s.criteria.footprint, undefined, 'device owns footprint, so the goal guess is dropped');
+  assert.equal(s.criteria.useCase, 'server');
+  assert.ok(s.answeredIds.has('beginner_device'));
 });

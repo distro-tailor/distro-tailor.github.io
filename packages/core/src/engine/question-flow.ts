@@ -30,7 +30,7 @@ export class QuestionFlow {
    */
   public getNextQuestion(
     criteria: UserCriteria,
-    answeredQuestionIds: Set<string>
+    answeredQuestionIds: ReadonlySet<string>
   ): Question | null {
     const eligible = this.getEligibleQuestions(criteria, answeredQuestionIds);
     return eligible.find((q) => !answeredQuestionIds.has(q.id)) || null;
@@ -41,7 +41,7 @@ export class QuestionFlow {
    */
   public getPreviousQuestion(
     criteria: UserCriteria,
-    answeredQuestionIds: Set<string>
+    answeredQuestionIds: ReadonlySet<string>
   ): Question | null {
     const eligible = this.getEligibleQuestions(criteria, answeredQuestionIds);
     const answered = eligible.filter((q) => answeredQuestionIds.has(q.id));
@@ -53,7 +53,7 @@ export class QuestionFlow {
    */
   public getProgress(
     criteria: UserCriteria,
-    answeredQuestionIds: Set<string>
+    answeredQuestionIds: ReadonlySet<string>
   ): { current: number; total: number; percentage: number } {
     const eligible = this.getEligibleQuestions(criteria, answeredQuestionIds);
     const total = eligible.length;

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { applyAnswer, evaluateCriteria, QUESTIONS, type AnswerState } from '@distro-tailor/core';
 import { AppStore } from './store.js';
 
 test('AppStore: initializes with clean default state and emits events on update', () => {
@@ -449,4 +450,22 @@ test('AppStore: Next from a question that no longer applies goes to results once
   }
   // display_mode does not apply to containers
   assert.equal(store.nextQuestionIdAfter('display_mode'), null);
+});
+
+test('AppStore: the web store and the CLI (applyAnswer) build identical criteria from the same answers', () => {
+  const opt = (q: string, id: string) => QUESTIONS.find((x) => x.id === q)!.options.find((o) => o.id === id)!.appliesCriteria;
+  const answers: Array<[string, string]> = [
+    ['user_familiarity', 'beginner'],
+    ['beginner_goal', 'game_server_lan'],
+    ['beginner_device', 'standard_desktop'],
+    ['beginner_memory', 'modest']
+  ];
+  const store = new AppStore();
+  let cli: AnswerState = { criteria: {}, patches: {}, answeredIds: new Set<string>() };
+  for (const [q, o] of answers) {
+    store.answerQuestion(q, opt(q, o), false);
+    cli = applyAnswer(cli, q, opt(q, o));
+  }
+  assert.deepEqual(store.getState().criteria, cli.criteria);
+  assert.equal(evaluateCriteria(cli.criteria).bestMatch.distro.id, evaluateCriteria(store.getState().criteria).bestMatch.distro.id);
 });

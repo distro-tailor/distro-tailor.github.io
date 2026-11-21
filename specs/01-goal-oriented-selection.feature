@@ -322,3 +322,9 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the office deployment site and long-term releases should be inferred without asking
     And the legal notes should mention that customer and staff data may be regulated, for information only
     And "Unraid" should only appear as a paid alternative
+
+  Scenario: The CLI wizard and the web wizard give the same answers the same result
+    Given a user answers the same questions in the interactive CLI wizard and in the web wizard
+    Then both should build identical criteria, because they share one answer-handling routine
+    And later questions should win in both, with the device replacing the goal's hardware guesses
+    And both should recommend the same distribution

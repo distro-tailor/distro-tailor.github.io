@@ -3,6 +3,8 @@ import {
   QUESTIONS,
   QuestionFlow,
   evaluateCriteria,
+  applyAnswer,
+  criteriaValueEquals,
   findQuestionForCriteriaKey,
   isQuestionSubject
 } from '@distro-tailor/core';
@@ -213,10 +215,6 @@ export class AppStore extends EventTarget implements IAppStore {
     // 1. An earlier answer to this question whose patch is unknown (e.g. after a URL load) has its
     //    option keys cleared directly, so no ghost attributes survive the re-answer.
     const previousPatches = this._state.answerPatches || {};
-    const base = { ...this._state.criteria } as Record<string, unknown>;
-    if (!previousPatches[questionId]) {
-      for (const k of questionKeys(questionId)) delete base[k];
-    }
 
     // 2. Record the answer and replay every recorded answer in question order. Later questions win:
     //    the device replaces the goal's hardware guesses, and changing the goal re-derives its
@@ -226,9 +224,13 @@ export class AppStore extends EventTarget implements IAppStore {
     if (!order.includes(questionId)) {
       order.push(questionId);
     }
-    const patches = { ...previousPatches, [questionId]: { ...criteriaPatch } };
-    this._state.answerPatches = patches;
-    this._state.criteria = replayAnswers(base, previousPatches, patches, this._state.answeredQuestionIds);
+    const next = applyAnswer(
+      { criteria: this._state.criteria, patches: previousPatches, answeredIds: this._state.answeredQuestionIds },
+      questionId,
+      criteriaPatch
+    );
+    this._state.answerPatches = { ...next.patches };
+    this._state.criteria = next.criteria;
 
     // 3. Reconcile tree: automatically prune any downstream questions that are no longer eligible
     this.reconcileIneligibleCriteria();
@@ -626,66 +628,3 @@ export class AppStore extends EventTarget implements IAppStore {
 }
 
 export const store = new AppStore();
-
-const QUESTIONS_IN_FLOW_ORDER = [...QUESTIONS].sort((a, b) => a.order - b.order);
-const KNOWN_QUESTION_IDS = new Set(QUESTIONS.map((q) => q.id));
-
-function criteriaValueEquals(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (Array.isArray(a) && Array.isArray(b)) {
-    return a.length === b.length && a.every((item, i) => item === b[i]);
-  }
-  return false;
-}
-
-/**
- * Rebuilds criteria from recorded wizard answers. Values the previous answers contributed are
- * removed from `current`, then every answered question's patch is applied in flow order. A later
- * question also drops keys it owns but did not set when an earlier answer supplied them (the device
- * replaces the goal's platform/footprint guesses). Values no recorded answer supplied, such as
- * Expert tab edits or criteria from a shared URL, are kept.
- */
-export function replayAnswers(
-  current: Readonly<Record<string, unknown>>,
-  previousPatches: Readonly<Record<string, Partial<UserCriteria>>>,
-  patches: Readonly<Record<string, Partial<UserCriteria>>>,
-  answeredIds: ReadonlySet<string>
-): UserCriteria {
-  const criteria: Record<string, unknown> = { ...current };
-  for (const patch of Object.values(previousPatches)) {
-    for (const [k, v] of Object.entries(patch)) {
-      if (criteriaValueEquals(criteria[k], v)) delete criteria[k];
-    }
-  }
-
-  const fromAnswers = new Set<string>();
-  for (const q of QUESTIONS_IN_FLOW_ORDER) {
-    const patch = patches[q.id];
-    if (!patch || !answeredIds.has(q.id)) continue;
-    for (const k of questionKeys(q.id)) {
-      if (!(k in patch) && fromAnswers.has(k)) {
-        delete criteria[k];
-        fromAnswers.delete(k);
-      }
-    }
-    for (const [k, v] of Object.entries(patch)) {
-      criteria[k] = v;
-      fromAnswers.add(k);
-    }
-  }
-  // Answers recorded under ids outside the question catalog are applied last
-  for (const [id, patch] of Object.entries(patches)) {
-    if (answeredIds.has(id) && !KNOWN_QUESTION_IDS.has(id)) Object.assign(criteria, patch);
-  }
-  return criteria as UserCriteria;
-}
-
-/** Every criteria key any option of the question can set. */
-function questionKeys(questionId: string): Set<string> {
-  const q = QUESTIONS.find((x) => x.id === questionId);
-  const keys = new Set<string>();
-  for (const opt of q?.options || []) {
-    for (const k of Object.keys(opt.appliesCriteria)) keys.add(k);
-  }
-  return keys;
-}

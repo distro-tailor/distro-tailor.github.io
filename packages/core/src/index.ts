@@ -3,6 +3,7 @@ export * from './taxonomy/distros.js';
 export * from './taxonomy/questions.js';
 export * from './engine/matcher.js';
 export * from './engine/question-flow.js';
+export * from './engine/answer-replay.js';
 export * from './generators/index.js';
 export * from './migrations/url-schema.js';
 export * from './taxonomy/alternatives.js';
