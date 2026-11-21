@@ -299,3 +299,15 @@ test('applyAnswer: shared web/CLI answer handling lets the device replace the go
   assert.equal(s.criteria.useCase, 'server');
   assert.ok(s.answeredIds.has('beginner_device'));
 });
+
+test('Goal mode never asks beginners the release-model question: every goal infers it', () => {
+  const flow = new QuestionFlow(QUESTIONS);
+  const goals = QUESTIONS.find((q) => q.id === 'beginner_goal')!.options;
+  for (const goal of goals) {
+    const criteria = { experienceLevel: 'beginner' as const, ...goal.appliesCriteria };
+    const asked = flow.getEligibleQuestions(criteria).some((q) => q.id === 'release_cadence');
+    assert.equal(asked, false, `${goal.id} must infer releaseCadence instead of asking beginners`);
+  }
+  // Technical mode still asks it
+  assert.ok(flow.getEligibleQuestions({ experienceLevel: 'intermediate', useCase: 'desktop' }).some((q) => q.id === 'release_cadence'));
+});

@@ -118,7 +118,7 @@ export const QUESTIONS: Question[] = [
         label: 'Everyday Computer for School, Work, or Web',
         description: 'Friendly desktop for web browsing, YouTube, and typing, completely immune to Windows malware',
         icon: '💻',
-        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal', prefersGui: true, realtimeAudio: false }
+        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, releaseCadence: 'lts' }
       },
       {
         id: 'revive_old_pc',
@@ -145,7 +145,8 @@ export const QUESTIONS: Question[] = [
           platform: 'bare-metal',
           prefersGui: true,
           desktopApps: ['vscode', 'git-dev', 'python', 'nodejs'],
-          realtimeAudio: false
+          realtimeAudio: false,
+          releaseCadence: 'standard'
         }
       },
       {
@@ -167,35 +168,35 @@ export const QUESTIONS: Question[] = [
         label: 'Retro Gaming Console',
         description: 'Play arcade, PS1, N64, SNES, and retro classics on your TV with game controllers',
         icon: '🕹️',
-        appliesCriteria: { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal', prefersGui: true, realtimeAudio: false }
+        appliesCriteria: { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, releaseCadence: 'lts' }
       },
       {
         id: 'modern_gaming',
         label: 'Modern PC Gaming (Steam Deck / Couch Gaming)',
         description: 'Play modern Steam, Epic, and indie PC games with a controller-friendly TV interface',
         icon: '🎮',
-        appliesCriteria: { useCase: 'gaming', footprint: 'full', platform: 'bare-metal', prefersGui: true, realtimeAudio: false }
+        appliesCriteria: { useCase: 'gaming', footprint: 'full', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, releaseCadence: 'standard' }
       },
       {
         id: 'media_center',
         label: 'Living Room Media Center / TV Box (Kodi)',
         description: 'Turn an old PC or TV box into a dedicated media player controlled with a regular TV remote',
         icon: '📺',
-        appliesCriteria: { useCase: 'media-center', footprint: 'minimal', platform: 'bare-metal', prefersGui: true, realtimeAudio: false }
+        appliesCriteria: { useCase: 'media-center', footprint: 'minimal', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, releaseCadence: 'lts' }
       },
       {
         id: 'freelance_creative_graphics',
         label: 'Graphic Design, 3D Art & Video Production (Blender, Krita, DaVinci)',
         description: 'Creative workstation for freelance digital artists, video editors, and 3D animators with color-managed Wayland and GPU acceleration',
         icon: '🎨',
-        appliesCriteria: { useCase: 'creative-studio', footprint: 'full', platform: 'bare-metal', prefersGui: true, realtimeAudio: false }
+        appliesCriteria: { useCase: 'creative-studio', footprint: 'full', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, releaseCadence: 'standard' }
       },
       {
         id: 'music_audio_studio',
         label: 'Music Production, Podcasting & Pro Audio Studio (Ardour, PipeWire)',
         description: 'Low-latency realtime audio workstation for DAWs, synthesizers, MIDI controllers, and crackle-free recording',
         icon: '🎵',
-        appliesCriteria: { useCase: 'creative-studio', footprint: 'full', platform: 'bare-metal', prefersGui: true, realtimeAudio: true }
+        appliesCriteria: { useCase: 'creative-studio', footprint: 'full', platform: 'bare-metal', prefersGui: true, realtimeAudio: true, releaseCadence: 'lts' }
       },
       {
         id: 'home_server',
@@ -271,7 +272,8 @@ export const QUESTIONS: Question[] = [
           platform: 'bare-metal',
           prefersGui: true,
           desktopEnv: 'cage',
-          navigationApps: ['navit', 'gpsd']
+          navigationApps: ['navit', 'gpsd'],
+          releaseCadence: 'lts'
         }
       },
       {
@@ -286,7 +288,7 @@ export const QUESTIONS: Question[] = [
         label: 'Dedicated Single-App Appliance / Custom Product',
         description: 'Building a product where your app is the ONLY thing running (like Kodi or RetroPie, but for your custom Flutter, Qt, Web, or Python app)',
         icon: '🛠️',
-        appliesCriteria: { useCase: 'appliance-product', footprint: 'minimal', platform: 'kiosk' }
+        appliesCriteria: { useCase: 'appliance-product', footprint: 'minimal', platform: 'kiosk', releaseCadence: 'lts' }
       },
       {
         id: 'homelab_virtualization',
@@ -300,28 +302,28 @@ export const QUESTIONS: Question[] = [
         label: 'AI & Local LLM Server or Data Science Box',
         description: 'Run local AI models (Ollama, vLLM, DeepSeek, PyTorch, Stable Diffusion) with full NVIDIA/AMD GPU acceleration',
         icon: '🧠',
-        appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'full', platform: 'server', prefersGui: false, driverPhilosophy: 'seamless-proprietary' }
+        appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'full', platform: 'server', prefersGui: false, driverPhilosophy: 'seamless-proprietary', releaseCadence: 'lts' }
       },
       {
         id: 'crypto_mining_rig',
         label: 'Multi-GPU Mining Rig or Distributed Compute Node',
         description: 'Dedicated headless rig for crypto mining or distributed GPU compute with fan control, watchdog, and web telemetry',
         icon: '⛏️',
-        appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'lean', platform: 'server', prefersGui: false, driverPhilosophy: 'seamless-proprietary' }
+        appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'lean', platform: 'server', prefersGui: false, driverPhilosophy: 'seamless-proprietary', releaseCadence: 'lts' }
       },
       {
         id: 'private_everyday',
         label: 'Private Everyday Computer (No Tracking, Encrypted Disk)',
         description: 'A normal computer for web, school, and work with no telemetry and full-disk encryption. Your browser and online accounts matter too',
         icon: '🔒',
-        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, privacyFocus: true }
+        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, privacyFocus: true, releaseCadence: 'lts' }
       },
       {
         id: 'security_privacy',
         label: 'Privacy, Anonymity & Cybersecurity (Tails / Kali Linux)',
         description: 'Amnesic Tor privacy from a USB stick (Tails) or ethical hacking and penetration testing toolkit (Kali)',
         icon: '🛡️',
-        appliesCriteria: { useCase: 'security-pentest', footprint: 'lean', platform: 'bare-metal', prefersGui: true }
+        appliesCriteria: { useCase: 'security-pentest', footprint: 'lean', platform: 'bare-metal', prefersGui: true, releaseCadence: 'standard' }
       }
     ]
   },

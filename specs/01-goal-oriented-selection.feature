@@ -328,3 +328,10 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     Then both should build identical criteria, because they share one answer-handling routine
     And later questions should win in both, with the device replacing the goal's hardware guesses
     And both should recommend the same distribution
+
+  Scenario: Beginners are never asked about release models
+    Given the user is in "Goal Mode"
+    When the user picks any goal
+    Then the release model should be inferred from the goal (stable LTS for most goals; standard releases for coding, creative work, modern gaming, and security)
+    And the wizard should not ask "What is your preferred software update and release model?"
+    But "Technical Mode" should still ask it for fine-tuning
