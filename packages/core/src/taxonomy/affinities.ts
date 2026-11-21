@@ -170,18 +170,18 @@ export const HARDWARE_BOOT_SUPPORT: readonly HardwareBootSupport[] = [
 const offersDesktop = (d: DistroProfile) => d.platforms.includes('desktop');
 
 export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
-  chromebook: [
+  'budget-laptop': [
     {
       distroIds: ['linux-mint', 'ubuntu', 'fedora'],
       points: 15,
-      feature: 'Chromebook Support',
-      explanation: 'Well-tested on Chromebooks after a firmware swap, with community scripts that fix Chromebook audio and keyboard keys.'
+      feature: 'Budget Laptop Support',
+      explanation: 'Well-tested on Chromebooks and budget laptops: standard drivers for Intel/AMD Wi-Fi, graphics, and eMMC storage, plus community scripts for Chromebook audio after a firmware swap.'
     },
     {
       appliesTo: (d) => d.footprint === 'full' || d.minRamMb > 2048,
       points: -10,
-      feature: 'Chromebook Support',
-      explanation: 'Most Chromebooks have 4 GB of RAM and small eMMC storage, which heavy systems outgrow quickly.'
+      feature: 'Budget Laptop Support',
+      explanation: 'Chromebooks and budget laptops usually have about 4 GB of RAM and small eMMC storage, which heavy systems outgrow quickly.'
     }
   ],
   handheld: [

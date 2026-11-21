@@ -590,11 +590,11 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { architecture: 'riscv64', platform: 'embedded-sbc', footprint: 'lean', formFactor: 'sbc', bootMedium: 'sd-card-usb' }
       },
       {
-        id: 'chromebook',
-        label: 'Chromebook (Intel or AMD)',
-        description: 'A Chromebook you own. Linux can run inside ChromeOS with no changes, or replace it after a firmware swap; school-managed Chromebooks are locked',
+        id: 'budget_laptop',
+        label: 'Chromebook or Budget Laptop (Intel or AMD)',
+        description: 'Low-cost laptops with about 4 GB RAM and small eMMC storage: Chromebooks, netbooks, and budget Windows laptops (Celeron, Pentium, Athlon)',
         icon: '💻',
-        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'chromebook', bootMedium: 'nvme-ssd' }
+        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'budget-laptop', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'wifi_router',

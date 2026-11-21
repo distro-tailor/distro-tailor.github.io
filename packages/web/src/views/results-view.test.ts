@@ -268,8 +268,8 @@ test('Results View: router builds get router flashing steps and no desktop add-o
   assert.ok(desktopHtml.includes('Add-On Applications & Turnkey Services'));
 });
 
-test('Results View: Chromebooks get the built-in Linux route and the MrChromebox firmware route', () => {
-  const criteria = { experienceLevel: 'beginner' as const, useCase: 'desktop' as const, architecture: 'x86_64' as const, platform: 'bare-metal' as const, formFactor: 'chromebook' as const, prefersGui: true };
+test('Results View: budget laptops get USB install steps plus the Chromebook routes', () => {
+  const criteria = { experienceLevel: 'beginner' as const, useCase: 'desktop' as const, architecture: 'x86_64' as const, platform: 'bare-metal' as const, formFactor: 'budget-laptop' as const, prefersGui: true };
   const state: AppState = {
     criteria,
     answeredQuestionIds: new Set(['user_familiarity', 'beginner_goal', 'beginner_device']),
@@ -284,7 +284,7 @@ test('Results View: Chromebooks get the built-in Linux route and the MrChromebox
   const html = renderResultsView(evaluateCriteria(criteria), state);
   assert.ok(html.includes('Linux development environment'));
   assert.ok(html.includes('mrchromebox.tech'));
-  assert.ok(html.includes('data-caveat-id="school-managed-chromebook"'));
+  assert.ok(html.includes('install like any PC'));
 });
 
 test('Results View: legal notes and the distro modal carry the "not legal advice" disclaimer', () => {

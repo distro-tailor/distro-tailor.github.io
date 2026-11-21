@@ -70,12 +70,6 @@ export const LEGAL_CAVEATS: readonly LegalCaveat[] = [
     appliesTo: (c) => c.useCase === 'offline-library'
   },
   {
-    id: 'school-managed-chromebook',
-    title: 'Only change Chromebooks you own',
-    text: 'School- or work-managed Chromebooks are locked by their organisation; changing their firmware or OS breaks the device policy you agreed to and can wipe it. Use your own Chromebook, or ChromeOS\'s built-in Linux environment where the school allows it.',
-    appliesTo: (c) => c.formFactor === 'chromebook'
-  },
-  {
     id: 'business-data-protection',
     title: 'Customer and staff data may be regulated',
     text: 'If the server stores customer or staff data, data-protection laws (such as the GDPR in the EU and UK) may apply. Limit who can access it, encrypt backups, and keep one copy off-site.',

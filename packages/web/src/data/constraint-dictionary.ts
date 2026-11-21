@@ -62,7 +62,7 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     mac: { label: 'Apple Mac Hardware', icon: '🍏' },
     sbc: { label: 'Single-Board Computer', icon: '🍓' },
     server: { label: 'Enterprise Rack Server', icon: '🖧' },
-    chromebook: { label: 'Chromebook', icon: '💻' }
+    'budget-laptop': { label: 'Chromebook / Budget Laptop', icon: '💻' }
   },
   footprint: {
     micro: { label: 'Extreme Micro (<16MB)', icon: '🪶' },

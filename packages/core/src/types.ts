@@ -300,7 +300,7 @@ export type FormFactor =
   | 'mac'
   | 'sbc'
   | 'server'
-  | 'chromebook';
+  | 'budget-laptop';
 
 export type DesktopWorkflowStyle =
   | 'windows'

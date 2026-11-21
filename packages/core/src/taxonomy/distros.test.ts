@@ -223,14 +223,14 @@ test('Remote sites: power and internet questions appear only for community build
   assert.equal(back.uplink, 'slow');
 });
 
-test('Chromebooks: distros with Chromebook fixes win, and the school-managed note always shows', () => {
+test('Chromebooks and budget laptops: distros with standard drivers and Chromebook fixes win', () => {
   const opt = (q: string, id: string) => QUESTIONS.find((x) => x.id === q)!.options.find((o) => o.id === id)!.appliesCriteria;
   const deviceKeys = new Set(QUESTIONS.find((q) => q.id === 'beginner_device')!.options.flatMap((o) => Object.keys(o.appliesCriteria)));
   const onChromebook = (goal: string) =>
     evaluateCriteria({
       experienceLevel: 'beginner',
       ...Object.fromEntries(Object.entries(opt('beginner_goal', goal)).filter(([k]) => !deviceKeys.has(k))),
-      ...opt('beginner_device', 'chromebook'),
+      ...opt('beginner_device', 'budget_laptop'),
       maxRamMb: 4096
     });
 
@@ -238,7 +238,8 @@ test('Chromebooks: distros with Chromebook fixes win, and the school-managed not
     assert.ok(['ubuntu', 'linux-mint', 'fedora'].includes(onChromebook(goal).bestMatch.distro.id), goal);
   }
   assert.equal(onChromebook('kids_education').bestMatch.distro.id, 'endless-os');
-  assert.ok(onChromebook('kids_education').legalCaveats.some((c) => c.id === 'school-managed-chromebook'));
+  // Devices are assumed to be owned by the user, so there is no ownership warning
+  assert.ok(!onChromebook('kids_education').legalCaveats.some((c) => /chromebook|managed/i.test(c.id)));
 });
 
 test('Private everyday computer: privacy-by-default desktops, kept apart from Tails/Kali', () => {

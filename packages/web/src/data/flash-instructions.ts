@@ -12,8 +12,8 @@ export const FLASH_INSTRUCTIONS_BY_PLATFORM: Partial<Record<PlatformTarget, stri
 };
 
 export const FLASH_INSTRUCTIONS_BY_FORM_FACTOR: Partial<Record<FormFactor, string>> = {
-  chromebook:
-    'Two routes. Easiest and reversible: turn on the Linux development environment in ChromeOS settings and install apps there, no flashing needed. To replace ChromeOS, check your model on mrchromebox.tech, flash its UEFI firmware (this means removing the write-protect), then install the image from a USB stick and run the community Chromebook audio script.'
+  'budget-laptop':
+    'Budget Windows laptops and netbooks install like any PC: write the image to a USB stick, boot from it (usually F12, F2, or Esc at power-on), and install to the internal drive. Chromebooks need one extra step: use the Linux development environment in ChromeOS settings (no flashing, reversible), or check your model on mrchromebox.tech, flash its UEFI firmware (this means removing the write-protect), then install from USB and run the community Chromebook audio script.'
 };
 
 export function getFlashInstructions(platform: PlatformTarget | undefined, formFactor?: FormFactor): string {

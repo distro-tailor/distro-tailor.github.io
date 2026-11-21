@@ -93,10 +93,11 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     And distributions that cannot boot there should explain that they need a VM on that Mac
     But running inside a VM on the Mac, or installing on an Intel Mac, should not be restricted
 
-  Scenario: Kids and adults with a Chromebook get a safe starter route
-    Given the user picks the device "Chromebook (Intel or AMD)"
+  Scenario: Kids and adults with a Chromebook or budget laptop get a safe starter route
+    Given the user picks the device "Chromebook or Budget Laptop (Intel or AMD)"
+    And devices are assumed to be owned by the user, not managed by a school or company
     When the user picks an everyday, office, or coding goal
-    Then the engine should recommend a distribution with community Chromebook fixes ("Ubuntu", "Linux Mint", or "Fedora")
+    Then the engine should recommend a distribution with standard Intel/AMD drivers and community Chromebook fixes ("Ubuntu", "Linux Mint", or "Fedora")
     And for the kid-safe goal it should recommend "Endless OS"
-    And the image card should offer the reversible built-in Linux environment first, then the MrChromebox firmware route
-    And the legal notes should say to only change Chromebooks you own, not school- or work-managed ones
+    And the image card should explain that budget Windows laptops install like any PC from USB
+    And that Chromebooks can use the reversible built-in Linux environment, or the MrChromebox firmware route

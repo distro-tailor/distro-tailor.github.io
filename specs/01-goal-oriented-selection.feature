@@ -311,7 +311,7 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
 
   Scenario: Everyday privacy without the anonymity toolkit
     Given the user picks the goal "Private Everyday Computer (No Tracking, Encrypted Disk)"
-    When the user picks a desktop PC, laptop, or Chromebook
+    When the user picks a desktop PC, laptop, or Chromebook / budget laptop
     Then the engine should recommend a distribution with no telemetry by default and installer disk encryption (e.g. "Linux Mint", "Fedora", or "Debian")
     And it should not recommend the amnesic or pentesting systems ("Tails", "Kali Linux"), which remain under the separate privacy, anonymity & cybersecurity goal
 
