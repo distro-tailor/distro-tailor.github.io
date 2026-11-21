@@ -29,7 +29,7 @@ export function showToast(message: string, icon = '✅'): void {
   toast.id = 'toast-notification';
   toast.className =
     'fixed bottom-5 right-5 z-[100] flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/95 text-slate-100 border border-emerald-500/50 shadow-2xl backdrop-blur text-xs font-semibold animate-in fade-in slide-in-from-bottom-2 duration-200';
-  toast.innerHTML = `<span class="text-base">${icon}</span><span>${escapeHtml(message)}</span>`;
+  toast.innerHTML = `<span class="text-base">${escapeHtml(icon)}</span><span>${escapeHtml(message)}</span>`;
   document.body.appendChild(toast);
 
   setTimeout(() => {

@@ -20,7 +20,7 @@ export function bindKeyboardEvents(nextQuestion: Question | null | undefined): v
 
     const currentState = store.getState();
     if (currentState.activeTab === 'wizard') {
-      if (currentQuestion) {
+      if (currentQuestion && !currentQuestion.isMultiSelect) {
         const num = parseInt(e.key, 10);
         if (!isNaN(num) && num >= 1 && num <= currentQuestion.options.length) {
           const opt = currentQuestion.options[num - 1];
