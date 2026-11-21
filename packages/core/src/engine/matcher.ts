@@ -19,6 +19,7 @@ import {
   FIRMWARE_MODE_AFFINITIES,
   FORM_FACTOR_AFFINITIES,
   GUI_CAPABLE_DISTRO_IDS,
+  HARDWARE_BOOT_SUPPORT,
   HARDWARE_LOCK_PENALTY,
   HARDWARE_LOCKED_DISTROS,
   KERNEL_FLAVOR_AFFINITIES,
@@ -260,6 +261,13 @@ export function evaluateCriteria(
     if (hardwareLock && !hardwareLock.requires(criteria)) {
       earned -= HARDWARE_LOCK_PENALTY;
       reasons.push({ feature: 'Hardware Lock', matched: false, explanation: hardwareLock.explanation });
+    }
+    // 4D. Hardware only a few distros can boot (e.g. Apple Silicon Macs need Asahi Linux)
+    for (const support of HARDWARE_BOOT_SUPPORT) {
+      if (support.applies(criteria) && !support.bootableDistroIds.includes(distro.id)) {
+        earned -= HARDWARE_LOCK_PENALTY;
+        reasons.push({ feature: 'Hardware Support', matched: false, explanation: support.explanation });
+      }
     }
 
     // 5. State Model & Immutability (Weight: 10)

@@ -85,3 +85,10 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     When the same goal is paired with an "Android TV box" or a goal with no SBC hardware at all
     Then "Raspberry Pi OS" should not be recommended because it only boots on Raspberry Pi boards
     And use-case fit should outweigh flash-storage tuning (e.g. a router on an SD card still gets OpenWrt)
+
+  Scenario: Apple Silicon Macs are only offered systems that boot on them
+    Given the user picks the device "Apple Silicon Mac (M1/M2/M3)"
+    When the user picks any goal, such as a desktop, a home server, or a game server
+    Then the engine should recommend "Asahi Linux", the only distribution in the registry that boots directly on Apple Silicon
+    And distributions that cannot boot there should explain that they need a VM on that Mac
+    But running inside a VM on the Mac, or installing on an Intel Mac, should not be restricted

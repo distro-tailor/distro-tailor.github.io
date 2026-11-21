@@ -1042,3 +1042,16 @@ test('Matcher: SD-card boot gives full flash credit to tuned distros and partial
   assert.ok(flash('openwrt'), 'SBC-capable distros earn partial flash credit');
   assert.ok(flash('dietpi'));
 });
+
+test('Matcher: Apple Silicon Macs only get distros that boot on them; VMs and Intel Macs are unrestricted', () => {
+  const appleSilicon = { architecture: 'arm64', platform: 'bare-metal', formFactor: 'mac', footprint: 'full' } as const;
+  for (const useCase of ['desktop', 'server', 'game-server', 'home-office', 'security-pentest'] as const) {
+    assert.equal(evaluateCriteria({ ...appleSilicon, useCase }).bestMatch.distro.id, 'asahi-linux', `${useCase} on an M-series Mac`);
+  }
+  // In a VM on the Mac, any arm64 distro is fine
+  assert.notEqual(evaluateCriteria({ ...appleSilicon, platform: 'vm', useCase: 'server' }).bestMatch.distro.id, 'asahi-linux');
+  // Intel Macs keep the Mac driver bonus for mainstream distros
+  const intelMac = evaluateCriteria({ architecture: 'x86_64', platform: 'bare-metal', formFactor: 'mac', useCase: 'desktop' });
+  assert.notEqual(intelMac.bestMatch.distro.id, 'asahi-linux');
+  assert.ok(intelMac.bestMatch.reasons.some((r) => r.feature === 'Mac Hardware Support' && r.matched));
+});

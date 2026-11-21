@@ -123,6 +123,31 @@ export const HARDWARE_LOCKED_DISTROS: Readonly<Record<string, HardwareLock>> = {
 /** Larger than a full use-case match (25 + flagship bonus) so a hardware-locked distro cannot win on use case alone. */
 export const HARDWARE_LOCK_PENALTY = 45;
 
+export interface HardwareBootSupport {
+  /** True when the criteria describe an install directly on this hardware. */
+  applies: (criteria: UserCriteria) => boolean;
+  /** The only distros that boot on it; every other distro gets HARDWARE_LOCK_PENALTY. */
+  bootableDistroIds: readonly string[];
+  explanation: string;
+}
+
+/**
+ * Hardware that only a few distros can boot on directly. The inverse of HARDWARE_LOCKED_DISTROS:
+ * here the hardware, not the distro, is the restriction. Running in a VM on the same machine is
+ * not restricted, so `applies` only matches a direct (bare-metal) install.
+ */
+export const HARDWARE_BOOT_SUPPORT: readonly HardwareBootSupport[] = [
+  {
+    // Apple M-series Macs: only Asahi's reverse-engineered drivers boot Linux natively today
+    applies: (c) =>
+      c.formFactor === 'mac' &&
+      c.architecture === 'arm64' &&
+      (c.platform === undefined || c.platform === 'bare-metal' || c.platform === 'desktop'),
+    bootableDistroIds: ['asahi-linux'],
+    explanation: 'Does not boot directly on Apple Silicon Macs; run it in a VM there, or install Asahi Linux.'
+  }
+];
+
 // ---------------------------------------------------------------------------
 // Criterion affinity tables
 // ---------------------------------------------------------------------------
@@ -189,7 +214,9 @@ export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
       explanation: 'Native upstream kernel support and reverse-engineered GPU drivers for Apple M-series chips.'
     },
     {
-      distroIds: ['linux-mint', 'fedora', 'pop-os', 'ubuntu', 'endless-os'],
+      // Intel Macs only: these distros cannot boot directly on Apple Silicon (see HARDWARE_BOOT_SUPPORT)
+      appliesTo: (d, c) =>
+        c.architecture !== 'arm64' && ['linux-mint', 'fedora', 'pop-os', 'ubuntu', 'endless-os'].includes(d.id),
       points: 15,
       feature: 'Mac Hardware Support',
       explanation: 'Includes out-of-the-box proprietary drivers for Broadcom Wi-Fi and Mac hardware quirks.'
