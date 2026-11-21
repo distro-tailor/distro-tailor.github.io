@@ -17,6 +17,8 @@ import {
   FIRMWARE_MODE_AFFINITIES,
   FORM_FACTOR_AFFINITIES,
   GUI_CAPABLE_DISTRO_IDS,
+  HARDWARE_LOCK_PENALTY,
+  HARDWARE_LOCKED_DISTROS,
   KERNEL_FLAVOR_AFFINITIES,
   NETWORKING_STACK_AFFINITIES,
   PERIPHERAL_AFFINITIES,
@@ -247,6 +249,13 @@ export function evaluateCriteria(
     // 4B. Form Factor & Thermal / Power Envelope (Weight: 15)
     if (criteria.formFactor) {
       applyAffinity(FORM_FACTOR_AFFINITIES[criteria.formFactor]);
+    }
+
+    // 4C. Vendor-locked hardware (e.g. Raspberry Pi OS only boots on Raspberry Pi boards)
+    const hardwareLock = HARDWARE_LOCKED_DISTROS[distro.id];
+    if (hardwareLock && !hardwareLock.requires(criteria)) {
+      earned -= HARDWARE_LOCK_PENALTY;
+      reasons.push({ feature: 'Hardware Lock', matched: false, explanation: hardwareLock.explanation });
     }
 
     // 5. State Model & Immutability (Weight: 10)

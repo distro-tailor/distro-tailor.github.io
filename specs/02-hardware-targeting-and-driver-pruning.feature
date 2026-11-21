@@ -76,3 +76,12 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     Then the engine should recommend "Zephyr RTOS" and note FreeRTOS and MicroPython alternatives
     When the target hardware is an "embedded-sbc" SoM with "minimal" footprint and "immutable-ostree" state preference
     Then the engine should recommend "Yocto Project" with a Buildroot comparison
+
+  Scenario: Raspberry Pi desktop, office, and kids builds recommend Raspberry Pi OS only on Pi hardware
+    Given the user is in "Goal Mode"
+    When the user picks a desktop, office, coding, or kids goal and the "Raspberry Pi" device
+    Then SD-card boot should be inferred without asking the Boot Medium question
+    And the engine should recommend "Raspberry Pi OS"
+    When the same goal is paired with an "Android TV box" or a goal with no SBC hardware at all
+    Then "Raspberry Pi OS" should not be recommended because it only boots on Raspberry Pi boards
+    And use-case fit should outweigh flash-storage tuning (e.g. a router on an SD card still gets OpenWrt)

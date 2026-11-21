@@ -170,6 +170,14 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     footprint: 'micro',
     initPreference: 'busybox'
   },
+  'raspberry-pi-os': {
+    experienceLevel: 'beginner',
+    useCase: 'education-kids',
+    platform: 'embedded-sbc',
+    architecture: 'arm64',
+    formFactor: 'sbc',
+    prefersGui: true
+  },
   zephyr: {
     experienceLevel: 'systems-engineer',
     useCase: 'iot-embedded',

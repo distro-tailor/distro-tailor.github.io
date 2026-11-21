@@ -526,9 +526,9 @@ test('Matcher: RAM constraints evaluate maxRamMb against minRamMb', () => {
   assert.equal(ramReason.matched, true);
 });
 
-test('Matcher: allMatches contains all 40 registered distributions ranked', () => {
+test('Matcher: allMatches contains all 41 registered distributions ranked', () => {
   const result = evaluateCriteria({});
-  assert.equal(result.allMatches.length, 40);
+  assert.equal(result.allMatches.length, 41);
   assert.equal(result.topMatches.length, 5);
   // Unconstrained baseline recommends Linux Mint at 100% instead of arbitrary Alpine 0%
   assert.equal(result.bestMatch.distro.id, 'linux-mint');
@@ -988,14 +988,54 @@ test('QuestionFlow: Goal Mode infers display, audio, cadence, and boot answers f
   assert.ok(!desktopIds.includes('audio_latency'));
   assert.ok(desktopIds.includes('desktop_workflow_style'), 'personal preferences are still asked');
 
-  // Raspberry Pi boot medium is not inferred yet, so it is still asked
+  // Raspberry Pi boards boot from SD cards, so boot_medium is inferred and skipped
   const pi: UserCriteria = { experienceLevel: 'beginner', ...goal('daily_desktop'), ...device('raspberry_pi'), maxRamMb: 4096 };
-  assert.equal(pi.bootMedium, undefined);
-  assert.ok(flow.getEligibleQuestions(pi, answered).some((q) => q.id === 'boot_medium'));
+  assert.equal(pi.bootMedium, 'sd-card-usb');
+  assert.ok(!flow.getEligibleQuestions(pi, answered).some((q) => q.id === 'boot_medium'));
 
   // Switching to Technical Mode re-offers inferred questions for fine-tuning
   const techIds = flow.getEligibleQuestions({ ...server, experienceLevel: 'intermediate' }, answered).map((q) => q.id);
   for (const id of ['display_mode', 'release_cadence', 'boot_medium']) {
     assert.ok(techIds.includes(id), `Technical Mode should offer ${id}`);
   }
+});
+
+test('Matcher: Raspberry Pi desktop goals pick Raspberry Pi OS, and only on Pi hardware', () => {
+  const pick = (c: UserCriteria) => evaluateCriteria(c).bestMatch.distro.id;
+  // Mirrors AppStore.answerQuestion: clear every key the question's options can set, then apply the choice
+  const answer = (c: Record<string, unknown>, qid: string, oid: string): void => {
+    const q = QUESTIONS.find((x) => x.id === qid)!;
+    for (const o of q.options) for (const k of Object.keys(o.appliesCriteria)) delete c[k];
+    Object.assign(c, q.options.find((o) => o.id === oid)!.appliesCriteria);
+  };
+  const wizard = (g: string, d: string): UserCriteria => {
+    const c: Record<string, unknown> = { experienceLevel: 'beginner' };
+    answer(c, 'beginner_goal', g);
+    answer(c, 'beginner_device', d);
+    answer(c, 'beginner_memory', 'modest');
+    return c as UserCriteria;
+  };
+
+  for (const g of ['daily_desktop', 'freelance_office_docs', 'kids_education', 'coding_dev']) {
+    assert.equal(pick(wizard(g, 'raspberry_pi')), 'raspberry-pi-os', `${g} on a Raspberry Pi`);
+
+    // Android TV boxes are ARM SBC-class but cannot boot Raspberry Pi OS
+    assert.notEqual(pick(wizard(g, 'android_tv_box')), 'raspberry-pi-os', `${g} on an Android TV box`);
+  }
+
+  // Security on a Pi stays Kali even though SD-card boot is inferred
+  assert.equal(pick(wizard('security_privacy', 'raspberry_pi')), 'kali-linux');
+
+  // Without SBC hardware in the criteria, the hardware lock keeps Raspberry Pi OS out of generic picks
+  for (const c of [{ useCase: 'desktop', footprint: 'standard' }, { useCase: 'home-office' }, { useCase: 'education-kids' }] as UserCriteria[]) {
+    assert.notEqual(pick(c), 'raspberry-pi-os', JSON.stringify(c));
+  }
+});
+
+test('Matcher: SD-card boot gives full flash credit to tuned distros and partial credit to other SBC distros', () => {
+  const sd = evaluateCriteria({ useCase: 'router-networking', bootMedium: 'sd-card-usb' });
+  assert.equal(sd.bestMatch.distro.id, 'openwrt', 'use-case fit outweighs flash tuning');
+  const flash = (id: string) => sd.allMatches.find((m) => m.distro.id === id)!.reasons.some((r) => r.feature === 'Flash Storage' && r.matched);
+  assert.ok(flash('openwrt'), 'SBC-capable distros earn partial flash credit');
+  assert.ok(flash('dietpi'));
 });

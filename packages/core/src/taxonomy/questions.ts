@@ -454,21 +454,21 @@ export const QUESTIONS: Question[] = [
         label: 'Raspberry Pi, Compute Module (SoM), or Mini SBC Board',
         description: 'Raspberry Pi 3/4/5, Compute Modules (CM4/CM5), or similar single-board computers & System-on-Modules',
         icon: '🍓',
-        appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc', formFactor: 'sbc' }
+        appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc', formFactor: 'sbc', bootMedium: 'sd-card-usb' }
       },
       {
         id: 'android_tv_box',
         label: 'Android TV Box or TV Stick (Amlogic, Allwinner, Rockchip)',
         description: 'Repurpose a cheap $25 TV box/stick into a 24/7 home server, Pi-hole ad-blocker, or Kodi TV player',
         icon: '📺',
-        appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc', formFactor: 'low-power' }
+        appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc', formFactor: 'low-power', bootMedium: 'sd-card-usb' }
       },
       {
         id: 'repurposed_gadget',
         label: 'Repurposed Gadget (Synology NAS, Old Phone, Ouya, Thin Client)',
         description: 'Reclaim proprietary hardware: install OpenMediaVault on Synology NAS, postmarketOS on old phones, or Linux on Ouya/thin clients',
         icon: '🔓',
-        appliesCriteria: { platform: 'embedded-sbc', footprint: 'lean', formFactor: 'low-power' }
+        appliesCriteria: { platform: 'embedded-sbc', footprint: 'lean', formFactor: 'low-power', bootMedium: 'sd-card-usb' }
       },
       {
         id: 'gaming_handheld',
@@ -510,7 +510,7 @@ export const QUESTIONS: Question[] = [
         label: 'RISC-V Board or PC (VisionFive 2, Milk-V, SpacemiT)',
         description: 'Open-standard instruction set architecture (ISA) single-board computer or developer workstation',
         icon: '📐',
-        appliesCriteria: { architecture: 'riscv64', platform: 'embedded-sbc', footprint: 'lean', formFactor: 'sbc' }
+        appliesCriteria: { architecture: 'riscv64', platform: 'embedded-sbc', footprint: 'lean', formFactor: 'sbc', bootMedium: 'sd-card-usb' }
       }
     ]
   },

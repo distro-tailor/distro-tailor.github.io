@@ -101,7 +101,27 @@ export const UNCONSTRAINED_BASELINE: readonly AffinityTier[] = [
 ];
 
 /** Distros with a graphical UI even though they are not listed for the desktop/kiosk platforms. */
-export const GUI_CAPABLE_DISTRO_IDS: readonly string[] = ['batocera', 'libreelec'];
+export const GUI_CAPABLE_DISTRO_IDS: readonly string[] = ['batocera', 'libreelec', 'raspberry-pi-os'];
+
+export interface HardwareLock {
+  /** True when the criteria name hardware this distro can actually boot on. */
+  requires: (criteria: UserCriteria) => boolean;
+  explanation: string;
+}
+
+/**
+ * Distros that only boot on one vendor's hardware. Without matching hardware in the criteria they are
+ * penalized by HARDWARE_LOCK_PENALTY, so a broad use-case match (e.g. "desktop") never surfaces them.
+ */
+export const HARDWARE_LOCKED_DISTROS: Readonly<Record<string, HardwareLock>> = {
+  'raspberry-pi-os': {
+    requires: (c) => (c.platform === 'embedded-sbc' || c.formFactor === 'sbc') && c.formFactor !== 'low-power',
+    explanation: 'Only boots on Raspberry Pi boards; other ARM boards and TV boxes need Armbian or DietPi.'
+  }
+};
+
+/** Larger than a full use-case match (25 + flagship bonus) so a hardware-locked distro cannot win on use case alone. */
+export const HARDWARE_LOCK_PENALTY = 45;
 
 // ---------------------------------------------------------------------------
 // Criterion affinity tables
@@ -177,7 +197,7 @@ export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
   ],
   sbc: [
     {
-      distroIds: ['dietpi', 'armbian', 'postmarketos', 'alpine', 'batocera', 'libreelec'],
+      distroIds: ['raspberry-pi-os', 'dietpi', 'armbian', 'postmarketos', 'alpine', 'batocera', 'libreelec'],
       points: 15,
       feature: 'Single-Board Computer',
       explanation: 'Specifically optimized for single-board ARM computers (Raspberry Pi, Rockchip, Allwinner).'
@@ -282,10 +302,17 @@ export const DRIVER_PHILOSOPHY_AFFINITIES: AffinityTable<DriverPhilosophy> = {
 export const BOOT_MEDIUM_AFFINITIES: AffinityTable<BootMedium> = {
   'sd-card-usb': [
     {
-      distroIds: ['dietpi', 'libreelec', 'batocera', 'alpine', 'antix'],
+      distroIds: ['dietpi', 'libreelec', 'batocera', 'alpine', 'antix', 'raspberry-pi-os'],
       points: 10,
       feature: 'Flash Storage',
       explanation: 'Includes RAM caching and Flash-wear reduction optimized for MicroSD cards and USB thumbdrives.'
+    },
+    {
+      // Any distro shipping SBC images boots from SD/USB fine; partial credit keeps flash tuning from outweighing use-case fit
+      appliesTo: (distro) => distro.platforms.includes('embedded-sbc'),
+      points: 6,
+      feature: 'Flash Storage',
+      explanation: 'Ships images that boot directly from MicroSD cards or USB drives on single-board computers.'
     }
   ],
   'pxe-diskless': [

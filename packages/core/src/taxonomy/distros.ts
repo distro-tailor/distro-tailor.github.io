@@ -1111,6 +1111,40 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     }
   },
   {
+    id: 'raspberry-pi-os',
+    name: 'Raspberry Pi OS',
+    tagline: 'The official desktop OS for Raspberry Pi boards',
+    description:
+      'The official Debian-based operating system from Raspberry Pi Ltd. Ships a lightweight Wayland desktop with a browser, LibreOffice, Scratch, Thonny Python IDE, and first-class support for the GPIO header, camera modules, and HATs. Flashed to a MicroSD card in minutes with Raspberry Pi Imager.',
+    website: 'https://www.raspberrypi.com/software/',
+    documentationUrl: 'https://www.raspberrypi.com/documentation/computers/os.html',
+    logoEmoji: '🍓',
+    platforms: ['embedded-sbc'],
+    architectures: ['arm64', 'armv7'],
+    footprint: 'standard',
+    minRamMb: 512,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['desktop', 'education-kids', 'home-office'],
+    packageManager: 'apt',
+    rollingRelease: false,
+    highlights: [
+      'Official, best-supported OS for every Raspberry Pi model (firmware, GPU, camera, GPIO)',
+      'Raspberry Pi Imager pre-configures Wi-Fi, SSH, and the user account before first boot',
+      'Bundled learning tools: Scratch, Thonny Python IDE, and Minecraft-style coding projects',
+      'Follows Debian stable releases for long-term predictable updates'
+    ],
+    tradeoffs: [
+      'Only runs on Raspberry Pi hardware; other SBCs need Armbian or DietPi',
+      'Desktop performance on 1–2GB boards is modest for heavy browsing'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.raspberrypi.com/software/'
+    }
+  },
+  {
     id: 'postmarketos',
     name: 'postmarketOS (pmOS)',
     tagline: 'True Alpine Linux extending the lifespan of old smartphones and gadgets',
