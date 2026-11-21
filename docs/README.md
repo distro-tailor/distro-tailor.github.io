@@ -64,6 +64,7 @@ All functional behaviors, persona flows, and UX invariants are specified in Gher
 4. **[04-gpu-specialized-workloads.feature](../specs/04-gpu-specialized-workloads.feature):** Pop!_OS for AI/LLM/Data Science and Ubuntu Server for headless multi-GPU compute.
 5. **[05-recipe-generation-and-build.feature](../specs/05-recipe-generation-and-build.feature):** Makefiles, defconfigs, hybrid ISOs, and QEMU test verification.
 6. **[06-url-sharing-and-state-persistence.feature](../specs/06-url-sharing-and-state-persistence.feature):** Real-time URL query encoding, schema migrations, and deep permalinks.
+7. **[07-licensing-and-paid-alternatives.feature](../specs/07-licensing-and-paid-alternatives.feature):** Free/open-source licensing policy, allowed licensing models, and paid systems shown only as caveated alternatives.
 
 ---
 
