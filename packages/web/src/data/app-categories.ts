@@ -1,18 +1,17 @@
-import { DesktopAppDefinition, DockerAppDefinition } from '@distro-tailor/core';
+import {
+  DesktopAppDefinition,
+  DockerAppDefinition,
+  EmulatorAppDefinition,
+  UserCriteria
+} from '@distro-tailor/core';
 
-export interface DesktopAppCategoryMeta {
-  id: DesktopAppDefinition['category'];
+export interface AppCategoryMeta<T extends string = string> {
+  id: T;
   label: string;
   icon: string;
 }
 
-export interface DockerAppCategoryMeta {
-  id: DockerAppDefinition['category'];
-  label: string;
-  icon: string;
-}
-
-export const DESKTOP_APP_CATEGORIES: readonly DesktopAppCategoryMeta[] = [
+export const DESKTOP_APP_CATEGORIES: readonly AppCategoryMeta<DesktopAppDefinition['category']>[] = [
   { id: 'browsers', label: 'Browsers', icon: '🌐' },
   { id: 'development', label: 'Development & Languages', icon: '💻' },
   { id: 'media', label: 'Media & Creative', icon: '🎬' },
@@ -21,7 +20,7 @@ export const DESKTOP_APP_CATEGORIES: readonly DesktopAppCategoryMeta[] = [
   { id: 'utilities', label: 'System, Backup & Networking', icon: '🛠️' }
 ];
 
-export const DOCKER_APP_CATEGORIES: readonly DockerAppCategoryMeta[] = [
+export const DOCKER_APP_CATEGORIES: readonly AppCategoryMeta<DockerAppDefinition['category']>[] = [
   { id: 'ai', label: 'AI & Machine Learning', icon: '🤖' },
   { id: 'media', label: 'Media & Photos', icon: '🎬' },
   { id: 'cloud', label: 'Cloud, Docs & Wiki', icon: '☁️' },
@@ -29,3 +28,30 @@ export const DOCKER_APP_CATEGORIES: readonly DockerAppCategoryMeta[] = [
   { id: 'smart-home', label: 'Smart Home', icon: '🏡' },
   { id: 'web', label: 'Web Publishing & Proxy', icon: '🌐' }
 ];
+
+export const EMULATOR_APP_CATEGORIES: readonly AppCategoryMeta<EmulatorAppDefinition['category']>[] = [
+  { id: 'multi-system', label: 'Multi-System', icon: '🕹️' },
+  { id: 'console', label: 'Consoles', icon: '🎮' },
+  { id: 'handheld', label: 'Handhelds', icon: '📟' },
+  { id: 'arcade', label: 'Arcade', icon: '👾' },
+  { id: 'retro-pc', label: 'Retro PC', icon: '💾' },
+  { id: 'compatibility', label: 'Windows & Android', icon: '🪟' },
+  { id: 'system', label: 'Cross-Arch & VM', icon: '🧬' }
+];
+
+export function getDefaultDesktopCategory(criteria: UserCriteria): DesktopAppDefinition['category'] {
+  if (criteria.useCase === 'gaming') return 'gaming';
+  if (criteria.desktopApps?.includes('vscode') || criteria.useCase === 'server') return 'development';
+  if (criteria.useCase === 'home-office') return 'productivity';
+  return 'browsers';
+}
+
+export function getDefaultDockerCategory(criteria: UserCriteria): DockerAppDefinition['category'] {
+  if (criteria.useCase === 'ai-gpu-compute') return 'ai';
+  return 'homelab';
+}
+
+export function getDefaultEmulatorCategory(criteria: UserCriteria): EmulatorAppDefinition['category'] {
+  if (criteria.useCase === 'gaming') return 'multi-system';
+  return 'compatibility';
+}

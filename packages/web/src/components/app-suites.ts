@@ -11,7 +11,16 @@ import {
   UserCriteria
 } from '@distro-tailor/core';
 import { type AddonCombo, getAddonCombos } from '../data/addon-combos.js';
-import { DESKTOP_APP_CATEGORIES, DOCKER_APP_CATEGORIES } from '../data/app-categories.js';
+import {
+  type AppCategoryMeta,
+  DESKTOP_APP_CATEGORIES,
+  DOCKER_APP_CATEGORIES,
+  EMULATOR_APP_CATEGORIES,
+  getDefaultDesktopCategory,
+  getDefaultDockerCategory,
+  getDefaultEmulatorCategory
+} from '../data/app-categories.js';
+import { escapeHtml } from '../utils/dom.js';
 import { panelAttributes } from './panel.js';
 
 export type { AddonCombo };
@@ -164,9 +173,10 @@ function renderMultiSelectAppGrid<T extends ToggleableSuiteItem>(opts: {
         .map((app) => {
           const isSelected = opts.selectedIds.includes(app.id);
           const compat = opts.checkCompatibility(app);
+          const searchText = escapeHtml(`${app.name} ${app.category}`.toLowerCase());
 
           return `
-          <div data-app-id="${app.id}" ${compat.blocker ? `data-incompatible-reason="${compat.blocker}"` : ''} class="${opts.buttonClass} p-2.5 rounded-xl border select-none transition-all flex flex-col justify-between min-w-0 ${
+          <div data-app-card data-app-id="${app.id}" data-app-category="${app.category}" data-app-selected="${isSelected ? '1' : '0'}" data-app-search="${searchText}" ${compat.blocker ? `data-incompatible-reason="${compat.blocker}"` : ''} class="${opts.buttonClass} p-2.5 rounded-xl border select-none transition-all flex flex-col justify-between min-w-0 ${
             !compat.compatible
               ? 'opacity-50 cursor-not-allowed bg-slate-950/40 border-slate-900'
               : isSelected
@@ -196,6 +206,97 @@ function renderMultiSelectAppGrid<T extends ToggleableSuiteItem>(opts: {
   `;
 }
 
+function renderCategorizedSuiteBody<T extends { id: string; category: string }>(opts: {
+  suiteId: string;
+  categories: readonly AppCategoryMeta[];
+  items: readonly T[];
+  selectedIds: readonly string[];
+  defaultCategory: string;
+  searchPlaceholder: string;
+  renderGroupItems: (groupItems: readonly T[]) => string;
+  topHtml?: string;
+}): string {
+  const groupsHtml = opts.categories
+    .map((cat) => {
+      const groupItems = opts.items.filter((item) => item.category === cat.id);
+      if (groupItems.length === 0) return '';
+      const selectedInGroup = groupItems.filter((item) => opts.selectedIds.includes(item.id)).length;
+      const isOpen = cat.id === opts.defaultCategory || selectedInGroup > 0;
+
+      return `
+        <details data-category-group="${cat.id}" class="group/cat bg-slate-950/40 border border-slate-800/80 rounded-xl overflow-hidden" ${isOpen ? 'open' : ''}>
+          <summary class="flex items-center justify-between px-3 py-2 cursor-pointer select-none hover:bg-slate-800/40 transition-colors text-xs">
+            <div class="flex items-center gap-2 min-w-0">
+              <span>${cat.icon}</span>
+              <span class="font-bold text-slate-200 truncate">${cat.label}</span>
+              <span class="text-[11px] font-mono text-slate-500">(${groupItems.length})</span>
+              ${
+                selectedInGroup > 0
+                  ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${selectedInGroup} selected</span>`
+                  : ''
+              }
+            </div>
+            <span class="text-slate-500 group-open/cat:rotate-180 transition-transform duration-150 text-[10px] ml-2 shrink-0">▼</span>
+          </summary>
+          <div class="p-2.5 pt-2 border-t border-slate-800/60">
+            ${opts.renderGroupItems(groupItems)}
+          </div>
+        </details>
+      `;
+    })
+    .filter(Boolean)
+    .join('');
+
+  const pillsHtml = opts.categories
+    .map((cat) => {
+      const count = opts.items.filter((item) => item.category === cat.id).length;
+      if (count === 0) return '';
+      return `
+        <button type="button" data-suite-pill="${cat.id}" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-600 transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1">
+          <span>${cat.icon}</span>
+          <span>${cat.label}</span>
+          <span class="text-slate-500 font-mono">${count}</span>
+        </button>
+      `;
+    })
+    .filter(Boolean)
+    .join('');
+
+  return `
+    <div data-suite-container="${opts.suiteId}" class="space-y-3 min-w-0">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 min-w-0">
+          <button type="button" data-suite-pill="all" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition-colors cursor-pointer whitespace-nowrap">
+            All (${opts.items.length})
+          </button>
+          ${
+            opts.selectedIds.length > 0
+              ? `<button type="button" data-suite-pill="selected" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-900 text-emerald-300 border border-slate-800 hover:border-emerald-500/40 transition-colors cursor-pointer whitespace-nowrap">✓ Selected (${opts.selectedIds.length})</button>`
+              : ''
+          }
+          ${pillsHtml}
+        </div>
+        <div class="relative shrink-0 sm:w-48">
+          <input
+            type="text"
+            data-suite-search="${opts.suiteId}"
+            placeholder="${escapeHtml(opts.searchPlaceholder)}"
+            class="w-full px-2.5 py-1 pl-7 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+          />
+          <span class="absolute left-2.5 top-1.5 text-[10px] text-slate-500 pointer-events-none">🔍</span>
+        </div>
+      </div>
+
+      ${opts.topHtml || ''}
+
+      <div class="max-h-[420px] overflow-y-auto pr-1 space-y-2.5 min-w-0">
+        ${groupsHtml}
+        <p data-suite-empty class="hidden text-center text-xs text-slate-400 py-4">No matching items in this view.</p>
+      </div>
+    </div>
+  `;
+}
+
 export function renderDesktopAppSuite(
   criteria: UserCriteria,
   isPrimary: boolean,
@@ -205,29 +306,23 @@ export function renderDesktopAppSuite(
   const selectedCount = selectedIds.length;
   const theme = SUITE_THEMES.emerald;
 
-  const groupedHtml = DESKTOP_APP_CATEGORIES.map((cat) => {
-    const items = DESKTOP_APPS_REGISTRY.filter((app) => app.category === cat.id);
-    if (items.length === 0) return '';
-    return `
-      <div class="space-y-2">
-        <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-          <span>${cat.icon}</span>
-          <span>${cat.label}</span>
-          <span class="text-slate-600 font-mono font-normal">(${items.length})</span>
-        </div>
-        ${renderMultiSelectAppGrid({
-          items,
-          selectedIds,
-          buttonClass: 'btn-toggle-desktop-app',
-          gridColsClass: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5',
-          theme: 'emerald',
-          checkCompatibility: (app) => checkDesktopAppCompatibility(app, criteria)
-        })}
-      </div>
-    `;
-  })
-    .filter(Boolean)
-    .join('');
+  const bodyHtml = renderCategorizedSuiteBody({
+    suiteId: 'desktop-apps',
+    categories: DESKTOP_APP_CATEGORIES,
+    items: DESKTOP_APPS_REGISTRY,
+    selectedIds,
+    defaultCategory: getDefaultDesktopCategory(criteria),
+    searchPlaceholder: `Filter ${DESKTOP_APPS_REGISTRY.length} apps...`,
+    renderGroupItems: (items) =>
+      renderMultiSelectAppGrid({
+        items,
+        selectedIds,
+        buttonClass: 'btn-toggle-desktop-app',
+        gridColsClass: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
+        theme: 'emerald',
+        checkCompatibility: (app) => checkDesktopAppCompatibility(app, criteria)
+      })
+  });
 
   return renderSuiteShell({
     panelId: 'desktop-apps',
@@ -247,7 +342,7 @@ export function renderDesktopAppSuite(
     isPrimary,
     isExpanded: isPrimary || selectedCount > 0,
     panelOpen,
-    bodyHtml: `<div class="space-y-5">${groupedHtml}</div>`
+    bodyHtml
   });
 }
 
@@ -263,9 +358,10 @@ export function renderDockerServiceSuite(
   const renderDockerCard = (app: (typeof DOCKER_APPS_REGISTRY)[number]) => {
     const isSelected = criteria.dockerApp === app.id;
     const compat = checkDockerAppCompatibility(app, criteria);
+    const searchText = escapeHtml(`${app.name} ${app.tagline} ${app.description} ${app.category}`.toLowerCase());
 
     return `
-      <div data-docker-id="${app.id}" ${compat.blocker ? `data-incompatible-reason="${compat.blocker}"` : ''} class="btn-select-docker-app p-3 rounded-xl border select-none transition-all flex flex-col justify-between min-w-0 ${
+      <div data-app-card data-app-category="${app.category}" data-app-selected="${isSelected ? '1' : '0'}" data-app-search="${searchText}" data-docker-id="${app.id}" ${compat.blocker ? `data-incompatible-reason="${compat.blocker}"` : ''} class="btn-select-docker-app p-3 rounded-xl border select-none transition-all flex flex-col justify-between min-w-0 ${
         !compat.compatible
           ? 'opacity-50 cursor-not-allowed bg-slate-950/40 border-slate-900'
           : isSelected
@@ -281,9 +377,9 @@ export function renderDockerServiceSuite(
             </div>
           </div>
           <h4 class="font-bold text-slate-200 text-xs">${app.name}</h4>
-          <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${app.description}</p>
+          <p class="text-[11px] text-slate-400 mt-1 leading-relaxed line-clamp-2">${app.description}</p>
         </div>
-        <div class="mt-3 pt-2 border-t border-slate-800/80 text-[10px] ${!compat.compatible ? 'text-slate-600' : isSelected ? 'text-emerald-400 font-bold' : 'text-slate-500'} font-mono flex items-center justify-between">
+        <div class="mt-2.5 pt-2 border-t border-slate-800/80 text-[10px] ${!compat.compatible ? 'text-slate-600' : isSelected ? 'text-emerald-400 font-bold' : 'text-slate-500'} font-mono flex items-center justify-between">
           <span>${!compat.compatible ? 'Unsupported Hardware' : isSelected ? '✓ In docker-compose.yml' : '+ Deploy with Docker'}</span>
           <span>${!compat.compatible ? '🚫' : '↗'}</span>
         </div>
@@ -291,48 +387,39 @@ export function renderDockerServiceSuite(
     `;
   };
 
-  const groupedDockerHtml = DOCKER_APP_CATEGORIES.map((cat) => {
-    const items = DOCKER_APPS_REGISTRY.filter((app) => app.category === cat.id);
-    if (items.length === 0) return '';
-    return `
-      <div class="space-y-2">
-        <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-          <span>${cat.icon}</span>
-          <span>${cat.label}</span>
-          <span class="text-slate-600 font-mono font-normal">(${items.length})</span>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs min-w-0">
-          ${items.map(renderDockerCard).join('')}
-        </div>
-      </div>
-    `;
-  })
-    .filter(Boolean)
-    .join('');
-
-  const bodyHtml = `
-    <div class="space-y-5 min-w-0">
-      <!-- None / Pure Minimal OS Card -->
-      <div data-docker-id="none" class="btn-select-docker-app p-3 rounded-xl border cursor-pointer select-none transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs min-w-0 ${
-        !hasDockerApp
-          ? 'bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30'
-          : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
-      }">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <span class="text-xl shrink-0">🚫</span>
-          <div class="min-w-0">
-            <h4 class="font-bold text-slate-200 text-xs">None (Pure OS Minimal)</h4>
-            <p class="text-[11px] text-slate-400">No extra background containers. Keep the OS footprint ultra-lean.</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-2 shrink-0">
-          ${!hasDockerApp ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">ACTIVE</span>` : `<span class="text-[10px] text-slate-500 font-mono">Pure Native Host</span>`}
+  const noneCardHtml = `
+    <div data-docker-id="none" class="btn-select-docker-app p-2.5 rounded-xl border cursor-pointer select-none transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs min-w-0 ${
+      !hasDockerApp
+        ? 'bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30'
+        : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
+    }">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="text-lg shrink-0">🚫</span>
+        <div class="min-w-0">
+          <h4 class="font-bold text-slate-200 text-xs">None (Pure OS Minimal)</h4>
+          <p class="text-[11px] text-slate-400">No extra background containers. Keep the OS footprint ultra-lean.</p>
         </div>
       </div>
-
-      ${groupedDockerHtml}
+      <div class="flex items-center gap-2 shrink-0">
+        ${!hasDockerApp ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">ACTIVE</span>` : `<span class="text-[10px] text-slate-500 font-mono">Pure Native Host</span>`}
+      </div>
     </div>
   `;
+
+  const bodyHtml = renderCategorizedSuiteBody({
+    suiteId: 'docker-services',
+    categories: DOCKER_APP_CATEGORIES,
+    items: DOCKER_APPS_REGISTRY,
+    selectedIds: hasDockerApp && criteria.dockerApp ? [criteria.dockerApp] : [],
+    defaultCategory: getDefaultDockerCategory(criteria),
+    searchPlaceholder: `Filter ${DOCKER_APPS_REGISTRY.length} services...`,
+    topHtml: noneCardHtml,
+    renderGroupItems: (items) => `
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs min-w-0">
+        ${items.map(renderDockerCard).join('')}
+      </div>
+    `
+  });
 
   return renderSuiteShell({
     panelId: 'docker-services',
@@ -385,13 +472,22 @@ export function renderEmulatorAppSuite(
     isPrimary,
     isExpanded: isPrimary || selectedCount > 0,
     panelOpen,
-    bodyHtml: renderMultiSelectAppGrid({
+    bodyHtml: renderCategorizedSuiteBody({
+      suiteId: 'emulator-apps',
+      categories: EMULATOR_APP_CATEGORIES,
       items: EMULATOR_APPS_REGISTRY,
       selectedIds,
-      buttonClass: 'btn-toggle-emulator-app',
-      gridColsClass: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
-      theme: 'purple',
-      checkCompatibility: (app) => checkEmulatorAppCompatibility(app, criteria)
+      defaultCategory: getDefaultEmulatorCategory(criteria),
+      searchPlaceholder: `Filter ${EMULATOR_APPS_REGISTRY.length} emulators...`,
+      renderGroupItems: (items) =>
+        renderMultiSelectAppGrid({
+          items,
+          selectedIds,
+          buttonClass: 'btn-toggle-emulator-app',
+          gridColsClass: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+          theme: 'purple',
+          checkCompatibility: (app) => checkEmulatorAppCompatibility(app, criteria)
+        })
     })
   });
 }

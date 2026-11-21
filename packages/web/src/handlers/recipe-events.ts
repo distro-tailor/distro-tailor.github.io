@@ -68,6 +68,65 @@ export function bindRecipeEvents(ctx: HandlerContext): void {
     showToast(nextVal ? '✨ Flatpak sandbox layer enabled!' : 'Flatpak disabled', '📦');
   });
 
+  // Category Filter Pills & Live Search inside App/Service/Emulator Suites
+  document.querySelectorAll<HTMLElement>('[data-suite-container]').forEach((container) => {
+    let activePill = 'all';
+    const searchInput = container.querySelector<HTMLInputElement>('[data-suite-search]');
+    const pills = container.querySelectorAll<HTMLButtonElement>('[data-suite-pill]');
+    const groups = container.querySelectorAll<HTMLDetailsElement>('[data-category-group]');
+    const cards = container.querySelectorAll<HTMLElement>('[data-app-card]');
+    const emptyMsg = container.querySelector<HTMLElement>('[data-suite-empty]');
+
+    const applyFilter = () => {
+      const query = (searchInput?.value || '').trim().toLowerCase();
+      let totalVisible = 0;
+
+      cards.forEach((card) => {
+        const cat = card.getAttribute('data-app-category') || '';
+        const selected = card.getAttribute('data-app-selected') === '1';
+        const haystack = card.getAttribute('data-app-search') || '';
+        const matchesPill = activePill === 'all' || (activePill === 'selected' ? selected : cat === activePill);
+        const matchesQuery = !query || haystack.includes(query);
+        const visible = matchesPill && matchesQuery;
+        card.classList.toggle('hidden', !visible);
+        if (visible) totalVisible++;
+      });
+
+      groups.forEach((group) => {
+        const hasVisibleCard = Array.from(group.querySelectorAll<HTMLElement>('[data-app-card]')).some(
+          (c) => !c.classList.contains('hidden')
+        );
+        group.classList.toggle('hidden', !hasVisibleCard);
+        if (hasVisibleCard && (activePill !== 'all' || query.length > 0)) {
+          group.open = true;
+        }
+      });
+
+      if (emptyMsg) {
+        emptyMsg.classList.toggle('hidden', totalVisible > 0);
+      }
+    };
+
+    pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        activePill = pill.getAttribute('data-suite-pill') || 'all';
+        pills.forEach((p) => {
+          const isCurrent = p === pill;
+          p.classList.toggle('bg-emerald-500/20', isCurrent);
+          p.classList.toggle('text-emerald-300', isCurrent);
+          p.classList.toggle('border-emerald-500/40', isCurrent);
+          p.classList.toggle('font-semibold', isCurrent);
+          p.classList.toggle('bg-slate-900', !isCurrent);
+          p.classList.toggle('text-slate-300', !isCurrent);
+          p.classList.toggle('border-slate-800', !isCurrent);
+        });
+        applyFilter();
+      });
+    });
+
+    searchInput?.addEventListener('input', applyFilter);
+  });
+
   // 1-Click Desktop Apps
   document.querySelectorAll<HTMLElement>('.btn-toggle-desktop-app').forEach((card) => {
     card.addEventListener('click', (e) => {

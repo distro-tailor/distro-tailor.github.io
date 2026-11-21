@@ -91,4 +91,13 @@ test('App Suites: renderDockerServiceSuite groups services by classifier categor
   assert.ok(html.includes('ComfyUI (AI Image Gen)'));
   assert.ok(html.includes('Paperless-ngx (Docs OCR)'));
   assert.ok(html.includes('n8n (Workflows)'));
+  assert.ok(html.includes('data-suite-container="docker-services"'));
+  assert.ok(html.includes('data-suite-pill="ai"'));
+  assert.ok(html.includes('max-h-[420px]'));
+});
+
+test('App Suites: smart default category opens matching goal section while keeping others collapsed', () => {
+  const gamingHtml = renderDesktopAppSuite({ useCase: 'gaming', architecture: 'x86_64', maxRamMb: 16384 }, true);
+  assert.match(gamingHtml, /data-category-group="gaming"[^>]*open/);
+  assert.doesNotMatch(gamingHtml, /data-category-group="development"[^>]*open/);
 });
