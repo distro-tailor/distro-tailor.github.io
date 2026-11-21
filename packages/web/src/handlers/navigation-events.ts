@@ -38,7 +38,7 @@ export function bindNavigationEvents(ctx: HandlerContext): void {
 
   // Return to wizard from results to review or modify choices
   const returnToWizard = () => {
-    const eligible = flow.getEligibleQuestions(store.getState().criteria);
+    const eligible = flow.getEligibleQuestions(store.getState().criteria, store.getState().answeredQuestionIds);
     const answeredEligible = eligible.filter((q) => store.getState().answeredQuestionIds.has(q.id));
     const targetQ = answeredEligible.length > 0 ? answeredEligible[answeredEligible.length - 1] : eligible[0];
     if (targetQ) {

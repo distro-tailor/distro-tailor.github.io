@@ -91,7 +91,9 @@ export class AppStore extends EventTarget implements IAppStore {
   public pushHistory(): void {
     this._state.history.push({
       criteria: { ...this._state.criteria },
-      answeredQuestionIds: new Set(this._state.answeredQuestionIds)
+      answeredQuestionIds: new Set(this._state.answeredQuestionIds),
+      answeredQuestionOrder: [...(this._state.answeredQuestionOrder || [])],
+      flowMode: this._state.flowMode
     });
   }
 
@@ -102,6 +104,12 @@ export class AppStore extends EventTarget implements IAppStore {
     const prev = this._state.history.pop()!;
     this._state.criteria = prev.criteria;
     this._state.answeredQuestionIds = prev.answeredQuestionIds;
+    if (prev.answeredQuestionOrder) {
+      this._state.answeredQuestionOrder = prev.answeredQuestionOrder;
+    }
+    if (prev.flowMode) {
+      this._state.flowMode = prev.flowMode;
+    }
     this._state.activeTab = 'wizard';
     this.notify();
     return true;
@@ -109,7 +117,7 @@ export class AppStore extends EventTarget implements IAppStore {
 
   public stepBackQuestion(): boolean {
     const flow = new QuestionFlow(QUESTIONS);
-    const eligible = flow.getEligibleQuestions(this._state.criteria);
+    const eligible = flow.getEligibleQuestions(this._state.criteria, this._state.answeredQuestionIds);
     if (eligible.length === 0) return false;
 
     let currentIdx = -1;
@@ -149,7 +157,7 @@ export class AppStore extends EventTarget implements IAppStore {
       }
     }
 
-    const eligible = flow.getEligibleQuestions(this._state.criteria);
+    const eligible = flow.getEligibleQuestions(this._state.criteria, this._state.answeredQuestionIds);
     let currentIdx = -1;
     if (qId) {
       currentIdx = eligible.findIndex((q) => q.id === qId);
@@ -221,7 +229,7 @@ export class AppStore extends EventTarget implements IAppStore {
     // 4. Handle navigation transition
     if (shouldAdvance) {
       const flow = new QuestionFlow(QUESTIONS);
-      const eligible = flow.getEligibleQuestions(this._state.criteria);
+      const eligible = flow.getEligibleQuestions(this._state.criteria, this._state.answeredQuestionIds);
       const currentIdx = eligible.findIndex((q) => q.id === questionId);
       if (currentIdx !== -1 && currentIdx < eligible.length - 1) {
         this._state.viewingQuestionId = eligible[currentIdx + 1].id;
@@ -248,7 +256,7 @@ export class AppStore extends EventTarget implements IAppStore {
     if (this._state.activeTab === 'expert') return;
 
     const flow = new QuestionFlow(QUESTIONS);
-    const eligible = flow.getEligibleQuestions(this._state.criteria);
+    const eligible = flow.getEligibleQuestions(this._state.criteria, this._state.answeredQuestionIds);
     const eligibleIds = new Set(eligible.map((q) => q.id));
 
     // Find answered questions that are no longer eligible
@@ -371,6 +379,7 @@ export class AppStore extends EventTarget implements IAppStore {
   }
 
   public toggleWizardMode(): void {
+    this.pushHistory();
     const isBeginner = this._state.criteria.experienceLevel === 'beginner' || !this._state.criteria.experienceLevel;
     const newMode: FlowMode = isBeginner ? 'expert' : 'smart';
     const nextExp = isBeginner ? 'intermediate' : 'beginner';
@@ -383,6 +392,7 @@ export class AppStore extends EventTarget implements IAppStore {
 
     // Remap answeredQuestionIds and viewingQuestionId across Goal <-> Technical equivalents
     const nextAnswered = new Set(this._state.answeredQuestionIds);
+    let nextOrder = [...(this._state.answeredQuestionOrder || [])];
     let nextViewing = this._state.viewingQuestionId || null;
 
     for (const [begId, techId] of pairMap) {
@@ -391,12 +401,14 @@ export class AppStore extends EventTarget implements IAppStore {
       if (nextAnswered.delete(fromId)) {
         nextAnswered.add(toId);
       }
+      nextOrder = nextOrder.map((id) => (id === fromId ? toId : id));
       if (nextViewing === fromId) {
         nextViewing = toId;
       }
     }
 
     this._state.answeredQuestionIds = nextAnswered;
+    this._state.answeredQuestionOrder = nextOrder.filter((id, i) => nextOrder.indexOf(id) === i);
     this._state.criteria = {
       ...this._state.criteria,
       experienceLevel: nextExp
@@ -420,16 +432,21 @@ export class AppStore extends EventTarget implements IAppStore {
       delete cleaned.devicePassthrough;
       delete cleaned.guestPlatform;
       this._state.criteria = cleaned;
-      this._state.answeredQuestionIds.delete('c_library_and_init');
-      this._state.answeredQuestionIds.delete('system_immutability');
-      this._state.answeredQuestionIds.delete('filesystem_and_storage');
+      const expertOnlyIds = new Set(['c_library_and_init', 'system_immutability', 'filesystem_and_storage']);
+      for (const id of expertOnlyIds) {
+        this._state.answeredQuestionIds.delete(id);
+      }
+      this._state.answeredQuestionOrder = this._state.answeredQuestionOrder.filter((id) => !expertOnlyIds.has(id));
     }
 
     this._state.flowMode = newMode;
 
+    // Prune remapped answers that are not eligible in the target mode (e.g. beginner_device for browser-wasm)
+    this.reconcileIneligibleCriteria();
+
     // Ensure viewingQuestionId points to an eligible question in the target mode
     const flow = new QuestionFlow(QUESTIONS);
-    const eligible = flow.getEligibleQuestions(this._state.criteria);
+    const eligible = flow.getEligibleQuestions(this._state.criteria, this._state.answeredQuestionIds);
     if (nextViewing && !eligible.some((q) => q.id === nextViewing)) {
       nextViewing = null;
     }

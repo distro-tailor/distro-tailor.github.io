@@ -7,7 +7,8 @@ import {
   getDesktopApp,
   getDockerApp,
   QuestionFlow,
-  QUESTIONS
+  QUESTIONS,
+  type UserCriteria
 } from './index.js';
 
 test('Core Matcher: Pinpoints Buildroot for NOMMU microcontrollers', () => {
@@ -936,4 +937,30 @@ test('Recipe Generators: Generates Declarative NixOS Flake & VM Harness recipe',
     assert.ok(config.includes('virtualisation.docker.enable = true'));
     assert.ok(config.includes('services.pipewire'));
   }
+});
+
+test('QuestionFlow: answering a question never makes that same question ineligible', () => {
+  const flow = new QuestionFlow(QUESTIONS);
+  const bases: UserCriteria[] = [
+    { experienceLevel: 'beginner', useCase: 'desktop', platform: 'bare-metal', prefersGui: true },
+    { experienceLevel: 'intermediate', useCase: 'desktop', platform: 'bare-metal', prefersGui: true },
+    { experienceLevel: 'systems-engineer', useCase: 'server', platform: 'bare-metal', architecture: 'x86_64' },
+    { experienceLevel: 'systems-engineer', useCase: 'iot-embedded', platform: 'embedded-sbc', architecture: 'arm64' }
+  ];
+  for (const base of bases) {
+    for (const q of flow.getEligibleQuestions(base)) {
+      for (const opt of q.options) {
+        const answered = { ...base, ...opt.appliesCriteria };
+        const ids = flow.getEligibleQuestions(answered, new Set([q.id])).map((e) => e.id);
+        assert.ok(
+          ids.includes(q.id),
+          `${q.id} option ${opt.id} makes its own question ineligible (base ${JSON.stringify(base)})`
+        );
+      }
+    }
+  }
+
+  // Unanswered guards still skip questions an earlier answer already decided
+  const preset = flow.getEligibleQuestions({ experienceLevel: 'intermediate', useCase: 'desktop', prefersGui: true }).map((q) => q.id);
+  assert.ok(!preset.includes('display_mode'));
 });

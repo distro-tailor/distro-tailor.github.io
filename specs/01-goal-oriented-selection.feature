@@ -132,6 +132,15 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     Then the wizard should smoothly transition to "Technical Mode"
     And technical questions such as architecture, C library, and immutability should become accessible
     And previously compatible answers should be preserved without restarting
+    And the shareable URL should list the answered questions of the new mode
+    And pressing Undo should restore the previous mode and its technical answers
+
+  Scenario: Answering a question never hides that same question
+    Given the user is in "Technical Mode" with a server use case
+    When the user answers "Display Mode" or "Audio Latency"
+    Then the answer should be kept and the question should stay in the answered list
+    And the wizard should advance to the next question instead of jumping to results
+    But a question already decided by an earlier answer (e.g. a desktop goal setting a screen) should still be skipped
 
   Scenario: Adaptive Multi-Question Flow across Release Cadence, Display Mode, and Drivers
     Given the user progresses through the tailored question flow

@@ -245,3 +245,63 @@ test('AppStore: reconcileIneligibleCriteria prunes downstream questions when ups
   assert.equal(store.getState().criteria.experienceLevel, 'systems-engineer', 'New experienceLevel must be preserved');
 });
 
+
+test('AppStore: answering audio_latency in Technical Mode keeps realtimeAudio', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', { experienceLevel: 'intermediate' }, false);
+  store.answerQuestion('technical_use_case', { useCase: 'desktop', prefersGui: true }, false);
+  store.answerQuestion('audio_latency', { realtimeAudio: true }, false);
+  const state = store.getState();
+  assert.equal(state.criteria.realtimeAudio, true);
+  assert.ok(state.answeredQuestionIds.has('audio_latency'));
+});
+
+test('AppStore: toggleWizardMode keeps answeredQuestionOrder in sync and is undoable', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'beginner');
+  store.answerQuestion('beginner_goal', { useCase: 'server', platform: 'embedded-sbc', footprint: 'lean' });
+
+  store.toggleWizardMode();
+  let state = store.getState();
+  assert.deepEqual(state.answeredQuestionOrder, ['user_familiarity', 'technical_use_case']);
+
+  store.answerQuestion('system_immutability', { statePreference: 'declarative' }, false);
+  store.toggleWizardMode();
+  state = store.getState();
+  assert.equal(state.flowMode, 'smart');
+  assert.equal(state.criteria.statePreference, undefined);
+  assert.ok(!state.answeredQuestionOrder?.includes('system_immutability'));
+  assert.deepEqual(state.answeredQuestionOrder, ['user_familiarity', 'beginner_goal']);
+
+  // Undo restores the pre-toggle mode, expert criteria, and answered order
+  assert.equal(store.popHistory(), true);
+  state = store.getState();
+  assert.equal(state.flowMode, 'expert');
+  assert.equal(state.criteria.statePreference, 'declarative');
+  assert.equal(state.criteria.experienceLevel, 'intermediate');
+  assert.ok(state.answeredQuestionIds.has('system_immutability'));
+  assert.ok(state.answeredQuestionOrder?.includes('system_immutability'));
+});
+
+test('AppStore: toggleWizardMode prunes remapped answers that are ineligible in the target mode', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', { experienceLevel: 'intermediate' }, false);
+  store.answerQuestion('technical_use_case', { useCase: 'browser-wasm' }, false);
+  // Force a stale technical hardware answer, then switch to Goal Mode
+  store.getState().answeredQuestionIds.add('hardware_architecture');
+  store.toggleWizardMode();
+  const state = store.getState();
+  assert.ok(!state.answeredQuestionIds.has('beginner_device'), 'beginner_device is ineligible for browser-wasm');
+});
+
+test('AppStore: answering display_mode advances to the next question instead of jumping to results', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', { experienceLevel: 'intermediate' });
+  store.answerQuestion('technical_use_case', { useCase: 'server' });
+  store.answerQuestion('display_mode', { prefersGui: false });
+  const state = store.getState();
+  assert.equal(state.activeTab, 'wizard');
+  assert.notEqual(state.viewingQuestionId, null);
+  assert.equal(state.criteria.prefersGui, false);
+  assert.ok(state.answeredQuestionIds.has('display_mode'));
+});

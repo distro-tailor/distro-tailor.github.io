@@ -16,6 +16,8 @@ export type FlowMode = 'smart' | 'expert';
 export interface HistorySnapshot {
   criteria: UserCriteria;
   answeredQuestionIds: Set<string>;
+  answeredQuestionOrder?: string[];
+  flowMode?: FlowMode;
 }
 
 /**

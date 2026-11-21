@@ -65,7 +65,7 @@ function render(): void {
   const app = getAppElement();
   const state = store.getState();
   const evaluation = evaluateCriteria(state.criteria);
-  const eligible = flow.getEligibleQuestions(state.criteria);
+  const eligible = flow.getEligibleQuestions(state.criteria, state.answeredQuestionIds);
 
   let currentQuestion = state.viewingQuestionId
     ? eligible.find((q) => q.id === state.viewingQuestionId) || QUESTIONS.find((q) => q.id === state.viewingQuestionId) || null
