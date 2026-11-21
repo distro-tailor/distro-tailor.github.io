@@ -11,6 +11,7 @@ export interface DesktopAppDefinition {
   aptPackages?: string[];
   flatpakId?: string;
   apkPackages?: string[];
+  customInstallBash?: string;
 }
 
 export interface DesktopAppCompatibility {
@@ -147,6 +148,81 @@ export const DESKTOP_APPS_REGISTRY: DesktopAppDefinition[] = [
     architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['python3', 'python3-pip', 'python3-venv', 'python3-dev'],
     apkPackages: ['python3', 'py3-pip']
+  },
+  {
+    id: 'golang',
+    name: 'Go (Golang)',
+    category: 'development',
+    icon: '🐹',
+    description: 'Open-source Go compiler, standard library, and toolchain (BSD-3-Clause).',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    aptPackages: ['golang-go'],
+    apkPackages: ['go']
+  },
+  {
+    id: 'ruby',
+    name: 'Ruby & Bundler',
+    category: 'development',
+    icon: '💎',
+    description: 'Ruby interpreter, RubyGems, and Bundler for Rails & scripting (MIT/BSD).',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    aptPackages: ['ruby-full'],
+    apkPackages: ['ruby', 'ruby-bundler']
+  },
+  {
+    id: 'rust',
+    name: 'Rust & Cargo',
+    category: 'development',
+    icon: '🦀',
+    description: 'Rust compiler (rustc) and Cargo package manager (MIT/Apache-2.0).',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64', 'riscv64'],
+    aptPackages: ['rustc', 'cargo'],
+    apkPackages: ['rust', 'cargo']
+  },
+  {
+    id: 'dotnet',
+    name: '.NET SDK (LTS)',
+    category: 'development',
+    icon: '🟣',
+    description: 'Free, open-source .NET LTS SDK & CLI for C#, F#, and ASP.NET Core (MIT).',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64'],
+    apkPackages: ['dotnet8-sdk'],
+    customInstallBash: `if [ "$PKG_MGR" != "apk" ]; then
+  echo "[+] Installing .NET LTS SDK via official Microsoft dotnet-install.sh..."
+  if ! command -v curl >/dev/null 2>&1; then
+    [ "$PKG_MGR" = "apt" ] && apt-get update -y && apt-get install -y --no-install-recommends curl ca-certificates
+  fi
+  curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+  bash /tmp/dotnet-install.sh --channel LTS --install-dir /usr/local/dotnet
+  ln -sf /usr/local/dotnet/dotnet /usr/local/bin/dotnet
+  rm -f /tmp/dotnet-install.sh
+fi`
+  },
+  {
+    id: 'java',
+    name: 'OpenJDK (Java)',
+    category: 'development',
+    icon: '☕',
+    description: 'Open-source Java Development Kit (JDK) for JVM, Spring & Android builds (GPL-2.0).',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    aptPackages: ['default-jdk'],
+    apkPackages: ['openjdk21-jdk']
+  },
+  {
+    id: 'php',
+    name: 'PHP & Composer',
+    category: 'development',
+    icon: '🐘',
+    description: 'PHP runtime and Composer dependency manager for web & Laravel apps (PHP License).',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    aptPackages: ['php', 'composer'],
+    apkPackages: ['php', 'composer']
   },
 
   // --- MEDIA & CREATIVE ---
@@ -299,6 +375,7 @@ exit 0
   const aptList: string[] = [];
   const apkList: string[] = [];
   const flatpakList: string[] = [];
+  const customScripts: string[] = [];
 
   for (const app of selectedApps) {
     if (app.aptPackages && app.aptPackages.length > 0) {
@@ -308,6 +385,9 @@ exit 0
     }
     if (app.apkPackages && app.apkPackages.length > 0) {
       apkList.push(...app.apkPackages);
+    }
+    if (app.customInstallBash) {
+      customScripts.push(app.customInstallBash);
     }
   }
 
@@ -380,6 +460,12 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 echo "[+] Step 3: Installing desktop applications from Flathub..."
 ${flatpakList.map(fId => `echo "[+] Installing ${fId}..."\nflatpak install -y --noninteractive flathub ${fId}`).join('\n\n')}
 echo "[✓] Flatpak applications installed successfully."
+` : ''}
+
+${customScripts.length > 0 ? `
+echo "[+] Installing specialized runtime toolchains..."
+${customScripts.join('\n\n')}
+echo "[✓] Specialized toolchains installed successfully."
 ` : ''}
 
 echo "===================================================================="

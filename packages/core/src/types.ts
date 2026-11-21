@@ -233,6 +233,12 @@ export type DesktopAppId =
   | 'neovim'
   | 'nodejs'
   | 'python'
+  | 'golang'
+  | 'ruby'
+  | 'rust'
+  | 'dotnet'
+  | 'java'
+  | 'php'
   | 'vlc'
   | 'obs'
   | 'gimp'
@@ -253,7 +259,14 @@ export type EmulatorAppId =
   | 'duckstation'
   | 'ppsspp'
   | 'scummvm'
-  | 'mame';
+  | 'mame'
+  | 'wine'
+  | 'bottles'
+  | 'qemu-user'
+  | 'qemu-system'
+  | 'rpcs3'
+  | 'waydroid'
+  | 'box64';
 
 export type NavigationAppId =
   | 'navit'

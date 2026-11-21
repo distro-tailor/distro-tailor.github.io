@@ -335,7 +335,7 @@ export function renderEmulatorAppSuite(
     title: 'Gaming & Retro Emulation Suite',
     primaryBadgeText: 'Recommended for Gaming',
     descriptionHtml:
-      'Install classic console, handheld, and arcade emulators. Generates an automated <code class="text-emerald-400">bootstrap-emulators.sh</code> with gamepad udev rules (Xbox, DualSense, 8BitDo) and ROM folders:',
+      'Install classic console/arcade emulators, Windows compatibility layers (Wine/Bottles), and cross-arch QEMU emulators. Generates <code class="text-emerald-400">bootstrap-emulators.sh</code> with gamepad udev rules and ROM folders:',
     statusPillHtml: `<span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold ${theme.countPill} whitespace-nowrap shrink-0 self-start sm:self-auto">${selectedCount} Selected</span>`,
     nommuWarning:
       criteria.architecture === 'nommu'

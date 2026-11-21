@@ -3,7 +3,7 @@ import { CpuArchitecture, EmulatorAppId, UserCriteria } from '../types.js';
 export interface EmulatorAppDefinition {
   id: EmulatorAppId;
   name: string;
-  category: 'multi-system' | 'console' | 'retro-pc' | 'handheld' | 'arcade';
+  category: 'multi-system' | 'console' | 'retro-pc' | 'handheld' | 'arcade' | 'compatibility' | 'system';
   icon: string;
   description: string;
   minRamMb: number;
@@ -11,6 +11,7 @@ export interface EmulatorAppDefinition {
   aptPackages?: string[];
   flatpakId?: string;
   apkPackages?: string[];
+  customInstallBash?: string;
 }
 
 export interface EmulatorAppCompatibility {
@@ -47,6 +48,16 @@ export function checkEmulatorAppCompatibility(
   if (criteria.maxRamMb && criteria.maxRamMb < app.minRamMb) {
     const formatted = app.minRamMb >= 1024 ? `${(app.minRamMb / 1024).toFixed(0)} GB` : `${app.minRamMb} MB`;
     warnings.push(`Exceeds your ${criteria.maxRamMb} MB budget (requires ~${formatted} RAM).`);
+  }
+
+  // Soft warning: Waydroid requires Wayland + kernel binder support
+  if (app.id === 'waydroid') {
+    if (criteria.desktopEnv === 'xfce') {
+      warnings.push('Waydroid requires Wayland; on XFCE (X11), launch it inside a nested "weston" window.');
+    }
+    if (criteria.platform === 'wsl2') {
+      warnings.push('Waydroid requires the Linux kernel binder_linux module, which is not enabled in default WSL2 kernels.');
+    }
   }
 
   return {
@@ -147,6 +158,99 @@ export const EMULATOR_APPS_REGISTRY: EmulatorAppDefinition[] = [
     architectures: ['x86_64', 'arm64'],
     aptPackages: ['mame'],
     flatpakId: 'org.mamedev.MAME'
+  },
+
+  // --- WINDOWS COMPATIBILITY & CROSS-ARCH SYSTEM EMULATION ---
+  {
+    id: 'wine',
+    name: 'Wine (Windows Layer)',
+    category: 'compatibility',
+    icon: '🍷',
+    description: 'Run Windows x86/x64 desktop applications natively on Linux without a full VM (LGPL-2.1).',
+    minRamMb: 1024,
+    architectures: ['x86_64'],
+    aptPackages: ['wine'],
+    apkPackages: ['wine']
+  },
+  {
+    id: 'bottles',
+    name: 'Bottles (Windows Apps)',
+    category: 'compatibility',
+    icon: '🍾',
+    description: 'Sandboxed Wine prefix manager for running Windows productivity apps & installers (GPL-3.0).',
+    minRamMb: 2048,
+    architectures: ['x86_64'],
+    flatpakId: 'com.usebottles.bottles'
+  },
+  {
+    id: 'qemu-user',
+    name: 'QEMU User-Mode (Cross-Arch)',
+    category: 'system',
+    icon: '🧬',
+    description: 'Run ARM64, ARMv7, RISC-V, and x86_64 Linux binaries transparently across CPU architectures (GPL-2.0).',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    aptPackages: ['qemu-user-static'],
+    apkPackages: ['qemu-x86_64', 'qemu-aarch64']
+  },
+  {
+    id: 'qemu-system',
+    name: 'QEMU Full System VM',
+    category: 'system',
+    icon: '🖥️',
+    description: 'Full-system hardware emulator & KVM hypervisor for booting OS images and testing ISOs (GPL-2.0).',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64'],
+    aptPackages: ['qemu-system-x86', 'qemu-utils'],
+    apkPackages: ['qemu-system-x86_64', 'qemu-img']
+  },
+  {
+    id: 'rpcs3',
+    name: 'RPCS3 (PlayStation 3)',
+    category: 'console',
+    icon: '🕹️',
+    description: 'Open-source Sony PlayStation 3 emulator & debugger; requires Vulkan GPU and user-supplied PS3 firmware.',
+    minRamMb: 4096,
+    architectures: ['x86_64'],
+    flatpakId: 'net.rpcs3.RPCS3'
+  },
+  {
+    id: 'waydroid',
+    name: 'Waydroid (Android Apps)',
+    category: 'compatibility',
+    icon: '🤖',
+    description: 'Container-based full Android environment on Wayland with near-native GPU performance (GPL-3.0).',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
+    customInstallBash: `echo "[+] Setting up Waydroid (Android on Wayland)..."
+if [ "$PKG_MGR" = "apt" ]; then
+  apt-get update -y && apt-get install -y --no-install-recommends curl ca-certificates lsb-release
+  curl -fsSL https://repo.waydro.id/ | bash
+  WAYDROID_PKG="waydroid"
+  apt-get install -y --no-install-recommends "$WAYDROID_PKG"
+  echo "[i] Run 'sudo waydroid init' inside a Wayland session to download the Android system image."
+elif [ "$PKG_MGR" = "dnf" ]; then
+  dnf install -y waydroid
+elif [ "$PKG_MGR" = "pacman" ]; then
+  pacman -S --noconfirm waydroid
+fi`
+  },
+  {
+    id: 'box64',
+    name: 'Box64 (x86_64 on ARM64)',
+    category: 'system',
+    icon: '📦',
+    description: 'Run x86_64 Linux programs and Wine/Steam games on 64-bit ARM boards & laptops (MIT).',
+    minRamMb: 1024,
+    architectures: ['arm64'],
+    customInstallBash: `echo "[+] Installing Box64 (x86_64 translation for ARM64)..."
+if [ "$PKG_MGR" = "apt" ]; then
+  apt-get update -y && apt-get install -y --no-install-recommends wget gpg ca-certificates
+  wget -qO- https://ryanfortner.github.io/box64-debs/KEY.gpg | gpg --dearmor -o /usr/share/keyrings/box64-archive-keyring.gpg
+  echo "Types: deb\\nURIs: https://ryanfortner.github.io/box64-debs/debian\\nSuites: ./\\nSigned-By: /usr/share/keyrings/box64-archive-keyring.gpg" > /etc/apt/sources.list.d/box64.sources
+  BOX64_PKG="box64-generic-arm"
+  apt-get update -y && apt-get install -y --no-install-recommends "$BOX64_PKG"
+fi`
   }
 ];
 
@@ -176,6 +280,7 @@ exit 0
   const aptList: string[] = [];
   const apkList: string[] = [];
   const flatpakList: string[] = [];
+  const customScripts: string[] = [];
 
   for (const app of selectedApps) {
     if (app.aptPackages && app.aptPackages.length > 0) {
@@ -185,6 +290,9 @@ exit 0
     }
     if (app.apkPackages && app.apkPackages.length > 0) {
       apkList.push(...app.apkPackages);
+    }
+    if (app.customInstallBash) {
+      customScripts.push(app.customInstallBash);
     }
   }
 
@@ -282,6 +390,16 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 echo "[+] Step 4: Installing emulators from Flathub..."
 ${flatpakList.map((fId) => `echo "[+] Installing ${fId}..."\nflatpak install -y --noninteractive flathub ${fId}`).join('\n\n')}
 echo "[✓] Flatpak emulators installed successfully."
+`
+    : ''
+}
+
+${
+  customScripts.length > 0
+    ? `
+echo "[+] Installing specialized emulation runtimes..."
+${customScripts.join('\n\n')}
+echo "[✓] Specialized emulation runtimes installed."
 `
     : ''
 }

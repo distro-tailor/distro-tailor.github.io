@@ -513,3 +513,56 @@ test('nixos-flake configuration.nix defines a default root fileSystems."/" entry
   const zfsConfig = zfsRecipe.files.find((f) => f.filename === 'configuration.nix')?.content ?? '';
   assert.match(zfsConfig, /fsType\s*=\s*"zfs"/);
 });
+
+test('developer toolchains (golang, ruby, rust, dotnet, java, php) are wired into bootstrap-apps.sh and nixos-flake', () => {
+  const langs = ['golang', 'ruby', 'rust', 'dotnet', 'java', 'php'] as const;
+  const deb = resolveRecipeGenerator('debootstrap-debian', {
+    architecture: 'x86_64',
+    desktopApps: [...langs]
+  });
+  const bootstrap = deb.files.find((f) => f.filename === 'bootstrap-apps.sh')?.content ?? '';
+  assert.match(bootstrap, /golang-go/);
+  assert.match(bootstrap, /ruby-full/);
+  assert.match(bootstrap, /rustc/);
+  assert.match(bootstrap, /default-jdk/);
+  assert.match(bootstrap, /composer/);
+  assert.match(bootstrap, /dotnet-install\.sh/);
+
+  const nix = resolveRecipeGenerator('nixos-flake', {
+    architecture: 'x86_64',
+    desktopApps: [...langs]
+  });
+  const nixConfig = nix.files.find((f) => f.filename === 'configuration.nix')?.content ?? '';
+  for (const pkg of ['pkgs.go', 'pkgs.ruby', 'pkgs.rustc', 'pkgs.dotnet-sdk_8', 'pkgs.jdk', 'pkgs.php']) {
+    assert.ok(nixConfig.includes(pkg), `Expected ${pkg} in NixOS configuration.nix`);
+  }
+});
+
+test('non-gaming compatibility and system emulators (wine, bottles, qemu-user, qemu-system) wire into bootstrap-emulators.sh', () => {
+  const deb = resolveRecipeGenerator('debootstrap-debian', {
+    architecture: 'x86_64',
+    emulatorApps: ['wine', 'bottles', 'qemu-user', 'qemu-system']
+  });
+  const script = deb.files.find((f) => f.filename === 'bootstrap-emulators.sh')?.content ?? '';
+  assert.match(script, /wine/);
+  assert.match(script, /com\.usebottles\.bottles/);
+  assert.match(script, /qemu-user-static/);
+  assert.match(script, /qemu-system-x86/);
+});
+
+test('rpcs3, waydroid, and box64 wire into bootstrap-emulators.sh with architecture/DE checks', () => {
+  const armDeb = resolveRecipeGenerator('debootstrap-debian', {
+    architecture: 'arm64',
+    emulatorApps: ['waydroid', 'box64']
+  });
+  const armScript = armDeb.files.find((f) => f.filename === 'bootstrap-emulators.sh')?.content ?? '';
+  assert.match(armScript, /repo\.waydro\.id/);
+  assert.match(armScript, /box64-generic-arm/);
+
+  const x64Deb = resolveRecipeGenerator('debootstrap-debian', {
+    architecture: 'x86_64',
+    emulatorApps: ['rpcs3']
+  });
+  const x64Script = x64Deb.files.find((f) => f.filename === 'bootstrap-emulators.sh')?.content ?? '';
+  assert.match(x64Script, /net\.rpcs3\.RPCS3/);
+});

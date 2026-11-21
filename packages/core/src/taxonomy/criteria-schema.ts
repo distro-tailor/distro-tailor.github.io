@@ -309,6 +309,12 @@ export const DESKTOP_APP_VALUES: EnumCatalog<DesktopAppId> = {
   neovim: true,
   nodejs: true,
   python: true,
+  golang: true,
+  ruby: true,
+  rust: true,
+  dotnet: true,
+  java: true,
+  php: true,
   vlc: true,
   obs: true,
   gimp: true,
@@ -330,7 +336,14 @@ export const EMULATOR_APP_VALUES: EnumCatalog<EmulatorAppId> = {
   duckstation: true,
   ppsspp: true,
   scummvm: true,
-  mame: true
+  mame: true,
+  wine: true,
+  bottles: true,
+  'qemu-user': true,
+  'qemu-system': true,
+  rpcs3: true,
+  waydroid: true,
+  box64: true
 };
 
 export const NAVIGATION_APP_VALUES: EnumCatalog<NavigationAppId> = {
