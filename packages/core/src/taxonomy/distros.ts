@@ -1432,6 +1432,70 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     prebuiltImage: {
       downloadUrl: 'https://ubuntu.com/download'
     }
+  },
+  {
+    id: 'tails',
+    name: 'Tails',
+    tagline: 'Portable amnesic OS that routes all connections through Tor and leaves no trace',
+    description:
+      'A live Debian-based operating system designed for privacy, anonymity, and censorship circumvention. Boots from a USB stick into RAM, forces all network traffic through the Tor network, includes KeePassXC and OnionShare, and wipes memory clean on shutdown.',
+    website: 'https://tails.net',
+    documentationUrl: 'https://tails.net/doc/',
+    logoEmoji: '🕵️',
+    platforms: ['bare-metal'],
+    architectures: ['x86_64'],
+    footprint: 'lean',
+    minRamMb: 2048,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'stateless-ram',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['security-pentest'],
+    packageManager: 'apt',
+    rollingRelease: false,
+    highlights: [
+      'Amnesic live USB: leaves zero trace on the host computer after shutdown',
+      'Routes all internet traffic through Tor automatically with MAC address spoofing',
+      'Includes encrypted Persistent Storage, KeePassXC, OnionShare, and Thunderbird'
+    ],
+    tradeoffs: [
+      'Strict Tor-only networking and amnesic design are not meant for everyday gaming or heavy software builds'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://tails.net/install/'
+    }
+  },
+  {
+    id: 'kali-linux',
+    name: 'Kali Linux',
+    tagline: 'Industry-standard Debian-based platform for penetration testing and security auditing',
+    description:
+      'A rolling-release security distribution maintained by OffSec with 600+ pre-packaged penetration testing, network forensics, reverse engineering, and vulnerability assessment tools across x86_64, ARM64, and VMs.',
+    website: 'https://www.kali.org',
+    documentationUrl: 'https://www.kali.org/docs/',
+    logoEmoji: '🐉',
+    platforms: ['bare-metal', 'vm', 'embedded-sbc'],
+    architectures: ['x86_64', 'arm64'],
+    footprint: 'standard',
+    minRamMb: 2048,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['security-pentest'],
+    packageManager: 'apt',
+    rollingRelease: true,
+    highlights: [
+      '600+ curated security, forensics, and penetration testing tools (Nmap, Wireshark, Metasploit)',
+      'Rolling-release updates with custom wireless injection-patched kernels',
+      'First-class support for bare metal, VirtualBox/VMware/QEMU images, and ARM64 boards'
+    ],
+    tradeoffs: [
+      'Purpose-built security auditing environment—not recommended as an everyday general-purpose desktop'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.kali.org/get-kali/'
+    }
   }
 ];
 

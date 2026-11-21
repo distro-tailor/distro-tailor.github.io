@@ -4,8 +4,9 @@ import { evaluateCriteria } from '@distro-tailor/core';
 import { renderLeaderboard } from './layout.js';
 import { createDefaultState } from '../state/store.js';
 
-test('Leaderboard Layout: renders top 6 contenders when collapsed and all 36 when expanded', () => {
+test('Leaderboard Layout: renders top 6 contenders when collapsed and all distros when expanded', () => {
   const evalResult = evaluateCriteria({});
+  const totalDistros = evalResult.allMatches.length;
   const state = createDefaultState();
 
   // Collapsed (default)
@@ -13,17 +14,17 @@ test('Leaderboard Layout: renders top 6 contenders when collapsed and all 36 whe
   const collapsedHtml = renderLeaderboard(evalResult, state);
   const collapsedCards = (collapsedHtml.match(/<div class="p-3 rounded-xl bg-slate-950/g) || []).length;
   assert.equal(collapsedCards, 6, 'Collapsed leaderboard should show exactly top 6 cards');
-  assert.ok(collapsedHtml.includes('Top 6 of 36'));
-  assert.ok(collapsedHtml.includes('▼ View All 36 Distros'));
+  assert.ok(collapsedHtml.includes(`Top 6 of ${totalDistros}`));
+  assert.ok(collapsedHtml.includes(`▼ View All ${totalDistros} Distros`));
 
   // Expanded
   state.showAllContenders = true;
   const expandedHtml = renderLeaderboard(evalResult, state);
   const expandedCards = (expandedHtml.match(/<div class="p-3 rounded-xl bg-slate-950/g) || []).length;
-  assert.equal(expandedCards, 36, 'Expanded leaderboard should show all 36 contenders');
-  assert.ok(expandedHtml.includes('All 36 distros'));
+  assert.equal(expandedCards, totalDistros, `Expanded leaderboard should show all ${totalDistros} contenders`);
+  assert.ok(expandedHtml.includes(`All ${totalDistros} distros`));
   assert.ok(expandedHtml.includes('▲ Show Top 6 Only'));
-  assert.ok(expandedHtml.includes('#36'));
+  assert.ok(expandedHtml.includes(`#${totalDistros}`));
 });
 
 test('Leaderboard Layout: live search filters contenders by name and tagline', () => {

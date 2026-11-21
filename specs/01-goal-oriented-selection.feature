@@ -102,10 +102,27 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the recommendation should highlight low-latency kernel, drawing tablet calibration, and pre-installed Krita and Blender
     And the recommendation should suggest modular add-ons such as DaVinci Resolve setup and PipeWire audio routing
 
+  Scenario: Beginner goal choices are ordered from everyday needs to specialized maker and hacker builds
+    Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
+    When the wizard presents "What do you want to build or accomplish?"
+    Then common everyday goals (Everyday Computer, Revive an Ancient PC, Home Office, Coding & Software Development, Browser Sandbox, Kid-Safe Computer) should appear before home/media goals
+    And home/media/gaming goals (including Music & Pro Audio Studio) should appear before self-hosting, maker appliances, and hacker/compute builds (Router, GPS, Kiosk, Hypervisor, AI/LLM, Mining, Privacy & Cybersecurity)
+
+  Scenario: Beginner wants coding, pro audio, or privacy/cybersecurity builds
+    Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
+    When the user selects "Coding & Software Development (VS Code, Git, Python, Node)"
+    Then the criteria should pre-select desktop developer apps (VS Code, Git, Python, Node.js)
+    When the user selects "Music Production, Podcasting & Pro Audio Studio (Ardour, PipeWire)"
+    Then the engine should enable realtime audio (realtimeAudio: true) and recommend "Ubuntu Studio"
+    When the user selects "Privacy, Anonymity & Cybersecurity (Tails / Kali Linux)"
+    Then the engine should recommend "Tails" for beginner amnesic privacy or "Kali Linux" for intermediate rolling pentesting
+
   Scenario: Maker or driver wants an offline in-car GPS or repurposed PND navigation appliance
     Given the user selects experience level "New to Linux & Open Source / Just have a goal in mind"
     When the user selects goal "In-Car GPS & Offline Navigation (Navit + OpenStreetMap)"
-    Then the engine should recommend a lightweight appliance distribution
+    Then the engine should pre-configure a screen-ready kiosk compositor (cage) with Navit and GPSd defaults
+    And the wizard should skip desktop-vs-headless and desktop layout prompts for this appliance goal
+    And the engine should recommend a lightweight appliance distribution
     And the generated recipe should support bundling "bootstrap-navigation.sh" with GPSd and Navit configuration
     And the recipe should support offline OpenStreetMap vector data and serial NMEA receiver auto-detection
 
@@ -119,7 +136,7 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
   Scenario: Adaptive Multi-Question Flow across Release Cadence, Display Mode, and Drivers
     Given the user progresses through the tailored question flow
     When navigating beyond basic goals and hardware platforms
-    Then the engine should adaptively prompt for display mode (Headless vs Graphical GUI)
+    Then the engine should adaptively prompt for display mode (Screen / Display Attached vs No Screen / Headless)
     And prompt for release update cadence (Stable Long-Term Support LTS vs Bleeding-Edge Rolling)
     And prompt for hardware driver preference (Seamless Proprietary vs 100% Free Software)
     And prompt for boot storage medium (NVMe/SSD vs SD Card/Flash vs Diskless PXE)

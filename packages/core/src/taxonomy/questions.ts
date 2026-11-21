@@ -53,11 +53,45 @@ export const QUESTIONS: Question[] = [
     },
     options: [
       {
-        id: 'retro_gaming_console',
-        label: 'Retro Gaming Console',
-        description: 'Play arcade, PS1, N64, SNES, and retro classics on your TV with game controllers',
-        icon: '🕹️',
-        appliesCriteria: { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal' }
+        id: 'daily_desktop',
+        label: 'Everyday Computer for School, Work, or Web',
+        description: 'Friendly desktop for web browsing, YouTube, and typing, completely immune to Windows malware',
+        icon: '💻',
+        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal' }
+      },
+      {
+        id: 'revive_old_pc',
+        label: 'Revive an Ancient, Slow Computer',
+        description: 'Make an ancient 10-20 year old PC or laptop with low RAM (512MB-2GB) snappy and fast again',
+        icon: '💨',
+        appliesCriteria: { useCase: 'desktop', footprint: 'minimal', platform: 'bare-metal' }
+      },
+      {
+        id: 'freelance_office_docs',
+        label: 'Home Office & Freelancing (Word, Excel, Invoicing, Zoom, Slack)',
+        description: 'Daily remote work driver: 100% Microsoft Office format fidelity (OnlyOffice/LibreOffice), PDF signing, and printer setup with zero Windows crashes',
+        icon: '💼',
+        appliesCriteria: { useCase: 'home-office', footprint: 'standard', platform: 'bare-metal', prefersGui: true }
+      },
+      {
+        id: 'coding_dev',
+        label: 'Coding & Software Development (VS Code, Git, Python, Node)',
+        description: 'Clean developer workstation with terminal tools, compilers, Git, Python/Node.js, and VS Code pre-wired',
+        icon: '👨‍💻',
+        appliesCriteria: {
+          useCase: 'desktop',
+          footprint: 'standard',
+          platform: 'bare-metal',
+          prefersGui: true,
+          desktopApps: ['vscode', 'git-dev', 'python', 'nodejs']
+        }
+      },
+      {
+        id: 'browser_wasm',
+        label: 'Try an OS right now in my web browser tab',
+        description: 'Test an operating system in a sandbox without installing anything or touching your hard drive',
+        icon: '🌐',
+        appliesCriteria: { useCase: 'browser-wasm', footprint: 'minimal', platform: 'browser-wasm' }
       },
       {
         id: 'kids_education',
@@ -67,11 +101,46 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'education-kids', footprint: 'standard', platform: 'bare-metal' }
       },
       {
+        id: 'retro_gaming_console',
+        label: 'Retro Gaming Console',
+        description: 'Play arcade, PS1, N64, SNES, and retro classics on your TV with game controllers',
+        icon: '🕹️',
+        appliesCriteria: { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal' }
+      },
+      {
+        id: 'modern_gaming',
+        label: 'Modern PC Gaming (Steam Deck / Couch Gaming)',
+        description: 'Play modern Steam, Epic, and indie PC games with a controller-friendly TV interface',
+        icon: '🎮',
+        appliesCriteria: { useCase: 'gaming', footprint: 'full', platform: 'bare-metal' }
+      },
+      {
         id: 'media_center',
         label: 'Living Room Media Center / TV Box (Kodi)',
         description: 'Turn an old PC or TV box into a dedicated media player controlled with a regular TV remote',
         icon: '📺',
         appliesCriteria: { useCase: 'media-center', footprint: 'minimal', platform: 'bare-metal' }
+      },
+      {
+        id: 'freelance_creative_graphics',
+        label: 'Graphic Design, 3D Art & Video Production (Blender, Krita, DaVinci)',
+        description: 'Creative workstation for freelance digital artists, video editors, and 3D animators with color-managed Wayland and GPU acceleration',
+        icon: '🎨',
+        appliesCriteria: { useCase: 'creative-studio', footprint: 'full', platform: 'bare-metal', prefersGui: true }
+      },
+      {
+        id: 'music_audio_studio',
+        label: 'Music Production, Podcasting & Pro Audio Studio (Ardour, PipeWire)',
+        description: 'Low-latency realtime audio workstation for DAWs, synthesizers, MIDI controllers, and crackle-free recording',
+        icon: '🎵',
+        appliesCriteria: { useCase: 'creative-studio', footprint: 'full', platform: 'bare-metal', prefersGui: true, realtimeAudio: true }
+      },
+      {
+        id: 'home_server',
+        label: 'Simple Home Server & Private Cloud',
+        description: 'Run Plex/Jellyfin media streaming, Pi-hole ad-blocking, or self-hosted apps on cheap low-power hardware',
+        icon: '🏠',
+        appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc' }
       },
       {
         id: 'nas_photo_backup',
@@ -88,25 +157,25 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'smart-home', footprint: 'lean', platform: 'embedded-sbc' }
       },
       {
-        id: 'appliance_product',
-        label: 'Dedicated Single-App Appliance / Custom Product',
-        description: 'Building a product where your app is the ONLY thing running (like Kodi or RetroPie, but for your custom Flutter, Qt, Web, or Python app)',
-        icon: '🛠️',
-        appliesCriteria: { useCase: 'appliance-product', footprint: 'minimal', platform: 'kiosk' }
+        id: 'cheap_router',
+        label: 'Home Router & Wi-Fi Firewall',
+        description: 'Turn an old PC or box into a fast home router, ditch ISP rental fees, and block ads network-wide',
+        icon: '📡',
+        appliesCriteria: { useCase: 'router-networking', footprint: 'micro', platform: 'router-firewall' }
       },
       {
         id: 'offline_navigation',
         label: 'In-Car GPS & Offline Navigation (Navit + OpenStreetMap)',
         description: 'Turn an old GPS (TomTom/WinCE), Raspberry Pi, or car touchscreen into a dedicated offline road & marine navigator with zero cellular fees',
         icon: '🧭',
-        appliesCriteria: { useCase: 'appliance-product', footprint: 'micro', platform: 'bare-metal' }
-      },
-      {
-        id: 'cheap_router',
-        label: 'Home Router & Wi-Fi Firewall',
-        description: 'Turn an old PC or box into a fast home router, ditch ISP rental fees, and block ads network-wide',
-        icon: '📡',
-        appliesCriteria: { useCase: 'router-networking', footprint: 'micro', platform: 'router-firewall' }
+        appliesCriteria: {
+          useCase: 'appliance-product',
+          footprint: 'micro',
+          platform: 'bare-metal',
+          prefersGui: true,
+          desktopEnv: 'cage',
+          navigationApps: ['navit', 'gpsd']
+        }
       },
       {
         id: 'shop_kiosk',
@@ -116,46 +185,18 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'kiosk-signage', footprint: 'lean', platform: 'kiosk' }
       },
       {
-        id: 'revive_old_pc',
-        label: 'Revive an Ancient, Slow Computer',
-        description: 'Make an ancient 10-20 year old PC or laptop with low RAM (512MB-2GB) snappy and fast again',
-        icon: '💨',
-        appliesCriteria: { useCase: 'desktop', footprint: 'minimal', platform: 'bare-metal' }
+        id: 'appliance_product',
+        label: 'Dedicated Single-App Appliance / Custom Product',
+        description: 'Building a product where your app is the ONLY thing running (like Kodi or RetroPie, but for your custom Flutter, Qt, Web, or Python app)',
+        icon: '🛠️',
+        appliesCriteria: { useCase: 'appliance-product', footprint: 'minimal', platform: 'kiosk' }
       },
       {
-        id: 'home_server',
-        label: 'Simple Home Server & Private Cloud',
-        description: 'Run Plex/Jellyfin, backup family photos, or run a 24/7 ad-blocker on cheap low-power hardware',
-        icon: '🏠',
-        appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc' }
-      },
-      {
-        id: 'daily_desktop',
-        label: 'Everyday Computer for School, Work, or Web',
-        description: 'Friendly desktop for web browsing, YouTube, and typing, completely immune to Windows malware',
-        icon: '💻',
-        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal' }
-      },
-      {
-        id: 'freelance_office_docs',
-        label: 'Home Office & Freelancing (Word, Excel, Invoicing, Zoom, Slack)',
-        description: 'Daily remote work driver: 100% Microsoft Office format fidelity (OnlyOffice/LibreOffice), PDF signing, and printer setup with zero Windows crashes',
-        icon: '💼',
-        appliesCriteria: { useCase: 'home-office', footprint: 'standard', platform: 'bare-metal', prefersGui: true }
-      },
-      {
-        id: 'freelance_creative_graphics',
-        label: 'Graphic Design, 3D Art & Video Production (Blender, Krita, DaVinci)',
-        description: 'Creative workstation for freelance digital artists, video editors, and 3D animators with color-managed Wayland and GPU acceleration',
-        icon: '🎨',
-        appliesCriteria: { useCase: 'creative-studio', footprint: 'full', platform: 'bare-metal', prefersGui: true }
-      },
-      {
-        id: 'modern_gaming',
-        label: 'Modern PC Gaming (Steam Deck / Couch Gaming)',
-        description: 'Play modern Steam, Epic, and indie PC games with a controller-friendly TV interface',
-        icon: '🎮',
-        appliesCriteria: { useCase: 'gaming', footprint: 'full', platform: 'bare-metal' }
+        id: 'homelab_virtualization',
+        label: 'Homelab Virtualization & Hypervisor Host (Proxmox / KVM / LXC)',
+        description: 'Run multiple isolated Linux/Windows virtual machines, Docker apps, and ZFS storage pools on a single powerful host or Craigslist server rack',
+        icon: '🖧',
+        appliesCriteria: { useCase: 'hypervisor-vms', footprint: 'standard', platform: 'server' }
       },
       {
         id: 'ai_ml_server',
@@ -172,18 +213,11 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'lean', platform: 'server' }
       },
       {
-        id: 'homelab_virtualization',
-        label: 'Homelab Virtualization & Hypervisor Host (Proxmox / KVM / LXC)',
-        description: 'Run multiple isolated Linux/Windows virtual machines, Docker apps, and ZFS storage pools on a single powerful host or Craigslist server rack',
-        icon: '🖧',
-        appliesCriteria: { useCase: 'hypervisor-vms', footprint: 'standard', platform: 'server' }
-      },
-      {
-        id: 'browser_wasm',
-        label: 'Try an OS right now in my web browser tab',
-        description: 'Test an operating system in a sandbox without installing anything or touching your hard drive',
-        icon: '🌐',
-        appliesCriteria: { useCase: 'browser-wasm', footprint: 'minimal', platform: 'browser-wasm' }
+        id: 'security_privacy',
+        label: 'Privacy, Anonymity & Cybersecurity (Tails / Kali Linux)',
+        description: 'Amnesic Tor privacy from a USB stick (Tails) or ethical hacking and penetration testing toolkit (Kali)',
+        icon: '🛡️',
+        appliesCriteria: { useCase: 'security-pentest', footprint: 'lean', platform: 'bare-metal', prefersGui: true }
       }
     ]
   },
@@ -203,11 +237,18 @@ export const QUESTIONS: Question[] = [
     },
     options: [
       {
-        id: 'iot_embedded',
-        label: 'IoT / Microcontroller / Embedded Hardware',
-        description: 'Single-board computers, sensors, routers, robotics, or extreme low-power boards',
-        icon: '🤖',
-        appliesCriteria: { useCase: 'iot-embedded', platform: 'embedded-sbc' }
+        id: 'desktop_gaming',
+        label: 'Workstation, Gaming, or Development',
+        description: 'Rich GUI desktop environment, audio/video, GPU acceleration, and dev tools',
+        icon: '🎮',
+        appliesCriteria: { useCase: 'desktop', platform: 'bare-metal', prefersGui: true }
+      },
+      {
+        id: 'server_cloud',
+        label: 'Cloud Server or Self-Hosted Homelab',
+        description: 'Reliable backend services, databases, web servers, or virtual machines',
+        icon: '🖧',
+        appliesCriteria: { useCase: 'server', platform: 'vm' }
       },
       {
         id: 'container_base',
@@ -224,25 +265,11 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'k8s-cluster', platform: 'k8s-node' }
       },
       {
-        id: 'kiosk_display',
-        label: 'Digital Signage / Web Kiosk / Public Terminal',
-        description: 'Locked-down appliance booting straight into full-screen browser or app',
-        icon: '🖥️',
-        appliesCriteria: { useCase: 'kiosk-signage', platform: 'kiosk' }
-      },
-      {
-        id: 'media_center',
-        label: 'Home Theater PC (HTPC) / Dedicated Media Center',
-        description: 'Boots directly into Kodi/Jellyfin with remote-control navigation and HW-accelerated video decoding',
-        icon: '📺',
-        appliesCriteria: { useCase: 'media-center', platform: 'bare-metal' }
-      },
-      {
-        id: 'education_kids',
-        label: 'Education, STEM & Kid-Safe Computing',
-        description: 'Locked-down, offline-capable environment with Scratch, Khan Academy, and child-safe controls',
-        icon: '🎓',
-        appliesCriteria: { useCase: 'education-kids', platform: 'bare-metal' }
+        id: 'hypervisor_virtualization',
+        label: 'Bare-Metal Hypervisor & VM Host (Proxmox VE / KVM / LXC / ZFS)',
+        description: 'Host dozens of virtual machines and containers on used enterprise rack servers with web GUI, ZFS, and cluster management',
+        icon: '🖧',
+        appliesCriteria: { useCase: 'hypervisor-vms', platform: 'server', footprint: 'standard' }
       },
       {
         id: 'nas_storage',
@@ -259,27 +286,6 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'smart-home', platform: 'embedded-sbc' }
       },
       {
-        id: 'appliance_product',
-        label: 'Dedicated Single-App Appliance / Hardware Product (Cage / Buildroot)',
-        description: 'Boots directly into a single full-screen application (Flutter, Qt, Web, Python) with zero desktop clutter and auto-restart',
-        icon: '🛠️',
-        appliesCriteria: { useCase: 'appliance-product', platform: 'kiosk' }
-      },
-      {
-        id: 'server_cloud',
-        label: 'Cloud Server or Self-Hosted Homelab',
-        description: 'Reliable backend services, databases, web servers, or virtual machines',
-        icon: '🖧',
-        appliesCriteria: { useCase: 'server', platform: 'vm' }
-      },
-      {
-        id: 'desktop_gaming',
-        label: 'Workstation, Gaming, or Development',
-        description: 'Rich GUI desktop environment, audio/video, GPU acceleration, and dev tools',
-        icon: '🎮',
-        appliesCriteria: { useCase: 'desktop', platform: 'bare-metal', prefersGui: true }
-      },
-      {
         id: 'home_office_workstation',
         label: 'Home Office & Freelancer Workstation (Office Suite, PDF, Web)',
         description: 'Turnkey productivity: 100% MS Office format fidelity, LibreOffice/OnlyOffice, PDF signing, Zoom/Slack, and rock-solid stability',
@@ -294,6 +300,41 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'creative-studio', platform: 'bare-metal', prefersGui: true }
       },
       {
+        id: 'media_center',
+        label: 'Home Theater PC (HTPC) / Dedicated Media Center',
+        description: 'Boots directly into Kodi/Jellyfin with remote-control navigation and HW-accelerated video decoding',
+        icon: '📺',
+        appliesCriteria: { useCase: 'media-center', platform: 'bare-metal' }
+      },
+      {
+        id: 'education_kids',
+        label: 'Education, STEM & Kid-Safe Computing',
+        description: 'Locked-down, offline-capable environment with Scratch, Khan Academy, and child-safe controls',
+        icon: '🎓',
+        appliesCriteria: { useCase: 'education-kids', platform: 'bare-metal' }
+      },
+      {
+        id: 'kiosk_display',
+        label: 'Digital Signage / Web Kiosk / Public Terminal',
+        description: 'Locked-down appliance booting straight into full-screen browser or app',
+        icon: '🖥️',
+        appliesCriteria: { useCase: 'kiosk-signage', platform: 'kiosk' }
+      },
+      {
+        id: 'appliance_product',
+        label: 'Dedicated Single-App Appliance / Hardware Product (Cage / Buildroot)',
+        description: 'Boots directly into a single full-screen application (Flutter, Qt, Web, Python) with zero desktop clutter and auto-restart',
+        icon: '🛠️',
+        appliesCriteria: { useCase: 'appliance-product', platform: 'kiosk' }
+      },
+      {
+        id: 'iot_embedded',
+        label: 'IoT / Microcontroller / Embedded Hardware',
+        description: 'Single-board computers, sensors, routers, robotics, or extreme low-power boards',
+        icon: '🤖',
+        appliesCriteria: { useCase: 'iot-embedded', platform: 'embedded-sbc' }
+      },
+      {
         id: 'ai_gpu_compute',
         label: 'AI / ML Training, Local LLM Inference & GPU Mining',
         description: 'Optimized for NVIDIA CUDA, AMD ROCm, PyTorch, vLLM, Ollama, and multi-GPU headless compute rigs',
@@ -301,11 +342,11 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'ai-gpu-compute', platform: 'server' }
       },
       {
-        id: 'hypervisor_virtualization',
-        label: 'Bare-Metal Hypervisor & VM Host (Proxmox VE / KVM / LXC / ZFS)',
-        description: 'Host dozens of virtual machines and containers on used enterprise rack servers with web GUI, ZFS, and cluster management',
-        icon: '🖧',
-        appliesCriteria: { useCase: 'hypervisor-vms', platform: 'server', footprint: 'standard' }
+        id: 'security_pentest',
+        label: 'Cybersecurity, Penetration Testing & Amnesic Privacy',
+        description: 'Security auditing, ethical hacking, network forensics (Kali), or Tor-routed amnesic live USB (Tails)',
+        icon: '🛡️',
+        appliesCriteria: { useCase: 'security-pentest', platform: 'bare-metal', prefersGui: true }
       },
       {
         id: 'browser_wasm',
@@ -562,13 +603,13 @@ export const QUESTIONS: Question[] = [
     ]
   },
 
-  // --- STEP 5: DISPLAY INTERFACE (GUI vs Headless) ---
+  // --- STEP 5: DISPLAY INTERFACE (Screen vs Headless) ---
   {
     id: 'display_mode',
     order: 5,
     isOptional: true,
-    prompt: 'Do you need a graphical desktop or a headless terminal-only system?',
-    subtext: 'A graphical desktop interface (Wayland / X11) vs lightweight headless server operations.',
+    prompt: 'Will this device have a screen attached, or run with no screen?',
+    subtext: 'Choose Screen if you are plugging in a monitor or touchscreen (desktop, kiosk, or full-screen app).',
     category: 'software',
     shouldAsk: (criteria) =>
       criteria.prefersGui === undefined &&
@@ -579,21 +620,21 @@ export const QUESTIONS: Question[] = [
       criteria.platform !== 'k8s-node',
     tip: {
       icon: '🖥️',
-      title: 'Graphical vs. Headless',
-      text: 'A graphical desktop adds 300MB–1GB of packages and Wayland/X11 compositors. A headless terminal OS uses 5x less RAM and boots instantly, perfect for remote SSH or servers.'
+      title: 'Screen vs. No Screen (Headless)',
+      text: 'Display drivers and a graphical interface add 300MB–1GB of packages. Running without a screen (headless) uses ~5x less RAM and boots faster—ideal for servers or devices managed over SSH or a web browser.'
     },
     options: [
       {
         id: 'graphical_desktop',
-        label: 'Graphical Desktop / Full Screen GUI',
-        description: 'Interactive mouse/touchscreen interface, web browsers, media playback, and desktop windows',
+        label: 'Screen / Display Attached (Desktop, Kiosk, or Touchscreen)',
+        description: 'Shows a graphical desktop, full-screen app, map, or dashboard on a connected monitor or touchscreen',
         icon: '🖼️',
         appliesCriteria: { prefersGui: true }
       },
       {
         id: 'headless_terminal',
-        label: 'Headless / Terminal & Remote SSH Only',
-        description: 'No display server; manage entirely via command line, SSH, or web dashboard for maximum speed',
+        label: 'No Screen (Headless / Remote SSH or Web Dashboard)',
+        description: 'No monitor or display server; manage entirely via terminal, SSH, or a web browser from another device',
         icon: '⌨️',
         appliesCriteria: { prefersGui: false }
       }
@@ -611,9 +652,13 @@ export const QUESTIONS: Question[] = [
     shouldAsk: (criteria) =>
       criteria.prefersGui === true &&
       criteria.workflowStyle === undefined &&
+      criteria.desktopEnv === undefined &&
+      criteria.useCase !== 'appliance-product' &&
+      criteria.useCase !== 'kiosk-signage' &&
       criteria.useCase !== 'browser-wasm' &&
       criteria.useCase !== 'container-base' &&
       criteria.useCase !== 'k8s-cluster' &&
+      criteria.platform !== 'kiosk' &&
       criteria.platform !== 'container' &&
       criteria.platform !== 'k8s-node',
     tip: {
@@ -955,19 +1000,19 @@ export const QUESTIONS: Question[] = [
     },
     options: [
       {
-        id: 'musl_busybox',
-        label: 'musl libc + BusyBox / OpenRC',
-        description: 'Maximum space savings, fastest cold boot, static linking friendly',
-        icon: '⚡',
-        appliesCriteria: { cLibPreference: 'musl', initPreference: 'openrc' }
-      },
-      {
         id: 'glibc_systemd',
         label: 'glibc + systemd',
         description: 'Broadest binary compatibility with commercial drivers and proprietary software',
         icon: '🏢',
         isDefault: true,
         appliesCriteria: { cLibPreference: 'glibc', initPreference: 'systemd' }
+      },
+      {
+        id: 'musl_busybox',
+        label: 'musl libc + BusyBox / OpenRC',
+        description: 'Maximum space savings, fastest cold boot, static linking friendly',
+        icon: '⚡',
+        appliesCriteria: { cLibPreference: 'musl', initPreference: 'openrc' }
       },
       {
         id: 'uclibc_nommu',

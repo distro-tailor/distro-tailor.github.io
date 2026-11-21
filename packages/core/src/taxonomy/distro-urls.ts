@@ -282,6 +282,20 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     platform: 'bare-metal',
     architecture: 'x86_64',
     workflowStyle: 'macos'
+  },
+  tails: {
+    experienceLevel: 'beginner',
+    useCase: 'security-pentest',
+    platform: 'bare-metal',
+    architecture: 'x86_64',
+    statePreference: 'stateless-ram'
+  },
+  'kali-linux': {
+    experienceLevel: 'intermediate',
+    useCase: 'security-pentest',
+    platform: 'vm',
+    architecture: 'x86_64',
+    releaseCadence: 'rolling'
   }
 };
 

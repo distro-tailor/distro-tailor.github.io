@@ -248,12 +248,20 @@ export function renderWizardQuestion(
               );
             }
 
+            const criteriaValueEquals = (a: unknown, b: unknown): boolean => {
+              if (a === b) return true;
+              if (Array.isArray(a) && Array.isArray(b)) {
+                return a.length === b.length && a.every((item, i) => item === b[i]);
+              }
+              return false;
+            };
+
             // 1. Strict exact match: all criteria applied by this option are defined and match state
             const exactMatches = question.options.filter(
               (o) =>
                 Object.entries(o.appliesCriteria).length > 0 &&
                 Object.entries(o.appliesCriteria).every(
-                  ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
+                  ([k, v]) => criteriaValueEquals((state.criteria as Record<string, unknown>)[k], v)
                 )
             );
             if (exactMatches.length > 0) {
@@ -263,31 +271,38 @@ export function renderWizardQuestion(
               return opt.id === best.id;
             }
 
-            // 2. Resilient partial match: options with no conflicts whose defined keys match state
-            const partialMatches = question.options.filter((o) => {
+            // 2. Resilient partial match: only when this question was already answered (e.g. a later step overwrote a secondary tag)
+            if (!state.answeredQuestionIds.has(question.id)) {
+              return false;
+            }
+
+            const scorePartialOption = (o: typeof question.options[number]) => {
               const entries = Object.entries(o.appliesCriteria);
-              if (entries.length === 0) return false;
-              const hasConflict = entries.some(
-                ([k, v]) =>
-                  (state.criteria as Record<string, unknown>)[k] !== undefined &&
-                  (state.criteria as Record<string, unknown>)[k] !== v
-              );
-              if (hasConflict) return false;
-              return entries.some(
-                ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
-              );
+              let matches = 0;
+              let conflicts = 0;
+              for (const [k, v] of entries) {
+                const current = (state.criteria as Record<string, unknown>)[k];
+                if (criteriaValueEquals(current, v)) {
+                  matches++;
+                } else if (current !== undefined) {
+                  conflicts++;
+                }
+              }
+              return { matches, conflicts, total: entries.length };
+            };
+
+            const partialMatches = question.options.filter((o) => {
+              const { matches, conflicts } = scorePartialOption(o);
+              return matches > 0 && matches > conflicts;
             });
 
             if (partialMatches.length > 0) {
               const best = partialMatches.sort((a, b) => {
-                const aMatches = Object.entries(a.appliesCriteria).filter(
-                  ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
-                ).length;
-                const bMatches = Object.entries(b.appliesCriteria).filter(
-                  ([k, v]) => (state.criteria as Record<string, unknown>)[k] === v
-                ).length;
-                if (bMatches !== aMatches) return bMatches - aMatches;
-                return Object.keys(b.appliesCriteria).length - Object.keys(a.appliesCriteria).length;
+                const sa = scorePartialOption(a);
+                const sb = scorePartialOption(b);
+                if (sb.matches !== sa.matches) return sb.matches - sa.matches;
+                if (sa.conflicts !== sb.conflicts) return sa.conflicts - sb.conflicts;
+                return sb.total - sa.total;
               })[0];
               return opt.id === best.id;
             }

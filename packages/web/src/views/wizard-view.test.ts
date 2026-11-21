@@ -287,4 +287,65 @@ test('Wizard View: displays quick filter input on questions with long option lis
   assert.ok(emptyHtml.includes('id="btn-reset-wizard-filter"'), 'Should provide clear filter button in empty state');
 });
 
+test('Wizard View: beginner_device does not falsely highlight Old Intel MacBook via partial bare-metal match before being answered', () => {
+  const deviceQuestion = QUESTIONS.find((q) => q.id === 'beginner_device')!;
+  assert.ok(deviceQuestion);
+
+  const stateAfterGoal: AppState = {
+    criteria: {
+      experienceLevel: 'beginner',
+      useCase: 'appliance-product',
+      footprint: 'micro',
+      platform: 'bare-metal',
+      prefersGui: true,
+      desktopEnv: 'cage',
+      navigationApps: ['navit', 'gpsd']
+    },
+    answeredQuestionIds: new Set(['user_familiarity', 'beginner_goal']),
+    activeTab: 'wizard',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+
+  const html = renderWizardQuestion(deviceQuestion, { current: 3, total: 8 }, stateAfterGoal);
+  assert.ok(!html.includes('✓ Selected'), 'Unanswered beginner_device must not auto-select old_macbook');
+  assert.ok(html.includes('★ Standard Default'), 'Standard default badge should be shown on standard_laptop');
+});
+
+test('Wizard View: returning from results to edit beginner_goal still highlights offline_navigation after device overwrote platform', () => {
+  const goalQuestion = QUESTIONS.find((q) => q.id === 'beginner_goal')!;
+  assert.ok(goalQuestion);
+
+  const stateFromResults: AppState = {
+    criteria: {
+      experienceLevel: 'beginner',
+      useCase: 'appliance-product',
+      footprint: 'micro',
+      platform: 'embedded-sbc',
+      architecture: 'arm64',
+      formFactor: 'sbc',
+      prefersGui: true,
+      desktopEnv: 'cage',
+      navigationApps: ['navit', 'gpsd']
+    },
+    answeredQuestionIds: new Set(['user_familiarity', 'beginner_goal', 'beginner_device']),
+    activeTab: 'wizard',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+
+  const html = renderWizardQuestion(goalQuestion, { current: 2, total: 8 }, stateFromResults);
+  const selectedMatches = html.match(/✓ Selected/g) || [];
+  assert.equal(selectedMatches.length, 1, 'Expected exactly one selected goal when returning to edit');
+  assert.ok(html.includes('In-Car GPS &amp; Offline Navigation') || html.includes('In-Car GPS & Offline Navigation'));
+});
+
 

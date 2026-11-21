@@ -1,7 +1,7 @@
 # 🎯 DistroTailor Archetype Matrix Audit Report
 
 > **Automated Sanity & AI Evaluation Matrix**
-> Generated: `2026-11-14T04:04:53.376Z` | Evaluated Archetypes: **27** | Status: **✅ ALL CHECKS HEALTHY**
+> Generated: `2026-11-21T12:49:25.261Z` | Evaluated Archetypes: **27** | Status: **✅ ALL CHECKS HEALTHY**
 
 ## 📊 Executive Summary
 
@@ -48,7 +48,7 @@
 | Status | Archetype | Hardware / Constraints | 🥇 Top Winner | ⚡ Build Recipe / VM Target | 🔗 Permalink (URL State) |
 | :---: | :--- | :--- | :--- | :--- | :--- |
 | 🟢 PASS | **Microcontroller / NOMMU Hardware (<32MB)**<br>_Extreme micro footprint for microcontrollers without an MMU running from raw SPI flash._ | `nommu • micro` | **Buildroot** (100%) | **Cross-Compiled Embedded Linux (Buildroot)**<br><code>sudo apt-get install -y build-essential bison flex libncurses-dev rsync</code> | [`Load Persona`](?v=1&tab=results&experienceLevel=systems-engineer&architecture=nommu&footprint=micro&useCase=iot-embedded) |
-| 🟢 PASS | **Minimal Container Base (Docker / OCI)**<br>_Zero-CVE micro-image for packaging Go/Rust/Node microservices with zero shell or package manager bloat._ | `any-arch • container • minimal` | **Alpine Linux** (100%) | **Ultra-Minimal Alpine musl/OpenRC RootFS**<br><code>sudo make</code> | [`Load Persona`](?v=1&tab=results&experienceLevel=intermediate&useCase=container-base&footprint=minimal&platform=container) |
+| 🟢 PASS | **Minimal Container Base (Docker / OCI)**<br>_Zero-CVE micro-image for packaging Go/Rust/Node microservices with zero shell or package manager bloat._ | `any-arch • container • minimal` | **Alpine Linux** (100%) | **Ultra-Minimal Alpine musl/OpenRC RootFS**<br><code>sudo make  # Linux host (or: make docker-build on macOS / Windows / cross-arch)</code> | [`Load Persona`](?v=1&tab=results&experienceLevel=intermediate&useCase=container-base&footprint=minimal&platform=container) |
 | 🟢 PASS | **Public Web Kiosk / Digital Signage**<br>_Locked-down, tamper-proof full-screen browser terminal for hotel lobby or digital sign board._ | `x86_64 • kiosk` | **Porteus Kiosk** (100%) | **Locked-Down Wayland Web Kiosk (Alpine + Cage)**<br><code>sudo make KIOSK_URL="https://your-dashboard.com"</code> | [`Load Persona`](?v=1&tab=results&experienceLevel=beginner&useCase=kiosk-signage&platform=kiosk&architecture=x86_64&prefersGui=true) |
 | 🟡 REVIEW | **Single-App Appliance / Touch POS Screen**<br>_Boots directly into one dedicated Wayland application with silent splash screen and auto-restart._ | `x86_64` | **ReactOS** (100%) | <em>Turnkey Official Image</em> | [`Load Persona`](?v=1&tab=results&experienceLevel=intermediate&useCase=appliance-product&architecture=x86_64&prefersGui=true) |
 | 🟢 PASS | **In-Browser WebAssembly Linux**<br>_Running a virtual x86 PC purely inside a web browser tab without local installation._ | `any-arch • browser-wasm` | **WebVM / v86 (Linux in WebAssembly)** (100%) | **In-Browser WebAssembly Linux (v86)**<br><code>make</code> | [`Load Persona`](?v=1&tab=results&experienceLevel=beginner&useCase=browser-wasm&platform=browser-wasm) |

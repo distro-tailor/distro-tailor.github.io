@@ -31,7 +31,8 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     server: { label: 'Home Server & Cloud', icon: '🏠' },
     'container-base': { label: 'Container Base Image', icon: '🐳' },
     'k8s-cluster': { label: 'Kubernetes Cluster Node', icon: '☸️' },
-    'iot-embedded': { label: 'IoT & Microcontrollers', icon: '🤖' }
+    'iot-embedded': { label: 'IoT & Microcontrollers', icon: '🤖' },
+    'security-pentest': { label: 'Cybersecurity & Privacy', icon: '🛡️' }
   },
   platform: {
     'bare-metal': { label: 'Physical PC / Laptop', icon: '💻' },

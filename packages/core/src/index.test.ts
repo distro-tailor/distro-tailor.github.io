@@ -525,9 +525,9 @@ test('Matcher: RAM constraints evaluate maxRamMb against minRamMb', () => {
   assert.equal(ramReason.matched, true);
 });
 
-test('Matcher: allMatches contains all 36 registered distributions ranked', () => {
+test('Matcher: allMatches contains all 38 registered distributions ranked', () => {
   const result = evaluateCriteria({});
-  assert.equal(result.allMatches.length, 36);
+  assert.equal(result.allMatches.length, 38);
   assert.equal(result.topMatches.length, 5);
   // Unconstrained baseline recommends Linux Mint at 100% instead of arbitrary Alpine 0%
   assert.equal(result.bestMatch.distro.id, 'linux-mint');
@@ -603,6 +603,75 @@ test('QuestionFlow: Presents expanded questions (display mode, release cadence, 
   assert.ok(eligible.some(q => q.id === 'driver_philosophy'), 'Must include driver_philosophy');
   assert.ok(eligible.some(q => q.id === 'boot_medium'), 'Must include boot_medium');
   assert.ok(eligible.some(q => q.id === 'audio_latency'), 'Must include audio_latency');
+});
+
+test('QuestionFlow: offline_navigation applies screen-ready cage + Navit/GPSd defaults and skips display/desktop prompts', () => {
+  const goalQuestion = QUESTIONS.find(q => q.id === 'beginner_goal');
+  assert.ok(goalQuestion, 'beginner_goal question must exist');
+  const navOption = goalQuestion.options.find(o => o.id === 'offline_navigation');
+  assert.ok(navOption, 'offline_navigation option must exist');
+
+  assert.equal(navOption.appliesCriteria.prefersGui, true);
+  assert.equal(navOption.appliesCriteria.desktopEnv, 'cage');
+  assert.deepEqual(navOption.appliesCriteria.navigationApps, ['navit', 'gpsd']);
+
+  const flow = new QuestionFlow(QUESTIONS);
+  const eligible = flow.getEligibleQuestions({
+    experienceLevel: 'beginner',
+    ...navOption.appliesCriteria
+  });
+
+  assert.ok(!eligible.some(q => q.id === 'display_mode'), 'Must skip display_mode for offline_navigation');
+  assert.ok(!eligible.some(q => q.id === 'desktop_workflow_style'), 'Must skip desktop_workflow_style for offline_navigation');
+});
+
+test('QuestionFlow: beginner_goal orders everyday beginner choices before home/media and maker/hacker builds', () => {
+  const goalQuestion = QUESTIONS.find(q => q.id === 'beginner_goal');
+  assert.ok(goalQuestion, 'beginner_goal question must exist');
+  const ids = goalQuestion.options.map(o => o.id);
+
+  assert.equal(ids[0], 'daily_desktop', 'Everyday Computer should be the first beginner goal');
+  assert.ok(ids.indexOf('revive_old_pc') < ids.indexOf('retro_gaming_console'));
+  assert.ok(ids.indexOf('freelance_office_docs') < ids.indexOf('home_server'));
+  assert.ok(ids.indexOf('retro_gaming_console') < ids.indexOf('offline_navigation'));
+  assert.ok(ids.indexOf('home_server') < ids.indexOf('homelab_virtualization'));
+  assert.ok(ids.indexOf('offline_navigation') < ids.indexOf('crypto_mining_rig'));
+
+  const techUseCase = QUESTIONS.find(q => q.id === 'technical_use_case');
+  assert.ok(techUseCase, 'technical_use_case question must exist');
+  const techIds = techUseCase.options.map(o => o.id);
+  assert.equal(techIds[0], 'desktop_gaming');
+  assert.ok(techIds.indexOf('server_cloud') < techIds.indexOf('iot_embedded'));
+
+  const cLibQuestion = QUESTIONS.find(q => q.id === 'c_library_and_init');
+  assert.ok(cLibQuestion, 'c_library_and_init question must exist');
+  assert.equal(cLibQuestion.options[0].id, 'glibc_systemd');
+  assert.equal(cLibQuestion.options[0].isDefault, true);
+});
+
+test('QuestionFlow & Matcher: coding_dev, music_audio_studio, and security_privacy goals map cleanly', () => {
+  const goalQuestion = QUESTIONS.find(q => q.id === 'beginner_goal')!;
+  const codingOpt = goalQuestion.options.find(o => o.id === 'coding_dev')!;
+  const audioOpt = goalQuestion.options.find(o => o.id === 'music_audio_studio')!;
+  const secOpt = goalQuestion.options.find(o => o.id === 'security_privacy')!;
+
+  assert.deepEqual(codingOpt.appliesCriteria.desktopApps, ['vscode', 'git-dev', 'python', 'nodejs']);
+  assert.equal(audioOpt.appliesCriteria.realtimeAudio, true);
+  assert.equal(secOpt.appliesCriteria.useCase, 'security-pentest');
+
+  const audioRes = evaluateCriteria({ experienceLevel: 'beginner', ...audioOpt.appliesCriteria });
+  assert.equal(audioRes.bestMatch.distro.id, 'ubuntu-studio');
+
+  const tailsRes = evaluateCriteria({ experienceLevel: 'beginner', ...secOpt.appliesCriteria });
+  assert.equal(tailsRes.bestMatch.distro.id, 'tails');
+
+  const kaliRes = evaluateCriteria({
+    experienceLevel: 'intermediate',
+    useCase: 'security-pentest',
+    platform: 'vm',
+    releaseCadence: 'rolling'
+  });
+  assert.equal(kaliRes.bestMatch.distro.id, 'kali-linux');
 });
 
 test('QuestionFlow & Matcher: Evaluates desktop workflow familiarity (Windows, macOS, Mobile/Touch)', () => {
