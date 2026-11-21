@@ -609,7 +609,7 @@ export const QUESTIONS: Question[] = [
     order: 5,
     isOptional: true,
     prompt: 'Will this device have a screen attached, or run with no screen?',
-    subtext: 'Choose Screen if you are plugging in a monitor or touchscreen (desktop, kiosk, or full-screen app).',
+    subtext: 'Choose Screen if you are plugging in a monitor, TV, or touchscreen (desktop, media center, kiosk, or full-screen app).',
     category: 'software',
     shouldAsk: (criteria) =>
       criteria.prefersGui === undefined &&
@@ -626,8 +626,8 @@ export const QUESTIONS: Question[] = [
     options: [
       {
         id: 'graphical_desktop',
-        label: 'Screen / Display Attached (Desktop, Kiosk, or Touchscreen)',
-        description: 'Shows a graphical desktop, full-screen app, map, or dashboard on a connected monitor or touchscreen',
+        label: 'Screen / Display Attached (Monitor, TV, or Touchscreen)',
+        description: 'Shows a desktop, TV media center (Kodi), full-screen app, map, or dashboard on a connected screen',
         icon: '🖼️',
         appliesCriteria: { prefersGui: true }
       },
