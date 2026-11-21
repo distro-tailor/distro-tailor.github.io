@@ -286,3 +286,20 @@ test('Results View: Chromebooks get the built-in Linux route and the MrChromebox
   assert.ok(html.includes('mrchromebox.tech'));
   assert.ok(html.includes('data-caveat-id="school-managed-chromebook"'));
 });
+
+test('Results View: legal notes and the distro modal carry the "not legal advice" disclaimer', () => {
+  const criteria = { useCase: 'security-pentest' as const };
+  const state: AppState = {
+    criteria,
+    answeredQuestionIds: new Set(['user_familiarity']),
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const html = renderResultsView(evaluateCriteria(criteria), state);
+  assert.ok(html.includes('For information only, not legal advice.'));
+});

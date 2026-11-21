@@ -1,4 +1,4 @@
-import { LegalCaveat } from '@distro-tailor/core';
+import { LEGAL_NOTES_DISCLAIMER, LegalCaveat } from '@distro-tailor/core';
 import { escapeHtml } from '../utils/dom.js';
 
 /**
@@ -26,6 +26,7 @@ export function renderLegalCaveats(caveats: readonly LegalCaveat[], compact = fa
       <div class="legal-caveats bg-sky-950/20 border border-sky-900/40 rounded-xl p-3.5 text-xs mb-5">
         <h4 class="font-bold text-sky-300 mb-2">Legal notes</h4>
         <ul class="space-y-2 text-slate-300">${items}</ul>
+        <p class="legal-disclaimer text-[10px] text-slate-500 mt-2.5 italic">${escapeHtml(LEGAL_NOTES_DISCLAIMER)}</p>
       </div>`;
   }
 
@@ -34,5 +35,6 @@ export function renderLegalCaveats(caveats: readonly LegalCaveat[], compact = fa
       <h3 class="text-sm sm:text-base font-bold text-sky-200 mb-1">Before you start: legal notes</h3>
       <p class="text-[11px] text-slate-400 mb-3 break-words">Everything recommended here is free to use. These are the legal catches worth knowing for your setup.</p>
       <ul class="space-y-2.5 text-xs text-slate-300">${items}</ul>
+      <p class="legal-disclaimer text-[10px] text-slate-500 mt-3 italic break-words">${escapeHtml(LEGAL_NOTES_DISCLAIMER)}</p>
     </section>`;
 }

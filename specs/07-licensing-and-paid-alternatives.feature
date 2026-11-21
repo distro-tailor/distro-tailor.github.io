@@ -143,3 +143,9 @@ Feature: Free & Open-Source Licensing Policy and Paid Alternatives
     Then the image card should explain installing the firmware for the exact router model from the router's own web interface
     And the results should not offer desktop apps or Docker add-ons
     And the hardware chip should read "Low-Power Hardware" rather than describing an old PC
+
+  Scenario: Legal and pricing notes are information, not legal advice
+    Given any results page, distro detail window, or CLI output shows legal notes
+    Then they should carry the disclaimer "For information only, not legal advice"
+    And point to the linked source or a qualified professional for the user's own situation
+    And the paid alternatives section should say prices and terms are summarised for information and may change

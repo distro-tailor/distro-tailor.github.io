@@ -12,7 +12,8 @@ import {
   UserCriteria,
   migrateUrlParameters,
   deserializeCriteriaFromParams,
-  sanitizeCriteria
+  sanitizeCriteria,
+  LEGAL_NOTES_DISCLAIMER
 } from '@distro-tailor/core';
 import { runInteractiveWizard } from './wizard.js';
 
@@ -128,6 +129,7 @@ program
       for (const caveat of result.legalCaveats) {
         console.log(`  - ${caveat.title}: ${caveat.text}${caveat.sourceUrl ? ` (${caveat.sourceUrl})` : ''}`);
       }
+      console.log(pc.dim(`  ${LEGAL_NOTES_DISCLAIMER}`));
     }
 
     if (result.paidAlternatives.length > 0) {

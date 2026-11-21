@@ -23,7 +23,7 @@ export function renderPaidAlternatives(alternatives: readonly PaidAlternative[])
           <div>
             <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">Paid alternatives (not recommended)</h3>
             <p class="text-xs text-slate-400 mt-0.5 break-words">
-              DistroTailor only recommends free and open-source systems. These well-known options charge for, or close the source of, the feature you chose. They're listed for comparison only.
+              DistroTailor only recommends free and open-source systems. These well-known options charge for, or close the source of, the feature you chose. They're listed for comparison only; prices and terms are summarised for information and may change.
             </p>
           </div>
         </div>

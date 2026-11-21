@@ -96,6 +96,7 @@ test('CLI recommend: prints legal notes for setups with a legal catch', () => {
   assert.equal(code, 0);
   assert.ok(stdout.includes('Legal notes:'));
   assert.ok(stdout.includes('Test only what you are allowed to test'));
+  assert.ok(stdout.includes('For information only, not legal advice.'));
 });
 
 test('CLI recommend: --deployment-site home drops the NVIDIA datacenter note', () => {

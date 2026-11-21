@@ -1,6 +1,12 @@
 import { LegalCaveat, UserCriteria } from '../types.js';
 
 /**
+ * Shown with every set of legal notes. DistroTailor gives general information, not legal advice.
+ */
+export const LEGAL_NOTES_DISCLAIMER =
+  'For information only, not legal advice. Laws, licences, and prices change and differ by country; check the linked source or a qualified professional for your situation.';
+
+/**
  * Legal catches users should know up front. Everything DistroTailor recommends is free to use,
  * but some uses of it are not legal everywhere. Keep each caveat short, factual, and sourced.
  */

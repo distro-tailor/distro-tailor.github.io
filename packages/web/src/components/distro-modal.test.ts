@@ -35,3 +35,8 @@ test('Distro Modal: shows the licence and any legal notes for the distro', () =>
   assert.ok(plain.includes('Licence:'));
   assert.ok(!plain.includes('Legal notes'));
 });
+
+test('Distro Modal: legal notes say they are information, not legal advice', () => {
+  const kali = DISTRO_REGISTRY.find((d) => d.id === 'kali-linux')!;
+  assert.ok(renderDistroDetailModal(kali).includes('For information only, not legal advice.'));
+});
