@@ -128,6 +128,22 @@ export interface DistroLicensing {
 }
 
 /**
+ * A legal "catch" the user should know before relying on a recommendation (ROM ownership,
+ * authorized-use-only tools, driver licence limits). Shown up front so nobody gets in trouble.
+ */
+export interface LegalCaveat {
+  id: string;
+  title: string;
+  text: string;
+  /** Always shown for these distros, on results and on their detail page. */
+  distroIds?: readonly string[];
+  /** Shown on results when the user's criteria match, whatever the top pick is. */
+  appliesTo?: (criteria: UserCriteria) => boolean;
+  /** Primary source for the claim (licence text, official docs). */
+  sourceUrl?: string;
+}
+
+/**
  * A system that needs payment or a closed-source license for the feature the user chose. Never
  * recommended as the result; shown as an alternative with caveats beside the free options.
  */
@@ -454,4 +470,6 @@ export interface RecommendationOutput {
   summaryText: string;
   /** Paid/closed systems for the chosen use case, shown only as caveated alternatives. */
   paidAlternatives: PaidAlternative[];
+  /** Legal catches for the top match and the chosen criteria. */
+  legalCaveats: LegalCaveat[];
 }

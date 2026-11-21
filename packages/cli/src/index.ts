@@ -121,6 +121,13 @@ program
       console.log(`     Link: ${pc.blue(m.distro.website)}`);
     });
 
+    if (result.legalCaveats.length > 0) {
+      console.log(pc.bold('\nLegal notes:'));
+      for (const caveat of result.legalCaveats) {
+        console.log(`  - ${caveat.title}: ${caveat.text}${caveat.sourceUrl ? ` (${caveat.sourceUrl})` : ''}`);
+      }
+    }
+
     if (result.paidAlternatives.length > 0) {
       console.log(pc.bold('\nPaid alternatives (not recommended, for comparison only):'));
       for (const alt of result.paidAlternatives) {

@@ -219,3 +219,24 @@ test('Results View: paid alternatives appear only as caveated comparisons beside
   const desktop = evaluateCriteria({ useCase: 'desktop' });
   assert.ok(!renderResultsView(desktop, { ...state, criteria: { useCase: 'desktop' } }).includes('id="paid-alternatives"'));
 });
+
+test('Results View: legal notes appear when the setup has a legal catch', () => {
+  const base: AppState = {
+    criteria: { useCase: 'ai-gpu-compute', platform: 'server', prefersGui: false },
+    answeredQuestionIds: new Set(['user_familiarity']),
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const html = renderResultsView(evaluateCriteria(base.criteria), base);
+  assert.ok(html.includes('id="legal-caveats"'));
+  assert.ok(html.includes('data-caveat-id="nvidia-geforce-datacenter"'));
+  assert.ok(html.includes('https://www.nvidia.com/en-us/drivers/geforce-license/'));
+
+  const office = { ...base, criteria: { useCase: 'home-office' as const } };
+  assert.ok(!renderResultsView(evaluateCriteria(office.criteria), office).includes('id="legal-caveats"'));
+});

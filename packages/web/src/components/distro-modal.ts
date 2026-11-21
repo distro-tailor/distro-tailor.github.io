@@ -1,4 +1,5 @@
-import { DistroProfile, getDistroTargetUrl, RecommendationOutput } from '@distro-tailor/core';
+import { DistroProfile, getDistroLegalCaveats, getDistroTargetUrl, RecommendationOutput } from '@distro-tailor/core';
+import { renderLegalCaveats } from './legal-caveats.js';
 import { AppState } from '../types.js';
 import { escapeHtml } from '../utils/dom.js';
 import { formatOsEcosystem } from '../utils/formatters.js';
@@ -117,6 +118,12 @@ export function renderDistroDetailModal(
             </ul>
           </div>
         </div>
+
+        <!-- Licence and legal notes -->
+        <p class="distro-licensing text-[11px] text-slate-400 mb-3 break-words">
+          <strong class="text-slate-300">Licence:</strong> ${escapeHtml(distro.licensing.license)}${distro.licensing.note ? ` · ${escapeHtml(distro.licensing.note)}` : ''}
+        </p>
+        ${renderLegalCaveats(getDistroLegalCaveats(distro.id), true)}
 
         <!-- Official Links and Footer -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-800">

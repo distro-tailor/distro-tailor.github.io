@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ALLOWED_LICENSE_MODELS, DISTRO_REGISTRY } from './distros.js';
 import { PAID_ALTERNATIVES } from './paid-alternatives.js';
+import { getDistroLegalCaveats, LEGAL_CAVEATS } from './legal-caveats.js';
 import { evaluateCriteria } from '../engine/matcher.js';
 import { DistroProfile } from '../types.js';
 
@@ -64,4 +65,28 @@ test('Matcher: a paid or closed-core system is never scored, even with a perfect
   };
   const result = evaluateCriteria({ useCase: 'ai-gpu-compute' }, [paid, ...DISTRO_REGISTRY]);
   assert.ok(!result.allMatches.some((m) => m.distro.id === 'paid-perfect-fit'));
+});
+
+test('Legal caveats: every caveat targets something and every distro id exists', () => {
+  const registryIds = new Set(DISTRO_REGISTRY.map((d) => d.id));
+  for (const caveat of LEGAL_CAVEATS) {
+    assert.ok(caveat.distroIds?.length || caveat.appliesTo, `${caveat.id} must target distros or criteria`);
+    for (const id of caveat.distroIds ?? []) assert.ok(registryIds.has(id), `${caveat.id} targets unknown distro ${id}`);
+    assert.ok(caveat.title.length > 0 && caveat.text.length > 0);
+  }
+});
+
+test('Legal caveats: surfaced for the top match and the chosen criteria', () => {
+  const ids = (c: Parameters<typeof evaluateCriteria>[0]) => evaluateCriteria(c).legalCaveats.map((x) => x.id);
+
+  assert.ok(ids({ useCase: 'gaming', footprint: 'lean', platform: 'bare-metal' }).includes('game-roms-and-bios'));
+  assert.ok(ids({ useCase: 'security-pentest' }).includes('authorized-security-testing'));
+  const gpu = ids({ useCase: 'ai-gpu-compute', platform: 'server', prefersGui: false });
+  assert.ok(gpu.includes('nvidia-geforce-datacenter'));
+  assert.ok(gpu.includes('crypto-mining-law'));
+  assert.ok(ids({ useCase: 'media-center' }).includes('kodi-third-party-addons'));
+  assert.deepEqual(ids({ useCase: 'home-office' }), []);
+
+  assert.deepEqual(getDistroLegalCaveats('tails').map((c) => c.id), ['tor-restrictions']);
+  assert.deepEqual(getDistroLegalCaveats('debian'), []);
 });

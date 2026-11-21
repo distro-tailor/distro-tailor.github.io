@@ -7,6 +7,7 @@ import {
 } from '../types.js';
 import { ALLOWED_LICENSE_MODELS, DISTRO_REGISTRY } from '../taxonomy/distros.js';
 import { getPaidAlternatives } from '../taxonomy/paid-alternatives.js';
+import { getLegalCaveats } from '../taxonomy/legal-caveats.js';
 import {
   AffinityTier,
   BOOT_MEDIUM_AFFINITIES,
@@ -497,6 +498,7 @@ export function evaluateCriteria(
     customRecipeAvailable: !!recommendedRecipe,
     recommendedRecipe,
     summaryText: summary,
-    paidAlternatives: getPaidAlternatives(criteria)
+    paidAlternatives: getPaidAlternatives(criteria),
+    legalCaveats: getLegalCaveats(criteria, bestMatch.distro.id)
   };
 }

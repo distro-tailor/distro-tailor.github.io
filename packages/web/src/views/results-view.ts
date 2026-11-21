@@ -1,6 +1,7 @@
 import { RecommendationOutput } from '@distro-tailor/core';
 import { renderAlternativeComparisons } from '../components/alternatives.js';
 import { renderPaidAlternatives } from '../components/paid-alternatives.js';
+import { renderLegalCaveats } from '../components/legal-caveats.js';
 import { getAddonCombos } from '../components/app-suites.js';
 import { renderAppSuitePanel } from '../components/results/app-suite-panel.js';
 import { renderBlueprintSummary } from '../components/results/blueprint-summary.js';
@@ -62,6 +63,8 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
       ${renderWinnerBanner(ctx)}
 
       ${renderBlueprintSummary(ctx)}
+
+      ${renderLegalCaveats(evaluation.legalCaveats)}
 
       <!-- 💡 Data-Driven Comparison: Why This Over Common Alternatives (e.g. Mint vs Ubuntu, Fedora vs RHEL) -->
       ${renderAlternativeComparisons(best.distro)}

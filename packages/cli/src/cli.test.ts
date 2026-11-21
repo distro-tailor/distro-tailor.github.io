@@ -90,3 +90,10 @@ test('CLI recommend: paid systems are listed only as caveated alternatives', () 
   assert.notEqual(result.bestMatch.distro.id, 'unraid');
   assert.deepEqual(result.paidAlternatives.map((a: { id: string }) => a.id), ['unraid']);
 });
+
+test('CLI recommend: prints legal notes for setups with a legal catch', () => {
+  const { code, stdout } = runCli(['recommend', '--use-case', 'security-pentest']);
+  assert.equal(code, 0);
+  assert.ok(stdout.includes('Legal notes:'));
+  assert.ok(stdout.includes('Test only what you are allowed to test'));
+});

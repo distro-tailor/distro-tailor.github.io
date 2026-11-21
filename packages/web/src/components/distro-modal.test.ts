@@ -22,3 +22,16 @@ test('Distro Modal: renders complete profile with specs, strengths, tradeoffs an
   assert.ok(html.includes('data-load-distro="linux-mint"'));
   assert.ok(html.includes('Load Match'));
 });
+
+test('Distro Modal: shows the licence and any legal notes for the distro', () => {
+  const kali = DISTRO_REGISTRY.find((d) => d.id === 'kali-linux')!;
+  const html = renderDistroDetailModal(kali);
+  assert.ok(html.includes('Licence:'));
+  assert.ok(html.includes('Legal notes'));
+  assert.ok(html.includes('data-caveat-id="authorized-security-testing"'));
+
+  const debian = DISTRO_REGISTRY.find((d) => d.id === 'debian')!;
+  const plain = renderDistroDetailModal(debian);
+  assert.ok(plain.includes('Licence:'));
+  assert.ok(!plain.includes('Legal notes'));
+});
