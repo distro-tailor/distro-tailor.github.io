@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { evaluateCriteria } from '@distro-tailor/core';
 import { renderResultsView } from './results-view.js';
+import { describeOpenQuestions } from '../components/results/results-change-banner.js';
 import { AppState } from '../state/store.js';
 
 test('Results View: renders progressive disclosure accordions for advanced app layers and tooling', () => {
@@ -132,4 +133,65 @@ test('Results View: verification ladder adapts QEMU and deployment guidance to a
   assert.match(html, /make docker-build/);
   assert.match(html, /qemu-system-aarch64/);
   assert.match(html, /SBC SD Card/);
+});
+
+test('Results View: after an edit, the banner names the old and new top match and the changed choices', () => {
+  const criteria = { experienceLevel: 'beginner' as const, useCase: 'education-kids' as const, platform: 'embedded-sbc' as const, architecture: 'arm64' as const, formFactor: 'sbc' as const, prefersGui: true };
+  const before = { ...criteria, platform: 'bare-metal' as const, architecture: 'x86_64' as const, formFactor: 'desktop' as const };
+  const state: AppState = {
+    criteria,
+    answeredQuestionIds: new Set(['user_familiarity', 'beginner_goal', 'beginner_device', 'beginner_memory', 'release_cadence', 'driver_philosophy', 'desktop_workflow_style', 'attached_peripherals', 'display_mode', 'audio_latency', 'boot_medium']),
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false,
+    resultsBaseline: { distroId: evaluateCriteria(before).bestMatch.distro.id, criteria: before }
+  };
+  const evaluation = evaluateCriteria(criteria);
+  assert.equal(evaluation.bestMatch.distro.id, 'raspberry-pi-os');
+  const html = renderResultsView(evaluation, state);
+  assert.ok(html.includes('id="results-change-banner"'));
+  assert.ok(html.includes('Top match changed:'));
+  assert.ok(html.includes('→ Raspberry Pi OS'));
+  assert.ok(html.includes('Your edits:'));
+  assert.ok(html.includes('btn-dismiss-change-banner'));
+});
+
+test('Results View: change banner offers unlocked questions and stays hidden without a baseline', () => {
+  const criteria = { experienceLevel: 'intermediate' as const, useCase: 'desktop' as const, platform: 'bare-metal' as const };
+  const base: AppState = {
+    criteria,
+    answeredQuestionIds: new Set(['user_familiarity', 'technical_use_case']),
+    activeTab: 'results',
+    flowMode: 'expert',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const evaluation = evaluateCriteria(criteria);
+  assert.ok(!renderResultsView(evaluation, base).includes('results-change-banner'));
+
+  const withBaseline: AppState = { ...base, resultsBaseline: { distroId: evaluation.bestMatch.distro.id, criteria } };
+  const html = renderResultsView(evaluation, withBaseline);
+  assert.ok(html.includes('Top match unchanged:'));
+  assert.ok(html.includes('still unanswered could refine this match'), 'nothing was unlocked by an edit here');
+  assert.ok(html.includes('id="btn-answer-unlocked"'));
+
+  // A baseline where display questions were not yet eligible: the edit genuinely unlocked them
+  const unlockedState: AppState = {
+    ...base,
+    resultsBaseline: { distroId: evaluation.bestMatch.distro.id, criteria: { experienceLevel: 'intermediate', useCase: 'container-base', platform: 'container' } }
+  };
+  assert.ok(renderResultsView(evaluation, unlockedState).includes('Your edit unlocked'));
+});
+
+test('Results View: open-question copy distinguishes unlocked from still-unanswered', () => {
+  assert.equal(describeOpenQuestions(3, 0), '3 questions still unanswered could refine this match.');
+  assert.equal(describeOpenQuestions(1, 1), 'Your edit unlocked 1 new question that could refine this match.');
+  assert.equal(describeOpenQuestions(5, 2), 'Your edit unlocked 2 new questions (plus 3 still unanswered) that could refine this match.');
 });

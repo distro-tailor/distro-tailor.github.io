@@ -8,6 +8,7 @@ import { renderHeadToHeadPanel } from '../components/results/head-to-head-panel.
 import { renderPackageLayersPanel } from '../components/results/package-layers-panel.js';
 import { renderRecipePanel } from '../components/results/recipe-panel.js';
 import { renderSharedConfigBanner } from '../components/results/shared-config-banner.js';
+import { renderResultsChangeBanner } from '../components/results/results-change-banner.js';
 import { renderTurnkeyImageCard } from '../components/results/turnkey-image-card.js';
 import { renderVerificationLadder } from '../components/results/verification-ladder.js';
 import { renderWinnerBanner } from '../components/results/winner-banner.js';
@@ -54,6 +55,8 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
     <div class="space-y-6 min-w-0 max-w-full overflow-hidden">
 
       ${renderSharedConfigBanner(ctx)}
+
+      ${renderResultsChangeBanner(ctx)}
 
       ${renderWinnerBanner(ctx)}
 

@@ -18,6 +18,12 @@ export interface HistorySnapshot {
   answeredQuestionIds: Set<string>;
   answeredQuestionOrder?: string[];
   flowMode?: FlowMode;
+  answerPatches?: Readonly<Record<string, Partial<UserCriteria>>>;
+}
+
+export interface ResultsBaseline {
+  distroId: string;
+  criteria: UserCriteria;
 }
 
 /**
@@ -27,6 +33,16 @@ export interface AppState {
   criteria: UserCriteria;
   answeredQuestionIds: Set<string>;
   answeredQuestionOrder?: string[];
+  /**
+   * Criteria each answered question applied, keyed by question id. In-memory only (not in the URL):
+   * lets a re-answer restore keys another question set instead of deleting them.
+   */
+  answerPatches?: Record<string, Partial<UserCriteria>>;
+  /**
+   * Top match and criteria captured when the user leaves results to edit answers, so results can
+   * say what changed on return. In-memory only.
+   */
+  resultsBaseline?: ResultsBaseline | null;
   viewingQuestionId?: string | null;
   activeTab: AppTab;
   activeFileIndex: number;
@@ -118,9 +134,15 @@ export interface IAppStore {
   toggleWizardMode(): void;
 
   /**
-   * Sets active workspace tab (wizard, expert, results).
+   * Sets active workspace tab (wizard, expert, results). Leaving results for the wizard captures a
+   * results baseline so the next results view can show what an edit changed.
    */
   setTab(tab: AppTab): void;
+
+  /**
+   * Dismisses the "what changed" banner by clearing the captured results baseline.
+   */
+  clearResultsBaseline(): void;
 
   /**
    * Selects active file tab in generated recipe viewer.

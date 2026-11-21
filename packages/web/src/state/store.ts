@@ -1,4 +1,4 @@
-import { UserCriteria, QUESTIONS, QuestionFlow } from '@distro-tailor/core';
+import { UserCriteria, QUESTIONS, QuestionFlow, evaluateCriteria } from '@distro-tailor/core';
 import { AppState, AppTab, FlowMode, IAppStore } from '../types.js';
 
 export type { AppState, AppTab, FlowMode, IAppStore };
@@ -18,6 +18,7 @@ export function createDefaultState(): AppState {
     criteria: {},
     answeredQuestionIds: new Set<string>(),
     answeredQuestionOrder: [],
+    answerPatches: {},
     viewingQuestionId: null,
     activeTab: 'wizard',
     activeFileIndex: 0,
@@ -80,6 +81,13 @@ export class AppStore extends EventTarget implements IAppStore {
 
   public update(patch: Partial<AppState>): void {
     this._state = { ...this._state, ...patch };
+    // Replacing the answered set (e.g. loading a URL) invalidates per-question patches from the old
+    // state; a direct criteria edit (Expert tab) keeps only the recorded values it did not change.
+    if (patch.answeredQuestionIds && !patch.answerPatches) {
+      this._state.answerPatches = {};
+    } else if (patch.criteria && !patch.answerPatches) {
+      this.syncPatchesToCriteria();
+    }
     this.notify();
   }
 
@@ -93,7 +101,8 @@ export class AppStore extends EventTarget implements IAppStore {
       criteria: { ...this._state.criteria },
       answeredQuestionIds: new Set(this._state.answeredQuestionIds),
       answeredQuestionOrder: [...(this._state.answeredQuestionOrder || [])],
-      flowMode: this._state.flowMode
+      flowMode: this._state.flowMode,
+      answerPatches: { ...(this._state.answerPatches || {}) }
     });
   }
 
@@ -110,6 +119,7 @@ export class AppStore extends EventTarget implements IAppStore {
     if (prev.flowMode) {
       this._state.flowMode = prev.flowMode;
     }
+    this._state.answerPatches = { ...(prev.answerPatches || {}) };
     this._state.activeTab = 'wizard';
     this.notify();
     return true;
@@ -136,6 +146,7 @@ export class AppStore extends EventTarget implements IAppStore {
 
     if (currentIdx > 0) {
       const prevQ = eligible[currentIdx - 1];
+      if (this._state.activeTab === 'results') this.captureResultsBaseline();
       this._state.viewingQuestionId = prevQ.id;
       this._state.wizardFilterQuery = '';
       this._state.activeTab = 'wizard';
@@ -157,19 +168,9 @@ export class AppStore extends EventTarget implements IAppStore {
       }
     }
 
-    const eligible = flow.getEligibleQuestions(this._state.criteria, this._state.answeredQuestionIds);
-    let currentIdx = -1;
-    if (qId) {
-      currentIdx = eligible.findIndex((q) => q.id === qId);
-    }
-    if (currentIdx === -1) {
-      const nextQ = eligible.find((q) => !this._state.answeredQuestionIds.has(q.id));
-      currentIdx = nextQ ? eligible.indexOf(nextQ) : 0;
-    }
-
-    if (currentIdx !== -1 && currentIdx < eligible.length - 1) {
-      const nextQ = eligible[currentIdx + 1];
-      this._state.viewingQuestionId = nextQ.id;
+    const nextId = this.nextQuestionIdAfter(qId || null);
+    if (nextId) {
+      this._state.viewingQuestionId = nextId;
       this._state.wizardFilterQuery = '';
       this._state.activeTab = 'wizard';
       this.notify();
@@ -202,37 +203,34 @@ export class AppStore extends EventTarget implements IAppStore {
       shouldAdvance = typeof answerValueOrAutoAdvance === 'boolean' ? answerValueOrAutoAdvance : true;
     }
 
-    // 1. Clear old criteria keys applied by other options of this question to prevent ghost attributes
-    const targetQ = QUESTIONS.find((q) => q.id === questionId);
-    if (targetQ) {
-      for (const opt of targetQ.options) {
-        for (const k of Object.keys(opt.appliesCriteria)) {
-          delete (this._state.criteria as Record<string, unknown>)[k];
-        }
-      }
+    // 1. An earlier answer to this question whose patch is unknown (e.g. after a URL load) has its
+    //    option keys cleared directly, so no ghost attributes survive the re-answer.
+    const previousPatches = this._state.answerPatches || {};
+    const base = { ...this._state.criteria } as Record<string, unknown>;
+    if (!previousPatches[questionId]) {
+      for (const k of questionKeys(questionId)) delete base[k];
     }
 
-    // 2. Apply new criteria
-    this._state.criteria = {
-      ...this._state.criteria,
-      ...criteriaPatch
-    };
+    // 2. Record the answer and replay every recorded answer in question order. Later questions win:
+    //    the device replaces the goal's hardware guesses, and changing the goal re-derives its
+    //    inferences without overwriting explicit answers to the questions after it.
     this._state.answeredQuestionIds.add(questionId);
     const order = this._state.answeredQuestionOrder || (this._state.answeredQuestionOrder = []);
     if (!order.includes(questionId)) {
       order.push(questionId);
     }
+    const patches = { ...previousPatches, [questionId]: { ...criteriaPatch } };
+    this._state.answerPatches = patches;
+    this._state.criteria = replayAnswers(base, previousPatches, patches, this._state.answeredQuestionIds);
 
     // 3. Reconcile tree: automatically prune any downstream questions that are no longer eligible
     this.reconcileIneligibleCriteria();
 
     // 4. Handle navigation transition
     if (shouldAdvance) {
-      const flow = new QuestionFlow(QUESTIONS);
-      const eligible = flow.getEligibleQuestions(this._state.criteria, this._state.answeredQuestionIds);
-      const currentIdx = eligible.findIndex((q) => q.id === questionId);
-      if (currentIdx !== -1 && currentIdx < eligible.length - 1) {
-        this._state.viewingQuestionId = eligible[currentIdx + 1].id;
+      const nextId = this.nextQuestionIdAfter(questionId);
+      if (nextId) {
+        this._state.viewingQuestionId = nextId;
         this._state.wizardFilterQuery = '';
         this._state.activeTab = 'wizard';
       } else {
@@ -246,6 +244,53 @@ export class AppStore extends EventTarget implements IAppStore {
     }
 
     this.notify();
+  }
+
+  /**
+   * Where Next goes from `fromId`: the following eligible question (answered ones included, so a
+   * review walks through them). At the end of the flow it falls back to any eligible question still
+   * unanswered, e.g. one an edited answer just unlocked, before results. Null means go to results.
+   */
+  public nextQuestionIdAfter(fromId: string | null): string | null {
+    const flow = new QuestionFlow(QUESTIONS);
+    const answered = this._state.answeredQuestionIds;
+    const eligible = flow.getEligibleQuestions(this._state.criteria, answered);
+    let idx = fromId ? eligible.findIndex((q) => q.id === fromId) : -1;
+    if (idx === -1) {
+      const firstOpen = eligible.find((q) => !answered.has(q.id));
+      idx = firstOpen ? eligible.indexOf(firstOpen) - 1 : -1;
+    }
+    if (idx + 1 < eligible.length) return eligible[idx + 1].id;
+    return this.firstUnansweredQuestionId();
+  }
+
+  /** The first eligible question not yet answered, or null when the flow is complete. */
+  public firstUnansweredQuestionId(): string | null {
+    const flow = new QuestionFlow(QUESTIONS);
+    return flow.getNextQuestion(this._state.criteria, this._state.answeredQuestionIds)?.id ?? null;
+  }
+
+  /**
+   * Drops recorded answer values that no longer match the criteria after a direct edit (mode
+   * switch, removed choice, Expert tab), so a later replay never resurrects them.
+   */
+  private syncPatchesToCriteria(): void {
+    const criteria = this._state.criteria as Record<string, unknown>;
+    const synced: Record<string, Partial<UserCriteria>> = {};
+    for (const [id, patch] of Object.entries(this._state.answerPatches || {})) {
+      synced[id] = Object.fromEntries(
+        Object.entries(patch).filter(([k, v]) => criteriaValueEquals(criteria[k], v))
+      ) as Partial<UserCriteria>;
+    }
+    this._state.answerPatches = synced;
+  }
+
+  /** Drops recorded patches for questions that are no longer answered. */
+  private prunePatches(): void {
+    const patches = this._state.answerPatches || {};
+    this._state.answerPatches = Object.fromEntries(
+      Object.entries(patches).filter(([id]) => this._state.answeredQuestionIds.has(id))
+    );
   }
 
   /**
@@ -294,6 +339,7 @@ export class AppStore extends EventTarget implements IAppStore {
         }
       }
     }
+    this.prunePatches();
   }
 
   public removeChoice(criteriaKey: string): void {
@@ -346,6 +392,10 @@ export class AppStore extends EventTarget implements IAppStore {
       this._state.answeredQuestionIds.delete('filesystem_and_storage');
     }
 
+    // An explicitly removed choice must not come back when another question is re-answered later
+    this.syncPatchesToCriteria();
+    this.prunePatches();
+
     this.notify();
   }
 
@@ -393,6 +443,7 @@ export class AppStore extends EventTarget implements IAppStore {
     // Remap answeredQuestionIds and viewingQuestionId across Goal <-> Technical equivalents
     const nextAnswered = new Set(this._state.answeredQuestionIds);
     let nextOrder = [...(this._state.answeredQuestionOrder || [])];
+    const nextPatches: Record<string, Partial<UserCriteria>> = { ...(this._state.answerPatches || {}) };
     let nextViewing = this._state.viewingQuestionId || null;
 
     for (const [begId, techId] of pairMap) {
@@ -402,12 +453,17 @@ export class AppStore extends EventTarget implements IAppStore {
         nextAnswered.add(toId);
       }
       nextOrder = nextOrder.map((id) => (id === fromId ? toId : id));
+      if (nextPatches[fromId]) {
+        nextPatches[toId] = nextPatches[fromId];
+        delete nextPatches[fromId];
+      }
       if (nextViewing === fromId) {
         nextViewing = toId;
       }
     }
 
     this._state.answeredQuestionIds = nextAnswered;
+    this._state.answerPatches = nextPatches;
     this._state.answeredQuestionOrder = nextOrder.filter((id, i) => nextOrder.indexOf(id) === i);
     this._state.criteria = {
       ...this._state.criteria,
@@ -440,6 +496,7 @@ export class AppStore extends EventTarget implements IAppStore {
     }
 
     this._state.flowMode = newMode;
+    this.syncPatchesToCriteria();
 
     // Prune remapped answers that are not eligible in the target mode (e.g. beginner_device for browser-wasm)
     this.reconcileIneligibleCriteria();
@@ -457,8 +514,26 @@ export class AppStore extends EventTarget implements IAppStore {
 
   public setTab(tab: AppTab): void {
     if (this._state.activeTab === tab) return;
+    if (this._state.activeTab === 'results' && tab === 'wizard') this.captureResultsBaseline();
     this._state.activeTab = tab;
     this.notify();
+  }
+
+  public clearResultsBaseline(): void {
+    this._state.resultsBaseline = null;
+    this.notify();
+  }
+
+  /**
+   * Remembers the top match before the user goes back to edit answers. Kept until dismissed, so
+   * several round trips report the cumulative change since results were first left.
+   */
+  private captureResultsBaseline(): void {
+    if (this._state.resultsBaseline) return;
+    this._state.resultsBaseline = {
+      distroId: evaluateCriteria(this._state.criteria).bestMatch.distro.id,
+      criteria: { ...this._state.criteria }
+    };
   }
 
   public setActiveFileIndex(index: number): void {
@@ -542,3 +617,66 @@ export class AppStore extends EventTarget implements IAppStore {
 }
 
 export const store = new AppStore();
+
+const QUESTIONS_IN_FLOW_ORDER = [...QUESTIONS].sort((a, b) => a.order - b.order);
+const KNOWN_QUESTION_IDS = new Set(QUESTIONS.map((q) => q.id));
+
+function criteriaValueEquals(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((item, i) => item === b[i]);
+  }
+  return false;
+}
+
+/**
+ * Rebuilds criteria from recorded wizard answers. Values the previous answers contributed are
+ * removed from `current`, then every answered question's patch is applied in flow order. A later
+ * question also drops keys it owns but did not set when an earlier answer supplied them (the device
+ * replaces the goal's platform/footprint guesses). Values no recorded answer supplied, such as
+ * Expert tab edits or criteria from a shared URL, are kept.
+ */
+export function replayAnswers(
+  current: Readonly<Record<string, unknown>>,
+  previousPatches: Readonly<Record<string, Partial<UserCriteria>>>,
+  patches: Readonly<Record<string, Partial<UserCriteria>>>,
+  answeredIds: ReadonlySet<string>
+): UserCriteria {
+  const criteria: Record<string, unknown> = { ...current };
+  for (const patch of Object.values(previousPatches)) {
+    for (const [k, v] of Object.entries(patch)) {
+      if (criteriaValueEquals(criteria[k], v)) delete criteria[k];
+    }
+  }
+
+  const fromAnswers = new Set<string>();
+  for (const q of QUESTIONS_IN_FLOW_ORDER) {
+    const patch = patches[q.id];
+    if (!patch || !answeredIds.has(q.id)) continue;
+    for (const k of questionKeys(q.id)) {
+      if (!(k in patch) && fromAnswers.has(k)) {
+        delete criteria[k];
+        fromAnswers.delete(k);
+      }
+    }
+    for (const [k, v] of Object.entries(patch)) {
+      criteria[k] = v;
+      fromAnswers.add(k);
+    }
+  }
+  // Answers recorded under ids outside the question catalog are applied last
+  for (const [id, patch] of Object.entries(patches)) {
+    if (answeredIds.has(id) && !KNOWN_QUESTION_IDS.has(id)) Object.assign(criteria, patch);
+  }
+  return criteria as UserCriteria;
+}
+
+/** Every criteria key any option of the question can set. */
+function questionKeys(questionId: string): Set<string> {
+  const q = QUESTIONS.find((x) => x.id === questionId);
+  const keys = new Set<string>();
+  for (const opt of q?.options || []) {
+    for (const k of Object.keys(opt.appliesCriteria)) keys.add(k);
+  }
+  return keys;
+}

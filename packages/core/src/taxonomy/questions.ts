@@ -425,7 +425,7 @@ export const QUESTIONS: Question[] = [
         label: 'Desktop PC or Tower (Intel or AMD)',
         description: 'AC wall-powered desktop or workstation made in the last 10–12 years',
         icon: '🖥️',
-        appliesCriteria: { architecture: 'x86_64', formFactor: 'desktop', bootMedium: 'nvme-ssd' }
+        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'desktop', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'standard_laptop',
@@ -433,7 +433,7 @@ export const QUESTIONS: Question[] = [
         description: 'Battery-powered portable laptop; needs power-saving, sleep/suspend, and Wi-Fi management',
         icon: '💻',
         isDefault: true,
-        appliesCriteria: { architecture: 'x86_64', formFactor: 'laptop', bootMedium: 'nvme-ssd' }
+        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'laptop', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'old_macbook',
@@ -447,7 +447,7 @@ export const QUESTIONS: Question[] = [
         label: 'Ancient / Low-Power Computer (Intel Atom, Celeron, 10–15+ yrs)',
         description: 'Very weak CPU or under 1GB–2GB RAM; needs an ultra-lightweight OS that will not lag',
         icon: '👴',
-        appliesCriteria: { architecture: 'x86_64', footprint: 'minimal', formFactor: 'low-power', bootMedium: 'nvme-ssd' }
+        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal', footprint: 'minimal', formFactor: 'low-power', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'raspberry_pi',
@@ -475,7 +475,7 @@ export const QUESTIONS: Question[] = [
         label: 'Handheld Gaming Device (Steam Deck, ROG Ally, etc.)',
         description: 'Portable gaming PC with 15W APU, integrated display, thumbsticks, and Game Mode',
         icon: '🎮',
-        appliesCriteria: { architecture: 'x86_64', formFactor: 'handheld', bootMedium: 'nvme-ssd' }
+        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'handheld', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'used_server_rack',

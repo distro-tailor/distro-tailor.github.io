@@ -305,3 +305,115 @@ test('AppStore: answering display_mode advances to the next question instead of 
   assert.equal(state.criteria.prefersGui, false);
   assert.ok(state.answeredQuestionIds.has('display_mode'));
 });
+
+test('AppStore: the device replaces the goal hardware guesses, in any answer order', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'beginner');
+  store.answerQuestion('beginner_goal', { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false });
+  store.answerQuestion('beginner_device', { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'desktop' });
+  let c = store.getState().criteria;
+  assert.equal(c.platform, 'bare-metal', 'device wins on platform');
+  assert.equal(c.footprint, undefined, 'device owns footprint, so the goal guess is dropped');
+
+  // Re-answering the goal later must not overwrite the device's hardware answer
+  store.answerQuestion('beginner_goal', { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal', prefersGui: false }, false);
+  c = store.getState().criteria;
+  assert.equal(c.useCase, 'nas-storage');
+  assert.equal(c.platform, 'bare-metal');
+  assert.equal(c.footprint, undefined);
+});
+
+test('AppStore: changing the goal re-derives its inferences but keeps later explicit answers', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'intermediate');
+  store.answerQuestion('technical_use_case', { useCase: 'desktop', platform: 'bare-metal', prefersGui: true });
+  store.answerQuestion('release_cadence', { releaseCadence: 'rolling' });
+
+  // Switch to Goal Mode and pick a server goal that infers headless + LTS
+  store.toggleWizardMode();
+  store.answerQuestion('beginner_goal', { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false, releaseCadence: 'lts' }, false);
+  let c = store.getState().criteria;
+  assert.equal(c.prefersGui, false, 'the new goal replaces the old goal inference');
+  assert.equal(c.releaseCadence, 'rolling', 'an explicit later answer beats the goal inference');
+
+  // Back to a desktop goal: the server inferences disappear instead of lingering
+  store.answerQuestion('beginner_goal', { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal', prefersGui: true }, false);
+  c = store.getState().criteria;
+  assert.equal(c.prefersGui, true);
+  assert.equal(c.useCase, 'desktop');
+  assert.equal(c.releaseCadence, 'rolling');
+});
+
+test('AppStore: removed choices, Expert edits, and URL loads are not undone by a later re-answer', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'beginner');
+  store.answerQuestion('beginner_goal', { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc', releaseCadence: 'lts' });
+  store.removeChoice('releaseCadence');
+  store.answerQuestion('beginner_device', { architecture: 'arm64', platform: 'embedded-sbc', formFactor: 'sbc' }, false);
+  assert.equal(store.getState().criteria.releaseCadence, undefined);
+
+  // Expert tab edit survives a later wizard answer
+  store.update({ criteria: { ...store.getState().criteria, kernelFlavor: 'lts-stable', useCase: 'nas-storage' } });
+  store.answerQuestion('beginner_device', { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'desktop' }, false);
+  assert.equal(store.getState().criteria.kernelFlavor, 'lts-stable');
+  assert.equal(store.getState().criteria.useCase, 'nas-storage');
+
+  // After a URL load the patches are unknown; re-answering clears only that question's keys
+  store.update({
+    criteria: { experienceLevel: 'beginner', useCase: 'server', platform: 'embedded-sbc', architecture: 'x86_64', formFactor: 'desktop' },
+    answeredQuestionIds: new Set(['user_familiarity', 'beginner_goal', 'beginner_device']),
+    answeredQuestionOrder: ['user_familiarity', 'beginner_goal', 'beginner_device']
+  });
+  assert.deepEqual(store.getState().answerPatches, {});
+  store.answerQuestion('beginner_device', { architecture: 'arm64', platform: 'embedded-sbc', formFactor: 'sbc' }, false);
+  const c = store.getState().criteria;
+  assert.equal(c.useCase, 'server');
+  assert.equal(c.formFactor, 'sbc');
+  assert.equal(c.architecture, 'arm64');
+});
+
+test('AppStore: Next at the end of the flow visits questions an edit unlocked before results', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', { experienceLevel: 'intermediate' });
+  store.answerQuestion('technical_use_case', { useCase: 'container-base', platform: 'container' });
+  // Walk to the end: container builds skip display, boot, and driver questions
+  while (store.getState().activeTab === 'wizard') {
+    if (!store.stepForwardQuestion()) break;
+  }
+  assert.equal(store.getState().activeTab, 'results');
+
+  // Edit the use case from results: a bare-metal desktop unlocks display_mode and friends
+  store.answerQuestion('technical_use_case', { useCase: 'desktop', platform: 'bare-metal' }, false);
+  assert.ok(store.firstUnansweredQuestionId(), 'the edit unlocked new questions');
+  const last = store.getState().answeredQuestionOrder!.at(-1)!;
+  store.stepForwardQuestion(last);
+  assert.equal(store.getState().activeTab, 'wizard', 'Next goes to an unlocked question instead of results');
+  assert.equal(store.getState().answeredQuestionIds.has(store.getState().viewingQuestionId!), false);
+});
+
+test('AppStore: leaving results for the wizard captures a baseline once until dismissed', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'beginner');
+  store.answerQuestion('beginner_goal', { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false });
+  store.setTab('results');
+  assert.equal(store.getState().resultsBaseline ?? null, null);
+
+  store.setTab('wizard');
+  const baseline = store.getState().resultsBaseline;
+  assert.ok(baseline);
+  assert.equal(baseline.criteria.useCase, 'server');
+
+  // A second round trip keeps the original baseline
+  store.answerQuestion('beginner_goal', { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal', prefersGui: false }, false);
+  store.setTab('results');
+  store.setTab('wizard');
+  assert.equal(store.getState().resultsBaseline?.criteria.useCase, 'server');
+
+  store.clearResultsBaseline();
+  assert.equal(store.getState().resultsBaseline, null);
+
+  // Back from results also captures it
+  store.setTab('results');
+  store.stepBackQuestion();
+  assert.equal(store.getState().resultsBaseline?.criteria.useCase, 'nas-storage');
+});

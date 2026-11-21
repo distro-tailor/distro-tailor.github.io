@@ -295,3 +295,16 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     When the engine evaluates the candidate distributions
     Then distributions with documented IOMMU / VFIO support should be boosted
     And distributions with no passthrough support should be penalized
+
+  Scenario: Going back from results to change an earlier answer
+    Given the user has reached the results page
+    When the user goes back and changes an earlier answer such as the goal
+    Then answers inferred from the old choice should be replaced by the new choice's inferences
+    And answers the user picked explicitly in later questions should be kept
+    And the device answer should still decide hardware (platform, footprint) over the goal's guesses
+    And answers that no longer apply should be cleared
+    When the edit unlocks questions that were skipped before
+    Then pressing Next at the end of the flow should visit those questions before showing results
+    When the user returns to results
+    Then a banner should say whether the top match changed (e.g. "Ubuntu → Raspberry Pi OS") and list the edited choices
+    And it should offer to answer any newly unlocked questions, and can be dismissed

@@ -49,6 +49,20 @@ export function bindNavigationEvents(ctx: HandlerContext): void {
     scrollToQuestionCard();
   };
   document.getElementById('btn-modify-answers')?.addEventListener('click', returnToWizard);
+
+  // "What changed" banner: jump to questions an edit unlocked, or dismiss the summary
+  document.getElementById('btn-answer-unlocked')?.addEventListener('click', () => {
+    const pendingId = store.firstUnansweredQuestionId();
+    if (pendingId) {
+      store.setViewingQuestion(pendingId);
+      store.setTab('wizard');
+      router.saveStateToUrl(store.getState(), false);
+      scrollToQuestionCard();
+    }
+  });
+  document.getElementById('btn-dismiss-change-banner')?.addEventListener('click', () => {
+    store.clearResultsBaseline();
+  });
   document.getElementById('btn-tweak-blueprint')?.addEventListener('click', returnToWizard);
 
   // Individual blueprint chip click to directly modify a specific constraint
