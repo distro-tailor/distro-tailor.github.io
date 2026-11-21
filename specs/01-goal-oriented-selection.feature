@@ -142,6 +142,15 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     And the wizard should advance to the next question instead of jumping to results
     But a question already decided by an earlier answer (e.g. a desktop goal setting a screen) should still be skipped
 
+  Scenario: Goal Mode infers answers from the goal and device instead of asking
+    Given the user is in "Goal Mode"
+    When the user picks a goal such as "Home Server" and a device such as "Standard Desktop PC"
+    Then the engine should infer a headless display, LTS releases, and SSD boot storage
+    And the wizard should skip the Display Mode, Release Cadence, Boot Medium, and Audio Latency questions
+    And personal preferences such as desktop layout style should still be asked
+    When the user switches to "Technical Mode" to fine-tune
+    Then the inferred questions should be offered again with the inferred answers pre-selected
+
   Scenario: Adaptive Multi-Question Flow across Release Cadence, Display Mode, and Drivers
     Given the user progresses through the tailored question flow
     When navigating beyond basic goals and hardware platforms

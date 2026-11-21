@@ -1,4 +1,11 @@
-import { Question } from '../types.js';
+import { Question, UserCriteria } from '../types.js';
+
+/**
+ * In Goal Mode a value already inferred from the goal or device skips its question (20-questions style).
+ * Technical Mode still asks it, pre-selected with the inferred value, so it can be fine-tuned.
+ */
+const decidedInGoalMode = (criteria: UserCriteria, key: keyof UserCriteria): boolean =>
+  criteria.experienceLevel === 'beginner' && criteria[key] !== undefined;
 
 const NON_INTERACTIVE_PLATFORMS = new Set([
   'container',
@@ -97,21 +104,21 @@ export const QUESTIONS: Question[] = [
         label: 'Everyday Computer for School, Work, or Web',
         description: 'Friendly desktop for web browsing, YouTube, and typing, completely immune to Windows malware',
         icon: '💻',
-        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal' }
+        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal', prefersGui: true, realtimeAudio: false }
       },
       {
         id: 'revive_old_pc',
         label: 'Revive an Ancient, Slow Computer',
         description: 'Make an ancient 10-20 year old PC or laptop with low RAM (512MB-2GB) snappy and fast again',
         icon: '💨',
-        appliesCriteria: { useCase: 'desktop', footprint: 'minimal', platform: 'bare-metal' }
+        appliesCriteria: { useCase: 'desktop', footprint: 'minimal', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, releaseCadence: 'lts' }
       },
       {
         id: 'freelance_office_docs',
         label: 'Home Office & Freelancing (Word, Excel, Invoicing, Zoom, Slack)',
         description: 'Daily remote work driver: 100% Microsoft Office format fidelity (OnlyOffice/LibreOffice), PDF signing, and printer setup with zero Windows crashes',
         icon: '💼',
-        appliesCriteria: { useCase: 'home-office', footprint: 'standard', platform: 'bare-metal', prefersGui: true }
+        appliesCriteria: { useCase: 'home-office', footprint: 'standard', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, releaseCadence: 'lts' }
       },
       {
         id: 'coding_dev',
@@ -123,7 +130,8 @@ export const QUESTIONS: Question[] = [
           footprint: 'standard',
           platform: 'bare-metal',
           prefersGui: true,
-          desktopApps: ['vscode', 'git-dev', 'python', 'nodejs']
+          desktopApps: ['vscode', 'git-dev', 'python', 'nodejs'],
+          realtimeAudio: false
         }
       },
       {
@@ -138,35 +146,35 @@ export const QUESTIONS: Question[] = [
         label: 'Kid-Safe School & Coding Computer',
         description: 'An iPad-simple computer for children: school homework, Scratch coding, offline Wikipedia, and educational games',
         icon: '🎓',
-        appliesCriteria: { useCase: 'education-kids', footprint: 'standard', platform: 'bare-metal' }
+        appliesCriteria: { useCase: 'education-kids', footprint: 'standard', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, releaseCadence: 'lts' }
       },
       {
         id: 'retro_gaming_console',
         label: 'Retro Gaming Console',
         description: 'Play arcade, PS1, N64, SNES, and retro classics on your TV with game controllers',
         icon: '🕹️',
-        appliesCriteria: { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal' }
+        appliesCriteria: { useCase: 'gaming', footprint: 'lean', platform: 'bare-metal', prefersGui: true, realtimeAudio: false }
       },
       {
         id: 'modern_gaming',
         label: 'Modern PC Gaming (Steam Deck / Couch Gaming)',
         description: 'Play modern Steam, Epic, and indie PC games with a controller-friendly TV interface',
         icon: '🎮',
-        appliesCriteria: { useCase: 'gaming', footprint: 'full', platform: 'bare-metal' }
+        appliesCriteria: { useCase: 'gaming', footprint: 'full', platform: 'bare-metal', prefersGui: true, realtimeAudio: false }
       },
       {
         id: 'media_center',
         label: 'Living Room Media Center / TV Box (Kodi)',
         description: 'Turn an old PC or TV box into a dedicated media player controlled with a regular TV remote',
         icon: '📺',
-        appliesCriteria: { useCase: 'media-center', footprint: 'minimal', platform: 'bare-metal' }
+        appliesCriteria: { useCase: 'media-center', footprint: 'minimal', platform: 'bare-metal', prefersGui: true, realtimeAudio: false }
       },
       {
         id: 'freelance_creative_graphics',
         label: 'Graphic Design, 3D Art & Video Production (Blender, Krita, DaVinci)',
         description: 'Creative workstation for freelance digital artists, video editors, and 3D animators with color-managed Wayland and GPU acceleration',
         icon: '🎨',
-        appliesCriteria: { useCase: 'creative-studio', footprint: 'full', platform: 'bare-metal', prefersGui: true }
+        appliesCriteria: { useCase: 'creative-studio', footprint: 'full', platform: 'bare-metal', prefersGui: true, realtimeAudio: false }
       },
       {
         id: 'music_audio_studio',
@@ -180,28 +188,28 @@ export const QUESTIONS: Question[] = [
         label: 'Simple Home Server & Private Cloud',
         description: 'Run Plex/Jellyfin media streaming, Pi-hole ad-blocking, or self-hosted apps on cheap low-power hardware',
         icon: '🏠',
-        appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc' }
+        appliesCriteria: { useCase: 'server', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false, releaseCadence: 'lts' }
       },
       {
         id: 'nas_photo_backup',
         label: 'Family Photo/Video Backup & Home Storage (NAS)',
         description: 'Auto-backup family phone photos and videos over Wi-Fi, share files at home, and ditch monthly cloud fees',
         icon: '📦',
-        appliesCriteria: { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal' }
+        appliesCriteria: { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal', prefersGui: false, releaseCadence: 'lts' }
       },
       {
         id: 'smart_home',
         label: 'Smart Home Automation Hub (Home Assistant)',
         description: 'Turn a Raspberry Pi or mini PC into a private smart home controller for Zigbee, Matter, lights, and sensors with zero cloud fees',
         icon: '🏡',
-        appliesCriteria: { useCase: 'smart-home', footprint: 'lean', platform: 'embedded-sbc' }
+        appliesCriteria: { useCase: 'smart-home', footprint: 'lean', platform: 'embedded-sbc', prefersGui: false, releaseCadence: 'lts' }
       },
       {
         id: 'cheap_router',
         label: 'Home Router & Wi-Fi Firewall',
         description: 'Turn an old PC or box into a fast home router, ditch ISP rental fees, and block ads network-wide',
         icon: '📡',
-        appliesCriteria: { useCase: 'router-networking', footprint: 'micro', platform: 'router-firewall' }
+        appliesCriteria: { useCase: 'router-networking', footprint: 'micro', platform: 'router-firewall', prefersGui: false, releaseCadence: 'lts' }
       },
       {
         id: 'offline_navigation',
@@ -222,7 +230,7 @@ export const QUESTIONS: Question[] = [
         label: 'Store Display, Digital Menu Board, or Shop Kiosk',
         description: 'Boot directly into a full-screen website, digital price menu, or dashboard with no desktop clutter',
         icon: '🏪',
-        appliesCriteria: { useCase: 'kiosk-signage', footprint: 'lean', platform: 'kiosk' }
+        appliesCriteria: { useCase: 'kiosk-signage', footprint: 'lean', platform: 'kiosk', prefersGui: true, releaseCadence: 'lts' }
       },
       {
         id: 'appliance_product',
@@ -236,21 +244,21 @@ export const QUESTIONS: Question[] = [
         label: 'Homelab Virtualization & Hypervisor Host (Proxmox / KVM / LXC)',
         description: 'Run multiple isolated Linux/Windows virtual machines, Docker apps, and ZFS storage pools on a single powerful host or Craigslist server rack',
         icon: '🖧',
-        appliesCriteria: { useCase: 'hypervisor-vms', footprint: 'standard', platform: 'server' }
+        appliesCriteria: { useCase: 'hypervisor-vms', footprint: 'standard', platform: 'server', prefersGui: false, releaseCadence: 'lts' }
       },
       {
         id: 'ai_ml_server',
         label: 'AI & Local LLM Server or Data Science Box',
         description: 'Run local AI models (Ollama, vLLM, DeepSeek, PyTorch, Stable Diffusion) with full NVIDIA/AMD GPU acceleration',
         icon: '🧠',
-        appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'full', platform: 'server' }
+        appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'full', platform: 'server', prefersGui: false, driverPhilosophy: 'seamless-proprietary' }
       },
       {
         id: 'crypto_mining_rig',
         label: 'Multi-GPU Mining Rig or Distributed Compute Node',
         description: 'Dedicated headless rig for crypto mining or distributed GPU compute with fan control, watchdog, and web telemetry',
         icon: '⛏️',
-        appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'lean', platform: 'server' }
+        appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'lean', platform: 'server', prefersGui: false, driverPhilosophy: 'seamless-proprietary' }
       },
       {
         id: 'security_privacy',
@@ -417,7 +425,7 @@ export const QUESTIONS: Question[] = [
         label: 'Desktop PC or Tower (Intel or AMD)',
         description: 'AC wall-powered desktop or workstation made in the last 10–12 years',
         icon: '🖥️',
-        appliesCriteria: { architecture: 'x86_64', formFactor: 'desktop' }
+        appliesCriteria: { architecture: 'x86_64', formFactor: 'desktop', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'standard_laptop',
@@ -425,21 +433,21 @@ export const QUESTIONS: Question[] = [
         description: 'Battery-powered portable laptop; needs power-saving, sleep/suspend, and Wi-Fi management',
         icon: '💻',
         isDefault: true,
-        appliesCriteria: { architecture: 'x86_64', formFactor: 'laptop' }
+        appliesCriteria: { architecture: 'x86_64', formFactor: 'laptop', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'old_macbook',
         label: 'Old Intel MacBook / Mac (2006–2017)',
         description: 'Revive an older MacBook, MacBook Air/Pro, or Mac Mini abandoned by Apple macOS updates (includes Broadcom Wi-Fi driver fix)',
         icon: '🍏',
-        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'mac' }
+        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'mac', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'ancient_pc',
         label: 'Ancient / Low-Power Computer (Intel Atom, Celeron, 10–15+ yrs)',
         description: 'Very weak CPU or under 1GB–2GB RAM; needs an ultra-lightweight OS that will not lag',
         icon: '👴',
-        appliesCriteria: { architecture: 'x86_64', footprint: 'minimal', formFactor: 'low-power' }
+        appliesCriteria: { architecture: 'x86_64', footprint: 'minimal', formFactor: 'low-power', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'raspberry_pi',
@@ -467,28 +475,28 @@ export const QUESTIONS: Question[] = [
         label: 'Handheld Gaming Device (Steam Deck, ROG Ally, etc.)',
         description: 'Portable gaming PC with 15W APU, integrated display, thumbsticks, and Game Mode',
         icon: '🎮',
-        appliesCriteria: { architecture: 'x86_64', formFactor: 'handheld' }
+        appliesCriteria: { architecture: 'x86_64', formFactor: 'handheld', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'used_server_rack',
         label: 'Used Enterprise Rack Server (Craigslist / eBay 1U/2U/4U)',
         description: 'Scored a cheap Dell PowerEdge (R720/R730), HP ProLiant (DL380), or Supermicro rack server? Ideal for Proxmox VE hypervisors or multi-bay ZFS storage',
         icon: '🖧',
-        appliesCriteria: { architecture: 'x86_64', platform: 'server', footprint: 'full', formFactor: 'server' }
+        appliesCriteria: { architecture: 'x86_64', platform: 'server', footprint: 'full', formFactor: 'server', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'apple_silicon_mac',
         label: 'Apple Silicon Mac (M1 / M2 / M3 / M4 MacBook, Mini, Studio)',
         description: 'Modern ARM Apple hardware. Native bare-metal Linux via Fedora Asahi Remix with conformant Vulkan/OpenGL GPU drivers and speaker DSP',
         icon: '🍎',
-        appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'full', formFactor: 'mac' }
+        appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'full', formFactor: 'mac', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'snapdragon_arm_laptop',
         label: 'Snapdragon / ARM Laptop (Snapdragon X Elite, ThinkPad X13s, Surface Pro X)',
         description: 'Modern Qualcomm ARM64 laptops with extreme 20+ hour battery life, supported in upstream Linux kernels 6.11+',
         icon: '🐉',
-        appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'standard', formFactor: 'laptop' }
+        appliesCriteria: { architecture: 'arm64', platform: 'bare-metal', footprint: 'standard', formFactor: 'laptop', bootMedium: 'nvme-ssd' }
       },
       {
         id: 'windows_wsl2',
@@ -652,7 +660,7 @@ export const QUESTIONS: Question[] = [
     subtext: 'Choose Screen if you are plugging in a monitor, TV, or touchscreen (desktop, media center, kiosk, or full-screen app).',
     category: 'software',
     shouldAsk: (criteria) =>
-      criteria.prefersGui === undefined &&
+      !decidedInGoalMode(criteria, 'prefersGui') &&
       criteria.useCase !== 'browser-wasm' &&
       criteria.useCase !== 'container-base' &&
       criteria.useCase !== 'k8s-cluster' &&
@@ -693,7 +701,7 @@ export const QUESTIONS: Question[] = [
     category: 'software',
     shouldAsk: (criteria) =>
       criteria.prefersGui === true &&
-      criteria.workflowStyle === undefined &&
+      !decidedInGoalMode(criteria, 'workflowStyle') &&
       criteria.desktopEnv === undefined &&
       criteria.useCase !== 'appliance-product' &&
       criteria.useCase !== 'kiosk-signage' &&
@@ -756,7 +764,7 @@ export const QUESTIONS: Question[] = [
     prompt: 'What is your preferred software update and release model?',
     subtext: 'Predictable rock-solid LTS point releases vs continuous bleeding-edge rolling updates.',
     category: 'lifecycle',
-    shouldAsk: (criteria) => criteria.useCase !== 'browser-wasm',
+    shouldAsk: (criteria) => criteria.useCase !== 'browser-wasm' && !decidedInGoalMode(criteria, 'releaseCadence'),
     tip: {
       icon: '🔄',
       title: 'LTS vs. Rolling Release',
@@ -797,6 +805,7 @@ export const QUESTIONS: Question[] = [
     subtext: 'Zero-effort proprietary drivers (NVIDIA GPUs, Broadcom Wi-Fi) vs 100% Free / Open Source Software.',
     category: 'software',
     shouldAsk: (criteria) =>
+      !decidedInGoalMode(criteria, 'driverPhilosophy') &&
       criteria.useCase !== 'browser-wasm' &&
       criteria.platform !== 'container' &&
       criteria.platform !== 'k8s-node' &&
@@ -843,6 +852,7 @@ export const QUESTIONS: Question[] = [
     subtext: 'Storage drive medium affects filesystem caching, wear reduction, and RAM disk architecture.',
     category: 'hardware',
     shouldAsk: (criteria) =>
+      !decidedInGoalMode(criteria, 'bootMedium') &&
       criteria.useCase !== 'browser-wasm' &&
       criteria.platform !== 'container' &&
       criteria.platform !== 'wsl2' &&
@@ -889,7 +899,7 @@ export const QUESTIONS: Question[] = [
     category: 'software',
     shouldAsk: (criteria) =>
       criteria.prefersGui !== false &&
-      criteria.realtimeAudio === undefined &&
+      !decidedInGoalMode(criteria, 'realtimeAudio') &&
       !NON_AUDIO_USE_CASES.has(criteria.useCase || '') &&
       !NON_INTERACTIVE_PLATFORMS.has(criteria.platform || '') &&
       criteria.architecture !== 'nommu' &&

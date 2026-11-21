@@ -960,7 +960,42 @@ test('QuestionFlow: answering a question never makes that same question ineligib
     }
   }
 
-  // Unanswered guards still skip questions an earlier answer already decided
-  const preset = flow.getEligibleQuestions({ experienceLevel: 'intermediate', useCase: 'desktop', prefersGui: true }).map((q) => q.id);
-  assert.ok(!preset.includes('display_mode'));
+  // Goal Mode skips questions an earlier answer already decided; Technical Mode still offers them for fine-tuning
+  const goalIds = flow.getEligibleQuestions({ experienceLevel: 'beginner', useCase: 'desktop', prefersGui: true }).map((q) => q.id);
+  assert.ok(!goalIds.includes('display_mode'));
+  const techIds = flow.getEligibleQuestions({ experienceLevel: 'intermediate', useCase: 'desktop', prefersGui: true }).map((q) => q.id);
+  assert.ok(techIds.includes('display_mode'));
+});
+
+test('QuestionFlow: Goal Mode infers display, audio, cadence, and boot answers from goal and device', () => {
+  const flow = new QuestionFlow(QUESTIONS);
+  const goal = (id: string) => QUESTIONS.find((q) => q.id === 'beginner_goal')!.options.find((o) => o.id === id)!.appliesCriteria;
+  const device = (id: string) => QUESTIONS.find((q) => q.id === 'beginner_device')!.options.find((o) => o.id === id)!.appliesCriteria;
+  const answered = new Set(['user_familiarity', 'beginner_goal', 'beginner_device', 'beginner_memory']);
+
+  const server: UserCriteria = { experienceLevel: 'beginner', ...goal('home_server'), ...device('standard_desktop'), maxRamMb: 4096 };
+  assert.equal(server.prefersGui, false);
+  assert.equal(server.releaseCadence, 'lts');
+  assert.equal(server.bootMedium, 'nvme-ssd');
+  const serverIds = flow.getEligibleQuestions(server, answered).map((q) => q.id);
+  for (const id of ['display_mode', 'release_cadence', 'boot_medium', 'audio_latency']) {
+    assert.ok(!serverIds.includes(id), `home server should not ask ${id}`);
+  }
+
+  const desktop: UserCriteria = { experienceLevel: 'beginner', ...goal('daily_desktop'), ...device('standard_laptop'), maxRamMb: 8192 };
+  const desktopIds = flow.getEligibleQuestions(desktop, answered).map((q) => q.id);
+  assert.ok(!desktopIds.includes('display_mode'));
+  assert.ok(!desktopIds.includes('audio_latency'));
+  assert.ok(desktopIds.includes('desktop_workflow_style'), 'personal preferences are still asked');
+
+  // Raspberry Pi boot medium is not inferred yet, so it is still asked
+  const pi: UserCriteria = { experienceLevel: 'beginner', ...goal('daily_desktop'), ...device('raspberry_pi'), maxRamMb: 4096 };
+  assert.equal(pi.bootMedium, undefined);
+  assert.ok(flow.getEligibleQuestions(pi, answered).some((q) => q.id === 'boot_medium'));
+
+  // Switching to Technical Mode re-offers inferred questions for fine-tuning
+  const techIds = flow.getEligibleQuestions({ ...server, experienceLevel: 'intermediate' }, answered).map((q) => q.id);
+  for (const id of ['display_mode', 'release_cadence', 'boot_medium']) {
+    assert.ok(techIds.includes(id), `Technical Mode should offer ${id}`);
+  }
 });
