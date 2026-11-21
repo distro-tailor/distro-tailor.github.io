@@ -86,6 +86,8 @@ export const EXPERT_FIELDS: ExpertFieldConfig[] = [
       { value: 'education-kids', label: 'Kids & Education' },
       { value: 'nas-storage', label: 'NAS & Family Photo Backups' },
       { value: 'game-server', label: 'Game & LAN Party Server' },
+      { value: 'community-network', label: 'Community Wi-Fi & Mesh' },
+      { value: 'offline-library', label: 'Offline Library Server' },
       { value: 'router-networking', label: 'Router & Firewall' },
       { value: 'kiosk-signage', label: 'Kiosk & Digital Signage' },
       { value: 'container-base', label: 'Container Base Image' },

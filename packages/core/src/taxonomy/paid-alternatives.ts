@@ -77,6 +77,20 @@ export const PAID_ALTERNATIVES: readonly PaidAlternative[] = [
     freeOptionIds: ['opnsense', 'openwrt']
   },
   {
+    id: 'splynx',
+    name: 'Splynx (ISP billing & management)',
+    website: 'https://splynx.com',
+    useCases: ['community-network'],
+    licensing: {
+      model: 'proprietary',
+      license: 'Proprietary subscription',
+      note: 'Priced per active subscriber per month.'
+    },
+    pitch: 'All-in-one ISP billing, customer portal, and network management for wireless ISPs.',
+    caveat: 'A monthly subscription priced per subscriber, so costs grow with every household you connect. Small community networks can run on OpenWrt or LibreMesh with simple shared accounting instead.',
+    freeOptionIds: ['libremesh', 'openwrt', 'opnsense']
+  },
+  {
     id: 'cubecoders-amp',
     name: 'AMP (CubeCoders Application Management Panel)',
     website: 'https://cubecoders.com/AMP',

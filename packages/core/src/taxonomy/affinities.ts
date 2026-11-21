@@ -123,6 +123,18 @@ export const HARDWARE_LOCKED_DISTROS: Readonly<Record<string, HardwareLock>> = {
 /** Larger than a full use-case match (25 + flagship bonus) so a hardware-locked distro cannot win on use case alone. */
 export const HARDWARE_LOCK_PENALTY = 45;
 
+/**
+ * Specialist builds of a general distro (LibreMesh is OpenWrt for community meshes; Internet-in-a-Box
+ * is Debian/Raspberry Pi OS for offline libraries). They lose SPECIALIST_PENALTY points unless the
+ * user asked for their specialty, so the general distro wins otherwise-equal requests.
+ */
+export const SPECIALIST_DISTRO_USE_CASES: Readonly<Record<string, PrimaryUseCase>> = {
+  libremesh: 'community-network',
+  'internet-in-a-box': 'offline-library'
+};
+
+export const SPECIALIST_PENALTY = 5;
+
 export interface HardwareBootSupport {
   /** True when the criteria describe an install directly on this hardware. */
   applies: (criteria: UserCriteria) => boolean;

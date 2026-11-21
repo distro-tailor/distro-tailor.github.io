@@ -45,6 +45,25 @@ export const LEGAL_CAVEATS: readonly LegalCaveat[] = [
     sourceUrl: 'https://www.minecraft.net/en-us/usage-guidelines'
   },
   {
+    id: 'radio-regulations',
+    title: 'Stay within your country\'s radio limits',
+    text: 'Outdoor Wi-Fi links must stay within the power and frequency limits your country sets for unlicensed bands. High-gain antennas can push a link over the legal limit, and some countries require a licence or registration for outdoor or point-to-point links. Check with your national telecom regulator.',
+    appliesTo: (c) => c.useCase === 'community-network'
+  },
+  {
+    id: 'sharing-internet-access',
+    title: 'Check the rules for sharing internet access',
+    text: 'Read your upstream provider\'s terms before sharing a connection with other households, and check whether your country requires registration or a licence to provide internet access to others, especially if you charge for it.',
+    appliesTo: (c) => c.useCase === 'community-network'
+  },
+  {
+    id: 'offline-content-licences',
+    title: 'Mind the licence of each content pack',
+    text: 'Most offline content (Wikipedia, OpenStreetMap) is freely licensed and can be shared. Some packs are non-commercial only, such as Khan Academy videos (CC BY-NC-SA): fine for a school, library, or clinic, but not for resale.',
+    distroIds: ['internet-in-a-box'],
+    appliesTo: (c) => c.useCase === 'offline-library'
+  },
+  {
     id: 'kodi-third-party-addons',
     title: 'Stick to official Kodi add-ons',
     text: 'Install add-ons from the official Kodi repository. Many third-party add-ons stream pirated movies and TV, which is illegal in most countries.',

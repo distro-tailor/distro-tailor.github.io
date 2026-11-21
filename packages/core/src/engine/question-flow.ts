@@ -77,3 +77,13 @@ function withoutOwnKeys(question: Question, criteria: UserCriteria): UserCriteri
   }
   return stripped as UserCriteria;
 }
+
+/**
+ * The question with only the options that fit the answers so far (see QuestionOption.showIf).
+ * Every option stays when none would be visible, so a question can never render empty.
+ */
+export function withVisibleOptions(question: Question, criteria: UserCriteria): Question {
+  const visible = question.options.filter((opt) => !opt.showIf || opt.showIf(criteria));
+  if (visible.length === question.options.length || visible.length === 0) return question;
+  return { ...question, options: visible };
+}

@@ -193,6 +193,18 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     platform: 'router-firewall',
     architecture: 'x86_64'
   },
+  libremesh: {
+    experienceLevel: 'intermediate',
+    useCase: 'community-network',
+    platform: 'router-firewall',
+    architecture: 'mips'
+  },
+  'internet-in-a-box': {
+    experienceLevel: 'beginner',
+    useCase: 'offline-library',
+    platform: 'embedded-sbc',
+    architecture: 'arm64'
+  },
   opnsense: {
     experienceLevel: 'intermediate',
     useCase: 'router-networking',

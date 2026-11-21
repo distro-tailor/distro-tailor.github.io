@@ -6,7 +6,8 @@ import {
   evaluateCriteria,
   QuestionFlow,
   QUESTIONS,
-  UserCriteria
+  UserCriteria,
+  withVisibleOptions
 } from '@distro-tailor/core';
 
 export async function runInteractiveWizard(): Promise<void> {
@@ -20,6 +21,7 @@ export async function runInteractiveWizard(): Promise<void> {
   let nextQuestion = flow.getNextQuestion(criteria, answeredQuestionIds);
 
   while (nextQuestion) {
+    nextQuestion = withVisibleOptions(nextQuestion, criteria);
     const progress = flow.getProgress(criteria, answeredQuestionIds);
     const progressLabel = pc.dim(`[Step ${progress.current + 1}/${progress.total}]`);
 

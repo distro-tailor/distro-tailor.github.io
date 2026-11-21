@@ -1,4 +1,4 @@
-import { DISTRO_REGISTRY, evaluateCriteria, QuestionFlow, QUESTIONS } from '@distro-tailor/core';
+import { DISTRO_REGISTRY, evaluateCriteria, QuestionFlow, QUESTIONS, withVisibleOptions } from '@distro-tailor/core';
 import { renderCriteriaChips } from './components/chips.js';
 import { renderDistroDetailModal } from './components/distro-modal.js';
 import { renderFooter, renderLeaderboard, renderNavbar } from './components/layout.js';
@@ -73,6 +73,10 @@ function render(): void {
 
   if (!currentQuestion) {
     currentQuestion = flow.getNextQuestion(state.criteria, state.answeredQuestionIds);
+  }
+  // Render, keyboard shortcuts, and click handlers all see only the options that fit the answers so far
+  if (currentQuestion) {
+    currentQuestion = withVisibleOptions(currentQuestion, state.criteria);
   }
 
   const currentIdx = currentQuestion ? eligible.findIndex((q) => q.id === currentQuestion.id) : eligible.length;

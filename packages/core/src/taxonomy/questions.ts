@@ -21,6 +21,8 @@ const NON_AUDIO_USE_CASES = new Set([
   'browser-wasm',
   'server',
   'game-server',
+  'community-network',
+  'offline-library',
   'nas-storage',
   'smart-home',
   'hypervisor-vms',
@@ -38,6 +40,8 @@ const NON_PERIPHERAL_USE_CASES = new Set([
   'browser-wasm',
   'server',
   'game-server',
+  'community-network',
+  'offline-library',
   'nas-storage',
   'hypervisor-vms',
   'ai-gpu-compute',
@@ -200,6 +204,27 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'game-server', footprint: 'lean', platform: 'bare-metal', prefersGui: false, releaseCadence: 'lts' }
       },
       {
+        id: 'community_wifi',
+        label: 'Community Wi-Fi or Village Internet',
+        description: 'Share internet across a neighbourhood, village, or campus with rooftop Wi-Fi links or a self-healing mesh of cheap routers',
+        icon: '📶',
+        appliesCriteria: { useCase: 'community-network', platform: 'router-firewall', footprint: 'minimal', prefersGui: false, releaseCadence: 'lts' }
+      },
+      {
+        id: 'offline_library',
+        label: 'Offline Library & Learning Server',
+        description: 'Serve Wikipedia, maps, books, and courses over local Wi-Fi to phones and laptops, with little or no internet',
+        icon: '📚',
+        appliesCriteria: { useCase: 'offline-library', platform: 'embedded-sbc', footprint: 'lean', prefersGui: false, releaseCadence: 'lts' }
+      },
+      {
+        id: 'community_server',
+        label: 'Community Server (Shared Files, Chat & Calls)',
+        description: 'One low-power box for a school, clinic, or co-op: shared files (Nextcloud), chat, and video calls (Jitsi) on the local network',
+        icon: '🤝',
+        appliesCriteria: { useCase: 'server', platform: 'bare-metal', footprint: 'lean', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'community' }
+      },
+      {
         id: 'nas_photo_backup',
         label: 'Family Photo/Video Backup & Home Storage (NAS)',
         description: 'Auto-backup family phone photos and videos over Wi-Fi, share files at home, and ditch monthly cloud fees',
@@ -313,6 +338,20 @@ export const QUESTIONS: Question[] = [
         description: 'Minecraft (Java/Bedrock), SteamCMD dedicated servers, LinuxGSM, or a LAN cache for game downloads',
         icon: '🎮',
         appliesCriteria: { useCase: 'game-server', platform: 'server', prefersGui: false }
+      },
+      {
+        id: 'community_isp',
+        label: 'Community ISP or Mesh Network',
+        description: 'Community wireless network, mesh nodes, or a small ISP edge: OpenWrt, LibreMesh, or an OPNsense gateway',
+        icon: '📶',
+        appliesCriteria: { useCase: 'community-network', platform: 'router-firewall', prefersGui: false }
+      },
+      {
+        id: 'offline_library_server',
+        label: 'Offline Content & Learning Server',
+        description: 'Kiwix / Internet-in-a-Box hotspot serving offline Wikipedia, maps, and course packs',
+        icon: '📚',
+        appliesCriteria: { useCase: 'offline-library', prefersGui: false }
       },
       {
         id: 'container_base',
@@ -527,6 +566,14 @@ export const QUESTIONS: Question[] = [
         description: 'Open-standard instruction set architecture (ISA) single-board computer or developer workstation',
         icon: '📐',
         appliesCriteria: { architecture: 'riscv64', platform: 'embedded-sbc', footprint: 'lean', formFactor: 'sbc', bootMedium: 'sd-card-usb' }
+      },
+      {
+        id: 'wifi_router',
+        label: 'Wi-Fi Router or Outdoor Radio',
+        description: 'A cheap home router or outdoor Wi-Fi radio that OpenWrt supports (TP-Link, GL.iNet, Ubiquiti, and similar)',
+        icon: '📡',
+        appliesCriteria: { platform: 'router-firewall', footprint: 'minimal', formFactor: 'low-power' },
+        showIf: (criteria) => criteria.useCase === 'community-network' || criteria.useCase === 'router-networking'
       }
     ]
   },

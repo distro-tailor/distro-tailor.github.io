@@ -78,6 +78,8 @@ export type PrimaryUseCase =
   | 'router-networking'
   | 'security-pentest'
   | 'game-server'
+  | 'community-network'
+  | 'offline-library'
   | 'browser-wasm';
 
 export interface AlternativeComparison {
@@ -354,7 +356,7 @@ export type GuestPlatform = 'kvm' | 'vmware' | 'hyperv' | 'virtualbox';
  * Where the machine will run. Not scored: it decides which legal notes apply (e.g. NVIDIA's
  * GeForce driver licence excludes datacenter deployment).
  */
-export type DeploymentSite = 'home' | 'office' | 'datacenter';
+export type DeploymentSite = 'home' | 'office' | 'datacenter' | 'community';
 
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
@@ -409,6 +411,8 @@ export interface QuestionOption {
   icon?: string;
   appliesCriteria: Partial<UserCriteria>;
   isDefault?: boolean;
+  /** Show this option only when it fits the answers so far (e.g. a Wi-Fi router only for network goals). */
+  showIf?: (criteria: UserCriteria) => boolean;
 }
 
 export interface QuestionTip {

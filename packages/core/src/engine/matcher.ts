@@ -21,6 +21,8 @@ import {
   GUI_CAPABLE_DISTRO_IDS,
   HARDWARE_BOOT_SUPPORT,
   HARDWARE_LOCK_PENALTY,
+  SPECIALIST_DISTRO_USE_CASES,
+  SPECIALIST_PENALTY,
   HARDWARE_LOCKED_DISTROS,
   KERNEL_FLAVOR_AFFINITIES,
   NETWORKING_STACK_AFFINITIES,
@@ -262,6 +264,12 @@ export function evaluateCriteria(
       earned -= HARDWARE_LOCK_PENALTY;
       reasons.push({ feature: 'Hardware Lock', matched: false, explanation: hardwareLock.explanation });
     }
+    // 4C2. Specialist builds lead only when their specialty is requested
+    const specialty = SPECIALIST_DISTRO_USE_CASES[distro.id];
+    if (specialty && criteria.useCase !== specialty) {
+      earned -= SPECIALIST_PENALTY;
+    }
+
     // 4D. Hardware only a few distros can boot (e.g. Apple Silicon Macs need Asahi Linux)
     for (const support of HARDWARE_BOOT_SUPPORT) {
       if (support.applies(criteria) && !support.bootableDistroIds.includes(distro.id)) {

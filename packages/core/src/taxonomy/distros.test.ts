@@ -4,7 +4,7 @@ import { ALLOWED_LICENSE_MODELS, DISTRO_REGISTRY } from './distros.js';
 import { PAID_ALTERNATIVES } from './paid-alternatives.js';
 import { getDistroLegalCaveats, LEGAL_CAVEATS } from './legal-caveats.js';
 import { evaluateCriteria } from '../engine/matcher.js';
-import { QuestionFlow } from '../engine/question-flow.js';
+import { QuestionFlow, withVisibleOptions } from '../engine/question-flow.js';
 import { QUESTIONS } from './questions.js';
 import { deserializeCriteriaFromParams, serializeCriteriaToParams } from '../migrations/url-schema.js';
 import { DistroProfile } from '../types.js';
@@ -145,4 +145,41 @@ test('Game servers: free server OS on the hardware you have, with paid hosts onl
   const ids = flow.getEligibleQuestions({ experienceLevel: 'beginner', useCase: 'game-server', platform: 'bare-metal' }).map((q) => q.id);
   assert.ok(!ids.includes('audio_latency'));
   assert.ok(!ids.includes('attached_peripherals'));
+});
+
+test('Community networks: mesh firmware on routers and boards, an OPNsense gateway on PCs', () => {
+  const opt = (q: string, id: string) => QUESTIONS.find((x) => x.id === q)!.options.find((o) => o.id === id)!.appliesCriteria;
+  const deviceKeys = new Set(QUESTIONS.find((q) => q.id === 'beginner_device')!.options.flatMap((o) => Object.keys(o.appliesCriteria)));
+  const wizard = (goal: string, device: string) => ({
+    experienceLevel: 'beginner' as const,
+    ...Object.fromEntries(Object.entries(opt('beginner_goal', goal)).filter(([k]) => !deviceKeys.has(k))),
+    ...opt('beginner_device', device)
+  });
+
+  assert.equal(evaluateCriteria(wizard('community_wifi', 'wifi_router')).bestMatch.distro.id, 'libremesh');
+  assert.equal(evaluateCriteria(wizard('community_wifi', 'raspberry_pi')).bestMatch.distro.id, 'libremesh');
+  assert.equal(evaluateCriteria(wizard('community_wifi', 'standard_desktop')).bestMatch.distro.id, 'opnsense');
+  assert.equal(evaluateCriteria(wizard('offline_library', 'raspberry_pi')).bestMatch.distro.id, 'internet-in-a-box');
+
+  const community = evaluateCriteria(wizard('community_wifi', 'wifi_router'));
+  assert.deepEqual(community.paidAlternatives.map((a) => a.id), ['splynx']);
+  for (const id of ['radio-regulations', 'sharing-internet-access']) {
+    assert.ok(community.legalCaveats.some((c) => c.id === id), id);
+  }
+  assert.ok(evaluateCriteria(wizard('offline_library', 'raspberry_pi')).legalCaveats.some((c) => c.id === 'offline-content-licences'));
+});
+
+test('Specialist builds lose to their general distro unless their specialty is requested', () => {
+  assert.equal(evaluateCriteria({ platform: 'router-firewall', architecture: 'mips', useCase: 'router-networking' }).bestMatch.distro.id, 'openwrt');
+  assert.notEqual(evaluateCriteria({ useCase: 'education-kids' }).bestMatch.distro.id, 'internet-in-a-box');
+});
+
+test('Option visibility: the Wi-Fi router device is only offered for network goals', () => {
+  const device = QUESTIONS.find((q) => q.id === 'beginner_device')!;
+  const ids = (useCase: Parameters<typeof evaluateCriteria>[0]['useCase']) =>
+    withVisibleOptions(device, { experienceLevel: 'beginner', useCase }).options.map((o) => o.id);
+  assert.ok(ids('community-network').includes('wifi_router'));
+  assert.ok(ids('router-networking').includes('wifi_router'));
+  assert.ok(!ids('desktop').includes('wifi_router'));
+  assert.ok(ids('desktop').includes('standard_desktop'));
 });

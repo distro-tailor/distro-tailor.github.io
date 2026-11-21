@@ -1016,7 +1016,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     cLibraries: ['musl'],
     stateModel: 'read-only-rootfs',
     experienceLevel: 'intermediate',
-    primaryUseCases: ['router-networking', 'iot-embedded'],
+    primaryUseCases: ['router-networking', 'iot-embedded', 'community-network'],
     packageManager: 'opkg',
     rollingRelease: false,
     licensing: {
@@ -1047,6 +1047,44 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     }
   },
   {
+    id: 'libremesh',
+    name: 'LibreMesh',
+    tagline: 'Community mesh firmware for neighbourhood and village Wi-Fi',
+    description:
+      'A modular framework built on OpenWrt for community wireless mesh networks. Flash low-cost routers and they find each other automatically, share one or more internet uplinks across the whole mesh, and route around nodes that fail. Used by community networks in Latin America and beyond, including the LibreRouter project.',
+    website: 'https://libremesh.org',
+    documentationUrl: 'https://libremesh.org/docs/',
+    logoEmoji: '🕸️',
+    platforms: ['router-firewall', 'embedded-sbc'],
+    architectures: ['mips', 'arm64', 'armv7'],
+    footprint: 'minimal',
+    minRamMb: 64,
+    initSystems: ['busybox'],
+    cLibraries: ['musl'],
+    stateModel: 'read-only-rootfs',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['community-network', 'router-networking'],
+    packageManager: 'opkg',
+    rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'Open source on the OpenWrt (GPL-2.0) base'
+    },
+    highlights: [
+      'Nodes configure themselves and join the mesh automatically: no network engineer needed per node',
+      'Shares one or several internet uplinks across the whole community network',
+      'Runs on low-cost routers that OpenWrt supports, and keeps working locally when the uplink is down',
+      'Web interface (lime-app) shows the mesh, node health, and signal quality'
+    ],
+    tradeoffs: [
+      'Only runs on routers OpenWrt supports; check the device list before buying hardware',
+      'For a larger community ISP core, pair it with an OPNsense or OpenWrt gateway and LibreQoS (free up to 1,000 subscribers) for fair bandwidth sharing'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://libremesh.org'
+    }
+  },
+  {
     id: 'opnsense',
     name: 'OPNsense',
     osFamily: 'bsd',
@@ -1065,7 +1103,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     cLibraries: ['bsd-libc'],
     stateModel: 'mutable',
     experienceLevel: 'intermediate',
-    primaryUseCases: ['router-networking'],
+    primaryUseCases: ['router-networking', 'community-network'],
     packageManager: 'pkg',
     rollingRelease: false,
     licensing: {
@@ -1191,6 +1229,44 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     ],
     prebuiltImage: {
       downloadUrl: 'https://www.armbian.com/download/'
+    }
+  },
+  {
+    id: 'internet-in-a-box',
+    name: 'Internet-in-a-Box (IIAB)',
+    tagline: 'Offline library server: Wikipedia, maps, books, and courses over local Wi-Fi',
+    description:
+      'Turns a Raspberry Pi or small PC into a local Wi-Fi hotspot that serves offline Wikipedia and other Kiwix libraries, OpenStreetMap maps, e-books, and course packs to any phone or laptop with a browser. Built for schools, clinics, and communities with little or no internet. Installs on Raspberry Pi OS, Debian, or Ubuntu, or from prebuilt microSD images.',
+    website: 'https://internet-in-a-box.org',
+    documentationUrl: 'https://github.com/iiab/iiab/wiki',
+    logoEmoji: '📚',
+    platforms: ['embedded-sbc', 'bare-metal', 'server'],
+    architectures: ['arm64', 'armv7', 'x86_64'],
+    footprint: 'lean',
+    minRamMb: 1024,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'beginner',
+    primaryUseCases: ['offline-library'],
+    packageManager: 'apt',
+    rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL (IIAB) on a Debian / Raspberry Pi OS base'
+    },
+    highlights: [
+      'Kiwix serves offline Wikipedia, Wiktionary, and other searchable ZIM libraries',
+      'Offline OpenStreetMap maps, e-books, and course and video packs',
+      'Built-in Wi-Fi hotspot: users connect with any phone or laptop browser, no app needed',
+      'Runs on a battery- or solar-powered Raspberry Pi; no internet needed after setup'
+    ],
+    tradeoffs: [
+      'Content packs are large (the full English Wikipedia with images is around 100 GB); download them where bandwidth exists and carry them on a drive',
+      'Installs on top of Raspberry Pi OS, Debian, or Ubuntu rather than being a standalone distribution'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://github.com/iiab/iiab/wiki/IIAB-Installation'
     }
   },
   {

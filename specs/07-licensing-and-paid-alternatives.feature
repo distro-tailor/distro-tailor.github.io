@@ -99,3 +99,23 @@ Feature: Free & Open-Source Licensing Policy and Paid Alternatives
     And the wizard should not ask about pro audio or desktop peripherals
     And the results should list "AMP (CubeCoders)" and "Minecraft Realms" only as paid alternatives with caveats
     And the legal notes should remind the user to follow each game's server terms, such as Minecraft's EULA and usage guidelines
+
+  Scenario Outline: Communities with few resources can build their own network and services
+    Given the user picks the goal "<goal>"
+    And the device "<device>"
+    When the evaluation completes
+    Then the engine should recommend "<pick>"
+    And the results should include the legal note "<note>"
+
+    Examples:
+      | goal                                  | device                        | pick                     | note                                            |
+      | Community Wi-Fi or Village Internet   | Wi-Fi Router or Outdoor Radio | LibreMesh                | Stay within your country's radio limits         |
+      | Community Wi-Fi or Village Internet   | Raspberry Pi                  | LibreMesh                | Check the rules for sharing internet access     |
+      | Community Wi-Fi or Village Internet   | Standard Desktop PC           | OPNsense                 | Stay within your country's radio limits         |
+      | Offline Library & Learning Server     | Raspberry Pi                  | Internet-in-a-Box (IIAB) | Mind the licence of each content pack           |
+
+  Scenario: Community-network extras stay honest
+    Given the user picks "Community Wi-Fi or Village Internet"
+    Then "Splynx" should only appear as a paid alternative, priced per subscriber
+    And the "Wi-Fi Router or Outdoor Radio" device should only be offered for network goals
+    And specialist builds (LibreMesh, Internet-in-a-Box) should not win requests outside their specialty

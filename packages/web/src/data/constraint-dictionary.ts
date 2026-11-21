@@ -33,7 +33,9 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     'k8s-cluster': { label: 'Kubernetes Cluster Node', icon: '☸️' },
     'iot-embedded': { label: 'IoT & Microcontrollers', icon: '🤖' },
     'security-pentest': { label: 'Cybersecurity & Privacy', icon: '🛡️' },
-    'game-server': { label: 'Game & LAN Party Server', icon: '🎮' }
+    'game-server': { label: 'Game & LAN Party Server', icon: '🎮' },
+    'community-network': { label: 'Community Wi-Fi & Village Internet', icon: '📶' },
+    'offline-library': { label: 'Offline Library & Learning Server', icon: '📚' }
   },
   platform: {
     'bare-metal': { label: 'Physical PC / Laptop', icon: '💻' },
@@ -179,7 +181,8 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
   deploymentSite: {
     home: { label: 'Runs at Home / Homelab', icon: '🏠' },
     office: { label: 'Runs in an Office / Small-Business Server Room', icon: '🏢' },
-    datacenter: { label: 'Runs in a Datacenter / Hosting / ISP Network', icon: '🏭' }
+    datacenter: { label: 'Runs in a Datacenter / Hosting / ISP Network', icon: '🏭' },
+    community: { label: 'Runs at a Community or Remote Site', icon: '🏘️' }
   },
   networkingStack: {
     networkmanager: { label: 'NetworkManager (Desktop & Wi-Fi)', icon: '📶' },

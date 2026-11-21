@@ -66,6 +66,8 @@ export const USE_CASE_VALUES: EnumCatalog<PrimaryUseCase> = {
   'router-networking': true,
   'security-pentest': true,
   'game-server': true,
+  'community-network': true,
+  'offline-library': true,
   'browser-wasm': true
 };
 
@@ -242,7 +244,8 @@ export const GUEST_PLATFORM_VALUES: EnumCatalog<GuestPlatform> = {
 export const DEPLOYMENT_SITE_VALUES: EnumCatalog<DeploymentSite> = {
   home: true,
   office: true,
-  datacenter: true
+  datacenter: true,
+  community: true
 };
 
 export const NETWORKING_STACK_VALUES: EnumCatalog<NetworkingStack> = {
