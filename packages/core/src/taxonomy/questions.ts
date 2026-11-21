@@ -329,8 +329,8 @@ export const QUESTIONS: Question[] = [
       },
       {
         id: 'iot_embedded',
-        label: 'IoT / Microcontroller / Embedded Hardware',
-        description: 'Single-board computers, sensors, routers, robotics, or extreme low-power boards',
+        label: 'IoT / Microcontroller / Embedded Hardware & SoMs',
+        description: 'Single-board computers, Compute Modules / SoMs, Hybrid SoCs (i.MX8), routers, or RTOS microcontrollers',
         icon: '🤖',
         appliesCriteria: { useCase: 'iot-embedded', platform: 'embedded-sbc' }
       },
@@ -403,8 +403,8 @@ export const QUESTIONS: Question[] = [
       },
       {
         id: 'raspberry_pi',
-        label: 'Raspberry Pi or Mini SBC Board',
-        description: 'Raspberry Pi 3, 4, 5, or similar developer single-board computers',
+        label: 'Raspberry Pi, Compute Module (SoM), or Mini SBC Board',
+        description: 'Raspberry Pi 3/4/5, Compute Modules (CM4/CM5), or similar single-board computers & System-on-Modules',
         icon: '🍓',
         appliesCriteria: { architecture: 'arm64', platform: 'embedded-sbc', formFactor: 'sbc' }
       },
@@ -513,7 +513,7 @@ export const QUESTIONS: Question[] = [
       {
         id: 'nommu_mcu',
         label: 'Microcontroller / NOMMU (No Memory Management Unit)',
-        description: 'ARM Cortex-M, STM32, ESP32, or extreme low-power chips',
+        description: 'ARM Cortex-M, STM32, ESP32, RP2040 — RTOS (Zephyr / FreeRTOS), MicroPython, or uClinux NOMMU',
         icon: '🔌',
         appliesCriteria: { architecture: 'nommu', footprint: 'micro' }
       }

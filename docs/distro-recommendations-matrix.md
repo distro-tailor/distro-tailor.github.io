@@ -1,7 +1,7 @@
 # 🎯 DistroTailor Archetype Matrix Audit Report
 
 > **Automated Sanity & AI Evaluation Matrix**
-> Generated: `2026-11-21T12:49:25.261Z` | Evaluated Archetypes: **27** | Status: **✅ ALL CHECKS HEALTHY**
+> Generated: `2026-11-21T13:07:47.270Z` | Evaluated Archetypes: **27** | Status: **✅ ALL CHECKS HEALTHY**
 
 ## 📊 Executive Summary
 

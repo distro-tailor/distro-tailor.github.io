@@ -525,9 +525,9 @@ test('Matcher: RAM constraints evaluate maxRamMb against minRamMb', () => {
   assert.equal(ramReason.matched, true);
 });
 
-test('Matcher: allMatches contains all 38 registered distributions ranked', () => {
+test('Matcher: allMatches contains all 40 registered distributions ranked', () => {
   const result = evaluateCriteria({});
-  assert.equal(result.allMatches.length, 38);
+  assert.equal(result.allMatches.length, 40);
   assert.equal(result.topMatches.length, 5);
   // Unconstrained baseline recommends Linux Mint at 100% instead of arbitrary Alpine 0%
   assert.equal(result.bestMatch.distro.id, 'linux-mint');
@@ -672,6 +672,25 @@ test('QuestionFlow & Matcher: coding_dev, music_audio_studio, and security_priva
     releaseCadence: 'rolling'
   });
   assert.equal(kaliRes.bestMatch.distro.id, 'kali-linux');
+
+  const zephyrRes = evaluateCriteria({
+    experienceLevel: 'systems-engineer',
+    useCase: 'iot-embedded',
+    platform: 'microcontroller',
+    architecture: 'nommu',
+    footprint: 'micro',
+    initPreference: 'custom'
+  });
+  assert.equal(zephyrRes.bestMatch.distro.id, 'zephyr');
+
+  const yoctoRes = evaluateCriteria({
+    experienceLevel: 'systems-engineer',
+    useCase: 'iot-embedded',
+    platform: 'embedded-sbc',
+    footprint: 'minimal',
+    statePreference: 'immutable-ostree'
+  });
+  assert.equal(yoctoRes.bestMatch.distro.id, 'yocto');
 });
 
 test('QuestionFlow & Matcher: Evaluates desktop workflow familiarity (Windows, macOS, Mobile/Touch)', () => {

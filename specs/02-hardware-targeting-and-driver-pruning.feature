@@ -69,3 +69,10 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     And if the user specifies "low-power", the Makefile must configure "powersave" CPU governors and "cpufrequtils"
     And if the user specifies "handheld", the Makefile must configure "power-profiles-daemon" and game controller udev rules
     And if the user specifies "mac", the Makefile must inject "bcmwl-kernel-source" for proprietary Mac Broadcom Wi-Fi
+
+  Scenario: Embedded engineers targeting MCUs vs Compute Modules / SoMs receive tailored RTOS or Yocto/Buildroot options
+    Given the user is a "Systems Hacker / Embedded Engineer"
+    When the target hardware is a "microcontroller" with "nommu" architecture, "micro" footprint, and "custom" init
+    Then the engine should recommend "Zephyr RTOS" and note FreeRTOS and MicroPython alternatives
+    When the target hardware is an "embedded-sbc" SoM with "minimal" footprint and "immutable-ostree" state preference
+    Then the engine should recommend "Yocto Project" with a Buildroot comparison

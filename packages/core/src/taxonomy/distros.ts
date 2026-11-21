@@ -848,6 +848,82 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     recipeGeneratorId: 'buildroot-embedded'
   },
   {
+    id: 'zephyr',
+    name: 'Zephyr RTOS',
+    osFamily: 'independent',
+    kernelModel: 'microkernel',
+    tagline: 'Scalable, Linux Foundation real-time OS for microcontrollers and hybrid SoC real-time cores',
+    description:
+      'An open-source real-time operating system (RTOS) built for resource-constrained microcontrollers (ESP32, STM32, nRF52, RP2040) and Cortex-M/R cores inside hybrid SoCs (i.MX8). Uses Kconfig and Devicetree just like the Linux kernel, with built-in Bluetooth, Thread/Matter, and deterministic sub-millisecond scheduling.',
+    website: 'https://zephyrproject.org',
+    documentationUrl: 'https://docs.zephyrproject.org',
+    logoEmoji: '⚡',
+    platforms: ['microcontroller'],
+    architectures: ['nommu', 'armv7', 'arm64', 'riscv64'],
+    footprint: 'micro',
+    minRamMb: 1,
+    initSystems: ['custom'],
+    cLibraries: ['none'],
+    stateModel: 'read-only-rootfs',
+    experienceLevel: 'systems-engineer',
+    primaryUseCases: ['iot-embedded'],
+    rollingRelease: false,
+    highlights: [
+      'Fits in kilobytes of RAM on true MCUs (ESP32, STM32, nRF) where Linux cannot run',
+      'Uses Linux-style Kconfig & Devicetree, plus west build tooling',
+      'Pairs with Linux on Hybrid SoCs (e.g. NXP i.MX8 Cortex-M + Cortex-A via RPMsg)',
+      'Alternative: use FreeRTOS for minimal C firmware or MicroPython/CircuitPython for rapid Python scripting'
+    ],
+    tradeoffs: [
+      'Not a POSIX/Linux OS—cannot run standard Linux binaries, apt/apk packages, or desktop GUIs'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://docs.zephyrproject.org/latest/develop/getting_started/index.html'
+    }
+  },
+  {
+    id: 'yocto',
+    name: 'Yocto Project',
+    tagline: 'Industrial-grade custom Linux builder for System-on-Modules (SoMs), Compute Modules, and fleets',
+    description:
+      'The industry-standard framework (BitBake + OpenEmbedded) for building bespoke, reproducible embedded Linux distributions for commercial SoMs (Raspberry Pi CM4/CM5, NXP i.MX8, Toradex, Variscite) and hybrid FPGA SoCs with vendor BSP layers and long-term CVE tracking.',
+    website: 'https://www.yoctoproject.org',
+    documentationUrl: 'https://docs.yoctoproject.org',
+    logoEmoji: '🏭',
+    platforms: ['embedded-sbc', 'bare-metal', 'kiosk'],
+    architectures: ['arm64', 'armv7', 'x86_64', 'riscv64'],
+    footprint: 'minimal',
+    minRamMb: 64,
+    initSystems: ['systemd', 'busybox'],
+    cLibraries: ['glibc', 'musl'],
+    stateModel: 'immutable-ostree',
+    experienceLevel: 'systems-engineer',
+    primaryUseCases: ['iot-embedded', 'appliance-product'],
+    rollingRelease: false,
+    highlights: [
+      'Standard for commercial SoMs, Compute Modules, and multi-board product lines',
+      'Composable BSP and middleware layers (meta-raspberrypi, meta-freescale, Mender/RAUC OTA)',
+      'Generates SBOMs (SPDX) and supports reproducible binary caches (sstate)'
+    ],
+    tradeoffs: [
+      'Steep learning curve and heavy initial build times compared to Buildroot'
+    ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'Buildroot',
+        relation: 'competitor',
+        headline: 'Why Yocto Project instead of Buildroot?',
+        whyThisInstead:
+          'Yocto scales across multiple SoM hardware variants using layered BSPs, binary package feeds, and commercial OTA/SBOM compliance.',
+        tradeoffNotice:
+          'Buildroot is much simpler and faster to learn for a single-board appliance or sub-10MB rootfs.'
+      }
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://docs.yoctoproject.org/brief-yoctoprojectqs/index.html'
+    }
+  },
+  {
     id: 'openwrt',
     name: 'OpenWrt',
     tagline: 'The premier Linux distribution for routers and embedded network devices',

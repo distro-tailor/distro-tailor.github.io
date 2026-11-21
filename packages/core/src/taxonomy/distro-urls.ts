@@ -167,7 +167,23 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     experienceLevel: 'systems-engineer',
     useCase: 'iot-embedded',
     architecture: 'nommu',
-    footprint: 'micro'
+    footprint: 'micro',
+    initPreference: 'busybox'
+  },
+  zephyr: {
+    experienceLevel: 'systems-engineer',
+    useCase: 'iot-embedded',
+    platform: 'microcontroller',
+    architecture: 'nommu',
+    footprint: 'micro',
+    initPreference: 'custom'
+  },
+  yocto: {
+    experienceLevel: 'systems-engineer',
+    useCase: 'iot-embedded',
+    platform: 'embedded-sbc',
+    footprint: 'minimal',
+    statePreference: 'immutable-ostree'
   },
   openwrt: {
     experienceLevel: 'intermediate',
