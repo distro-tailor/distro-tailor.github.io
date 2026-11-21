@@ -303,3 +303,26 @@ test('Results View: legal notes and the distro modal carry the "not legal advice
   const html = renderResultsView(evaluateCriteria(criteria), state);
   assert.ok(html.includes('For information only, not legal advice.'));
 });
+
+test('Results View: winner and recipe action buttons use flex-auto so mobile flex-wrap does not clip', () => {
+  const state: AppState = {
+    criteria: { useCase: 'server', platform: 'vm', architecture: 'x86_64' },
+    answeredQuestionIds: new Set<string>(),
+    viewingQuestionId: null,
+    panelOpen: {},
+    theme: 'dark',
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const html = renderResultsView(evaluateCriteria(state.criteria), state);
+  assert.match(html, /id="btn-modify-answers"[^>]*flex-auto/);
+  assert.match(html, /id="btn-share-match"[^>]*flex-auto/);
+  assert.match(html, /id="btn-official-site"[^>]*flex-auto/);
+  assert.match(html, /id="btn-share-recipe"[^>]*flex-auto/);
+  assert.match(html, /id="btn-copy-recipe"[^>]*flex-auto/);
+});

@@ -24,14 +24,14 @@ export function renderWinnerBanner(ctx: ResultsViewContext): string {
             </div>
           </div>
 
-          <div class="flex items-center gap-2 w-full lg:w-auto flex-wrap shrink-0 justify-start sm:justify-end">
-            <button id="btn-modify-answers" class="btn-secondary flex-1 sm:flex-none whitespace-nowrap" title="Return to questions to review or adjust choices">
+          <div class="flex items-center gap-2 w-full lg:w-auto flex-wrap min-w-0 max-w-full lg:shrink-0 justify-start sm:justify-end">
+            <button id="btn-modify-answers" class="btn-secondary flex-auto sm:flex-none whitespace-nowrap" title="Return to questions to review or adjust choices">
               <span>←</span> Modify Choices
             </button>
-            <button id="btn-share-match" class="btn-secondary flex-1 sm:flex-none whitespace-nowrap" title="Share this tailored match permalink">
+            <button id="btn-share-match" class="btn-secondary flex-auto sm:flex-none whitespace-nowrap" title="Share this tailored match permalink">
               <span>🔗</span> Share Match
             </button>
-            <a id="btn-official-site" href="${best.distro.website}" target="_blank" rel="noopener noreferrer" class="btn-primary flex-1 sm:flex-none whitespace-nowrap">
+            <a id="btn-official-site" href="${best.distro.website}" target="_blank" rel="noopener noreferrer" class="btn-primary flex-auto sm:flex-none whitespace-nowrap">
               Official Site ↗
             </a>
           </div>

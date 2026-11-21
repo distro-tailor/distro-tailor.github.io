@@ -31,11 +31,11 @@ export function renderRecipePanel(ctx: ResultsViewContext): string {
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 min-w-0">
               <p class="text-xs text-slate-400 break-words">${recipe.summary}</p>
               
-              <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap shrink-0">
-                <button id="btn-share-recipe" class="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Share this build recipe permalink">
+              <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap min-w-0 max-w-full sm:shrink-0">
+                <button id="btn-share-recipe" class="flex-auto sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Share this build recipe permalink">
                   <span>🔗</span> Share
                 </button>
-                <button id="btn-copy-recipe" class="flex-1 sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+                <button id="btn-copy-recipe" class="flex-auto sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
                   <span>📋</span> Copy File
                 </button>
               </div>

@@ -150,48 +150,54 @@ export function renderWizardQuestion(
       </div>
 
       <!-- Top Quick Navigation Bar (Skip / Back / Confirm on top) -->
-      <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-800/40 text-xs gap-2 min-w-0">
-        <button id="btn-back-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1 ${
-          !canGoBack ? 'opacity-30 cursor-not-allowed' : ''
-        }">
-          <span>←</span> Previous
-        </button>
-
-        <div class="flex items-center gap-2 shrink-0">
-          ${
-            hasUnlockedResults
-              ? `
-            <button id="btn-jump-results-top" class="px-2.5 sm:px-3 py-1.5 rounded-lg flex items-center gap-1 text-xs font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900/60 transition-colors shadow-sm cursor-pointer" title="Jump straight back to your tailored match results">
-              <span>🎯 Results (${resultsScore}%)</span>
-              <span>↗</span>
+      <div class="flex flex-wrap items-center justify-between pb-4 mb-5 border-b border-slate-800/40 text-xs gap-2 min-w-0">
+        ${
+          hasUnlockedResults
+            ? `
+          <button id="btn-jump-results-top" class="flex-auto sm:flex-none justify-center px-2.5 sm:px-3 py-1.5 rounded-lg flex items-center gap-1 text-xs font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900/60 transition-colors shadow-sm cursor-pointer whitespace-nowrap" title="Jump straight back to your tailored match results">
+            <span>🎯 Results (${resultsScore}%)</span>
+            <span>↗</span>
+          </button>
+          <div class="flex flex-wrap items-center gap-2 min-w-0 max-w-full sm:shrink-0 justify-end flex-auto sm:flex-none">
+            <button id="btn-back-top" class="btn-secondary flex-auto sm:flex-none !px-3 !py-1.5 rounded-lg flex items-center gap-1 whitespace-nowrap ${
+              !canGoBack ? 'opacity-30 cursor-not-allowed' : ''
+            }">
+              <span>←</span> Previous
             </button>
-          `
-              : ''
-          }
+        `
+            : `
+          <button id="btn-back-top" class="btn-secondary flex-auto sm:flex-none !px-3 !py-1.5 rounded-lg flex items-center gap-1 whitespace-nowrap ${
+            !canGoBack ? 'opacity-30 cursor-not-allowed' : ''
+          }">
+            <span>←</span> Previous
+          </button>
+          <div class="flex flex-wrap items-center gap-2 min-w-0 max-w-full sm:shrink-0 justify-end flex-auto sm:flex-none">
+        `
+        }
           ${
             question.isMultiSelect
               ? `
-            <button id="btn-multiselect-confirm-top" class="btn-primary !px-3.5 !py-1.5 rounded-lg flex items-center gap-1.5">
+            <button id="btn-multiselect-confirm-top" class="btn-primary flex-auto sm:flex-none !px-3.5 !py-1.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap">
               <span>Confirm & Next</span>
               <span>→</span>
             </button>
           `
               : hasSelectedAnswer
                 ? `
-            <button id="btn-next-top" class="btn-primary !px-3.5 !py-1.5 rounded-lg flex items-center gap-1.5">
+            <button id="btn-next-top" class="btn-primary flex-auto sm:flex-none !px-3.5 !py-1.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap">
               <span>${progress.current === progress.total - 1 ? 'View Final Results' : 'Next Question'}</span>
               <span>→</span>
             </button>
           `
                 : hasDefault
                   ? `
-            <button id="btn-skip-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1">
+            <button id="btn-skip-top" class="btn-secondary flex-auto sm:flex-none !px-3 !py-1.5 rounded-lg flex items-center gap-1 whitespace-nowrap">
               <span>Next (Use Default)</span>
               <span>→</span>
             </button>
           `
                   : `
-            <button id="btn-skip-top" class="btn-secondary !px-3 !py-1.5 rounded-lg flex items-center gap-1">
+            <button id="btn-skip-top" class="btn-secondary flex-auto sm:flex-none !px-3 !py-1.5 rounded-lg flex items-center gap-1 whitespace-nowrap">
               <span>Next Question</span>
               <span>→</span>
             </button>
@@ -432,47 +438,53 @@ export function renderWizardQuestion(
       }
 
       <!-- Navigation Controls -->
-      <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-800/80 gap-2 min-w-0">
-        <button id="btn-back" class="btn-secondary ${
-          !canGoBack ? 'opacity-30 cursor-not-allowed' : ''
-        }">
-          ← Previous Question
-        </button>
-
-        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-          ${
-            hasUnlockedResults
-              ? `
-            <button id="btn-jump-results" class="px-3 sm:px-4 py-2 rounded-xl flex items-center gap-1.5 text-xs sm:text-sm font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900/60 transition-colors shadow-sm cursor-pointer" title="Jump straight back to your tailored match results">
-              <span>🎯 Return to Results (${resultsScore}%)</span>
-              <span>↗</span>
+      <div class="flex flex-wrap items-center justify-between mt-8 pt-6 border-t border-slate-800/80 gap-2 min-w-0">
+        ${
+          hasUnlockedResults
+            ? `
+          <button id="btn-jump-results" class="flex-auto sm:flex-none justify-center px-3 sm:px-4 py-2 rounded-xl flex items-center gap-1.5 text-xs sm:text-sm font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900/60 transition-colors shadow-sm cursor-pointer whitespace-nowrap" title="Jump straight back to your tailored match results">
+            <span>🎯 Return to Results (${resultsScore}%)</span>
+            <span>↗</span>
+          </button>
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0 max-w-full sm:shrink-0 justify-end flex-auto sm:flex-none">
+            <button id="btn-back" class="btn-secondary flex-auto sm:flex-none whitespace-nowrap ${
+              !canGoBack ? 'opacity-30 cursor-not-allowed' : ''
+            }">
+              ← Previous Question
             </button>
-          `
-              : ''
-          }
+        `
+            : `
+          <button id="btn-back" class="btn-secondary flex-auto sm:flex-none whitespace-nowrap ${
+            !canGoBack ? 'opacity-30 cursor-not-allowed' : ''
+          }">
+            ← Previous Question
+          </button>
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0 max-w-full sm:shrink-0 justify-end flex-auto sm:flex-none">
+        `
+        }
           ${
             question.isMultiSelect
               ? `
-            <button id="btn-multiselect-confirm" class="btn-primary">
+            <button id="btn-multiselect-confirm" class="btn-primary flex-auto sm:flex-none whitespace-nowrap">
               <span>Confirm Choices & Continue</span>
               <span>→</span>
             </button>
           `
               : hasSelectedAnswer
                 ? `
-            <button id="btn-next" class="btn-primary">
+            <button id="btn-next" class="btn-primary flex-auto sm:flex-none whitespace-nowrap">
               <span>${progress.current === progress.total - 1 ? 'View Final Results' : 'Next Question'}</span>
               <span>→</span>
             </button>
           `
                 : hasDefault
                   ? `
-            <button id="btn-skip" class="btn-secondary">
+            <button id="btn-skip" class="btn-secondary flex-auto sm:flex-none whitespace-nowrap">
               Next (Use Default) →
             </button>
           `
                   : `
-            <button id="btn-skip" class="btn-secondary">
+            <button id="btn-skip" class="btn-secondary flex-auto sm:flex-none whitespace-nowrap">
               Next Question →
             </button>
           `

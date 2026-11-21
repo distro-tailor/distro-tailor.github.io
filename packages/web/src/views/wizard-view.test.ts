@@ -378,4 +378,32 @@ test('Wizard View: after toggling to Technical Mode, answered technical_use_case
   assert.ok(archHtml.includes('★ Standard Default'), 'Unanswered hardware_architecture must highlight default x86_64');
 });
 
+test('Wizard View: top and bottom navigation bars wrap cleanly when modifying questions with unlocked results', () => {
+  const q = QUESTIONS.find((item) => item.id === 'technical_use_case')!;
+  const state: AppState = {
+    criteria: {
+      experienceLevel: 'intermediate',
+      useCase: 'server',
+      platform: 'vm'
+    },
+    answeredQuestionIds: new Set(['user_familiarity', 'technical_use_case', 'hardware_architecture']),
+    activeTab: 'wizard',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const html = renderWizardQuestion(q, { current: 1, total: 8 }, state, evaluateCriteria(state.criteria));
+  assert.match(html, /id="btn-jump-results-top"[^>]*flex-auto/);
+  assert.match(html, /id="btn-jump-results"[^>]*flex-auto/);
+  assert.match(html, /id="btn-back-top"[^>]*flex-auto/);
+  assert.match(html, /id="btn-back"[^>]*flex-auto/);
+  assert.ok(html.indexOf('id="btn-jump-results-top"') < html.indexOf('id="btn-back-top"'));
+  assert.ok(html.indexOf('id="btn-jump-results"') < html.indexOf('id="btn-back"'));
+  assert.doesNotMatch(html, /<div class="flex items-center gap-2 shrink-0">/);
+  assert.doesNotMatch(html, /<div class="flex items-center gap-2 sm:gap-3 shrink-0">/);
+});
+
 

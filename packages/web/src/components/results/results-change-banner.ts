@@ -80,9 +80,9 @@ export function renderResultsChangeBanner(ctx: ResultsViewContext): string {
           ${unanswered > 0 ? `<p class="text-amber-300/90 text-[11px] break-words">${describeOpenQuestions(unanswered, unlocked)}</p>` : ''}
         </div>
       </div>
-      <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto justify-end">
-        ${unanswered > 0 ? `<button id="btn-answer-unlocked" class="flex-1 sm:flex-none px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-all shadow-md cursor-pointer">Answer ${unanswered === 1 ? 'it' : 'them'}</button>` : ''}
-        <button id="btn-dismiss-change-banner" class="btn-secondary flex-1 sm:flex-none" aria-label="Dismiss change summary">Dismiss</button>
+      <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto min-w-0 max-w-full justify-end">
+        ${unanswered > 0 ? `<button id="btn-answer-unlocked" class="flex-auto sm:flex-none px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-all shadow-md cursor-pointer">Answer ${unanswered === 1 ? 'it' : 'them'}</button>` : ''}
+        <button id="btn-dismiss-change-banner" class="btn-secondary flex-auto sm:flex-none" aria-label="Dismiss change summary">Dismiss</button>
       </div>
     </div>
   `;
