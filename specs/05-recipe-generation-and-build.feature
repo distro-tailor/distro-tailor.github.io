@@ -149,6 +149,14 @@ Feature: Reproducible Recipe Generation & Turnkey Build Harness
     Then "debootstrap-debian" must use "grub-efi-arm64-bin" without "grub-pc-bin"
     And "cloud-init-qcow2" must use "ARCH := arm64" and "linux-image-cloud-arm64"
 
+  Scenario: On-Demand CI Verification of Persona Build Recipes
+    Given a maintainer triggers the "Verify Persona Recipe Builds" workflow or runs "npm run verify:builds"
+    When they select a persona preset or the "all-fast" tier
+    Then the verifier exports the persona's generated recipe to disk
+    And it runs the recipe's Makefile build target and artifact verification check
+    And it runs runtime smoke tests (QEMU serial boot for VM/ISO images, chroot/container checks for rootfs tarballs)
+    And optional dry-run mode exports and prints commands without executing host builds
+
   Scenario: Cross-Architecture and Containerized Host Builds
     Given the criteria specify architecture "arm64"
     When the recipe generator resolves "debootstrap-debian", "alpine-chroot", "cloud-init-qcow2", or "buildroot-embedded"

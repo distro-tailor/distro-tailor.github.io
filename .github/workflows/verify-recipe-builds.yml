@@ -1,0 +1,85 @@
+name: Verify Persona Recipe Builds
+
+# On-demand workflow to build and smoke-test generated custom recipes for selected
+# personas on ubuntu-latest, catching Makefile, package, or script regressions.
+on:
+  workflow_dispatch:
+    inputs:
+      persona:
+        description: 'Persona or tier to build and verify'
+        required: true
+        default: 'all-fast'
+        type: choice
+        options:
+          - all-fast
+          - in-browser-v86
+          - wayland-kiosk-appliance
+          - wsl2-developer-box
+          - proxmox-lxc-container
+          - cloud-init-vm
+          - debootstrap-live-iso
+          - nixos-declarative
+          - all
+      dry_run:
+        description: 'Export recipes and print commands without running apt/make'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      personas: ${{ steps.set-matrix.outputs.personas }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Compute Persona Matrix
+        id: set-matrix
+        run: |
+          PERSONAS=$(npx tsx scripts/verify-persona-builds.ts --matrix "${{ inputs.persona }}")
+          echo "personas=$PERSONAS" >> "$GITHUB_OUTPUT"
+
+  build-persona:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        persona: ${{ fromJson(needs.plan.outputs.personas) }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Nix (for nixos-declarative)
+        if: matrix.persona == 'nixos-declarative' && !inputs.dry_run
+        uses: DeterminateSystems/nix-installer-action@v14
+
+      - name: Build and Verify Persona Recipe
+        run: |
+          npx tsx scripts/verify-persona-builds.ts \
+            --persona "${{ matrix.persona }}" \
+            ${{ inputs.dry_run && '--dry-run' || '' }}

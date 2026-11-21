@@ -39,6 +39,10 @@ DistroTailor is built as a hybrid modular monorepo:
 ### Prerequisites
 - Node.js >= 20.0.0
 - npm >= 10.0.0
+- **Optional (for building & testing custom recipes locally):**
+  - **Docker** (used for cross-platform/macOS recipe builds and container smoke tests)
+  - **QEMU** (`qemu-system-x86_64` / `qemu-system-aarch64` for booting generated `.iso` and `.qcow2` images)
+  - **Nix** (for `nixos-flake` checks via `make check` / `make test-vm`)
 
 ```bash
 git clone https://github.com/distro-tailor/distro-tailor.github.io.git
@@ -63,6 +67,10 @@ npx tsx packages/cli/src/index.ts export --recipe debootstrap-debian --arch arm6
 cd ./my-distro
 make docker-build   # macOS, Windows, or cross-arch Linux (requires Docker)
 sudo make           # Native Debian/Ubuntu Linux host
+
+# Run automated recipe build & smoke tests (Docker + QEMU):
+npm run verify:builds -- --list
+npm run verify:builds -- --persona wayland-kiosk-appliance
 ```
 
 ### Web App
