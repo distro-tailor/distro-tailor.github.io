@@ -97,3 +97,11 @@ test('CLI recommend: prints legal notes for setups with a legal catch', () => {
   assert.ok(stdout.includes('Legal notes:'));
   assert.ok(stdout.includes('Test only what you are allowed to test'));
 });
+
+test('CLI recommend: --deployment-site home drops the NVIDIA datacenter note', () => {
+  const away = runCli(['recommend', '--use-case', 'ai-gpu-compute', '--platform', 'server', '--json']);
+  const home = runCli(['recommend', '--use-case', 'ai-gpu-compute', '--platform', 'server', '--deployment-site', 'home', '--json']);
+  const ids = (out: string) => JSON.parse(out).legalCaveats.map((c: { id: string }) => c.id);
+  assert.ok(ids(away.stdout).includes('nvidia-geforce-datacenter'));
+  assert.ok(!ids(home.stdout).includes('nvidia-geforce-datacenter'));
+});

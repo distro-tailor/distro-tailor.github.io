@@ -349,6 +349,12 @@ export type DevicePassthrough = 'gpu-vfio' | 'pci-devices';
 
 export type GuestPlatform = 'kvm' | 'vmware' | 'hyperv' | 'virtualbox';
 
+/**
+ * Where the machine will run. Not scored: it decides which legal notes apply (e.g. NVIDIA's
+ * GeForce driver licence excludes datacenter deployment).
+ */
+export type DeploymentSite = 'home' | 'office' | 'datacenter';
+
 export interface UserCriteria {
   useCase?: PrimaryUseCase;
   platform?: PlatformTarget;
@@ -382,6 +388,7 @@ export interface UserCriteria {
   virtHost?: VirtualizationHost;
   devicePassthrough?: DevicePassthrough;
   guestPlatform?: GuestPlatform;
+  deploymentSite?: DeploymentSite;
 
   // Interactive Recipe Modifiers (App Suites & Turnkey Services)
   desktopEnv?: DesktopEnvId;

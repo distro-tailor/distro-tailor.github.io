@@ -71,3 +71,22 @@ Feature: Free & Open-Source Licensing Policy and Paid Alternatives
   Scenario: No legal notes when nothing applies
     Given the user's setup has no known legal catch (e.g. a home office desktop)
     Then the results should not show a legal notes section
+
+  Scenario Outline: The NVIDIA datacenter note follows the driver choice and where the machine runs
+    Given the user is building an "AI, LLM & GPU Compute" machine
+    And the driver philosophy is "<drivers>"
+    When the wizard asks "Where will this machine run?" and the user answers "<site>"
+    Then the NVIDIA GeForce datacenter legal note should be "<note>"
+
+    Examples:
+      | drivers               | site                                             | note      |
+      | Seamless Proprietary  | Home or Homelab                                  | hidden    |
+      | Seamless Proprietary  | Office or Small-Business Server Room             | shown     |
+      | Seamless Proprietary  | Datacenter, Colocation, Hosting, or ISP Network  | shown     |
+      | Seamless Proprietary  | (question skipped)                               | shown     |
+      | 100% Free Software    | (question not asked)                             | hidden    |
+
+  Scenario: The deployment-site question is asked only when it matters and never changes scores
+    Given the build does not use NVIDIA's proprietary driver on a GPU or server machine
+    Then the wizard should not ask "Where will this machine run?"
+    And answering it should only change legal notes, never distro scores

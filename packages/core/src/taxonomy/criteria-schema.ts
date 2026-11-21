@@ -15,6 +15,7 @@ import {
   FirmwareMode,
   FormFactor,
   GuestPlatform,
+  DeploymentSite,
   InitSystem,
   KernelFlavor,
   NavigationAppId,
@@ -237,6 +238,12 @@ export const GUEST_PLATFORM_VALUES: EnumCatalog<GuestPlatform> = {
   virtualbox: true
 };
 
+export const DEPLOYMENT_SITE_VALUES: EnumCatalog<DeploymentSite> = {
+  home: true,
+  office: true,
+  datacenter: true
+};
+
 export const NETWORKING_STACK_VALUES: EnumCatalog<NetworkingStack> = {
   networkmanager: true,
   'systemd-networkd': true,
@@ -375,6 +382,7 @@ export function sanitizeCriteria(input: UntrustedCriteria): UserCriteria {
     virtHost: pickEnum(VIRT_HOST_VALUES, input.virtHost),
     devicePassthrough: pickEnum(DEVICE_PASSTHROUGH_VALUES, input.devicePassthrough),
     guestPlatform: pickEnum(GUEST_PLATFORM_VALUES, input.guestPlatform),
+    deploymentSite: pickEnum(DEPLOYMENT_SITE_VALUES, input.deploymentSite),
     desktopEnv: pickEnum(DESKTOP_ENV_VALUES, input.desktopEnv),
     enableDistrobox: pickBoolean(input.enableDistrobox),
     enableNix: pickBoolean(input.enableNix),

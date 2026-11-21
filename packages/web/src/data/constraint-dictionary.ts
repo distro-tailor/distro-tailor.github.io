@@ -175,6 +175,11 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     hyperv: { label: 'Guest on Hyper-V', icon: '🪟' },
     virtualbox: { label: 'Guest on VirtualBox', icon: '📦' }
   },
+  deploymentSite: {
+    home: { label: 'Runs at Home / Homelab', icon: '🏠' },
+    office: { label: 'Runs in an Office / Small-Business Server Room', icon: '🏢' },
+    datacenter: { label: 'Runs in a Datacenter / Hosting / ISP Network', icon: '🏭' }
+  },
   networkingStack: {
     networkmanager: { label: 'NetworkManager (Desktop & Wi-Fi)', icon: '📶' },
     'systemd-networkd': { label: 'systemd-networkd Daemon', icon: '⚙️' },

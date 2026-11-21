@@ -842,6 +842,47 @@ export const QUESTIONS: Question[] = [
       }
     ]
   },
+  {
+    id: 'deployment_site',
+    order: 7,
+    isOptional: true,
+    prompt: 'Where will this machine run?',
+    subtext: 'Some driver licences treat a home rig and a datacenter rack differently.',
+    category: 'hardware',
+    shouldAsk: (criteria) =>
+      criteria.driverPhilosophy !== 'free-software-only' &&
+      (criteria.useCase === 'ai-gpu-compute' ||
+        (criteria.driverPhilosophy === 'seamless-proprietary' &&
+          (criteria.platform === 'server' || criteria.useCase === 'hypervisor-vms'))),
+    tip: {
+      icon: '⚖️',
+      title: 'Why we ask',
+      text: "NVIDIA's free GeForce/Titan driver licence does not cover datacenter deployment. Home rigs and homelabs are fine; racks serving customers (hosting, colocation, ISP networks) should use data-center GPUs or check the licence."
+    },
+    options: [
+      {
+        id: 'home_homelab',
+        label: 'Home or Homelab',
+        description: 'A machine in your home, garage, or personal homelab rack',
+        icon: '🏠',
+        appliesCriteria: { deploymentSite: 'home' }
+      },
+      {
+        id: 'office_small_business',
+        label: 'Office or Small-Business Server Room',
+        description: 'A server closet or small rack at a shop, office, school, or club',
+        icon: '🏢',
+        appliesCriteria: { deploymentSite: 'office' }
+      },
+      {
+        id: 'datacenter_hosting_isp',
+        label: 'Datacenter, Colocation, Hosting, or ISP Network',
+        description: 'Racks serving customers: colocation, VPS/GPU hosting, or a wireless/community ISP',
+        icon: '🏭',
+        appliesCriteria: { deploymentSite: 'datacenter' }
+      }
+    ]
+  },
 
   // --- STEP 8: BOOT MEDIUM ---
   {

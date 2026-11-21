@@ -62,6 +62,7 @@ program
   .option('--virt-host <host>', 'Virtualization host (kvm-qemu, xen, bhyve, container-only)')
   .option('--passthrough <mode>', 'Device passthrough (gpu-vfio, pci-devices)')
   .option('--guest-platform <platform>', 'Guest hypervisor for VM images (kvm, vmware, hyperv, virtualbox)')
+  .option('--deployment-site <site>', 'Where the machine runs (home, office, datacenter); affects legal notes such as driver licences')
   .option('--json', 'Output results as machine-readable JSON')
   .action((options) => {
     let criteria: UserCriteria = sanitizeCriteria({
@@ -82,7 +83,8 @@ program
       tpmUsage: options.tpm,
       virtHost: options.virtHost,
       devicePassthrough: options.passthrough,
-      guestPlatform: options.guestPlatform
+      guestPlatform: options.guestPlatform,
+      deploymentSite: options.deploymentSite
     });
 
     if (options.url) {

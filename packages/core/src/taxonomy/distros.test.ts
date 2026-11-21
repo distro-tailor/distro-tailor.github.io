@@ -4,6 +4,9 @@ import { ALLOWED_LICENSE_MODELS, DISTRO_REGISTRY } from './distros.js';
 import { PAID_ALTERNATIVES } from './paid-alternatives.js';
 import { getDistroLegalCaveats, LEGAL_CAVEATS } from './legal-caveats.js';
 import { evaluateCriteria } from '../engine/matcher.js';
+import { QuestionFlow } from '../engine/question-flow.js';
+import { QUESTIONS } from './questions.js';
+import { deserializeCriteriaFromParams, serializeCriteriaToParams } from '../migrations/url-schema.js';
 import { DistroProfile } from '../types.js';
 
 test('Licensing policy: every registered distro is free and/or open source', () => {
@@ -89,4 +92,35 @@ test('Legal caveats: surfaced for the top match and the chosen criteria', () => 
 
   assert.deepEqual(getDistroLegalCaveats('tails').map((c) => c.id), ['tor-restrictions']);
   assert.deepEqual(getDistroLegalCaveats('debian'), []);
+});
+
+test('Legal caveats: the NVIDIA note follows the driver choice and where the machine runs', () => {
+  const nvidia = (c: Parameters<typeof evaluateCriteria>[0]) =>
+    evaluateCriteria(c).legalCaveats.some((x) => x.id === 'nvidia-geforce-datacenter');
+  const gpu = { useCase: 'ai-gpu-compute', platform: 'server', prefersGui: false } as const;
+
+  assert.equal(nvidia(gpu), true, 'unknown site: show it to be safe');
+  assert.equal(nvidia({ ...gpu, driverPhilosophy: 'free-software-only' }), false, 'no proprietary NVIDIA driver in use');
+  assert.equal(nvidia({ ...gpu, deploymentSite: 'home' }), false, 'home rigs and homelabs are covered by the licence');
+  assert.equal(nvidia({ ...gpu, deploymentSite: 'office' }), true);
+  assert.equal(nvidia({ ...gpu, deploymentSite: 'datacenter' }), true);
+  // Crypto-mining note is about local law, not where the rig sits
+  assert.ok(evaluateCriteria({ ...gpu, deploymentSite: 'home' }).legalCaveats.some((x) => x.id === 'crypto-mining-law'));
+});
+
+test('Deployment site: asked only for GPU or proprietary-driver servers, never scored, and URL-safe', () => {
+  const flow = new QuestionFlow(QUESTIONS);
+  const asked = (c: Parameters<typeof evaluateCriteria>[0]) => flow.getEligibleQuestions(c).some((q) => q.id === 'deployment_site');
+  assert.equal(asked({ experienceLevel: 'intermediate', useCase: 'ai-gpu-compute' }), true);
+  assert.equal(asked({ experienceLevel: 'intermediate', useCase: 'server', platform: 'server', driverPhilosophy: 'seamless-proprietary' }), true);
+  assert.equal(asked({ experienceLevel: 'intermediate', useCase: 'ai-gpu-compute', driverPhilosophy: 'free-software-only' }), false);
+  assert.equal(asked({ experienceLevel: 'intermediate', useCase: 'desktop' }), false);
+
+  const base = { useCase: 'ai-gpu-compute', platform: 'server' } as const;
+  const scores = (r: ReturnType<typeof evaluateCriteria>) => r.allMatches.map((m) => `${m.distro.id}:${m.score}`);
+  assert.deepEqual(scores(evaluateCriteria({ ...base, deploymentSite: 'datacenter' })), scores(evaluateCriteria(base)));
+
+  const params = serializeCriteriaToParams({ ...base, deploymentSite: 'office' });
+  assert.equal(deserializeCriteriaFromParams(params).deploymentSite, 'office');
+  assert.equal(deserializeCriteriaFromParams({ ...params, deploymentSite: 'moon-base' }).deploymentSite, undefined);
 });

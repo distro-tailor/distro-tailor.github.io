@@ -23,9 +23,12 @@ export const LEGAL_CAVEATS: readonly LegalCaveat[] = [
     id: 'nvidia-geforce-datacenter',
     title: 'NVIDIA GeForce drivers are not licensed for datacenters',
     text: "NVIDIA's free GeForce/Titan driver licence does not cover datacenter deployment. A rig at home or in your homelab is fine; for a hosted or datacenter GPU server, use NVIDIA data-center GPUs and drivers or check the licence first.",
+    // Only relevant when NVIDIA's proprietary driver is in play and the machine is not at home
     appliesTo: (c) =>
-      c.useCase === 'ai-gpu-compute' ||
-      (c.driverPhilosophy === 'seamless-proprietary' && (c.platform === 'server' || c.useCase === 'hypervisor-vms')),
+      c.driverPhilosophy !== 'free-software-only' &&
+      c.deploymentSite !== 'home' &&
+      (c.useCase === 'ai-gpu-compute' ||
+        (c.driverPhilosophy === 'seamless-proprietary' && (c.platform === 'server' || c.useCase === 'hypervisor-vms'))),
     sourceUrl: 'https://www.nvidia.com/en-us/drivers/geforce-license/'
   },
   {
