@@ -47,7 +47,8 @@ const NIX_PACKAGE_MAP: Readonly<Record<string, string>> = {
   darktable: 'pkgs.darktable',
   gthumb: 'pkgs.gthumb',
   audacity: 'pkgs.audacity',
-  ardour: 'pkgs.ardour'
+  ardour: 'pkgs.ardour',
+  kodi: 'pkgs.kodi'
 };
 
 function resolveNixArch(arch?: string): string {

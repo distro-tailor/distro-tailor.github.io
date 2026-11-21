@@ -391,7 +391,10 @@ export function renderDockerServiceSuite(
   const renderDockerCard = (app: (typeof DOCKER_APPS_REGISTRY)[number]) => {
     const isSelected = selectedIds.includes(app.id);
     const compat = checkDockerAppCompatibility(app, criteria);
-    const searchText = escapeHtml(`${app.name} ${app.tagline} ${app.description} ${app.category}`.toLowerCase());
+    const searchText = escapeHtml(`${app.name} ${app.tagline} ${app.description} ${app.category} ${app.pairGroup || ''}`.toLowerCase());
+    const siblingSelected = app.pairGroup
+      ? selectedApps.find((s) => s.id !== app.id && s.pairGroup === app.pairGroup)
+      : undefined;
 
     return `
       <div data-app-card data-app-category="${app.category}" data-app-selected="${isSelected ? '1' : '0'}" data-app-search="${searchText}" data-docker-id="${app.id}" ${compat.blocker ? `data-incompatible-reason="${compat.blocker}"` : ''} class="btn-select-docker-app p-3 rounded-xl border select-none transition-all flex flex-col justify-between min-w-0 ${
@@ -416,7 +419,18 @@ export function renderDockerServiceSuite(
               })()}
             </div>
           </div>
-          <h4 class="font-bold text-slate-200 text-xs">${app.name}</h4>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <h4 class="font-bold text-slate-200 text-xs">${app.name}</h4>
+            ${
+              app.pairGroup
+                ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-mono ${
+                    siblingSelected
+                      ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                      : 'bg-slate-900 text-slate-400 border border-slate-800'
+                  }" title="Alternative ${app.pairGroup} — most setups only install one">${siblingSelected ? `Alt to ${siblingSelected.name}` : `Pick 1 · ${app.pairGroup}`}</span>`
+                : ''
+            }
+          </div>
           <p class="text-[11px] text-slate-400 mt-1 leading-relaxed line-clamp-2">${app.description}</p>
         </div>
         <div class="mt-2.5 pt-2 border-t border-slate-800/80 text-[10px] ${!compat.compatible ? 'text-slate-600' : isSelected ? 'text-emerald-400 font-bold' : 'text-slate-500'} font-mono flex items-center justify-between">
@@ -454,11 +468,14 @@ export function renderDockerServiceSuite(
     defaultCategory: getDefaultDockerCategory(criteria),
     searchPlaceholder: `Filter ${DOCKER_APPS_REGISTRY.length} services...`,
     topHtml: noneCardHtml,
-    renderGroupItems: (items) => `
+    renderGroupItems: (items) => {
+      const sorted = [...items].sort((a, b) => (a.pairGroup || 'zzz').localeCompare(b.pairGroup || 'zzz'));
+      return `
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs min-w-0">
-        ${items.map(renderDockerCard).join('')}
+        ${sorted.map(renderDockerCard).join('')}
       </div>
-    `
+    `;
+    }
   });
 
   return renderSuiteShell({

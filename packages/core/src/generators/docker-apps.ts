@@ -9,6 +9,8 @@ export interface DockerAppDefinition {
   defaultPort: string;
   webUrl: string;
   category: 'media' | 'homelab' | 'smart-home' | 'ai' | 'cloud' | 'web';
+  /** Optional group name for mutually similar tools where users typically pick one (e.g. 'DNS Ad-Blocker'). */
+  pairGroup?: string;
   minRamMb: number;
   architectures: CpuArchitecture[];
   generateCompose: (criteria: UserCriteria) => string;
@@ -71,6 +73,7 @@ export const DOCKER_APPS_REGISTRY: DockerAppDefinition[] = [
     defaultPort: '2283',
     webUrl: 'http://localhost:2283',
     category: 'cloud',
+    pairGroup: 'Photo Library',
     minRamMb: 4096,
     architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
@@ -199,6 +202,7 @@ services:
     defaultPort: '80',
     webUrl: 'http://localhost:80/admin',
     category: 'homelab',
+    pairGroup: 'DNS Ad-Blocker',
     minRamMb: 256,
     architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     generateCompose: () => `# ==============================================================================
@@ -329,6 +333,7 @@ volumes:
     defaultPort: '8000',
     webUrl: 'http://localhost:8000',
     category: 'web',
+    pairGroup: 'Web CMS',
     minRamMb: 1024,
     architectures: ['x86_64', 'arm64', 'armv7'],
     generateCompose: () => `# ==============================================================================
@@ -464,6 +469,7 @@ services:
     defaultPort: '3000',
     webUrl: 'http://localhost:3000',
     category: 'homelab',
+    pairGroup: 'Git Forge',
     minRamMb: 512,
     architectures: ['x86_64', 'arm64', 'armv7'],
     generateCompose: () => `# ==============================================================================
@@ -495,6 +501,7 @@ services:
     defaultPort: '81',
     webUrl: 'http://localhost:81',
     category: 'web',
+    pairGroup: 'Reverse Proxy',
     minRamMb: 512,
     architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
@@ -524,6 +531,7 @@ services:
     defaultPort: '9443',
     webUrl: 'https://localhost:9443',
     category: 'homelab',
+    pairGroup: 'Docker UI',
     minRamMb: 256,
     architectures: ['x86_64', 'arm64', 'armv7'],
     generateCompose: () => `# ==============================================================================
@@ -551,6 +559,7 @@ services:
     defaultPort: '2368',
     webUrl: 'http://localhost:2368/ghost',
     category: 'web',
+    pairGroup: 'Web CMS',
     minRamMb: 512,
     architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
@@ -579,6 +588,7 @@ services:
     defaultPort: '3000',
     webUrl: 'http://localhost:3000',
     category: 'cloud',
+    pairGroup: 'Wiki',
     minRamMb: 512,
     architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
@@ -817,6 +827,246 @@ services:
         target: /tmp/cache
         tmpfs:
           size: 1000000000
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'gitlab-ce',
+    name: 'GitLab CE (DevSecOps)',
+    tagline: 'Full Enterprise Git, CI/CD & Registry',
+    description: 'All-in-one self-hosted DevOps platform with Git, CI/CD pipelines, container registry, and issue boards (requires 4+ GB RAM).',
+    icon: '🦊',
+    defaultPort: '8929',
+    webUrl: 'http://localhost:8929',
+    category: 'homelab',
+    pairGroup: 'Git Forge',
+    minRamMb: 4096,
+    architectures: ['x86_64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: GitLab Community Edition
+# Web UI: http://localhost:8929 | SSH Git: 2224
+# Initial root password is written to /etc/gitlab/initial_root_password inside the container.
+# ==============================================================================
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    ports:
+      - "8929:8929"
+      - "2224:22"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:8929'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+    volumes:
+      - /opt/gitlab/config:/etc/gitlab
+      - /opt/gitlab/logs:/var/log/gitlab
+      - /opt/gitlab/data:/var/opt/gitlab
+    shm_size: '256m'
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'bookstack',
+    name: 'BookStack (WYSIWYG Wiki)',
+    tagline: 'Friendly Books, Chapters & Pages Wiki',
+    description: 'Simple, visual self-hosted wiki organized like Books & Chapters with WYSIWYG editing for teams & families.',
+    icon: '📖',
+    defaultPort: '6875',
+    webUrl: 'http://localhost:6875',
+    category: 'cloud',
+    pairGroup: 'Wiki',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: BookStack Self-Hosted Wiki
+# Web UI: http://localhost:6875
+# Set strong DB passwords in .env before running in production.
+# ==============================================================================
+services:
+  bookstack_db:
+    image: lscr.io/linuxserver/mariadb:latest
+    container_name: bookstack_db
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - MYSQL_ROOT_PASSWORD=\${BOOKSTACK_DB_ROOT_PW:-changeme_on_first_boot}
+      - MYSQL_DATABASE=bookstackapp
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=\${BOOKSTACK_DB_PW:-changeme_on_first_boot}
+    volumes:
+      - /opt/bookstack/db:/config
+    restart: unless-stopped
+
+  bookstack:
+    image: lscr.io/linuxserver/bookstack:latest
+    container_name: bookstack
+    depends_on:
+      - bookstack_db
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - APP_URL=http://localhost:6875
+      - DB_HOST=bookstack_db
+      - DB_PORT=3306
+      - DB_USER=bookstack
+      - DB_PASS=\${BOOKSTACK_DB_PW:-changeme_on_first_boot}
+      - DB_DATABASE=bookstackapp
+    volumes:
+      - /opt/bookstack/config:/config
+    ports:
+      - "6875:80"
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'navidrome',
+    name: 'Navidrome (Music Server)',
+    tagline: 'Self-Hosted Personal Spotify & Subsonic',
+    description: 'Ultra-fast, lightweight open-source music streaming server compatible with all Subsonic mobile & desktop apps.',
+    icon: '🎵',
+    defaultPort: '4533',
+    webUrl: 'http://localhost:4533',
+    category: 'media',
+    minRamMb: 128,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Navidrome Personal Music Streaming Server
+# Web UI: http://localhost:4533
+# ==============================================================================
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    ports:
+      - "4533:4533"
+    volumes:
+      - /opt/navidrome/data:/data
+      - /opt/navidrome/music:/music:ro
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'adguard-home',
+    name: 'AdGuard Home (DNS)',
+    tagline: 'Network Ad-Blocker with Native DoH/DoT',
+    description: 'Modern network-wide ad & tracker blocker with built-in DNS-over-HTTPS, DNS-over-TLS, and parental controls.',
+    icon: '🛡️',
+    defaultPort: '3000',
+    webUrl: 'http://localhost:3000',
+    category: 'homelab',
+    pairGroup: 'DNS Ad-Blocker',
+    minRamMb: 128,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: AdGuard Home Network DNS & Ad Blocker
+# Setup Wizard: http://localhost:3000 | DNS Port: 53
+# ==============================================================================
+services:
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "3000:3000/tcp"
+    volumes:
+      - /opt/adguardhome/work:/opt/adguardhome/work
+      - /opt/adguardhome/conf:/opt/adguardhome/conf
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'dockge',
+    name: 'Dockge (Compose Manager)',
+    tagline: 'Interactive Docker Compose Stack Manager',
+    description: 'Sleek, lightweight web UI for managing per-folder stacks/<app>/docker-compose.yml files with live logs.',
+    icon: '⚓',
+    defaultPort: '5001',
+    webUrl: 'http://localhost:5001',
+    category: 'homelab',
+    pairGroup: 'Docker UI',
+    minRamMb: 128,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Dockge Compose Stack Manager
+# Web UI: http://localhost:5001
+# ==============================================================================
+services:
+  dockge:
+    image: louislam/dockge:1
+    container_name: dockge
+    ports:
+      - "5001:5001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/dockge/data:/app/data
+      - /opt/stacks:/opt/stacks
+    environment:
+      - DOCKGE_STACKS_DIR=/opt/stacks
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'caddy',
+    name: 'Caddy (Auto-HTTPS Proxy)',
+    tagline: 'Minimal Reverse Proxy with Automatic TLS',
+    description: 'Zero-config, memory-safe reverse proxy that automatically provisions and renews Let’s Encrypt SSL certificates.',
+    icon: '🔐',
+    defaultPort: '80',
+    webUrl: 'http://localhost:80',
+    category: 'web',
+    pairGroup: 'Reverse Proxy',
+    minRamMb: 64,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Caddy Reverse Proxy with Automatic HTTPS
+# ==============================================================================
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /opt/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - /opt/caddy/data:/data
+      - /opt/caddy/config:/config
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'lychee',
+    name: 'Lychee (Light Photo Gallery)',
+    tagline: 'Lightweight Self-Hosted Photo Album',
+    description: 'Fast, minimal photo gallery and album sharing server—great lightweight alternative to Immich for low-RAM boards.',
+    icon: '🖼️',
+    defaultPort: '8080',
+    webUrl: 'http://localhost:8080',
+    category: 'cloud',
+    pairGroup: 'Photo Library',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Lychee Lightweight Photo Gallery
+# Web UI: http://localhost:8080
+# ==============================================================================
+services:
+  lychee:
+    image: lscr.io/linuxserver/lychee:latest
+    container_name: lychee
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /opt/lychee/config:/config
+      - /opt/lychee/pictures:/pictures
+    ports:
+      - "8080:80"
     restart: unless-stopped
 `
   }

@@ -270,7 +270,8 @@ export type DesktopAppId =
   | 'darktable'
   | 'gthumb'
   | 'audacity'
-  | 'ardour';
+  | 'ardour'
+  | 'kodi';
 
 export type EmulatorAppId =
   | 'retroarch'
@@ -329,7 +330,14 @@ export type DockerAppId =
   | 'filebrowser'
   | 'thelounge'
   | 'sabnzbd'
-  | 'frigate';
+  | 'frigate'
+  | 'gitlab-ce'
+  | 'bookstack'
+  | 'navidrome'
+  | 'adguard-home'
+  | 'dockge'
+  | 'caddy'
+  | 'lychee';
 
 export type ReleaseCadence = 'lts' | 'rolling' | 'standard';
 export type DriverPhilosophy = 'seamless-proprietary' | 'free-software-only' | 'no-preference';

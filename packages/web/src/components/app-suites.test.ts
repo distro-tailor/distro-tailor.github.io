@@ -122,4 +122,6 @@ test('App Suites: multi-stack dockerApps shows count pill and per-stack compose 
     true
   );
   assert.ok(clashHtml.includes('Port 8081'));
+  assert.ok(clashHtml.includes('Pick 1 · DNS Ad-Blocker'));
+  assert.ok(clashHtml.indexOf('Pi-hole') < clashHtml.indexOf('Vaultwarden') && Math.abs(clashHtml.indexOf('Pi-hole') - clashHtml.indexOf('AdGuard Home')) < 1800);
 });

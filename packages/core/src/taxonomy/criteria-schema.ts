@@ -310,7 +310,14 @@ export const DOCKER_APP_VALUES: EnumCatalog<DockerAppId> = {
   filebrowser: true,
   thelounge: true,
   sabnzbd: true,
-  frigate: true
+  frigate: true,
+  'gitlab-ce': true,
+  bookstack: true,
+  navidrome: true,
+  'adguard-home': true,
+  dockge: true,
+  caddy: true,
+  lychee: true
 };
 
 export const DESKTOP_APP_VALUES: EnumCatalog<DesktopAppId> = {
@@ -359,7 +366,8 @@ export const DESKTOP_APP_VALUES: EnumCatalog<DesktopAppId> = {
   darktable: true,
   gthumb: true,
   audacity: true,
-  ardour: true
+  ardour: true,
+  kodi: true
 };
 
 export const EMULATOR_APP_VALUES: EnumCatalog<EmulatorAppId> = {

@@ -568,6 +568,17 @@ fi`
     minRamMb: 4096,
     architectures: ['x86_64', 'arm64'],
     flatpakId: 'org.ardour.Ardour'
+  },
+  {
+    id: 'kodi',
+    name: 'Kodi Media Center',
+    category: 'media',
+    icon: '📺',
+    description: 'Open-source 10-foot home theater & TV media player for local libraries, addons, and remotes (GPL-2.0).',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    aptPackages: ['kodi'],
+    flatpakId: 'tv.kodi.Kodi'
   }
 ];
 

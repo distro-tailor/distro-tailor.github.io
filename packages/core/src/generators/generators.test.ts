@@ -667,6 +667,24 @@ test('multi-stack dockerApps auto-adjusts colliding host ports across stacks', (
   assert.ok(clash.quickstartCommands.some((c) => c.includes('8082')));
 });
 
+test('counterpart services (gitlab-ce, bookstack, navidrome, adguard-home, dockge, caddy) and kodi wire into recipes', () => {
+  for (const serviceId of ['gitlab-ce', 'bookstack', 'navidrome', 'adguard-home', 'dockge', 'caddy', 'lychee'] as const) {
+    const recipe = resolveRecipeGenerator('cloud-init-qcow2', {
+      architecture: 'x86_64',
+      dockerApp: serviceId
+    });
+    const compose = recipe.files.find((f) => f.filename === 'docker-compose.yml')?.content ?? '';
+    assert.ok(compose.includes('services:'), `${serviceId}: expected docker-compose.yml`);
+  }
+
+  const deb = resolveRecipeGenerator('debootstrap-debian', {
+    architecture: 'x86_64',
+    desktopApps: ['kodi']
+  });
+  const bootstrap = deb.files.find((f) => f.filename === 'bootstrap-apps.sh')?.content ?? '';
+  assert.match(bootstrap, /kodi/);
+});
+
 test('media creative apps (handbrake, kdenlive, inkscape, krita, darktable, gthumb, audacity, ardour) wire into recipes', () => {
   const mediaApps = ['handbrake', 'kdenlive', 'inkscape', 'krita', 'darktable', 'gthumb', 'audacity', 'ardour'] as const;
   const deb = resolveRecipeGenerator('debootstrap-debian', {
