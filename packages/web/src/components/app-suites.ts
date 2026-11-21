@@ -216,43 +216,43 @@ function renderCategorizedSuiteBody<T extends { id: string; category: string }>(
   renderGroupItems: (groupItems: readonly T[]) => string;
   topHtml?: string;
 }): string {
-  const groupsHtml = opts.categories
+  const orderedCategories = [...opts.categories].sort((a, b) => {
+    if (a.id === opts.defaultCategory) return -1;
+    if (b.id === opts.defaultCategory) return 1;
+    return 0;
+  });
+
+  const groupsHtml = orderedCategories
     .map((cat) => {
       const groupItems = opts.items.filter((item) => item.category === cat.id);
       if (groupItems.length === 0) return '';
       const selectedInGroup = groupItems.filter((item) => opts.selectedIds.includes(item.id)).length;
-      const isOpen = cat.id === opts.defaultCategory || selectedInGroup > 0;
 
       return `
-        <details data-category-group="${cat.id}" class="group/cat bg-slate-950/40 border border-slate-800/80 rounded-xl overflow-hidden" ${isOpen ? 'open' : ''}>
-          <summary class="flex items-center justify-between px-3 py-2 cursor-pointer select-none hover:bg-slate-800/40 transition-colors text-xs">
-            <div class="flex items-center gap-2 min-w-0">
-              <span>${cat.icon}</span>
-              <span class="font-bold text-slate-200 truncate">${cat.label}</span>
-              <span class="text-[11px] font-mono text-slate-500">(${groupItems.length})</span>
-              ${
-                selectedInGroup > 0
-                  ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${selectedInGroup} selected</span>`
-                  : ''
-              }
-            </div>
-            <span class="text-slate-500 group-open/cat:rotate-180 transition-transform duration-150 text-[10px] ml-2 shrink-0">▼</span>
-          </summary>
-          <div class="p-2.5 pt-2 border-t border-slate-800/60">
-            ${opts.renderGroupItems(groupItems)}
+        <div data-category-group="${cat.id}" class="space-y-2">
+          <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span>${cat.icon}</span>
+            <span>${cat.label}</span>
+            <span class="text-slate-600 font-mono font-normal">(${groupItems.length})</span>
+            ${
+              selectedInGroup > 0
+                ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold normal-case tracking-normal bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">${selectedInGroup} selected</span>`
+                : ''
+            }
           </div>
-        </details>
+          ${opts.renderGroupItems(groupItems)}
+        </div>
       `;
     })
     .filter(Boolean)
     .join('');
 
-  const pillsHtml = opts.categories
+  const pillsHtml = orderedCategories
     .map((cat) => {
       const count = opts.items.filter((item) => item.category === cat.id).length;
       if (count === 0) return '';
       return `
-        <button type="button" data-suite-pill="${cat.id}" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-600 transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1">
+        <button type="button" data-suite-pill="${cat.id}" class="px-2 py-1 rounded-lg text-[11px] font-medium bg-transparent text-slate-400 border border-transparent hover:text-slate-200 hover:bg-slate-800/40 transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1">
           <span>${cat.icon}</span>
           <span>${cat.label}</span>
           <span class="text-slate-500 font-mono">${count}</span>
@@ -264,32 +264,32 @@ function renderCategorizedSuiteBody<T extends { id: string; category: string }>(
 
   return `
     <div data-suite-container="${opts.suiteId}" class="space-y-3 min-w-0">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 min-w-0">
+      <div class="pb-2.5 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 min-w-0">
+        <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-0.5 sm:pb-0 min-w-0 flex-1">
           <button type="button" data-suite-pill="all" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition-colors cursor-pointer whitespace-nowrap">
             All (${opts.items.length})
           </button>
           ${
             opts.selectedIds.length > 0
-              ? `<button type="button" data-suite-pill="selected" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-900 text-emerald-300 border border-slate-800 hover:border-emerald-500/40 transition-colors cursor-pointer whitespace-nowrap">✓ Selected (${opts.selectedIds.length})</button>`
+              ? `<button type="button" data-suite-pill="selected" class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-transparent text-emerald-300 border border-transparent hover:bg-slate-800/40 transition-colors cursor-pointer whitespace-nowrap">✓ Selected (${opts.selectedIds.length})</button>`
               : ''
           }
           ${pillsHtml}
         </div>
-        <div class="relative shrink-0 sm:w-48">
+        <div class="relative shrink-0 sm:w-52 sm:border-l border-slate-800/80 sm:pl-2.5">
           <input
             type="text"
             data-suite-search="${opts.suiteId}"
             placeholder="${escapeHtml(opts.searchPlaceholder)}"
-            class="w-full px-2.5 py-1 pl-7 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+            class="w-full px-2.5 py-1 pl-7 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-400"
           />
-          <span class="absolute left-2.5 top-1.5 text-[10px] text-slate-500 pointer-events-none">🔍</span>
+          <span class="absolute left-2.5 sm:left-5 top-1.5 text-[10px] text-slate-500 pointer-events-none">🔍</span>
         </div>
       </div>
 
       ${opts.topHtml || ''}
 
-      <div class="max-h-[420px] overflow-y-auto pr-1 space-y-2.5 min-w-0">
+      <div class="max-h-[420px] overflow-y-auto pr-1 space-y-4 min-w-0">
         ${groupsHtml}
         <p data-suite-empty class="hidden text-center text-xs text-slate-400 py-4">No matching items in this view.</p>
       </div>

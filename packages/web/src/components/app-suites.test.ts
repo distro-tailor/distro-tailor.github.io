@@ -96,8 +96,8 @@ test('App Suites: renderDockerServiceSuite groups services by classifier categor
   assert.ok(html.includes('max-h-[420px]'));
 });
 
-test('App Suites: smart default category opens matching goal section while keeping others collapsed', () => {
+test('App Suites: smart default category is prioritized first without nested collapsible friction', () => {
   const gamingHtml = renderDesktopAppSuite({ useCase: 'gaming', architecture: 'x86_64', maxRamMb: 16384 }, true);
-  assert.match(gamingHtml, /data-category-group="gaming"[^>]*open/);
-  assert.doesNotMatch(gamingHtml, /data-category-group="development"[^>]*open/);
+  assert.ok(gamingHtml.indexOf('data-category-group="gaming"') < gamingHtml.indexOf('data-category-group="development"'));
+  assert.doesNotMatch(gamingHtml, /<details data-category-group=/);
 });

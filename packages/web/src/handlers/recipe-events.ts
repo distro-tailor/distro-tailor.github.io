@@ -73,7 +73,7 @@ export function bindRecipeEvents(ctx: HandlerContext): void {
     let activePill = 'all';
     const searchInput = container.querySelector<HTMLInputElement>('[data-suite-search]');
     const pills = container.querySelectorAll<HTMLButtonElement>('[data-suite-pill]');
-    const groups = container.querySelectorAll<HTMLDetailsElement>('[data-category-group]');
+    const groups = container.querySelectorAll<HTMLElement>('[data-category-group]');
     const cards = container.querySelectorAll<HTMLElement>('[data-app-card]');
     const emptyMsg = container.querySelector<HTMLElement>('[data-suite-empty]');
 
@@ -97,9 +97,6 @@ export function bindRecipeEvents(ctx: HandlerContext): void {
           (c) => !c.classList.contains('hidden')
         );
         group.classList.toggle('hidden', !hasVisibleCard);
-        if (hasVisibleCard && (activePill !== 'all' || query.length > 0)) {
-          group.open = true;
-        }
       });
 
       if (emptyMsg) {
@@ -116,9 +113,9 @@ export function bindRecipeEvents(ctx: HandlerContext): void {
           p.classList.toggle('text-emerald-300', isCurrent);
           p.classList.toggle('border-emerald-500/40', isCurrent);
           p.classList.toggle('font-semibold', isCurrent);
-          p.classList.toggle('bg-slate-900', !isCurrent);
-          p.classList.toggle('text-slate-300', !isCurrent);
-          p.classList.toggle('border-slate-800', !isCurrent);
+          p.classList.toggle('bg-transparent', !isCurrent);
+          p.classList.toggle('text-slate-400', !isCurrent);
+          p.classList.toggle('border-transparent', !isCurrent);
         });
         applyFilter();
       });
