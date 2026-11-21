@@ -59,3 +59,22 @@ test('CLI export: rejects unknown recipe ids instead of silently building Debian
   assert.equal(code, 1);
   assert.match(stderr, /Unknown recipe "not-a-recipe"/);
 });
+
+test('CLI recommend: sanitizes invalid CLI flag values and keeps --json clean on migrated URLs', () => {
+  const flagRes = runCli([
+    'recommend',
+    '--use-case',
+    'not-a-real-usecase',
+    '--arch',
+    'x86_64;rm -rf /',
+    '--json'
+  ]);
+  assert.equal(flagRes.code, 0);
+  const flagResult = JSON.parse(flagRes.stdout);
+  assert.ok(flagResult.bestMatch?.distro?.id, 'Should still produce a valid recommendation');
+
+  const urlRes = runCli(['recommend', '--url', '?useCase=iot&arch=arm64', '--json']);
+  assert.equal(urlRes.code, 0);
+  const urlResult = JSON.parse(urlRes.stdout);
+  assert.ok(urlResult.bestMatch?.distro?.id, 'Migrated URL with --json must emit valid JSON');
+});

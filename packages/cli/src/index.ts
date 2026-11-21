@@ -11,7 +11,8 @@ import {
   RecipeGeneratorId,
   UserCriteria,
   migrateUrlParameters,
-  deserializeCriteriaFromParams
+  deserializeCriteriaFromParams,
+  sanitizeCriteria
 } from '@distro-tailor/core';
 import { runInteractiveWizard } from './wizard.js';
 
@@ -63,7 +64,7 @@ program
   .option('--guest-platform <platform>', 'Guest hypervisor for VM images (kvm, vmware, hyperv, virtualbox)')
   .option('--json', 'Output results as machine-readable JSON')
   .action((options) => {
-    let criteria: UserCriteria = {
+    let criteria: UserCriteria = sanitizeCriteria({
       useCase: options.useCase,
       platform: options.platform,
       architecture: options.arch,
@@ -82,7 +83,7 @@ program
       virtHost: options.virtHost,
       devicePassthrough: options.passthrough,
       guestPlatform: options.guestPlatform
-    };
+    });
 
     if (options.url) {
       const raw = parseUrlCriteria(options.url);
@@ -93,7 +94,7 @@ program
         process.exit(1);
       }
 
-      if (migration.migrated && migration.warnings.length > 0) {
+      if (!options.json && migration.migrated && migration.warnings.length > 0) {
         console.log(pc.yellow(`ℹ Normalized URL parameters (v${migration.version}): ${migration.warnings.join('; ')}`));
       }
 
@@ -148,7 +149,7 @@ program
     }
     let recipeId: RecipeGeneratorId | undefined = options.recipe;
     let arch = options.arch;
-    let exportCriteria: UserCriteria = { architecture: arch };
+    let exportCriteria: UserCriteria = sanitizeCriteria({ architecture: arch });
 
     if (options.url) {
       const raw = parseUrlCriteria(options.url);
