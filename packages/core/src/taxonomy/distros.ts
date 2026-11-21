@@ -877,6 +877,17 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     tradeoffs: [
       'Not a POSIX/Linux OS—cannot run standard Linux binaries, apt/apk packages, or desktop GUIs'
     ],
+    alternativeComparisons: [
+      {
+        popularAlternative: 'FreeRTOS',
+        relation: 'competitor',
+        headline: 'Why Zephyr RTOS instead of FreeRTOS?',
+        whyThisInstead:
+          'Zephyr is a complete, battery-included RTOS ecosystem with a unified build tool (west), Linux-style Kconfig & Devicetree, and built-in BLE, Thread/Matter, and networking stacks across vendors.',
+        tradeoffNotice:
+          'FreeRTOS is a tiny, ultra-simple C scheduler library often bundled directly inside vendor SDKs (like ESP-IDF or STM32Cube) when you only need minimal task scheduling.'
+      }
+    ],
     prebuiltImage: {
       downloadUrl: 'https://docs.zephyrproject.org/latest/develop/getting_started/index.html'
     }
