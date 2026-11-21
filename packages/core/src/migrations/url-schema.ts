@@ -205,6 +205,7 @@ export function deserializeCriteriaFromParams(params: Record<string, string>): U
     enableNix: flag(params.enableNix),
     enableFlatpak: flag(params.enableFlatpak),
     dockerApp: params.dockerApp !== 'none' ? params.dockerApp : undefined,
+    dockerApps: list(params.dockerApps),
     desktopApps: list(params.desktopApps),
     emulatorApps: list(params.emulatorApps),
     navigationApps: list(params.navigationApps)

@@ -639,6 +639,34 @@ test('file sharing, Tor, IRC, and Usenet apps & services wire into recipes', () 
   assert.match(emuScript, /org\.flycast\.Flycast/);
 });
 
+test('multi-stack dockerApps generates isolated per-stack stacks/<id>/docker-compose.yml files', () => {
+  const multi = resolveRecipeGenerator('cloud-init-qcow2', {
+    architecture: 'x86_64',
+    dockerApps: ['immich', 'jellyfin', 'vaultwarden']
+  });
+  const filenames = multi.files.map((f) => f.filename);
+  assert.ok(filenames.includes('stacks/immich/docker-compose.yml'));
+  assert.ok(filenames.includes('stacks/jellyfin/docker-compose.yml'));
+  assert.ok(filenames.includes('stacks/vaultwarden/docker-compose.yml'));
+  assert.ok(!filenames.includes('docker-compose.yml'));
+  assert.ok(multi.quickstartCommands.some((c) => c.includes('stacks/immich/docker-compose.yml')));
+});
+
+test('multi-stack dockerApps auto-adjusts colliding host ports across stacks', () => {
+  const clash = resolveRecipeGenerator('cloud-init-qcow2', {
+    architecture: 'x86_64',
+    dockerApps: ['vaultwarden', 'filebrowser', 'sabnzbd']
+  });
+  const vw = clash.files.find((f) => f.filename === 'stacks/vaultwarden/docker-compose.yml')?.content ?? '';
+  const fb = clash.files.find((f) => f.filename === 'stacks/filebrowser/docker-compose.yml')?.content ?? '';
+  const sab = clash.files.find((f) => f.filename === 'stacks/sabnzbd/docker-compose.yml')?.content ?? '';
+  assert.match(vw, /"8080:80"/);
+  assert.match(fb, /"8081:80"/);
+  assert.match(sab, /"8082:8080"/);
+  assert.ok(clash.quickstartCommands.some((c) => c.includes('8081')));
+  assert.ok(clash.quickstartCommands.some((c) => c.includes('8082')));
+});
+
 test('media creative apps (handbrake, kdenlive, inkscape, krita, darktable, gthumb, audacity, ardour) wire into recipes', () => {
   const mediaApps = ['handbrake', 'kdenlive', 'inkscape', 'krita', 'darktable', 'gthumb', 'audacity', 'ardour'] as const;
   const deb = resolveRecipeGenerator('debootstrap-debian', {

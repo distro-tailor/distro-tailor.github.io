@@ -31,6 +31,10 @@ export function formatConstraint(key: string, value: unknown): FormattedConstrai
       icon: app ? app.icon : '🐳'
     };
   }
+  if (key === 'dockerApps') {
+    const list = Array.isArray(value) ? value : String(value).split(',').filter(Boolean);
+    return { label: `Docker Stacks: ${list.length} selected`, icon: '🐳' };
+  }
   if (key === 'desktopApps') {
     const list = Array.isArray(value) ? value : String(value).split(',').filter(Boolean);
     return { label: `Desktop Apps: ${list.length} selected`, icon: '📦' };

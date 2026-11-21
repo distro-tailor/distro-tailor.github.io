@@ -112,6 +112,7 @@ export async function runInteractiveWizard(): Promise<void> {
 
         for (const file of recipe.files) {
           const filePath = path.join(targetPath, file.filename);
+          await fs.mkdir(path.dirname(filePath), { recursive: true });
           await fs.writeFile(filePath, file.content, 'utf-8');
           if (file.executable) {
             await fs.chmod(filePath, 0o755);

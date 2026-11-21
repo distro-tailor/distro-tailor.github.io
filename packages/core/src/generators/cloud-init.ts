@@ -1,13 +1,15 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
 import { debootstrapCrossArchRootfsStep, debootstrapCrossArchVars, dockerBuildTarget } from './cross-build.js';
-import { getDockerApp } from './docker-apps.js';
+import { generateDockerStackFiles, getSelectedDockerApps } from './docker-apps.js';
 
 export function generateCloudInitRecipe(criteria: UserCriteria): GeneratedRecipe {
   const arch = criteria.architecture || 'x86_64';
   const debArch = arch === 'arm64' ? 'arm64' : 'amd64';
   const vmName = 'distro-tailor-cloud';
-  const dockerAppDef = getDockerApp(criteria.dockerApp);
-  const appDir = dockerAppDef ? dockerAppDef.id : 'app';
+  const dockerApps = getSelectedDockerApps(criteria);
+  const dockerAppDef = dockerApps[0];
+  const dockerStack = generateDockerStackFiles(criteria);
+  const appDir = dockerApps.length === 1 ? dockerApps[0].id : 'stacks';
   const isUefi = criteria.firmwareMode === 'uefi' || criteria.secureBoot !== undefined;
   const partitionTable = isUefi ? 'gpt' : 'mbr';
   const ovmfCode = criteria.secureBoot === 'required'
@@ -251,12 +253,8 @@ console and \`/var/log/cloud-init-output.log\`, and requires you to change it at
     }
   ];
 
-  if (dockerAppDef) {
-    files.push({
-      filename: 'docker-compose.yml',
-      description: `Turnkey Docker Compose configuration for ${dockerAppDef.name} (${dockerAppDef.tagline})`,
-      content: dockerAppDef.generateCompose(criteria)
-    });
+  for (const stackFile of dockerStack.files) {
+    files.push(stackFile);
   }
 
   files.push({
@@ -270,19 +268,19 @@ console and \`/var/log/cloud-init-output.log\`, and requires you to change it at
     'make               # Linux host (or: make docker-build on macOS / Windows / cross-arch)'
   ];
 
-  if (dockerAppDef) {
-    quickstartCommands.push(`docker compose up -d  # Launch ${dockerAppDef.name} at ${dockerAppDef.webUrl}`);
+  if (dockerStack.quickstartCommands.length > 0) {
+    quickstartCommands.push(...dockerStack.quickstartCommands);
   } else {
     quickstartCommands.push(`qm importdisk 9000 output/${vmName}.qcow2 local-zfs  # (Proxmox VE import)`);
   }
 
   return {
     id: 'cloud-init-qcow2',
-    title: dockerAppDef
-      ? `Cloud-Init QCOW2 + ${dockerAppDef.name} Appliance`
+    title: dockerStack.summaryLabel
+      ? `Cloud-Init QCOW2 + ${dockerStack.summaryLabel} Appliance`
       : 'Cloud-Init QCOW2 Virtual Machine Disk',
-    summary: dockerAppDef
-      ? `Builds a Proxmox/KVM cloud-init virtual disk configured with Docker and pre-seeded with ${dockerAppDef.name} (${dockerAppDef.tagline}).`
+    summary: dockerStack.summaryLabel
+      ? `Builds a Proxmox/KVM cloud-init virtual disk configured with Docker and pre-seeded with ${dockerStack.summaryLabel}.`
       : 'Builds a sparse QCOW2 virtual disk image configured with cloud-init and QEMU guest agent for Proxmox VE, KVM, and OpenStack.',
     targetFormat: 'qcow2',
     estimatedBuildTimeMinutes: 4,

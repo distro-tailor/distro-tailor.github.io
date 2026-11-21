@@ -1,7 +1,7 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
 import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
 import { dockerBuildTarget } from './cross-build.js';
-import { getDockerApp } from './docker-apps.js';
+import { generateDockerStackFiles, getSelectedDockerApps } from './docker-apps.js';
 import { generateBootstrapAppsScript } from './desktop-apps.js';
 import { generateBootstrapEmulatorsScript } from './emulator-apps.js';
 import { generateBootstrapNavigationScript } from './navigation-apps.js';
@@ -10,11 +10,13 @@ import { ALPINE_MINIROOTFS_SHA256, ALPINE_MIRROR, ALPINE_VERSION } from './check
 export function generateAlpineRecipe(criteria: UserCriteria): GeneratedRecipe {
   const arch = criteria.architecture === 'arm64' ? 'aarch64' : 'x86_64';
   const distroName = 'TailoredAlpine';
-  const dockerAppDef = getDockerApp(criteria.dockerApp);
+  const dockerApps = getSelectedDockerApps(criteria);
+  const dockerAppDef = dockerApps[0];
+  const dockerStack = generateDockerStackFiles(criteria);
   const desktopApps = criteria.desktopApps || [];
   const emulatorApps = criteria.emulatorApps || [];
   const navigationApps = criteria.navigationApps || [];
-  const dockerApp = dockerAppDef ? dockerAppDef.id : 'none';
+  const dockerApp = dockerApps.length > 0 ? dockerApps.map((a) => a.id).join('+') : 'none';
 
   const kernelPkg = criteria.kernelFlavor ? 'linux-lts' : '';
   const fsPkg =
@@ -219,12 +221,8 @@ clean:
     }
   ];
 
-  if (dockerAppDef) {
-    files.push({
-      filename: 'docker-compose.yml',
-      description: `Turnkey Docker Compose configuration for ${dockerAppDef.name} (${dockerAppDef.tagline})`,
-      content: dockerAppDef.generateCompose(criteria)
-    });
+  for (const stackFile of dockerStack.files) {
+    files.push(stackFile);
   }
 
   if (desktopApps.length > 0) {
@@ -264,19 +262,19 @@ clean:
   if (navigationApps.length > 0) {
     quickstartCommands.push(`sudo bash bootstrap-navigation.sh  # 1-Click install ${navigationApps.length} navigation tool(s) & GPSd setup`);
   }
-  if (dockerAppDef) {
-    quickstartCommands.push(`docker compose up -d  # Launch ${dockerAppDef.name} at ${dockerAppDef.webUrl}`);
+  if (dockerStack.quickstartCommands.length > 0) {
+    quickstartCommands.push(...dockerStack.quickstartCommands);
   } else if (desktopApps.length === 0 && emulatorApps.length === 0 && navigationApps.length === 0) {
     quickstartCommands.push(`tar -tzf output/${distroName}-${arch}.tar.gz | head -n 20`);
   }
 
   return {
     id: 'alpine-chroot',
-    title: dockerAppDef
-      ? `Alpine Linux + ${dockerAppDef.name} RootFS`
+    title: dockerStack.summaryLabel
+      ? `Alpine Linux + ${dockerStack.summaryLabel} RootFS`
       : 'Ultra-Minimal Alpine musl/OpenRC RootFS',
-    summary: dockerAppDef
-      ? `Creates an Alpine Linux sub-30MB base with musl libc, OpenRC, and a pre-configured ${dockerAppDef.name} (${dockerAppDef.tagline}) stack.`
+    summary: dockerStack.summaryLabel
+      ? `Creates an Alpine Linux sub-30MB base with musl libc, OpenRC, and pre-configured ${dockerStack.summaryLabel} Docker stack(s).`
       : 'Creates a high-speed, sub-20MB Alpine Linux root filesystem using musl libc and OpenRC for containers, chroots, or diskless PXE boots.',
     targetFormat: 'tarball',
     estimatedBuildTimeMinutes: 2,

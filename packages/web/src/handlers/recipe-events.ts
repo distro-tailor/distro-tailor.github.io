@@ -202,7 +202,7 @@ export function bindRecipeEvents(ctx: HandlerContext): void {
     });
   });
 
-  // Turnkey Docker App Layer
+  // Turnkey Docker App Layer (Multi-Stack)
   document.querySelectorAll<HTMLElement>('.btn-select-docker-app').forEach((card) => {
     card.addEventListener('click', (e) => {
       const target = e.currentTarget as HTMLElement;
@@ -213,19 +213,44 @@ export function bindRecipeEvents(ctx: HandlerContext): void {
       }
 
       const appId = target.getAttribute('data-docker-id') as DockerAppId;
-      if (appId === 'none' || store.getState().criteria.dockerApp === appId) {
+      const current = store.getState().criteria;
+      const existing = new Set<DockerAppId>(
+        [...(current.dockerApps || []), ...(current.dockerApp && current.dockerApp !== 'none' ? [current.dockerApp] : [])]
+      );
+
+      if (appId === 'none') {
         store.update({
-          criteria: { ...store.getState().criteria, dockerApp: undefined },
+          criteria: { ...current, dockerApp: undefined, dockerApps: undefined },
           activeFileIndex: 0
         });
         showToast('Set to pure minimal OS (no background containers)', '🚫');
       } else {
+        const wasSelected = existing.has(appId);
+        if (wasSelected) {
+          existing.delete(appId);
+        } else {
+          existing.add(appId);
+        }
+        const nextList = Array.from(existing);
         store.update({
-          criteria: { ...store.getState().criteria, dockerApp: appId },
-          activeFileIndex: 1
+          criteria: {
+            ...current,
+            dockerApp: nextList.length === 1 ? nextList[0] : undefined,
+            dockerApps: nextList.length > 0 ? nextList : undefined
+          },
+          activeFileIndex: nextList.length > 0 ? 1 : 0
         });
         const appDef = getDockerApp(appId);
-        showToast(`✨ Configured ${appDef?.name || appId} in Makefile & docker-compose.yml!`, appDef?.icon || '🐳');
+        if (wasSelected) {
+          showToast(`Removed ${appDef?.name || appId} stack`, '🐳');
+        } else {
+          showToast(
+            nextList.length > 1
+              ? `✨ Added ${appDef?.name || appId} (stacks/${appId}/docker-compose.yml)`
+              : `✨ Configured ${appDef?.name || appId} in Makefile & docker-compose.yml!`,
+            appDef?.icon || '🐳'
+          );
+        }
       }
       router.saveStateToUrl(store.getState());
     });

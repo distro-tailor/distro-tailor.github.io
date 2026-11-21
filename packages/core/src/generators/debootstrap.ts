@@ -1,7 +1,7 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
 import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
 import { debootstrapCrossArchRootfsStep, debootstrapCrossArchVars, dockerBuildTarget } from './cross-build.js';
-import { getDockerApp } from './docker-apps.js';
+import { generateDockerStackFiles, getSelectedDockerApps } from './docker-apps.js';
 import { generateBootstrapAppsScript } from './desktop-apps.js';
 import { generateBootstrapEmulatorsScript } from './emulator-apps.js';
 import { generateBootstrapNavigationScript } from './navigation-apps.js';
@@ -9,7 +9,9 @@ import { generateBootstrapNavigationScript } from './navigation-apps.js';
 export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedRecipe {
   const arch = criteria.architecture === 'arm64' ? 'arm64' : 'amd64';
   const distroName = 'TailoredDebian';
-  const dockerAppDef = getDockerApp(criteria.dockerApp);
+  const dockerApps = getSelectedDockerApps(criteria);
+  const dockerAppDef = dockerApps[0];
+  const dockerStack = generateDockerStackFiles(criteria);
   const desktopApps = criteria.desktopApps || [];
   const emulatorApps = criteria.emulatorApps || [];
   const navigationApps = criteria.navigationApps || [];
@@ -17,7 +19,7 @@ export function generateDebootstrapRecipe(criteria: UserCriteria): GeneratedReci
   const enableDistrobox = criteria.enableDistrobox ? '1' : '0';
   const enableNix = criteria.enableNix ? '1' : '0';
   const enableFlatpak = criteria.enableFlatpak ? '1' : '0';
-  const dockerApp = dockerAppDef ? dockerAppDef.id : 'none';
+  const dockerApp = dockerApps.length > 0 ? dockerApps.map((a) => a.id).join('+') : 'none';
 
   // Hardware Form Factor & Power/Battery Tuning
   const formFactor = criteria.formFactor || 'desktop';
@@ -458,12 +460,8 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -displa
     }
   ];
 
-  if (dockerAppDef) {
-    files.push({
-      filename: 'docker-compose.yml',
-      description: `Turnkey Docker Compose configuration for ${dockerAppDef.name} (${dockerAppDef.tagline})`,
-      content: dockerAppDef.generateCompose(criteria)
-    });
+  for (const stackFile of dockerStack.files) {
+    files.push(stackFile);
   }
 
   if (desktopApps.length > 0) {
@@ -517,8 +515,8 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -displa
     quickstartCommands.push(`sudo bash bootstrap-navigation.sh  # 1-Click install ${navigationApps.length} navigation tool(s) & GPSd setup`);
   }
 
-  if (dockerAppDef) {
-    quickstartCommands.push(`docker compose up -d  # Launch ${dockerAppDef.name} at ${dockerAppDef.webUrl}`);
+  if (dockerStack.quickstartCommands.length > 0) {
+    quickstartCommands.push(...dockerStack.quickstartCommands);
   } else if (desktopApps.length === 0 && emulatorApps.length === 0 && navigationApps.length === 0) {
     quickstartCommands.push(
       arch === 'arm64'
@@ -529,11 +527,11 @@ qemu-system-x86_64 -cdrom output/${distroName}-1.0.0-${arch}.iso -m 2048 -displa
 
   return {
     id: 'debootstrap-debian',
-    title: dockerAppDef
-      ? `Tailored Debian + ${dockerAppDef.name} Appliance`
+    title: dockerStack.summaryLabel
+      ? `Tailored Debian + ${dockerStack.summaryLabel} Appliance`
       : 'Custom Minimal Debian Appliance (Debootstrap)',
-    summary: dockerAppDef
-      ? `Compiles a lean Debian base (~250MB) and bundles a production-ready ${dockerAppDef.name} (${dockerAppDef.tagline}) Docker stack.`
+    summary: dockerStack.summaryLabel
+      ? `Compiles a lean Debian base (~250MB) and bundles production-ready ${dockerStack.summaryLabel} Docker stack(s).`
       : 'Compiles a lean, standalone Debian distribution (~250MB) with a tailored kernel, systemd, and bootable GRUB ISO.',
     targetFormat: 'iso',
     estimatedBuildTimeMinutes: 5,

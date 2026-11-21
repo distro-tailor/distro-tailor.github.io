@@ -460,6 +460,7 @@ export interface UserCriteria {
   enableNix?: boolean;
   enableFlatpak?: boolean;
   dockerApp?: DockerAppId;
+  dockerApps?: DockerAppId[];
   desktopApps?: DesktopAppId[];
   emulatorApps?: EmulatorAppId[];
   navigationApps?: NavigationAppId[];

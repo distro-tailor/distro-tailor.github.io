@@ -826,3 +826,111 @@ export function getDockerApp(id?: DockerAppId): DockerAppDefinition | undefined 
   if (!id || id === 'none') return undefined;
   return DOCKER_APPS_REGISTRY.find((app) => app.id === id);
 }
+
+/** Resolves all selected Docker stacks (supporting both legacy single `dockerApp` and multi-select `dockerApps`). */
+export function getSelectedDockerApps(criteria: UserCriteria): DockerAppDefinition[] {
+  const ids = new Set<DockerAppId>();
+  if (criteria.dockerApps) {
+    for (const id of criteria.dockerApps) {
+      if (id && id !== 'none') ids.add(id);
+    }
+  }
+  if (criteria.dockerApp && criteria.dockerApp !== 'none') {
+    ids.add(criteria.dockerApp);
+  }
+  return Array.from(ids)
+    .map((id) => getDockerApp(id))
+    .filter((app): app is DockerAppDefinition => !!app);
+}
+
+export interface ResolvedDockerStack {
+  app: DockerAppDefinition;
+  hostPort: string;
+  reassignedFrom?: string;
+  conflictWith?: string;
+}
+
+/**
+ * Resolves host ports for selected Docker stacks, automatically suggesting the next
+ * free port when two selected stacks share the same numeric defaultPort.
+ */
+export function resolveDockerStackPorts(apps: readonly DockerAppDefinition[]): ResolvedDockerStack[] {
+  const usedPorts = new Map<string, string>(); // port -> app.name
+  return apps.map((app) => {
+    const rawPort = app.defaultPort.trim();
+    if (!/^\d+$/.test(rawPort)) {
+      return { app, hostPort: rawPort };
+    }
+    if (!usedPorts.has(rawPort)) {
+      usedPorts.set(rawPort, app.name);
+      return { app, hostPort: rawPort };
+    }
+    const conflictWith = usedPorts.get(rawPort)!;
+    let candidate = Number(rawPort) + 1;
+    while (usedPorts.has(String(candidate))) {
+      candidate++;
+    }
+    const hostPort = String(candidate);
+    usedPorts.set(hostPort, app.name);
+    return { app, hostPort, reassignedFrom: rawPort, conflictWith };
+  });
+}
+
+function applyHostPortOverride(compose: string, fromPort: string, toPort: string, conflictWith: string): string {
+  const portPattern = new RegExp(`"${fromPort}:(\\d+)"`, 'g');
+  const updated = compose.replace(portPattern, `"${toPort}:$1" # Adjusted from ${fromPort} (conflict with ${conflictWith}; edit to customize)`);
+  return updated.replace(new RegExp(`http://localhost:${fromPort}`, 'g'), `http://localhost:${toPort}`);
+}
+
+/**
+ * Generates isolated per-stack Compose files:
+ * - 1 stack: root `docker-compose.yml` (classic single-app layout)
+ * - 2+ stacks: `stacks/<id>/docker-compose.yml` per stack (Dockge / Portainer ready)
+ */
+export function generateDockerStackFiles(criteria: UserCriteria): {
+  files: Array<{ filename: string; description: string; content: string }>;
+  quickstartCommands: string[];
+  summaryLabel?: string;
+} {
+  const apps = getSelectedDockerApps(criteria);
+  if (apps.length === 0) {
+    return { files: [], quickstartCommands: [] };
+  }
+  if (apps.length === 1) {
+    const app = apps[0];
+    return {
+      files: [
+        {
+          filename: 'docker-compose.yml',
+          description: `Turnkey Docker Compose configuration for ${app.name} (${app.tagline})`,
+          content: app.generateCompose(criteria)
+        }
+      ],
+      quickstartCommands: [`docker compose up -d  # Launch ${app.name} at ${app.webUrl}`],
+      summaryLabel: app.name
+    };
+  }
+  const resolved = resolveDockerStackPorts(apps);
+  return {
+    files: resolved.map(({ app, hostPort, reassignedFrom, conflictWith }) => {
+      const baseCompose = app.generateCompose(criteria);
+      const content =
+        reassignedFrom && conflictWith
+          ? applyHostPortOverride(baseCompose, reassignedFrom, hostPort, conflictWith)
+          : baseCompose;
+      return {
+        filename: `stacks/${app.id}/docker-compose.yml`,
+        description: reassignedFrom
+          ? `Isolated Dockge-ready stack for ${app.name} (host port ${hostPort}; adjusted from ${reassignedFrom})`
+          : `Isolated Dockge-ready Docker Compose stack for ${app.name} (${app.tagline})`,
+        content
+      };
+    }),
+    quickstartCommands: resolved.map(({ app, hostPort, reassignedFrom }) => {
+      const url = reassignedFrom ? app.webUrl.replace(`:${reassignedFrom}`, `:${hostPort}`) : app.webUrl;
+      const note = reassignedFrom ? ` [port ${reassignedFrom} -> ${hostPort}]` : '';
+      return `docker compose -f stacks/${app.id}/docker-compose.yml up -d  # ${app.name} (${url})${note}`;
+    }),
+    summaryLabel: `${apps.length} Stacks (${apps.map((a) => a.name).join(', ')})`
+  };
+}

@@ -107,3 +107,19 @@ test('App Suites: primary suite renders as collapsible details open by default',
   assert.match(html, /<details[^>]*data-panel-id="docker-services"[^>]*\bopen\b/);
   assert.match(html, /Turnkey Service Layer \(Docker Compose\)/);
 });
+
+test('App Suites: multi-stack dockerApps shows count pill and per-stack compose paths', () => {
+  const html = renderDockerServiceSuite(
+    { architecture: 'x86_64', maxRamMb: 16384, dockerApps: ['immich', 'jellyfin'] },
+    true
+  );
+  assert.ok(html.includes('2 Stacks'));
+  assert.ok(html.includes('stacks/immich/docker-compose.yml'));
+  assert.ok(html.includes('stacks/jellyfin/docker-compose.yml'));
+
+  const clashHtml = renderDockerServiceSuite(
+    { architecture: 'x86_64', maxRamMb: 16384, dockerApps: ['vaultwarden', 'filebrowser'] },
+    true
+  );
+  assert.ok(clashHtml.includes('Port 8081'));
+});

@@ -16,6 +16,7 @@ function hasExplicitRecipeModifiers(criteria: UserCriteria): boolean {
     criteria.enableDistrobox ||
     criteria.enableNix ||
     criteria.dockerApp ||
+    (criteria.dockerApps && criteria.dockerApps.length > 0) ||
     (criteria.desktopApps && criteria.desktopApps.length > 0) ||
     (criteria.emulatorApps && criteria.emulatorApps.length > 0) ||
     (criteria.navigationApps && criteria.navigationApps.length > 0)

@@ -7,7 +7,8 @@ import {
   DOCKER_APPS_REGISTRY,
   EMULATOR_APPS_REGISTRY,
   NAVIGATION_APPS_REGISTRY,
-  getDockerApp,
+  getSelectedDockerApps,
+  resolveDockerStackPorts,
   UserCriteria
 } from '@distro-tailor/core';
 import { type AddonCombo, getAddonCombos } from '../data/addon-combos.js';
@@ -375,12 +376,20 @@ export function renderDockerServiceSuite(
   isPrimary: boolean,
   panelOpen?: Readonly<Record<string, boolean>>
 ): string {
-  const hasDockerApp = !!(criteria.dockerApp && criteria.dockerApp !== 'none');
-  const activeAppName = hasDockerApp ? getDockerApp(criteria.dockerApp)?.name : undefined;
+  const selectedApps = getSelectedDockerApps(criteria);
+  const resolvedPorts = new Map(resolveDockerStackPorts(selectedApps).map((r) => [r.app.id, r]));
+  const selectedIds = selectedApps.map((a) => a.id);
+  const hasDockerApp = selectedIds.length > 0;
+  const activeSummary =
+    selectedApps.length === 1
+      ? `${selectedApps[0].name} Configured`
+      : selectedApps.length > 1
+        ? `${selectedApps.length} Stacks`
+        : undefined;
   const theme = SUITE_THEMES.emerald;
 
   const renderDockerCard = (app: (typeof DOCKER_APPS_REGISTRY)[number]) => {
-    const isSelected = criteria.dockerApp === app.id;
+    const isSelected = selectedIds.includes(app.id);
     const compat = checkDockerAppCompatibility(app, criteria);
     const searchText = escapeHtml(`${app.name} ${app.tagline} ${app.description} ${app.category}`.toLowerCase());
 
@@ -397,15 +406,22 @@ export function renderDockerServiceSuite(
             <span class="text-xl shrink-0">${app.icon}</span>
             <div class="flex items-center gap-1 shrink-0">
               ${formatCompatBadge(app.minRamMb, compat)}
-              ${isSelected ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>` : `<span class="text-[10px] text-slate-500 font-mono">Port ${app.defaultPort}</span>`}
+              ${(() => {
+                const resolved = resolvedPorts.get(app.id);
+                if (!isSelected) return `<span class="text-[10px] text-slate-500 font-mono">Port ${app.defaultPort}</span>`;
+                if (resolved?.reassignedFrom) {
+                  return `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0" title="Auto-adjusted from ${resolved.reassignedFrom} to avoid port clash with ${resolved.conflictWith}">Port ${resolved.hostPort}</span>`;
+                }
+                return `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>`;
+              })()}
             </div>
           </div>
           <h4 class="font-bold text-slate-200 text-xs">${app.name}</h4>
           <p class="text-[11px] text-slate-400 mt-1 leading-relaxed line-clamp-2">${app.description}</p>
         </div>
         <div class="mt-2.5 pt-2 border-t border-slate-800/80 text-[10px] ${!compat.compatible ? 'text-slate-600' : isSelected ? 'text-emerald-400 font-bold' : 'text-slate-500'} font-mono flex items-center justify-between">
-          <span>${!compat.compatible ? 'Unsupported Hardware' : isSelected ? '✓ In docker-compose.yml' : '+ Deploy with Docker'}</span>
-          <span>${!compat.compatible ? '🚫' : '↗'}</span>
+          <span>${!compat.compatible ? 'Unsupported Hardware' : isSelected ? (selectedIds.length > 1 ? `✓ stacks/${app.id}/docker-compose.yml` : '✓ In docker-compose.yml') : '+ Add Docker Stack'}</span>
+          <span>${!compat.compatible ? '🚫' : isSelected ? '✓' : '+'}</span>
         </div>
       </div>
     `;
@@ -434,7 +450,7 @@ export function renderDockerServiceSuite(
     suiteId: 'docker-services',
     categories: DOCKER_APP_CATEGORIES,
     items: DOCKER_APPS_REGISTRY,
-    selectedIds: hasDockerApp && criteria.dockerApp ? [criteria.dockerApp] : [],
+    selectedIds,
     defaultCategory: getDefaultDockerCategory(criteria),
     searchPlaceholder: `Filter ${DOCKER_APPS_REGISTRY.length} services...`,
     topHtml: noneCardHtml,
@@ -451,16 +467,16 @@ export function renderDockerServiceSuite(
     title: 'Turnkey Service Layer (Docker Compose)',
     primaryBadgeText: 'Recommended for Server & Homelab',
     descriptionHtml:
-      'Deploy a turnkey self-hosted containerized app. Injects <code class="text-emerald-400">docker-compose.yml</code> and Makefile targets (<code class="text-emerald-400">make app-up</code>):',
-    statusPillHtml: activeAppName
-      ? `<span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold ${theme.countPill} whitespace-nowrap shrink-0 self-start sm:self-auto">${activeAppName} Configured</span>`
+      'Select one or more self-hosted stacks. Single stack generates <code class="text-emerald-400">docker-compose.yml</code>; multiple stacks generate isolated <code class="text-emerald-400">stacks/&lt;app&gt;/docker-compose.yml</code> folders (Dockge/Portainer ready):',
+    statusPillHtml: activeSummary
+      ? `<span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold ${theme.countPill} whitespace-nowrap shrink-0 self-start sm:self-auto">${activeSummary}</span>`
       : '',
     nommuWarning:
       criteria.architecture === 'nommu'
         ? 'Docker containers require a hardware Memory Management Unit (MMU) and Linux cgroups/namespaces, which are not available on NOMMU microcontrollers.'
         : undefined,
-    summaryText: 'Also want to run self-hosted Docker services on this desktop? (Click to view options)',
-    summaryActiveBadgeText: activeAppName ? `${activeAppName} active` : undefined,
+    summaryText: 'Want to bundle self-hosted Docker stacks? (Immich, Jellyfin, Vaultwarden, etc.)',
+    summaryActiveBadgeText: activeSummary ? `${activeSummary} active` : undefined,
     theme: 'emerald',
     isPrimary,
     isExpanded: isPrimary || hasDockerApp,

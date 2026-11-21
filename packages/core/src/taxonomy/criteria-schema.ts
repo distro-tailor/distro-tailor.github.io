@@ -460,6 +460,7 @@ export function sanitizeCriteria(input: UntrustedCriteria): UserCriteria {
     enableNix: pickBoolean(input.enableNix),
     enableFlatpak: pickBoolean(input.enableFlatpak),
     dockerApp: pickEnum(DOCKER_APP_VALUES, input.dockerApp),
+    dockerApps: pickEnumList(DOCKER_APP_VALUES, input.dockerApps),
     desktopApps: pickEnumList(DESKTOP_APP_VALUES, input.desktopApps),
     emulatorApps: pickEnumList(EMULATOR_APP_VALUES, input.emulatorApps),
     navigationApps: pickEnumList(NAVIGATION_APP_VALUES, input.navigationApps)

@@ -1,5 +1,5 @@
 import { GeneratedRecipe, UserCriteria } from '../types.js';
-import { getDockerApp } from './docker-apps.js';
+import { getSelectedDockerApps } from './docker-apps.js';
 
 const NIX_PACKAGE_MAP: Readonly<Record<string, string>> = {
   firefox: 'pkgs.firefox',
@@ -188,11 +188,12 @@ export function generateNixosRecipe(criteria: UserCriteria): GeneratedRecipe {
     : '  networking.networkmanager.enable = true;';
 
   // Docker container app configuration
-  const dockerAppDef = getDockerApp(criteria.dockerApp);
+  const dockerApps = getSelectedDockerApps(criteria);
+  const dockerAppDef = dockerApps[0];
   let containerConfig = '';
-  if (dockerAppDef) {
+  if (dockerApps.length > 0) {
     containerConfig = `
-  # Container Appliance (${dockerAppDef.name})
+  # Container Appliance (${dockerApps.map((a) => a.name).join(', ')})
   virtualisation.docker.enable = true;`;
   } else if (criteria.enableDistrobox) {
     containerConfig = `
@@ -215,7 +216,7 @@ export function generateNixosRecipe(criteria: UserCriteria): GeneratedRecipe {
     virtConfig += `
   # Xen hypervisor (dom0)
   virtualisation.xen.enable = true;`;
-  } else if (virtHost === 'container-only' && !criteria.dockerApp && !criteria.enableDistrobox) {
+  } else if (virtHost === 'container-only' && dockerApps.length === 0 && !criteria.enableDistrobox) {
     virtConfig += `
   # Container host (no VM hypervisor)
   virtualisation.podman = {
