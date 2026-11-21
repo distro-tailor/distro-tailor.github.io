@@ -66,6 +66,7 @@ test('AppStore: setFlowMode clears technical criteria when switching to smart/be
   const store = new AppStore();
 
   store.setFlowMode('expert');
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'systems-engineer');
   store.answerQuestion('c_library_and_init', 'cLibPreference', 'musl');
   store.answerQuestion('system_immutability', 'statePreference', 'declarative');
   store.answerQuestion('filesystem_and_storage', 'fileSystem', 'btrfs');
@@ -84,6 +85,44 @@ test('AppStore: setFlowMode clears technical criteria when switching to smart/be
   assert.equal(state.answeredQuestionIds.has('c_library_and_init'), false);
   assert.equal(state.answeredQuestionIds.has('filesystem_and_storage'), false);
   assert.equal(state.answeredQuestionIds.has('system_immutability'), false);
+});
+
+test('AppStore: toggleWizardMode remaps viewingQuestionId, preserves compatible criteria, and keeps reconciliation active', () => {
+  const store = new AppStore();
+  store.answerQuestion('user_familiarity', 'experienceLevel', 'beginner');
+  store.answerQuestion('beginner_goal', { useCase: 'server', platform: 'embedded-sbc', footprint: 'lean' });
+  store.setViewingQuestion('beginner_goal');
+
+  // Switch from Goal Mode -> Technical Mode
+  store.toggleWizardMode();
+  let state = store.getState();
+  assert.equal(state.flowMode, 'expert');
+  assert.equal(state.criteria.experienceLevel, 'intermediate');
+  assert.equal(state.criteria.useCase, 'server');
+  assert.equal(state.viewingQuestionId, 'technical_use_case');
+  assert.ok(state.answeredQuestionIds.has('technical_use_case'));
+  assert.ok(!state.answeredQuestionIds.has('beginner_goal'));
+
+  // Reconciliation must still prune ineligible questions while on wizard tab
+  store.answerQuestion('boot_medium', 'bootMedium', 'nvme-ssd');
+  store.answerQuestion('technical_use_case', { useCase: 'container-base', platform: 'container' });
+  state = store.getState();
+  assert.equal(state.criteria.bootMedium, undefined, 'boot_medium must be pruned when switching to container');
+
+  // Switch back to Goal Mode while viewing system_immutability (ineligible for beginner)
+  store.setViewingQuestion('system_immutability');
+  store.toggleWizardMode();
+  state = store.getState();
+  assert.equal(state.flowMode, 'smart');
+  assert.equal(state.criteria.experienceLevel, 'beginner');
+  assert.equal(state.viewingQuestionId, null, 'ineligible viewingQuestionId must be cleared on switch');
+  assert.ok(state.answeredQuestionIds.has('beginner_goal'));
+
+  // Stepping back after mode switch walks through the new mode's eligible questions
+  store.setViewingQuestion('beginner_device');
+  const stepped = store.stepBackQuestion();
+  assert.equal(stepped, true);
+  assert.equal(store.getState().viewingQuestionId, 'beginner_goal');
 });
 
 test('AppStore: toggleAllContenders flips visibility state and notifies subscribers', () => {

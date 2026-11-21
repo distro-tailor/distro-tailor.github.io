@@ -348,4 +348,34 @@ test('Wizard View: returning from results to edit beginner_goal still highlights
   assert.ok(html.includes('In-Car GPS &amp; Offline Navigation') || html.includes('In-Car GPS & Offline Navigation'));
 });
 
+test('Wizard View: after toggling to Technical Mode, answered technical_use_case highlights selection while unanswered hardware_architecture shows default', () => {
+  const techUseCaseQ = QUESTIONS.find((q) => q.id === 'technical_use_case')!;
+  const archQ = QUESTIONS.find((q) => q.id === 'hardware_architecture')!;
+
+  const switchedState: AppState = {
+    criteria: {
+      experienceLevel: 'intermediate',
+      useCase: 'server',
+      platform: 'embedded-sbc',
+      footprint: 'lean'
+    },
+    answeredQuestionIds: new Set(['user_familiarity', 'technical_use_case']),
+    activeTab: 'wizard',
+    flowMode: 'expert',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+
+  const techHtml = renderWizardQuestion(techUseCaseQ, { current: 2, total: 8 }, switchedState);
+  assert.equal((techHtml.match(/✓ Selected/g) || []).length, 1, 'Remapped technical_use_case must highlight server_cloud');
+  assert.ok(techHtml.includes('Cloud Server or Self-Hosted Homelab'));
+
+  const archHtml = renderWizardQuestion(archQ, { current: 3, total: 8 }, switchedState);
+  assert.ok(!archHtml.includes('✓ Selected'), 'Unanswered hardware_architecture must not auto-select');
+  assert.ok(archHtml.includes('★ Standard Default'), 'Unanswered hardware_architecture must highlight default x86_64');
+});
+
 

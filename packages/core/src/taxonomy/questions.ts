@@ -1,5 +1,45 @@
 import { Question } from '../types.js';
 
+const NON_INTERACTIVE_PLATFORMS = new Set([
+  'container',
+  'k8s-node',
+  'router-firewall',
+  'microcontroller',
+  'server',
+  'vm',
+  'wsl2'
+]);
+
+const NON_AUDIO_USE_CASES = new Set([
+  'browser-wasm',
+  'server',
+  'nas-storage',
+  'smart-home',
+  'hypervisor-vms',
+  'ai-gpu-compute',
+  'router-networking',
+  'k8s-cluster',
+  'container-base',
+  'appliance-product',
+  'kiosk-signage',
+  'iot-embedded',
+  'security-pentest'
+]);
+
+const NON_PERIPHERAL_USE_CASES = new Set([
+  'browser-wasm',
+  'server',
+  'nas-storage',
+  'hypervisor-vms',
+  'ai-gpu-compute',
+  'router-networking',
+  'k8s-cluster',
+  'container-base',
+  'iot-embedded',
+  'appliance-product',
+  'kiosk-signage'
+]);
+
 export const QUESTIONS: Question[] = [
   // --- STEP 1: EXPERIENCE & JARGON LEVEL ---
   {
@@ -617,7 +657,9 @@ export const QUESTIONS: Question[] = [
       criteria.useCase !== 'container-base' &&
       criteria.useCase !== 'k8s-cluster' &&
       criteria.platform !== 'container' &&
-      criteria.platform !== 'k8s-node',
+      criteria.platform !== 'k8s-node' &&
+      criteria.platform !== 'microcontroller' &&
+      criteria.architecture !== 'nommu',
     tip: {
       icon: '🖥️',
       title: 'Screen vs. No Screen (Headless)',
@@ -757,7 +799,10 @@ export const QUESTIONS: Question[] = [
     shouldAsk: (criteria) =>
       criteria.useCase !== 'browser-wasm' &&
       criteria.platform !== 'container' &&
-      criteria.platform !== 'k8s-node',
+      criteria.platform !== 'k8s-node' &&
+      criteria.platform !== 'microcontroller' &&
+      criteria.platform !== 'wsl2' &&
+      criteria.architecture !== 'nommu',
     tip: {
       icon: '⚙️',
       title: 'Driver Freedom & Binary Blobs',
@@ -800,7 +845,9 @@ export const QUESTIONS: Question[] = [
     shouldAsk: (criteria) =>
       criteria.useCase !== 'browser-wasm' &&
       criteria.platform !== 'container' &&
-      criteria.platform !== 'wsl2',
+      criteria.platform !== 'wsl2' &&
+      criteria.platform !== 'microcontroller' &&
+      criteria.architecture !== 'nommu',
     tip: {
       icon: '💾',
       title: 'Flash Wear Reduction & RAM Disks',
@@ -842,9 +889,10 @@ export const QUESTIONS: Question[] = [
     category: 'software',
     shouldAsk: (criteria) =>
       criteria.prefersGui !== false &&
-      criteria.useCase !== 'browser-wasm' &&
-      criteria.platform !== 'container' &&
-      criteria.platform !== 'k8s-node' &&
+      criteria.realtimeAudio === undefined &&
+      !NON_AUDIO_USE_CASES.has(criteria.useCase || '') &&
+      !NON_INTERACTIVE_PLATFORMS.has(criteria.platform || '') &&
+      criteria.architecture !== 'nommu' &&
       criteria.footprint !== 'micro',
     tip: {
       icon: '🎵',
@@ -881,9 +929,9 @@ export const QUESTIONS: Question[] = [
     category: 'hardware',
     shouldAsk: (criteria) =>
       criteria.prefersGui !== false &&
-      criteria.useCase !== 'browser-wasm' &&
-      criteria.platform !== 'container' &&
-      criteria.platform !== 'router-firewall' &&
+      !NON_PERIPHERAL_USE_CASES.has(criteria.useCase || '') &&
+      !NON_INTERACTIVE_PLATFORMS.has(criteria.platform || '') &&
+      criteria.architecture !== 'nommu' &&
       criteria.footprint !== 'micro',
     tip: {
       icon: '🔌',
@@ -945,7 +993,10 @@ export const QUESTIONS: Question[] = [
     prompt: 'How should system state and configuration changes be managed?',
     subtext: 'Traditional mutable OSes vs. modern immutable / declarative architectures.',
     category: 'lifecycle',
-    shouldAsk: (criteria) => criteria.experienceLevel !== 'beginner',
+    shouldAsk: (criteria) =>
+      criteria.experienceLevel !== 'beginner' &&
+      criteria.platform !== 'microcontroller' &&
+      criteria.architecture !== 'nommu',
     tip: {
       icon: '🛡️',
       title: 'Appliance Secret: Immutability',
@@ -1039,7 +1090,10 @@ export const QUESTIONS: Question[] = [
     prompt: 'Root Filesystem & Storage Architecture',
     subtext: 'Standard ext4 vs. snapshot-capable Btrfs/ZFS, flash-friendly F2FS, or high-throughput XFS.',
     category: 'software',
-    shouldAsk: (criteria) => criteria.experienceLevel === 'systems-engineer',
+    shouldAsk: (criteria) =>
+      criteria.experienceLevel === 'systems-engineer' &&
+      criteria.platform !== 'microcontroller' &&
+      criteria.architecture !== 'nommu',
     tip: {
       icon: '💾',
       title: 'Filesystem Trade-Offs',

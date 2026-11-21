@@ -245,7 +245,7 @@ export class AppStore extends EventTarget implements IAppStore {
    * due to upstream criteria changes (e.g. changing platform to container, changing to beginner mode, etc.).
    */
   public reconcileIneligibleCriteria(): void {
-    if (this._state.flowMode === 'expert') return;
+    if (this._state.activeTab === 'expert') return;
 
     const flow = new QuestionFlow(QUESTIONS);
     const eligible = flow.getEligibleQuestions(this._state.criteria);
@@ -367,6 +367,74 @@ export class AppStore extends EventTarget implements IAppStore {
       this._state.answeredQuestionIds.delete('system_immutability');
       this._state.answeredQuestionIds.delete('filesystem_and_storage');
     }
+    this.notify();
+  }
+
+  public toggleWizardMode(): void {
+    const isBeginner = this._state.criteria.experienceLevel === 'beginner' || !this._state.criteria.experienceLevel;
+    const newMode: FlowMode = isBeginner ? 'expert' : 'smart';
+    const nextExp = isBeginner ? 'intermediate' : 'beginner';
+
+    const pairMap: ReadonlyArray<readonly [string, string]> = [
+      ['beginner_goal', 'technical_use_case'],
+      ['beginner_device', 'hardware_architecture'],
+      ['beginner_memory', 'memory_and_storage']
+    ];
+
+    // Remap answeredQuestionIds and viewingQuestionId across Goal <-> Technical equivalents
+    const nextAnswered = new Set(this._state.answeredQuestionIds);
+    let nextViewing = this._state.viewingQuestionId || null;
+
+    for (const [begId, techId] of pairMap) {
+      const fromId = isBeginner ? begId : techId;
+      const toId = isBeginner ? techId : begId;
+      if (nextAnswered.delete(fromId)) {
+        nextAnswered.add(toId);
+      }
+      if (nextViewing === fromId) {
+        nextViewing = toId;
+      }
+    }
+
+    this._state.answeredQuestionIds = nextAnswered;
+    this._state.criteria = {
+      ...this._state.criteria,
+      experienceLevel: nextExp
+    };
+
+    if (newMode === 'smart') {
+      // Clear expert-only criteria when returning to Goal Mode
+      const cleaned = { ...this._state.criteria };
+      delete cleaned.cLibPreference;
+      delete cleaned.initPreference;
+      delete cleaned.statePreference;
+      delete cleaned.fileSystem;
+      delete cleaned.kernelFlavor;
+      delete cleaned.bootloader;
+      delete cleaned.securityProfile;
+      delete cleaned.networkingStack;
+      delete cleaned.firmwareMode;
+      delete cleaned.secureBoot;
+      delete cleaned.tpmUsage;
+      delete cleaned.virtHost;
+      delete cleaned.devicePassthrough;
+      delete cleaned.guestPlatform;
+      this._state.criteria = cleaned;
+      this._state.answeredQuestionIds.delete('c_library_and_init');
+      this._state.answeredQuestionIds.delete('system_immutability');
+      this._state.answeredQuestionIds.delete('filesystem_and_storage');
+    }
+
+    this._state.flowMode = newMode;
+
+    // Ensure viewingQuestionId points to an eligible question in the target mode
+    const flow = new QuestionFlow(QUESTIONS);
+    const eligible = flow.getEligibleQuestions(this._state.criteria);
+    if (nextViewing && !eligible.some((q) => q.id === nextViewing)) {
+      nextViewing = null;
+    }
+    this._state.viewingQuestionId = nextViewing;
+    this._state.wizardFilterQuery = '';
     this.notify();
   }
 

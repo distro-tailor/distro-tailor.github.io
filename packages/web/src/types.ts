@@ -110,6 +110,12 @@ export interface IAppStore {
   setFlowMode(mode: FlowMode): void;
 
   /**
+   * Switches between Goal Mode (beginner/smart) and Technical Mode (intermediate/expert)
+   * while preserving compatible criteria and remapping the active wizard question.
+   */
+  toggleWizardMode(): void;
+
+  /**
    * Sets active workspace tab (wizard, expert, results).
    */
   setTab(tab: AppTab): void;

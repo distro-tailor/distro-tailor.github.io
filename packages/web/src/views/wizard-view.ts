@@ -280,26 +280,31 @@ export function renderWizardQuestion(
               const entries = Object.entries(o.appliesCriteria);
               let matches = 0;
               let conflicts = 0;
+              let useCaseMatch = false;
               for (const [k, v] of entries) {
                 const current = (state.criteria as Record<string, unknown>)[k];
                 if (criteriaValueEquals(current, v)) {
                   matches++;
+                  if (k === 'useCase') useCaseMatch = true;
                 } else if (current !== undefined) {
                   conflicts++;
                 }
               }
-              return { matches, conflicts, total: entries.length };
+              return { matches, conflicts, useCaseMatch, total: entries.length };
             };
 
             const partialMatches = question.options.filter((o) => {
-              const { matches, conflicts } = scorePartialOption(o);
-              return matches > 0 && matches > conflicts;
+              const { matches, conflicts, useCaseMatch } = scorePartialOption(o);
+              return matches > 0 && (matches > conflicts || (useCaseMatch && matches === conflicts));
             });
 
             if (partialMatches.length > 0) {
               const best = partialMatches.sort((a, b) => {
                 const sa = scorePartialOption(a);
                 const sb = scorePartialOption(b);
+                const netDiff = (sb.matches - sb.conflicts) - (sa.matches - sa.conflicts);
+                if (netDiff !== 0) return netDiff;
+                if (sb.useCaseMatch !== sa.useCaseMatch) return sb.useCaseMatch ? 1 : -1;
                 if (sb.matches !== sa.matches) return sb.matches - sa.matches;
                 if (sa.conflicts !== sb.conflicts) return sa.conflicts - sb.conflicts;
                 return sb.total - sa.total;

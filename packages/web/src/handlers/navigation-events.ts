@@ -129,15 +129,7 @@ export function bindNavigationEvents(ctx: HandlerContext): void {
 
   // Toggle Flow Mode
   document.getElementById('btn-toggle-flow-mode')?.addEventListener('click', () => {
-    const isBeginner = state.criteria.experienceLevel === 'beginner' || !state.criteria.experienceLevel;
-    const newMode = isBeginner ? 'expert' : 'smart';
-    store.setFlowMode(newMode);
-    store.update({
-      criteria: {
-        ...store.getState().criteria,
-        experienceLevel: isBeginner ? 'intermediate' : 'beginner'
-      }
-    });
+    store.toggleWizardMode();
     router.saveStateToUrl(store.getState(), true);
   });
 }

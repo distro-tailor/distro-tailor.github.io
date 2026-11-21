@@ -693,6 +693,51 @@ test('QuestionFlow & Matcher: coding_dev, music_audio_studio, and security_priva
   assert.equal(yoctoRes.bestMatch.distro.id, 'yocto');
 });
 
+test('QuestionFlow: persona guards skip irrelevant hardware, audio, and storage questions', () => {
+  const flow = new QuestionFlow(QUESTIONS);
+
+  // Novice Home Server must not be asked pro-audio or desktop peripherals
+  const serverIds = flow.getEligibleQuestions({
+    experienceLevel: 'beginner',
+    useCase: 'server',
+    platform: 'embedded-sbc'
+  }).map((q) => q.id);
+  assert.ok(!serverIds.includes('audio_latency'));
+  assert.ok(!serverIds.includes('attached_peripherals'));
+
+  // Novice WSL2 must not be asked physical boot_medium or driver_philosophy
+  const wslIds = flow.getEligibleQuestions({
+    experienceLevel: 'beginner',
+    platform: 'wsl2',
+    footprint: 'minimal'
+  }).map((q) => q.id);
+  assert.ok(!wslIds.includes('boot_medium'));
+  assert.ok(!wslIds.includes('driver_philosophy'));
+
+  // Tinkerer K8s Node must not be asked attached_peripherals
+  const k8sIds = flow.getEligibleQuestions({
+    experienceLevel: 'intermediate',
+    useCase: 'k8s-cluster',
+    platform: 'k8s-node'
+  }).map((q) => q.id);
+  assert.ok(!k8sIds.includes('attached_peripherals'));
+
+  // Expert NOMMU MCU keeps c_library_and_init but skips display, drivers, boot_medium, immutability, filesystems
+  const mcuIds = flow.getEligibleQuestions({
+    experienceLevel: 'systems-engineer',
+    useCase: 'iot-embedded',
+    platform: 'microcontroller',
+    architecture: 'nommu',
+    footprint: 'micro'
+  }).map((q) => q.id);
+  assert.ok(mcuIds.includes('c_library_and_init'));
+  assert.ok(!mcuIds.includes('display_mode'));
+  assert.ok(!mcuIds.includes('driver_philosophy'));
+  assert.ok(!mcuIds.includes('boot_medium'));
+  assert.ok(!mcuIds.includes('system_immutability'));
+  assert.ok(!mcuIds.includes('filesystem_and_storage'));
+});
+
 test('QuestionFlow & Matcher: Evaluates desktop workflow familiarity (Windows, macOS, Mobile/Touch)', () => {
   const flow = new QuestionFlow(QUESTIONS);
   const eligible = flow.getEligibleQuestions({ experienceLevel: 'intermediate', useCase: 'desktop', prefersGui: true });
