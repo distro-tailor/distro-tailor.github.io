@@ -121,6 +121,13 @@ program
       console.log(`     Link: ${pc.blue(m.distro.website)}`);
     });
 
+    if (result.paidAlternatives.length > 0) {
+      console.log(pc.bold('\nPaid alternatives (not recommended, for comparison only):'));
+      for (const alt of result.paidAlternatives) {
+        console.log(`  - ${alt.name}: ${pc.yellow(alt.caveat)}`);
+      }
+    }
+
     if (result.recommendedRecipe) {
       console.log(pc.bold('\nRecommended Build Recipe:'));
       console.log(`  Title:  ${result.recommendedRecipe.title}`);

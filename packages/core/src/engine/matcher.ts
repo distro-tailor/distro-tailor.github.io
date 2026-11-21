@@ -5,7 +5,8 @@ import {
   RecommendationOutput,
   UserCriteria
 } from '../types.js';
-import { DISTRO_REGISTRY } from '../taxonomy/distros.js';
+import { ALLOWED_LICENSE_MODELS, DISTRO_REGISTRY } from '../taxonomy/distros.js';
+import { getPaidAlternatives } from '../taxonomy/paid-alternatives.js';
 import {
   AffinityTier,
   BOOT_MEDIUM_AFFINITIES,
@@ -88,7 +89,9 @@ export function evaluateCriteria(
     maxWeight = 100; // Default baseline if nothing specified
   }
 
-  const scoredDistros: DistroScore[] = distros.map((distro) => {
+  // Only free/open-source systems can be recommended; paid ones appear as paidAlternatives instead
+  const candidates = distros.filter((d) => ALLOWED_LICENSE_MODELS.includes(d.licensing.model));
+  const scoredDistros: DistroScore[] = candidates.map((distro) => {
     let earned = 0;
     let isHardDisqualified = false;
     let hardDisqualificationReason = '';
@@ -485,7 +488,7 @@ export function evaluateCriteria(
     ? resolveRecipeGenerator(targetGeneratorId, criteria)
     : undefined;
 
-  const summary = `Evaluated ${distros.length} distributions. Top match is ${bestMatch.distro.name} with a ${bestMatch.score}% compatibility score.`;
+  const summary = `Evaluated ${candidates.length} distributions. Top match is ${bestMatch.distro.name} with a ${bestMatch.score}% compatibility score.`;
 
   return {
     topMatches: scoredDistros.slice(0, 5),
@@ -493,6 +496,7 @@ export function evaluateCriteria(
     bestMatch,
     customRecipeAvailable: !!recommendedRecipe,
     recommendedRecipe,
-    summaryText: summary
+    summaryText: summary,
+    paidAlternatives: getPaidAlternatives(criteria)
   };
 }

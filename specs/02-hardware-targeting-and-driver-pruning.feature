@@ -91,3 +91,10 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     Then every distribution should declare its license and licensing model
     And only free and open-source systems should be registered, optionally with paid support, an optional commercial edition, or the board vendor's boot firmware
     And closed-source or usage-capped platforms (e.g. HiveOS, Porteus Kiosk, CheerpX-based WebVM) should not be recommended
+
+  Scenario: Paid or closed systems appear only as caveated alternatives, never as the result
+    Given the user chooses a use case where a well-known paid system exists (e.g. "AI, LLM & GPU Compute" with HiveOS, or "NAS" with Unraid)
+    When the evaluation completes
+    Then the top match and contenders should only include free and/or open-source systems
+    And the results (web and CLI) should list the paid system under "Paid alternatives (not recommended)"
+    And each paid alternative should state its caveat (what must be paid for, or what is closed source) and the free options that cover the same need

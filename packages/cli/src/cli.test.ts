@@ -78,3 +78,15 @@ test('CLI recommend: sanitizes invalid CLI flag values and keeps --json clean on
   const urlResult = JSON.parse(urlRes.stdout);
   assert.ok(urlResult.bestMatch?.distro?.id, 'Migrated URL with --json must emit valid JSON');
 });
+
+test('CLI recommend: paid systems are listed only as caveated alternatives', () => {
+  const { code, stdout } = runCli(['recommend', '--use-case', 'nas-storage']);
+  assert.equal(code, 0);
+  assert.ok(stdout.includes('Paid alternatives (not recommended, for comparison only):'));
+  assert.ok(stdout.includes('Unraid'));
+
+  const json = runCli(['recommend', '--use-case', 'nas-storage', '--json']);
+  const result = JSON.parse(json.stdout);
+  assert.notEqual(result.bestMatch.distro.id, 'unraid');
+  assert.deepEqual(result.paidAlternatives.map((a: { id: string }) => a.id), ['unraid']);
+});

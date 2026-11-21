@@ -127,6 +127,25 @@ export interface DistroLicensing {
   note?: string;
 }
 
+/**
+ * A system that needs payment or a closed-source license for the feature the user chose. Never
+ * recommended as the result; shown as an alternative with caveats beside the free options.
+ */
+export interface PaidAlternative {
+  id: string;
+  name: string;
+  website: string;
+  /** Use cases where this product is a well-known paid answer. */
+  useCases: PrimaryUseCase[];
+  licensing: DistroLicensing;
+  /** What it genuinely does well. */
+  pitch: string;
+  /** What the user would have to pay for or accept (closed source, usage caps). */
+  caveat: string;
+  /** Registered free/open-source distros that cover the same need. */
+  freeOptionIds: string[];
+}
+
 export interface DistroProfile {
   id: string;
   name: string;
@@ -433,4 +452,6 @@ export interface RecommendationOutput {
   customRecipeAvailable: boolean;
   recommendedRecipe?: GeneratedRecipe;
   summaryText: string;
+  /** Paid/closed systems for the chosen use case, shown only as caveated alternatives. */
+  paidAlternatives: PaidAlternative[];
 }

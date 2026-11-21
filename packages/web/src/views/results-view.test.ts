@@ -195,3 +195,27 @@ test('Results View: open-question copy distinguishes unlocked from still-unanswe
   assert.equal(describeOpenQuestions(1, 1), 'Your edit unlocked 1 new question that could refine this match.');
   assert.equal(describeOpenQuestions(5, 2), 'Your edit unlocked 2 new questions (plus 3 still unanswered) that could refine this match.');
 });
+
+test('Results View: paid alternatives appear only as caveated comparisons beside a free top pick', () => {
+  const state: AppState = {
+    criteria: { useCase: 'ai-gpu-compute', platform: 'server', prefersGui: false },
+    answeredQuestionIds: new Set(['user_familiarity']),
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const evaluation = evaluateCriteria(state.criteria);
+  const html = renderResultsView(evaluation, state);
+  assert.ok(html.includes('id="paid-alternatives"'));
+  assert.ok(html.includes('Paid alternatives (not recommended)'));
+  assert.ok(html.includes('HiveOS (Hiveon OS)'));
+  assert.ok(html.includes('Caveat:'));
+  assert.notEqual(evaluation.bestMatch.distro.id, 'hiveos');
+
+  const desktop = evaluateCriteria({ useCase: 'desktop' });
+  assert.ok(!renderResultsView(desktop, { ...state, criteria: { useCase: 'desktop' } }).includes('id="paid-alternatives"'));
+});
