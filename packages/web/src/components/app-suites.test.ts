@@ -101,3 +101,9 @@ test('App Suites: smart default category is prioritized first without nested col
   assert.ok(gamingHtml.indexOf('data-category-group="gaming"') < gamingHtml.indexOf('data-category-group="development"'));
   assert.doesNotMatch(gamingHtml, /<details data-category-group=/);
 });
+
+test('App Suites: primary suite renders as collapsible details open by default', () => {
+  const html = renderDockerServiceSuite({ architecture: 'x86_64', maxRamMb: 16384 }, true);
+  assert.match(html, /<details[^>]*data-panel-id="docker-services"[^>]*\bopen\b/);
+  assert.match(html, /Turnkey Service Layer \(Docker Compose\)/);
+});

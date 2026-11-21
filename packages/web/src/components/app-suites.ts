@@ -109,9 +109,33 @@ function renderSuiteShell(cfg: SuiteShellConfig): string {
 
   if (cfg.isPrimary) {
     return `
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-8 min-w-0 overflow-hidden">
-        ${innerContent}
-      </div>
+      <details class="group bg-slate-900/60 border border-slate-800 rounded-2xl p-4 sm:p-6 min-w-0 overflow-hidden transition-all" ${panelAttributes(cfg.panelOpen, cfg.panelId, true)}>
+        <summary class="flex items-center justify-between cursor-pointer select-none gap-2 min-w-0">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xl shrink-0">${cfg.icon}</span>
+              <h3 class="text-base sm:text-lg font-bold text-slate-100 break-words">${cfg.title}</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${theme.primaryBadge}">${cfg.primaryBadgeText}</span>
+              ${cfg.statusPillHtml}
+            </div>
+          </div>
+          <span class="text-slate-500 group-open:rotate-180 transition-transform text-sm shrink-0">▼</span>
+        </summary>
+        <div class="mt-4 pt-4 border-t border-slate-800/80">
+          <p class="text-xs text-slate-400 mb-4 break-words">${cfg.descriptionHtml}</p>
+          ${
+            cfg.nommuWarning
+              ? `
+            <div class="p-3 mb-4 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-300 text-xs flex items-center gap-2.5">
+              <span class="text-base shrink-0">⚠️</span>
+              <span>${cfg.nommuWarning}</span>
+            </div>
+          `
+              : ''
+          }
+          ${cfg.bodyHtml}
+        </div>
+      </details>
     `;
   }
 
