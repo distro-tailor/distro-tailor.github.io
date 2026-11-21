@@ -8,6 +8,8 @@ import {
   getEmulatorApp,
   checkEmulatorAppCompatibility,
   generateBootstrapEmulatorsScript,
+  getDockerApp,
+  checkDockerAppCompatibility,
   getNavigationApp,
   checkNavigationAppCompatibility,
   generateBootstrapNavigationScript
@@ -565,4 +567,91 @@ test('rpcs3, waydroid, and box64 wire into bootstrap-emulators.sh with architect
   });
   const x64Script = x64Deb.files.find((f) => f.filename === 'bootstrap-emulators.sh')?.content ?? '';
   assert.match(x64Script, /net\.rpcs3\.RPCS3/);
+});
+
+test('1-click homelab services (vaultwarden, gitea, nginx-proxy-manager, portainer) and game clients wire into recipes', () => {
+  for (const serviceId of ['vaultwarden', 'gitea', 'nginx-proxy-manager', 'portainer'] as const) {
+    const recipe = resolveRecipeGenerator('cloud-init-qcow2', {
+      architecture: 'x86_64',
+      dockerApp: serviceId
+    });
+    const compose = recipe.files.find((f) => f.filename === 'docker-compose.yml')?.content ?? '';
+    assert.ok(compose.includes('services:'), `${serviceId}: expected docker-compose.yml`);
+  }
+
+  const deb = resolveRecipeGenerator('debootstrap-debian', {
+    architecture: 'x86_64',
+    desktopApps: ['steam', 'heroic', 'lutris', 'prism-launcher']
+  });
+  const bootstrap = deb.files.find((f) => f.filename === 'bootstrap-apps.sh')?.content ?? '';
+  assert.match(bootstrap, /com\.valvesoftware\.Steam/);
+  assert.match(bootstrap, /com\.heroicgameslauncher\.hgl/);
+  assert.match(bootstrap, /net\.lutris\.Lutris/);
+  assert.match(bootstrap, /org\.prismlauncher\.PrismLauncher/);
+});
+
+test('modern 1-click services (ghost, wikijs, comfyui, paperless-ngx, n8n) generate compose files and GPU warnings', () => {
+  for (const serviceId of ['ghost', 'wikijs', 'comfyui', 'paperless-ngx', 'n8n'] as const) {
+    const recipe = resolveRecipeGenerator('cloud-init-qcow2', {
+      architecture: 'x86_64',
+      dockerApp: serviceId
+    });
+    const compose = recipe.files.find((f) => f.filename === 'docker-compose.yml')?.content ?? '';
+    assert.ok(compose.includes('services:'), `${serviceId}: expected docker-compose.yml`);
+  }
+
+  const comfyCompat = checkDockerAppCompatibility(getDockerApp('comfyui')!, {
+    architecture: 'x86_64',
+    maxRamMb: 16384,
+    driverPhilosophy: 'free-software-only'
+  });
+  assert.ok(comfyCompat.warnings.some((w) => w.includes('NVIDIA')));
+});
+
+test('file sharing, Tor, IRC, and Usenet apps & services wire into recipes', () => {
+  const deb = resolveRecipeGenerator('debootstrap-debian', {
+    architecture: 'x86_64',
+    desktopApps: ['tor-browser', 'onionshare', 'qbittorrent', 'weechat', 'halloy']
+  });
+  const bootstrap = deb.files.find((f) => f.filename === 'bootstrap-apps.sh')?.content ?? '';
+  assert.match(bootstrap, /org\.torproject\.torbrowser-launcher/);
+  assert.match(bootstrap, /org\.onionshare\.OnionShare/);
+  assert.match(bootstrap, /qbittorrent/);
+  assert.match(bootstrap, /weechat/);
+  assert.match(bootstrap, /org\.squidowl\.halloy/);
+
+  for (const serviceId of ['filebrowser', 'thelounge', 'sabnzbd', 'frigate'] as const) {
+    const recipe = resolveRecipeGenerator('cloud-init-qcow2', {
+      architecture: 'x86_64',
+      dockerApp: serviceId
+    });
+    const compose = recipe.files.find((f) => f.filename === 'docker-compose.yml')?.content ?? '';
+    assert.ok(compose.includes('services:'), `${serviceId}: expected docker-compose.yml`);
+  }
+
+  const emu = resolveRecipeGenerator('debootstrap-debian', {
+    architecture: 'x86_64',
+    emulatorApps: ['mednafen', 'mgba', 'flycast']
+  });
+  const emuScript = emu.files.find((f) => f.filename === 'bootstrap-emulators.sh')?.content ?? '';
+  assert.match(emuScript, /mednafen/);
+  assert.match(emuScript, /io\.mgba\.mGBA/);
+  assert.match(emuScript, /org\.flycast\.Flycast/);
+});
+
+test('media creative apps (handbrake, kdenlive, inkscape, krita, darktable, gthumb, audacity, ardour) wire into recipes', () => {
+  const mediaApps = ['handbrake', 'kdenlive', 'inkscape', 'krita', 'darktable', 'gthumb', 'audacity', 'ardour'] as const;
+  const deb = resolveRecipeGenerator('debootstrap-debian', {
+    architecture: 'x86_64',
+    desktopApps: [...mediaApps]
+  });
+  const bootstrap = deb.files.find((f) => f.filename === 'bootstrap-apps.sh')?.content ?? '';
+  assert.match(bootstrap, /inkscape/);
+  assert.match(bootstrap, /gthumb/);
+  assert.match(bootstrap, /fr\.handbrake\.ghb/);
+  assert.match(bootstrap, /org\.kde\.kdenlive/);
+  assert.match(bootstrap, /org\.kde\.krita/);
+  assert.match(bootstrap, /org\.darktable\.Darktable/);
+  assert.match(bootstrap, /org\.audacityteam\.Audacity/);
+  assert.match(bootstrap, /org\.ardour\.Ardour/);
 });

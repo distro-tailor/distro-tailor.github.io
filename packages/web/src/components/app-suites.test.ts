@@ -52,3 +52,43 @@ test('App Suites: renders cleanly without warnings on ample hardware', () => {
   assert.ok(!navHtml.includes('data-incompatible-reason'));
   assert.ok(!navHtml.includes('⚠️'));
 });
+
+test('App Suites: renderDesktopAppSuite groups apps by classifier categories', () => {
+  const html = renderDesktopAppSuite({ architecture: 'x86_64', maxRamMb: 16384 }, true);
+  for (const label of [
+    'Browsers',
+    'Development & Languages',
+    'Media & Creative',
+    'Office & Productivity',
+    'Gaming & Stores',
+    'System, Backup & Networking'
+  ]) {
+    assert.ok(html.includes(label), `Expected category heading "${label}"`);
+  }
+  assert.ok(html.includes('Syncthing'));
+  assert.ok(html.includes('WireGuard VPN'));
+  assert.ok(html.includes('Timeshift Snapshots'));
+  assert.ok(html.includes('Restic Backup'));
+  assert.ok(html.includes('Steam'));
+  assert.ok(html.includes('Heroic (GOG & Epic)'));
+  assert.ok(html.includes('Lutris Game Manager'));
+});
+
+test('App Suites: renderDockerServiceSuite groups services by classifier categories', () => {
+  const html = renderDockerServiceSuite({ architecture: 'x86_64', maxRamMb: 16384 }, true);
+  for (const label of [
+    'AI & Machine Learning',
+    'Media & Photos',
+    'Cloud, Docs & Wiki',
+    'Homelab, Security & Automation',
+    'Smart Home',
+    'Web Publishing & Proxy'
+  ]) {
+    assert.ok(html.includes(label), `Expected Docker category heading "${label}"`);
+  }
+  assert.ok(html.includes('Ghost CMS'));
+  assert.ok(html.includes('Wiki.js'));
+  assert.ok(html.includes('ComfyUI (AI Image Gen)'));
+  assert.ok(html.includes('Paperless-ngx (Docs OCR)'));
+  assert.ok(html.includes('n8n (Workflows)'));
+});

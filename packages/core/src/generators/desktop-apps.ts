@@ -3,7 +3,7 @@ import { CpuArchitecture, DesktopAppId, UserCriteria } from '../types.js';
 export interface DesktopAppDefinition {
   id: DesktopAppId;
   name: string;
-  category: 'browsers' | 'development' | 'media' | 'productivity' | 'utilities';
+  category: 'browsers' | 'development' | 'media' | 'productivity' | 'utilities' | 'gaming';
   icon: string;
   description: string;
   minRamMb: number;
@@ -346,6 +346,228 @@ fi`
     architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
     aptPackages: ['neofetch'],
     apkPackages: ['fastfetch']
+  },
+  {
+    id: 'syncthing',
+    name: 'Syncthing',
+    category: 'utilities',
+    icon: '🔄',
+    description: 'Decentralized, encrypted peer-to-peer file sync across laptops, phones & servers (MPL-2.0).',
+    minRamMb: 128,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    aptPackages: ['syncthing'],
+    apkPackages: ['syncthing']
+  },
+  {
+    id: 'wireguard',
+    name: 'WireGuard VPN',
+    category: 'utilities',
+    icon: '🔒',
+    description: 'Modern, fast, kernel-space encrypted VPN tunnel tools (GPL-2.0).',
+    minRamMb: 64,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    aptPackages: ['wireguard-tools'],
+    apkPackages: ['wireguard-tools']
+  },
+  {
+    id: 'timeshift',
+    name: 'Timeshift Snapshots',
+    category: 'utilities',
+    icon: '⏪',
+    description: 'System restore utility using RSYNC or Btrfs snapshots for safe OS rollbacks (GPL-3.0).',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    aptPackages: ['timeshift']
+  },
+  {
+    id: 'restic',
+    name: 'Restic Backup',
+    category: 'utilities',
+    icon: '🗄️',
+    description: 'Fast, deduplicated, end-to-end encrypted backup CLI for local drives & S3 (BSD-2-Clause).',
+    minRamMb: 128,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    aptPackages: ['restic'],
+    apkPackages: ['restic']
+  },
+
+  // --- GAMING & STORES ---
+  {
+    id: 'steam',
+    name: 'Steam',
+    category: 'gaming',
+    icon: '🎮',
+    description: 'Valve Steam PC gaming client with Proton compatibility layer for Windows games on Linux.',
+    minRamMb: 4096,
+    architectures: ['x86_64'],
+    flatpakId: 'com.valvesoftware.Steam'
+  },
+  {
+    id: 'heroic',
+    name: 'Heroic (GOG & Epic)',
+    category: 'gaming',
+    icon: '⚔️',
+    description: 'Open-source launcher for GOG.com, Epic Games Store, and Amazon Prime Gaming with Wine/Proton (GPL-3.0).',
+    minRamMb: 2048,
+    architectures: ['x86_64'],
+    flatpakId: 'com.heroicgameslauncher.hgl'
+  },
+  {
+    id: 'lutris',
+    name: 'Lutris Game Manager',
+    category: 'gaming',
+    icon: '🕹️',
+    description: 'Open-source unified game library for GOG, Humble Bundle, EA, Ubisoft, and retro runners (GPL-3.0).',
+    minRamMb: 2048,
+    architectures: ['x86_64'],
+    flatpakId: 'net.lutris.Lutris'
+  },
+  {
+    id: 'prism-launcher',
+    name: 'Prism Launcher',
+    category: 'gaming',
+    icon: '🧱',
+    description: 'Free, open-source Minecraft launcher with Modrinth/CurseForge modpack support (GPL-3.0).',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'org.prismlauncher.PrismLauncher'
+  },
+
+  // --- PRIVACY, TOR, IRC & FILE SHARING ---
+  {
+    id: 'tor-browser',
+    name: 'Tor Browser',
+    category: 'browsers',
+    icon: '🧅',
+    description: 'Anonymous, fingerprint-resistant web browser routing all traffic through the Tor network.',
+    minRamMb: 1024,
+    architectures: ['x86_64'],
+    flatpakId: 'org.torproject.torbrowser-launcher'
+  },
+  {
+    id: 'onionshare',
+    name: 'OnionShare',
+    category: 'utilities',
+    icon: '🧅',
+    description: 'Securely and anonymously share files, host websites, and chat over Tor onion services (GPL-3.0).',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'org.onionshare.OnionShare'
+  },
+  {
+    id: 'qbittorrent',
+    name: 'qBittorrent',
+    category: 'utilities',
+    icon: '🧲',
+    description: 'Free, ad-free open-source BitTorrent client with RSS, IP filtering, and web UI (GPL-2.0).',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    aptPackages: ['qbittorrent'],
+    apkPackages: ['qbittorrent']
+  },
+  {
+    id: 'weechat',
+    name: 'WeeChat (IRC)',
+    category: 'productivity',
+    icon: '💬',
+    description: 'Fast, extensible terminal IRC & chat client with relay/bouncer support (GPL-3.0).',
+    minRamMb: 64,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    aptPackages: ['weechat'],
+    apkPackages: ['weechat']
+  },
+  {
+    id: 'halloy',
+    name: 'Halloy (GUI IRC)',
+    category: 'productivity',
+    icon: '💬',
+    description: 'Modern, Rust-powered open-source desktop IRC client with IRCv3 & theme support (GPL-3.0).',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'org.squidowl.halloy'
+  },
+
+  // --- VIDEO, IMAGES & SOUND ---
+  {
+    id: 'handbrake',
+    name: 'HandBrake',
+    category: 'media',
+    icon: '🎞️',
+    description: 'Open-source video transcoder for converting MKV/MP4/H.265/AV1 with hardware acceleration (GPL-2.0).',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'fr.handbrake.ghb'
+  },
+  {
+    id: 'kdenlive',
+    name: 'Kdenlive Video Editor',
+    category: 'media',
+    icon: '🎬',
+    description: 'Full-featured open-source multi-track non-linear video editor (GPL-3.0).',
+    minRamMb: 4096,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'org.kde.kdenlive'
+  },
+  {
+    id: 'inkscape',
+    name: 'Inkscape',
+    category: 'media',
+    icon: '✒️',
+    description: 'Professional open-source vector graphics & SVG editor (Adobe Illustrator alternative, GPL-2.0).',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    aptPackages: ['inkscape'],
+    flatpakId: 'org.inkscape.Inkscape'
+  },
+  {
+    id: 'krita',
+    name: 'Krita',
+    category: 'media',
+    icon: '🖌️',
+    description: 'Open-source digital painting, concept art, and 2D animation studio (GPL-3.0).',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'org.kde.krita'
+  },
+  {
+    id: 'darktable',
+    name: 'Darktable (RAW Photos)',
+    category: 'media',
+    icon: '📷',
+    description: 'Open-source photography workflow & non-destructive RAW developer (Lightroom alternative, GPL-3.0).',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'org.darktable.Darktable'
+  },
+  {
+    id: 'gthumb',
+    name: 'gThumb (Fast Image Viewer)',
+    category: 'media',
+    icon: '🖼️',
+    description: 'Fast open-source image viewer, organizer, and batch crop/resize/convert tool (IrfanView alternative, GPL-2.0).',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    aptPackages: ['gthumb']
+  },
+  {
+    id: 'audacity',
+    name: 'Audacity',
+    category: 'media',
+    icon: '🎙️',
+    description: 'Open-source multi-track audio recorder, waveform editor, and podcasting suite (GPL-2.0).',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'org.audacityteam.Audacity'
+  },
+  {
+    id: 'ardour',
+    name: 'Ardour DAW',
+    category: 'media',
+    icon: '🎚️',
+    description: 'Professional open-source Digital Audio Workstation for recording, mixing, and mastering (GPL-2.0).',
+    minRamMb: 4096,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'org.ardour.Ardour'
   }
 ];
 

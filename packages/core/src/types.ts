@@ -249,7 +249,28 @@ export type DesktopAppId =
   | 'obsidian'
   | 'telegram'
   | 'btop'
-  | 'fastfetch';
+  | 'fastfetch'
+  | 'syncthing'
+  | 'wireguard'
+  | 'timeshift'
+  | 'restic'
+  | 'steam'
+  | 'heroic'
+  | 'lutris'
+  | 'prism-launcher'
+  | 'tor-browser'
+  | 'onionshare'
+  | 'qbittorrent'
+  | 'weechat'
+  | 'halloy'
+  | 'handbrake'
+  | 'kdenlive'
+  | 'inkscape'
+  | 'krita'
+  | 'darktable'
+  | 'gthumb'
+  | 'audacity'
+  | 'ardour';
 
 export type EmulatorAppId =
   | 'retroarch'
@@ -266,7 +287,10 @@ export type EmulatorAppId =
   | 'qemu-system'
   | 'rpcs3'
   | 'waydroid'
-  | 'box64';
+  | 'box64'
+  | 'mednafen'
+  | 'mgba'
+  | 'flycast';
 
 export type NavigationAppId =
   | 'navit'
@@ -292,7 +316,20 @@ export type DockerAppId =
   | 'nextcloud'
   | 'lamp-wordpress'
   | 'tailscale'
-  | 'uptime-kuma';
+  | 'uptime-kuma'
+  | 'vaultwarden'
+  | 'gitea'
+  | 'nginx-proxy-manager'
+  | 'portainer'
+  | 'ghost'
+  | 'wikijs'
+  | 'comfyui'
+  | 'paperless-ngx'
+  | 'n8n'
+  | 'filebrowser'
+  | 'thelounge'
+  | 'sabnzbd'
+  | 'frigate';
 
 export type ReleaseCadence = 'lts' | 'rolling' | 'standard';
 export type DriverPhilosophy = 'seamless-proprietary' | 'free-software-only' | 'no-preference';

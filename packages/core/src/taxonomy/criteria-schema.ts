@@ -297,7 +297,20 @@ export const DOCKER_APP_VALUES: EnumCatalog<DockerAppId> = {
   nextcloud: true,
   'lamp-wordpress': true,
   tailscale: true,
-  'uptime-kuma': true
+  'uptime-kuma': true,
+  vaultwarden: true,
+  gitea: true,
+  'nginx-proxy-manager': true,
+  portainer: true,
+  ghost: true,
+  wikijs: true,
+  comfyui: true,
+  'paperless-ngx': true,
+  n8n: true,
+  filebrowser: true,
+  thelounge: true,
+  sabnzbd: true,
+  frigate: true
 };
 
 export const DESKTOP_APP_VALUES: EnumCatalog<DesktopAppId> = {
@@ -325,7 +338,28 @@ export const DESKTOP_APP_VALUES: EnumCatalog<DesktopAppId> = {
   obsidian: true,
   telegram: true,
   btop: true,
-  fastfetch: true
+  fastfetch: true,
+  syncthing: true,
+  wireguard: true,
+  timeshift: true,
+  restic: true,
+  steam: true,
+  heroic: true,
+  lutris: true,
+  'prism-launcher': true,
+  'tor-browser': true,
+  onionshare: true,
+  qbittorrent: true,
+  weechat: true,
+  halloy: true,
+  handbrake: true,
+  kdenlive: true,
+  inkscape: true,
+  krita: true,
+  darktable: true,
+  gthumb: true,
+  audacity: true,
+  ardour: true
 };
 
 export const EMULATOR_APP_VALUES: EnumCatalog<EmulatorAppId> = {
@@ -343,7 +377,10 @@ export const EMULATOR_APP_VALUES: EnumCatalog<EmulatorAppId> = {
   'qemu-system': true,
   rpcs3: true,
   waydroid: true,
-  box64: true
+  box64: true,
+  mednafen: true,
+  mgba: true,
+  flycast: true
 };
 
 export const NAVIGATION_APP_VALUES: EnumCatalog<NavigationAppId> = {

@@ -21,7 +21,11 @@ export function renderAppSuitePanel(ctx: ResultsViewContext): string {
                 </span>
               </div>
               <p class="text-xs text-slate-400 mt-0.5 break-words">
-                Pre-install desktop apps (Firefox, VS Code), gaming emulators (RetroArch), offline navigation (Navit, GPSd), or headless server containers (Home Assistant).
+                ${
+                  isNavigation
+                    ? 'Configure offline navigation (Navit, GPSd, OpenCPN), desktop apps, emulators, or server containers.'
+                    : 'Pre-install desktop apps (Firefox, VS Code), emulators & compatibility layers (RetroArch, Wine), or server containers (Home Assistant).'
+                }
               </p>
             </div>
           </div>
@@ -35,14 +39,12 @@ export function renderAppSuitePanel(ctx: ResultsViewContext): string {
             ${renderDockerServiceSuite(state.criteria, true, state.panelOpen)}
             ${renderDesktopAppSuite(state.criteria, false, state.panelOpen)}
             ${renderEmulatorAppSuite(state.criteria, false, state.panelOpen)}
-            ${renderNavigationAppSuite(state.criteria, false, state.panelOpen)}
           `
               : isGaming
               ? `
             ${renderEmulatorAppSuite(state.criteria, true, state.panelOpen)}
             ${renderDesktopAppSuite(state.criteria, false, state.panelOpen)}
             ${renderDockerServiceSuite(state.criteria, false, state.panelOpen)}
-            ${renderNavigationAppSuite(state.criteria, false, state.panelOpen)}
           `
               : isNavigation
               ? `
@@ -54,7 +56,6 @@ export function renderAppSuitePanel(ctx: ResultsViewContext): string {
               : `
             ${renderDesktopAppSuite(state.criteria, true, state.panelOpen)}
             ${renderEmulatorAppSuite(state.criteria, false, state.panelOpen)}
-            ${renderNavigationAppSuite(state.criteria, false, state.panelOpen)}
             ${renderDockerServiceSuite(state.criteria, false, state.panelOpen)}
           `
           }

@@ -11,6 +11,7 @@ import {
   UserCriteria
 } from '@distro-tailor/core';
 import { type AddonCombo, getAddonCombos } from '../data/addon-combos.js';
+import { DESKTOP_APP_CATEGORIES, DOCKER_APP_CATEGORIES } from '../data/app-categories.js';
 import { panelAttributes } from './panel.js';
 
 export type { AddonCombo };
@@ -204,13 +205,37 @@ export function renderDesktopAppSuite(
   const selectedCount = selectedIds.length;
   const theme = SUITE_THEMES.emerald;
 
+  const groupedHtml = DESKTOP_APP_CATEGORIES.map((cat) => {
+    const items = DESKTOP_APPS_REGISTRY.filter((app) => app.category === cat.id);
+    if (items.length === 0) return '';
+    return `
+      <div class="space-y-2">
+        <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <span>${cat.icon}</span>
+          <span>${cat.label}</span>
+          <span class="text-slate-600 font-mono font-normal">(${items.length})</span>
+        </div>
+        ${renderMultiSelectAppGrid({
+          items,
+          selectedIds,
+          buttonClass: 'btn-toggle-desktop-app',
+          gridColsClass: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5',
+          theme: 'emerald',
+          checkCompatibility: (app) => checkDesktopAppCompatibility(app, criteria)
+        })}
+      </div>
+    `;
+  })
+    .filter(Boolean)
+    .join('');
+
   return renderSuiteShell({
     panelId: 'desktop-apps',
     icon: '📦',
     title: '1-Click Desktop Application Suite',
     primaryBadgeText: 'Recommended for Workstations',
     descriptionHtml:
-      'Select popular GUI applications and developer tools. DistroTailor generates an automated unattended <code class="text-emerald-400">bootstrap-apps.sh</code> script (via APT & Flatpak):',
+      'Select popular GUI applications, developer toolchains, and backup/networking tools. DistroTailor generates an automated unattended <code class="text-emerald-400">bootstrap-apps.sh</code> script (via APT & Flatpak):',
     statusPillHtml: `<span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-bold ${theme.countPill} whitespace-nowrap shrink-0 self-start sm:self-auto">${selectedCount} Selected</span>`,
     nommuWarning:
       criteria.architecture === 'nommu'
@@ -222,14 +247,7 @@ export function renderDesktopAppSuite(
     isPrimary,
     isExpanded: isPrimary || selectedCount > 0,
     panelOpen,
-    bodyHtml: renderMultiSelectAppGrid({
-      items: DESKTOP_APPS_REGISTRY,
-      selectedIds,
-      buttonClass: 'btn-toggle-desktop-app',
-      gridColsClass: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5',
-      theme: 'emerald',
-      checkCompatibility: (app) => checkDesktopAppCompatibility(app, criteria)
-    })
+    bodyHtml: `<div class="space-y-5">${groupedHtml}</div>`
   });
 }
 
@@ -242,57 +260,77 @@ export function renderDockerServiceSuite(
   const activeAppName = hasDockerApp ? getDockerApp(criteria.dockerApp)?.name : undefined;
   const theme = SUITE_THEMES.emerald;
 
+  const renderDockerCard = (app: (typeof DOCKER_APPS_REGISTRY)[number]) => {
+    const isSelected = criteria.dockerApp === app.id;
+    const compat = checkDockerAppCompatibility(app, criteria);
+
+    return `
+      <div data-docker-id="${app.id}" ${compat.blocker ? `data-incompatible-reason="${compat.blocker}"` : ''} class="btn-select-docker-app p-3 rounded-xl border select-none transition-all flex flex-col justify-between min-w-0 ${
+        !compat.compatible
+          ? 'opacity-50 cursor-not-allowed bg-slate-950/40 border-slate-900'
+          : isSelected
+          ? 'cursor-pointer bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30'
+          : 'cursor-pointer bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
+      }">
+        <div>
+          <div class="flex items-center justify-between mb-1 gap-1.5">
+            <span class="text-xl shrink-0">${app.icon}</span>
+            <div class="flex items-center gap-1 shrink-0">
+              ${formatCompatBadge(app.minRamMb, compat)}
+              ${isSelected ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>` : `<span class="text-[10px] text-slate-500 font-mono">Port ${app.defaultPort}</span>`}
+            </div>
+          </div>
+          <h4 class="font-bold text-slate-200 text-xs">${app.name}</h4>
+          <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${app.description}</p>
+        </div>
+        <div class="mt-3 pt-2 border-t border-slate-800/80 text-[10px] ${!compat.compatible ? 'text-slate-600' : isSelected ? 'text-emerald-400 font-bold' : 'text-slate-500'} font-mono flex items-center justify-between">
+          <span>${!compat.compatible ? 'Unsupported Hardware' : isSelected ? '✓ In docker-compose.yml' : '+ Deploy with Docker'}</span>
+          <span>${!compat.compatible ? '🚫' : '↗'}</span>
+        </div>
+      </div>
+    `;
+  };
+
+  const groupedDockerHtml = DOCKER_APP_CATEGORIES.map((cat) => {
+    const items = DOCKER_APPS_REGISTRY.filter((app) => app.category === cat.id);
+    if (items.length === 0) return '';
+    return `
+      <div class="space-y-2">
+        <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <span>${cat.icon}</span>
+          <span>${cat.label}</span>
+          <span class="text-slate-600 font-mono font-normal">(${items.length})</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs min-w-0">
+          ${items.map(renderDockerCard).join('')}
+        </div>
+      </div>
+    `;
+  })
+    .filter(Boolean)
+    .join('');
+
   const bodyHtml = `
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs min-w-0">
+    <div class="space-y-5 min-w-0">
       <!-- None / Pure Minimal OS Card -->
-      <div data-docker-id="none" class="btn-select-docker-app p-3 rounded-xl border cursor-pointer select-none transition-all flex flex-col justify-between min-w-0 ${
+      <div data-docker-id="none" class="btn-select-docker-app p-3 rounded-xl border cursor-pointer select-none transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs min-w-0 ${
         !hasDockerApp
           ? 'bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30'
           : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
       }">
-        <div>
-          <div class="flex items-center justify-between mb-1 gap-1.5">
-            <span class="text-xl shrink-0">🚫</span>
-            ${!hasDockerApp ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>` : ''}
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span class="text-xl shrink-0">🚫</span>
+          <div class="min-w-0">
+            <h4 class="font-bold text-slate-200 text-xs">None (Pure OS Minimal)</h4>
+            <p class="text-[11px] text-slate-400">No extra background containers. Keep the OS footprint ultra-lean.</p>
           </div>
-          <h4 class="font-bold text-slate-200 text-xs">None (Pure OS Minimal)</h4>
-          <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">No extra background containers. Keep the OS footprint ultra-lean.</p>
         </div>
-        <div class="mt-3 pt-2 border-t border-slate-800/80 text-[10px] text-slate-500 font-mono">
-          Pure Native Host
+        <div class="flex items-center gap-2 shrink-0">
+          ${!hasDockerApp ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">ACTIVE</span>` : `<span class="text-[10px] text-slate-500 font-mono">Pure Native Host</span>`}
         </div>
       </div>
 
-      ${DOCKER_APPS_REGISTRY.map((app) => {
-        const isSelected = criteria.dockerApp === app.id;
-        const compat = checkDockerAppCompatibility(app, criteria);
-
-        return `
-          <div data-docker-id="${app.id}" ${compat.blocker ? `data-incompatible-reason="${compat.blocker}"` : ''} class="btn-select-docker-app p-3 rounded-xl border select-none transition-all flex flex-col justify-between min-w-0 ${
-            !compat.compatible
-              ? 'opacity-50 cursor-not-allowed bg-slate-950/40 border-slate-900'
-              : isSelected
-              ? 'cursor-pointer bg-emerald-950/20 border-emerald-500/60 shadow-md shadow-emerald-950/30'
-              : 'cursor-pointer bg-slate-950/70 border-slate-800/80 hover:border-slate-700'
-          }">
-            <div>
-              <div class="flex items-center justify-between mb-1 gap-1.5">
-                <span class="text-xl shrink-0">${app.icon}</span>
-                <div class="flex items-center gap-1 shrink-0">
-                  ${formatCompatBadge(app.minRamMb, compat)}
-                  ${isSelected ? `<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">ACTIVE</span>` : `<span class="text-[10px] text-slate-500 font-mono">Port ${app.defaultPort}</span>`}
-                </div>
-              </div>
-              <h4 class="font-bold text-slate-200 text-xs">${app.name}</h4>
-              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${app.description}</p>
-            </div>
-            <div class="mt-3 pt-2 border-t border-slate-800/80 text-[10px] ${!compat.compatible ? 'text-slate-600' : isSelected ? 'text-emerald-400 font-bold' : 'text-slate-500'} font-mono flex items-center justify-between">
-              <span>${!compat.compatible ? 'Unsupported Hardware' : isSelected ? '✓ In docker-compose.yml' : '+ Deploy with Docker'}</span>
-              <span>${!compat.compatible ? '🚫' : '↗'}</span>
-            </div>
-          </div>
-        `;
-      }).join('')}
+      ${groupedDockerHtml}
     </div>
   `;
 

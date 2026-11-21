@@ -50,6 +50,11 @@ export function checkDockerAppCompatibility(
     warnings.push(`Exceeds your ${criteria.maxRamMb} MB budget (requires ~${formatted} RAM).`);
   }
 
+  // Soft warning: ComfyUI CUDA acceleration requires proprietary NVIDIA drivers when strictly FOSS is requested
+  if (app.id === 'comfyui' && criteria.driverPhilosophy === 'free-software-only') {
+    warnings.push('ComfyUI CUDA acceleration requires proprietary NVIDIA drivers (CPU-only generation is very slow).');
+  }
+
   return {
     compatible: true,
     warnings
@@ -421,6 +426,398 @@ services:
     ports:
       - "3001:3001"
     restart: always
+`
+  },
+  {
+    id: 'vaultwarden',
+    name: 'Vaultwarden (Passwords)',
+    tagline: 'Bitwarden-Compatible Password Manager',
+    description: 'Lightweight Rust-based self-hosted password vault compatible with all official Bitwarden browser & mobile apps.',
+    icon: '🔐',
+    defaultPort: '8080',
+    webUrl: 'http://localhost:8080',
+    category: 'homelab',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Vaultwarden Self-Hosted Password Manager
+# Compatible with Bitwarden Desktop, Mobile & Browser Extensions
+# Web Vault: http://localhost:8080
+# ==============================================================================
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    volumes:
+      - /opt/vaultwarden/data:/data
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'gitea',
+    name: 'Gitea (Self-Hosted Git)',
+    tagline: 'Lightweight GitHub-Style Code Forge',
+    description: 'Fast, painless self-hosted Git service with pull requests, issue tracker, package registry, and Actions CI.',
+    icon: '🍵',
+    defaultPort: '3000',
+    webUrl: 'http://localhost:3000',
+    category: 'homelab',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Gitea Self-Hosted Git Forge
+# Web UI: http://localhost:3000 | SSH Git: port 2222
+# Complete initial admin setup in the web installer on first launch.
+# ==============================================================================
+services:
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    volumes:
+      - /opt/gitea/data:/data
+    ports:
+      - "3000:3000"
+      - "2222:22"
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'nginx-proxy-manager',
+    name: 'Nginx Proxy Manager',
+    tagline: 'Visual Reverse Proxy & Auto-HTTPS',
+    description: 'Point-and-click web UI to expose your self-hosted services with automatic free Let’s Encrypt SSL certificates.',
+    icon: '🚦',
+    defaultPort: '81',
+    webUrl: 'http://localhost:81',
+    category: 'web',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Nginx Proxy Manager
+# HTTP: 80 | HTTPS: 443 | Admin UI: http://localhost:81
+# ==============================================================================
+services:
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    volumes:
+      - /opt/npm/data:/data
+      - /opt/npm/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'portainer',
+    name: 'Portainer CE (Docker UI)',
+    tagline: 'Visual Container & Stack Management',
+    description: 'Clean web dashboard to inspect, update, and manage Docker containers, volumes, networks, and Compose stacks.',
+    icon: '🐳',
+    defaultPort: '9443',
+    webUrl: 'https://localhost:9443',
+    category: 'homelab',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Portainer Community Edition
+# Create your admin password on first visit at https://localhost:9443
+# ==============================================================================
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/portainer/data:/data
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'ghost',
+    name: 'Ghost CMS',
+    tagline: 'Modern Node.js Publishing & Newsletters',
+    description: 'Fast, clean alternative to WordPress for blogs, publications, memberships, and email newsletters.',
+    icon: '👻',
+    defaultPort: '2368',
+    webUrl: 'http://localhost:2368/ghost',
+    category: 'web',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Ghost Modern Publishing Stack
+# Create your admin account on first visit at http://localhost:2368/ghost
+# ==============================================================================
+services:
+  ghost:
+    image: ghost:5-alpine
+    container_name: ghost
+    environment:
+      - url=http://localhost:2368
+    volumes:
+      - /opt/ghost/content:/var/lib/ghost/content
+    ports:
+      - "2368:2368"
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'wikijs',
+    name: 'Wiki.js',
+    tagline: 'Modern Markdown & Git-Synced Wiki',
+    description: 'Sleek, extensible team knowledge base with Markdown editor, diagram support, and Git repository backup.',
+    icon: '📚',
+    defaultPort: '3000',
+    webUrl: 'http://localhost:3000',
+    category: 'cloud',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Wiki.js Knowledge Base
+# Web UI: http://localhost:3000 (SQLite storage, zero external DB required)
+# ==============================================================================
+services:
+  wikijs:
+    image: ghcr.io/requarks/wiki:2
+    container_name: wikijs
+    environment:
+      - DB_TYPE=sqlite
+      - DB_FILEPATH=/wiki/data/wiki.sqlite
+    volumes:
+      - /opt/wikijs/data:/wiki/data
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'comfyui',
+    name: 'ComfyUI (AI Image Gen)',
+    tagline: 'Node-Based Stable Diffusion & Flux Studio',
+    description: 'Visual node graph for local Stable Diffusion, Flux, LoRA, and video generation workflows (GPU recommended).',
+    icon: '🎨',
+    defaultPort: '8188',
+    webUrl: 'http://localhost:8188',
+    category: 'ai',
+    minRamMb: 8192,
+    architectures: ['x86_64'],
+    generateCompose: (criteria) => `# ==============================================================================
+# DistroTailor: ComfyUI Local AI Image Generation Studio
+# Web UI: http://localhost:8188
+# ==============================================================================
+services:
+  comfyui:
+    image: yanwk/comfyui-boot:cu124-slim
+    container_name: comfyui
+    ports:
+      - "8188:8188"
+    volumes:
+      - /opt/comfyui/storage:/root${
+        criteria.driverPhilosophy === 'seamless-proprietary' || criteria.useCase === 'ai-gpu-compute'
+          ? `
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]`
+          : ''
+      }
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'paperless-ngx',
+    name: 'Paperless-ngx (Docs OCR)',
+    tagline: 'Self-Hosted Document & Receipt Archive',
+    description: 'Scan, OCR, auto-tag, and full-text search PDFs, invoices, and tax documents in a private web archive.',
+    icon: '🗂️',
+    defaultPort: '8000',
+    webUrl: 'http://localhost:8000',
+    category: 'cloud',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Paperless-ngx Document Management & OCR
+# Web UI: http://localhost:8000
+# Create initial admin user after startup: docker compose exec webserver createsuperuser
+# ==============================================================================
+services:
+  broker:
+    image: redis:7-alpine
+    container_name: paperless-redis
+    restart: unless-stopped
+
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless-webserver
+    depends_on:
+      - broker
+    ports:
+      - "8000:8000"
+    environment:
+      - PAPERLESS_REDIS=redis://broker:6379
+    volumes:
+      - /opt/paperless/data:/usr/src/paperless/data
+      - /opt/paperless/media:/usr/src/paperless/media
+      - /opt/paperless/consume:/usr/src/paperless/consume
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'n8n',
+    name: 'n8n (Workflows)',
+    tagline: 'Visual Workflow & API Automation',
+    description: 'Self-hosted Zapier/Make alternative with 400+ integrations, webhooks, cron triggers, and AI agent nodes.',
+    icon: '⚡',
+    defaultPort: '5678',
+    webUrl: 'http://localhost:5678',
+    category: 'homelab',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: n8n Workflow Automation
+# Web Editor: http://localhost:5678
+# ==============================================================================
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    volumes:
+      - /opt/n8n/data:/home/node/.n8n
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'filebrowser',
+    name: 'FileBrowser (Web Share)',
+    tagline: 'Lightweight Web File Manager & Share Links',
+    description: 'Single-container web file manager to upload, browse, preview, and generate password-protected share links.',
+    icon: '📂',
+    defaultPort: '8080',
+    webUrl: 'http://localhost:8080',
+    category: 'cloud',
+    minRamMb: 128,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: FileBrowser Lightweight Web File Sharing
+# Web UI: http://localhost:8080 (check container logs for initial random admin password)
+# ==============================================================================
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    ports:
+      - "8080:80"
+    volumes:
+      - /opt/filebrowser/srv:/srv
+      - /opt/filebrowser/database:/database
+      - /opt/filebrowser/config:/config
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'thelounge',
+    name: 'The Lounge (Web IRC)',
+    tagline: 'Always-On Self-Hosted Web IRC Bouncer',
+    description: 'Modern web IRC client that stays connected in the background, keeps scrollback history, and sends push alerts.',
+    icon: '💬',
+    defaultPort: '9000',
+    webUrl: 'http://localhost:9000',
+    category: 'homelab',
+    minRamMb: 128,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: The Lounge Self-Hosted Web IRC Client
+# Web UI: http://localhost:9000
+# Add user: docker compose exec thelounge thelounge add <username>
+# ==============================================================================
+services:
+  thelounge:
+    image: ghcr.io/thelounge/thelounge:latest
+    container_name: thelounge
+    ports:
+      - "9000:9000"
+    volumes:
+      - /opt/thelounge/config:/var/opt/thelounge
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'sabnzbd',
+    name: 'SABnzbd (Usenet)',
+    tagline: 'Automated Open-Source Usenet Downloader',
+    description: 'Web-based Usenet binary newsreader with NZB queue automation, PAR2 repair, and archive unpacking.',
+    icon: '📥',
+    defaultPort: '8080',
+    webUrl: 'http://localhost:8080',
+    category: 'media',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: SABnzbd Self-Hosted Usenet Client
+# Web UI: http://localhost:8080
+# ==============================================================================
+services:
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /opt/sabnzbd/config:/config
+      - /opt/sabnzbd/downloads:/downloads
+      - /opt/sabnzbd/incomplete:/incomplete-downloads
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'frigate',
+    name: 'Frigate NVR (Cameras)',
+    tagline: 'Local AI Object Detection Security NVR',
+    description: 'Real-time local AI security camera NVR with person/vehicle detection, Home Assistant integration, and RTSP recording.',
+    icon: '📹',
+    defaultPort: '5000',
+    webUrl: 'http://localhost:5000',
+    category: 'smart-home',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Frigate NVR (Local AI Security Camera Recorder)
+# Web UI: http://localhost:5000 | RTSP Restream: 8554
+# ==============================================================================
+services:
+  frigate:
+    image: ghcr.io/blakeblackshear/frigate:stable
+    container_name: frigate
+    shm_size: "128mb"
+    ports:
+      - "5000:5000"
+      - "8554:8554"
+    volumes:
+      - /opt/frigate/config:/config
+      - /opt/frigate/media:/media/frigate
+      - type: tmpfs
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    restart: unless-stopped
 `
   }
 ];

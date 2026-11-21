@@ -26,7 +26,28 @@ const NIX_PACKAGE_MAP: Readonly<Record<string, string>> = {
   obsidian: 'pkgs.obsidian',
   telegram: 'pkgs.telegram-desktop',
   btop: 'pkgs.btop',
-  fastfetch: 'pkgs.fastfetch'
+  fastfetch: 'pkgs.fastfetch',
+  syncthing: 'pkgs.syncthing',
+  wireguard: 'pkgs.wireguard-tools',
+  timeshift: 'pkgs.timeshift',
+  restic: 'pkgs.restic',
+  steam: 'pkgs.steam',
+  heroic: 'pkgs.heroic',
+  lutris: 'pkgs.lutris',
+  'prism-launcher': 'pkgs.prismlauncher',
+  'tor-browser': 'pkgs.tor-browser',
+  onionshare: 'pkgs.onionshare-gui',
+  qbittorrent: 'pkgs.qbittorrent',
+  weechat: 'pkgs.weechat',
+  halloy: 'pkgs.halloy',
+  handbrake: 'pkgs.handbrake',
+  kdenlive: 'pkgs.kdePackages.kdenlive',
+  inkscape: 'pkgs.inkscape',
+  krita: 'pkgs.krita',
+  darktable: 'pkgs.darktable',
+  gthumb: 'pkgs.gthumb',
+  audacity: 'pkgs.audacity',
+  ardour: 'pkgs.ardour'
 };
 
 function resolveNixArch(arch?: string): string {

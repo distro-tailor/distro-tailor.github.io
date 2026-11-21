@@ -79,6 +79,16 @@ export const EMULATOR_APPS_REGISTRY: EmulatorAppDefinition[] = [
     aptPackages: ['retroarch'],
     flatpakId: 'org.libretro.RetroArch'
   },
+  {
+    id: 'mednafen',
+    name: 'Mednafen',
+    category: 'multi-system',
+    icon: '🎯',
+    description: 'Low-latency multi-system emulator for Saturn, PS1, GBA, SNES, NES, and PC Engine (GPL-2.0).',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    aptPackages: ['mednafen']
+  },
 
   // --- RETRO PC & ADVENTURE ---
   {
@@ -149,6 +159,16 @@ export const EMULATOR_APPS_REGISTRY: EmulatorAppDefinition[] = [
     flatpakId: 'org.ppsspp.PPSSPP'
   },
   {
+    id: 'mgba',
+    name: 'mGBA (Game Boy Advance)',
+    category: 'handheld',
+    icon: '🟣',
+    description: 'High-accuracy Game Boy, GBC, and GBA emulator with link cable and shader support (MPL-2.0).',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'io.mgba.mGBA'
+  },
+  {
     id: 'mame',
     name: 'MAME',
     category: 'arcade',
@@ -158,6 +178,16 @@ export const EMULATOR_APPS_REGISTRY: EmulatorAppDefinition[] = [
     architectures: ['x86_64', 'arm64'],
     aptPackages: ['mame'],
     flatpakId: 'org.mamedev.MAME'
+  },
+  {
+    id: 'flycast',
+    name: 'Flycast (Dreamcast/NAOMI)',
+    category: 'arcade',
+    icon: '🌀',
+    description: 'Multi-platform Sega Dreamcast, NAOMI, and Atomiswave arcade emulator with rollback netcode (GPL-2.0).',
+    minRamMb: 1024,
+    architectures: ['x86_64', 'arm64'],
+    flatpakId: 'org.flycast.Flycast'
   },
 
   // --- WINDOWS COMPATIBILITY & CROSS-ARCH SYSTEM EMULATION ---

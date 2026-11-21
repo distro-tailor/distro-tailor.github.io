@@ -326,3 +326,29 @@ test('Results View: winner and recipe action buttons use flex-auto so mobile fle
   assert.match(html, /id="btn-share-recipe"[^>]*flex-auto/);
   assert.match(html, /id="btn-copy-recipe"[^>]*flex-auto/);
 });
+
+test('Results View: Offline GPS & Navigation suite only renders for navigation/appliance contexts', () => {
+  const desktopState: AppState = {
+    criteria: { useCase: 'desktop', platform: 'bare-metal', architecture: 'x86_64', prefersGui: true },
+    answeredQuestionIds: new Set<string>(),
+    viewingQuestionId: null,
+    panelOpen: {},
+    theme: 'dark',
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const desktopHtml = renderResultsView(evaluateCriteria(desktopState.criteria), desktopState);
+  assert.ok(!desktopHtml.includes('Offline GPS & In-Car Navigation Suite'));
+
+  const navState: AppState = {
+    ...desktopState,
+    criteria: { useCase: 'appliance-product', navigationApps: ['navit', 'gpsd'] }
+  };
+  const navHtml = renderResultsView(evaluateCriteria(navState.criteria), navState);
+  assert.ok(navHtml.includes('Offline GPS & In-Car Navigation Suite'));
+});
