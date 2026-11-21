@@ -15,7 +15,6 @@ Feature: GPU-Specialized Workloads (AI, Data Science & Crypto Mining)
     Given the user selects use case "AI, LLM & GPU Compute"
     And the user specifies platform "Headless Server"
     When the evaluation completes
-    Then the engine should recommend "HiveOS"
-    And the recommendation should highlight multi-GPU auto-detection (up to 12+ GPUs)
-    And the recommendation should highlight automated thermal fan curves and hardware watchdog recovery
-    And the recommendation should provide guidance for leasing idle compute to Akash or Render networks
+    Then the engine should recommend a free and open-source GPU OS such as "Ubuntu" or "Pop!_OS (System76)"
+    And the recommendation should highlight one-step proprietary NVIDIA driver installation
+    And closed-source, per-rig billed mining platforms (e.g. HiveOS) should not be recommended

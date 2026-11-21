@@ -1,4 +1,11 @@
-import { DistroProfile } from '../types.js';
+import { DistroProfile, LicenseModel } from '../types.js';
+
+/**
+ * DistroTailor only recommends free and/or open-source systems. Optional paid support, an optional
+ * commercial edition, or the vendor boot firmware a board requires are fine; a closed-source core
+ * or a free tier that stops at a usage cap is not.
+ */
+export const ALLOWED_LICENSE_MODELS: readonly LicenseModel[] = ['foss', 'foss-optional-paid', 'foss-with-firmware'];
 
 export const DISTRO_REGISTRY: DistroProfile[] = [
   // --- RETRO & MODERN GAMING ---
@@ -21,6 +28,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     experienceLevel: 'beginner',
     primaryUseCases: ['gaming'],
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0-or-later and others',
+      note: 'Bundles emulators under their own open-source licenses; game BIOS/ROM files are not included.'
+    },
     highlights: [
       'Turnkey retro console: boots straight to controller-friendly menu',
       'Supports Xbox, PlayStation, 8BitDo, and generic USB controllers out of the box',
@@ -64,6 +76,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     experienceLevel: 'beginner',
     primaryUseCases: ['media-center'],
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0-only'
+    },
     highlights: [
       'Turnkey living room media center: boots straight to Kodi 10-foot TV interface',
       'Supports TV remotes automatically via HDMI-CEC (no keyboard or mouse needed)',
@@ -110,6 +126,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['education-kids', 'desktop'],
     packageManager: 'flatpak',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0-or-later and others'
+    },
     highlights: [
       'Simple iPad-style desktop interface that any child can navigate effortlessly',
       'Kid-proof atomic filesystem: children cannot delete critical OS files or get viruses',
@@ -145,6 +165,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['nas-storage', 'server'],
     packageManager: 'apt',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-3.0-or-later'
+    },
     highlights: [
       'Simple web browser dashboard: manage family storage from your phone or laptop with no Linux commands',
       'Auto-backup photos and videos from iPhones and Androids (replaces iCloud & Google Photos)',
@@ -180,6 +204,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['smart-home', 'iot-embedded', 'server'],
     packageManager: 'Docker / Add-on Store',
     rollingRelease: false,
+    licensing: {
+      model: 'foss-optional-paid',
+      license: 'Apache-2.0',
+      note: 'Optional Home Assistant Cloud (Nabu Casa) subscription for remote access and voice.'
+    },
     highlights: [
       '100% private local control: automations run instantly even if your home internet is down',
       'Integrates with 2,500+ device brands: Philips Hue, IKEA, Matter, Zigbee, Z-Wave, ESP32, Apple HomeKit',
@@ -215,6 +244,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['hypervisor-vms', 'server'],
     packageManager: 'apt (Debian)',
     rollingRelease: false,
+    licensing: {
+      model: 'foss-optional-paid',
+      license: 'AGPL-3.0-only',
+      note: 'Optional paid enterprise repository and support subscriptions; the no-subscription repository is free.'
+    },
     highlights: [
       'Type-1 Bare-Metal Hypervisor: Run dozens of Linux & Windows VMs and lightweight LXC containers simultaneously',
       'Native OpenZFS & Ceph integration: Built-in support for multi-drive SAS/SATA backplanes and software RAID',
@@ -250,6 +284,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['nas-storage', 'server'],
     packageManager: 'TrueNAS Catalog / Docker',
     rollingRelease: false,
+    licensing: {
+      model: 'foss-optional-paid',
+      license: 'GPL-3.0-only and others',
+      note: 'Optional TrueNAS Enterprise hardware and support contracts.'
+    },
     highlights: [
       'Bulletproof OpenZFS: RAID-Z1/Z2/Z3 protects petabytes of data against silent bit rot and multi-drive hardware failures',
       'Enterprise Chassis Management: Graphical disk visualization for 8 to 36-bay hot-swap SAS/SATA backplanes',
@@ -286,6 +325,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['hypervisor-vms', 'server', 'container-base'],
     packageManager: 'pkgsrc',
     rollingRelease: false,
+    licensing: {
+      model: 'foss-optional-paid',
+      license: 'MPL-2.0 and CDDL-1.0',
+      note: 'Optional commercial support from MNX.'
+    },
     highlights: [
       'Stateless RAM boot architecture: pristine immutable OS boots fresh from USB/PXE every time',
       'Solaris Zones: zero-overhead operating-system-level virtualization older and more secure than Docker',
@@ -342,6 +386,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['desktop', 'gaming'],
     packageManager: 'dnf / Flatpak',
     rollingRelease: false,
+    licensing: {
+      model: 'foss-with-firmware',
+      license: 'MIT and GPL-2.0-only',
+      note: 'Uses Apple\'s closed device firmware, copied from the macOS install, as every OS on Apple Silicon must.'
+    },
     highlights: [
       'Native Apple Silicon execution: Runs bare-metal on M1, M2, M3 hardware with zero virtualization overhead',
       'Open-source Rust GPU drivers: Fully conformant Vulkan 1.3 and OpenGL 4.6 drivers reverse-engineered for Apple AGX silicon',
@@ -376,6 +425,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['gaming', 'desktop'],
     packageManager: 'rpm-ostree / flatpak',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'Apache-2.0 and others',
+      note: 'Proprietary NVIDIA drivers are an optional image variant.'
+    },
     highlights: [
       'Console-style TV gaming experience directly from boot',
       'Flawless support for Steam Deck, ASUS ROG Ally, Lenovo Legion Go, and living room PCs',
@@ -409,6 +463,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['ai-gpu-compute', 'desktop', 'gaming'],
     packageManager: 'apt / flatpak',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-3.0-only and others',
+      note: 'Proprietary NVIDIA drivers ship only on the optional NVIDIA ISO.'
+    },
     highlights: [
       'Dedicated NVIDIA ISO: GPU drivers and CUDA kernel modules pre-compiled out of the box',
       'Zero-friction PyTorch & TensorFlow: apt install pytorch-cuda without driver version mismatch',
@@ -435,41 +494,6 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   },
   // --- MULTI-GPU MINING & DISTRIBUTED COMPUTE ---
   {
-    id: 'hiveos',
-    name: 'HiveOS',
-    tagline: 'Dedicated Linux management platform for multi-GPU mining rigs and distributed compute',
-    description:
-      'An Ubuntu-based, headless Linux operating system engineered specifically for multi-GPU crypto mining and GPU compute rigs. Features a centralized web/mobile dashboard, automated GPU overclocking/undervolting profiles, hardware watchdog rebooting, thermal throttling management, and remote bulk rig flashing from USB/SSD.',
-    website: 'https://hiveon.com/os/',
-    documentationUrl: 'https://hiveon.com/knowledge-base/',
-    logoEmoji: '⛏️',
-    platforms: ['bare-metal', 'server'],
-    architectures: ['x86_64'],
-    footprint: 'lean',
-    minRamMb: 4096,
-    initSystems: ['systemd'],
-    cLibraries: ['glibc'],
-    stateModel: 'mutable',
-    experienceLevel: 'beginner',
-    primaryUseCases: ['ai-gpu-compute', 'server'],
-    packageManager: 'apt',
-    rollingRelease: false,
-    highlights: [
-      'Multi-GPU plug-and-play: auto-detects up to 12+ mixed NVIDIA and AMD GPUs per motherboard',
-      'Web & mobile app telemetry: real-time hashrate, wattage, fan speeds, and core/memory clocks',
-      'Built-in hardware watchdog: automatically restarts miner or reboots OS if a GPU hangs',
-      'Individual VRAM/core clock tuning to maximize efficiency and minimize electricity draw'
-    ],
-    tradeoffs: [
-      'Specialized utility OS: intended strictly for headless GPU compute and crypto mining'
-    ],
-    prebuiltImage: {
-      downloadUrl: 'https://hiveon.com/install/'
-    }
-  },
-
-  // --- REVIVING OBSOLETE HARDWARE ---
-  {
     id: 'antix',
     name: 'antiX Linux',
     tagline: 'Ultra-lightweight lifesaver for ancient, obsolete computers',
@@ -489,6 +513,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['desktop'],
     packageManager: 'apt',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL and others (Debian DFSG)'
+    },
     highlights: [
       'Runs effortlessly on ancient computers with 256MB - 512MB RAM',
       'Ultra-responsive desktop environment (IceWM/Fluxbox)',
@@ -533,6 +561,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     experienceLevel: 'intermediate',
     primaryUseCases: ['appliance-product', 'gaming'],
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0-or-later'
+    },
     highlights: [
       'Boots in under 1 second and runs comfortably in 2MB RAM (640KB conventional memory)',
       '100% binary compatibility with classic MS-DOS software and 16-bit real-mode DOS games',
@@ -589,6 +621,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['appliance-product', 'desktop'],
     packageManager: 'ReactOS Applications Manager (RAPPS)',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0-or-later and LGPL'
+    },
     highlights: [
       'Clean-room open-source Windows NT kernel, HAL, Win32k subsystem, and Explorer shell',
       'Native compatibility with thousands of 32-bit Windows XP/2000 applications and drivers',
@@ -645,6 +681,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['desktop'],
     packageManager: 'pkgman',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'MIT'
+    },
     highlights: [
       'Blazing desktop responsiveness: per-thread preemptive multitasking ensures the UI never stutters',
       'Database-backed OpenBFS filesystem allows tagging, querying, and instant indexing of file attributes',
@@ -699,6 +739,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['home-office', 'desktop'],
     packageManager: 'apt',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL and others'
+    },
     highlights: [
       'Familiar, comfortable Windows-like desktop layout (Cinnamon)',
       'Turnkey LibreOffice & Microsoft 365 compatibility: pre-installed office suite, PDF tools, and printer/scanner drivers',
@@ -745,6 +789,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['home-office', 'desktop', 'creative-studio'],
     packageManager: 'dnf / Flatpak',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'Various OSI-approved (GPL, MIT, …)',
+      note: 'Proprietary drivers and codecs come only from optional third-party repositories.'
+    },
     highlights: [
       'Polished GNOME Wayland desktop: Smooth fractional scaling for 4K displays and multi-monitor setups',
       'First-class developer toolchains: Native Podman, Toolbx, Rust, Node.js, and Python with zero friction',
@@ -790,6 +839,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['creative-studio', 'desktop'],
     packageManager: 'apt / snap / Flatpak',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL and others'
+    },
     highlights: [
       'Turnkey Creative Suite: Blender 3D, Krita digital painting, Inkscape vector design, and Darktable RAW photo editing ready on boot',
       'Low-Latency Linux Kernel: Tuned for real-time video previewing, high-framerate animation rendering, and zero-drop audio',
@@ -835,6 +888,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     experienceLevel: 'systems-engineer',
     primaryUseCases: ['iot-embedded', 'router-networking', 'appliance-product'],
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0-or-later'
+    },
     highlights: [
       'Generates root filesystems under 10MB',
       'Supports MMU-less (NOMMU) microcontrollers',
@@ -868,6 +925,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     experienceLevel: 'systems-engineer',
     primaryUseCases: ['iot-embedded'],
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'Apache-2.0'
+    },
     highlights: [
       'Fits in kilobytes of RAM on true MCUs (ESP32, STM32, nRF) where Linux cannot run',
       'Uses Linux-style Kconfig & Devicetree, plus west build tooling',
@@ -911,6 +972,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     experienceLevel: 'systems-engineer',
     primaryUseCases: ['iot-embedded', 'appliance-product'],
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'MIT (OpenEmbedded/BitBake) and per-layer licenses'
+    },
     highlights: [
       'Standard for commercial SoMs, Compute Modules, and multi-board product lines',
       'Composable BSP and middleware layers (meta-raspberrypi, meta-freescale, Mender/RAUC OTA)',
@@ -954,6 +1019,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['router-networking', 'iot-embedded'],
     packageManager: 'opkg',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0-only'
+    },
     highlights: [
       'Comprehensive network stack (VLAN, WireGuard, firewall, mesh)',
       'Fits comfortably on 16MB SPI flash memory',
@@ -999,6 +1068,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['router-networking'],
     packageManager: 'pkg',
     rollingRelease: false,
+    licensing: {
+      model: 'foss-optional-paid',
+      license: 'BSD-2-Clause',
+      note: 'Optional OPNsense Business Edition and commercial support.'
+    },
     highlights: [
       'Stateful Packet Filter (pf) with high-throughput multi-core packet scheduling',
       'Built-in Suricata Intrusion Detection & Prevention (IDS/IPS)',
@@ -1054,6 +1128,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['server', 'iot-embedded', 'kiosk-signage', 'appliance-product'],
     packageManager: 'apt',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0-only'
+    },
     highlights: [
       'Debian binary compatibility with 3x less RAM usage',
       'Built-in dietpi-software one-click application launcher',
@@ -1097,6 +1175,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['server', 'iot-embedded', 'media-center', 'router-networking'],
     packageManager: 'apt',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0-only',
+      note: 'Optional paid support and sponsorship.'
+    },
     highlights: [
       'Breathes new life into cheap $25 Android TV boxes (Amlogic, Allwinner, Rockchip)',
       'Pre-configured hardware device trees for HDMI video, Wi-Fi, and Ethernet',
@@ -1130,6 +1213,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['desktop', 'education-kids', 'home-office'],
     packageManager: 'apt',
     rollingRelease: false,
+    licensing: {
+      model: 'foss-with-firmware',
+      license: 'Debian DFSG packages (GPL and others)',
+      note: 'Needs the closed Raspberry Pi boot/GPU firmware, as every OS on a Raspberry Pi does.'
+    },
     highlights: [
       'Official, best-supported OS for every Raspberry Pi model (firmware, GPU, camera, GPIO)',
       'Raspberry Pi Imager pre-configures Wi-Fi, SSH, and the user account before first boot',
@@ -1164,6 +1252,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['server', 'iot-embedded', 'desktop'],
     packageManager: 'apk',
     rollingRelease: true,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-3.0-or-later and others'
+    },
     highlights: [
       'Reclaims 250+ abandoned smartphone and tablet models with clean mainline Linux',
       'Ultra-light Alpine base (musl libc): idles at only 40MB RAM in server mode',
@@ -1196,9 +1288,13 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     cLibraries: ['musl'],
     stateModel: 'stateless-ram',
     experienceLevel: 'intermediate',
-    primaryUseCases: ['container-base', 'server', 'kiosk-signage'],
+    primaryUseCases: ['container-base', 'server'],
     packageManager: 'apk',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'MIT (aports) and others'
+    },
     highlights: [
       'Base container is ~5MB',
       'Can run completely out of RAM (diskless mode)',
@@ -1215,12 +1311,12 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   },
   {
     id: 'chainguard-distroless',
-    name: 'Chainguard / Distroless',
+    name: 'Chainguard Wolfi / Distroless',
     tagline: 'Zero-CVE, minimal container images without shells or package managers',
     description:
-      'Ultra-hardened container images containing only your application and its direct runtime dependencies—no package manager, no shell (`/bin/sh`), and virtually no attack surface.',
-    website: 'https://www.chainguard.dev/chainguard-images',
-    documentationUrl: 'https://edu.chainguard.dev/chainguard/chainguard-images/overview/',
+      'Ultra-hardened container images containing only your application and its direct runtime dependencies—no package manager, no shell (`/bin/sh`), and virtually no attack surface. Built from the open-source Wolfi "undistro" with the open-source apko and melange tools, so you can build and pin your own images; Chainguard\'s prebuilt images are free at the :latest tag.',
+    website: 'https://github.com/wolfi-dev',
+    documentationUrl: 'https://edu.chainguard.dev/open-source/wolfi/overview/',
     logoEmoji: '🛡️',
     platforms: ['container'],
     architectures: ['x86_64', 'arm64'],
@@ -1232,13 +1328,19 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     experienceLevel: 'intermediate',
     primaryUseCases: ['container-base'],
     rollingRelease: true,
+    licensing: {
+      model: 'foss-optional-paid',
+      license: 'Apache-2.0',
+      note: 'Wolfi packages and the apko/melange build tools are open source; prebuilt Chainguard images are free only at the :latest tag, with pinned versions on a paid plan.'
+    },
     highlights: [
       'Zero unnecessary binaries (no curl, no bash, no apt)',
       'Substantially reduced CVE alerts in vulnerability scanners',
       'Compliant with federal and enterprise zero-trust mandates'
     ],
     tradeoffs: [
-      'Debugging requires ephemeral debug containers since there is no shell'
+      'Debugging requires ephemeral debug containers since there is no shell',
+      'Free prebuilt Chainguard images only track :latest; pin by digest or build your own with apko for reproducible versions'
     ],
     prebuiltImage: {
       downloadUrl: 'https://images.chainguard.dev',
@@ -1267,6 +1369,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     experienceLevel: 'advanced',
     primaryUseCases: ['k8s-cluster'],
     rollingRelease: false,
+    licensing: {
+      model: 'foss-optional-paid',
+      license: 'MPL-2.0',
+      note: 'Optional Sidero Omni management service and support.'
+    },
     highlights: [
       'Completely immutable; ephemeral root filesystem',
       'No interactive shell or SSH daemon (immune to credential stuffing)',
@@ -1310,6 +1417,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['server', 'desktop', 'gaming'],
     packageManager: 'nix',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'MIT (Nixpkgs) and package licenses'
+    },
     highlights: [
       '100% reproducible environments across multiple machines',
       'Atomic system updates with instant bootloader rollback',
@@ -1343,6 +1454,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['desktop', 'gaming'],
     packageManager: 'rpm-ostree / flatpak',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'Various OSI-approved (GPL, MIT, …)'
+    },
     highlights: [
       'Root filesystem is read-only and tamper-proof',
       'Updates are staged in the background and applied atomically on next boot',
@@ -1357,39 +1472,6 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   },
 
   // --- KIOSK & IN-BROWSER WASM ---
-  {
-    id: 'porteus-kiosk',
-    name: 'Porteus Kiosk',
-    tagline: 'Locked-down, lightweight web terminal for digital signage & public PCs',
-    description:
-      'A stripped-down Gentoo-based distribution that boots directly into an unclosable full-screen web browser (Chrome or Firefox). Every session is completely ephemeral and resets to defaults upon reboot.',
-    website: 'https://porteus-kiosk.org',
-    documentationUrl: 'https://porteus-kiosk.org/documentation.html',
-    logoEmoji: '🖥️',
-    platforms: ['kiosk', 'bare-metal', 'vm'],
-    architectures: ['x86_64'],
-    footprint: 'lean',
-    minRamMb: 512,
-    initSystems: ['busybox'],
-    cLibraries: ['glibc'],
-    stateModel: 'stateless-ram',
-    experienceLevel: 'beginner',
-    primaryUseCases: ['kiosk-signage'],
-    rollingRelease: false,
-    highlights: [
-      'Zero maintenance: resets cache, history, and downloads on reboot',
-      'Tamper-proof browser terminal preventing user escape to desktop',
-      'Instant configuration wizard during first boot'
-    ],
-    tradeoffs: [
-      'Single-purpose only (web kiosk / digital signage)'
-    ],
-    prebuiltImage: {
-      downloadUrl: 'https://porteus-kiosk.org/download.html'
-    },
-    recipeGeneratorId: 'kiosk-web'
-  },
-  // --- SINGLE-APP PRODUCT & WAYLAND APPLIANCE ---
   {
     id: 'cage-appliance',
     name: 'Cage Wayland Appliance',
@@ -1410,6 +1492,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['appliance-product', 'kiosk-signage', 'iot-embedded'],
     packageManager: 'apk / apt',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'MIT (Cage) with Alpine/Debian base'
+    },
     highlights: [
       'Single-app focus: maximizes GPU and CPU exclusively for your application',
       'Auto-restart watchdog: if your app exits or crashes, Cage relaunches it instantly',
@@ -1424,11 +1510,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   },
   {
     id: 'webvm-v86',
-    name: 'WebVM / v86 (Linux in WebAssembly)',
+    name: 'v86 (Linux in WebAssembly)',
     tagline: 'Full Linux virtual machine running client-side inside a web browser tab',
     description:
-      'Uses x86 emulation compiled to WebAssembly (v86 / CheerpOS) to run a genuine Linux kernel and userspace directly in your web browser with zero server backends.',
-    website: 'https://webvm.io',
+      'The open-source v86 emulator (BSD-2-Clause) compiles x86 emulation to WebAssembly to run a genuine Linux kernel and userspace directly in your web browser, with zero server backends. Self-host it anywhere, including commercially.',
+    website: 'https://copy.sh/v86/',
     documentationUrl: 'https://github.com/copy/v86',
     logoEmoji: '🌐',
     platforms: ['browser-wasm'],
@@ -1441,6 +1527,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     experienceLevel: 'beginner',
     primaryUseCases: ['browser-wasm'],
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'BSD-2-Clause'
+    },
     highlights: [
       'Zero installation: runs inside any modern browser tab',
       'Client-side sandboxing prevents any threat to host computer',
@@ -1450,7 +1540,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
       'Slower execution speed than native hardware due to WASM CPU emulation'
     ],
     prebuiltImage: {
-      downloadUrl: 'https://webvm.io'
+      downloadUrl: 'https://github.com/copy/v86'
     },
     recipeGeneratorId: 'wasm-browser'
   },
@@ -1476,6 +1566,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['server', 'desktop'],
     packageManager: 'apt',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'Debian DFSG (GPL, BSD, …)',
+      note: 'Non-free firmware lives in a separate optional repository.'
+    },
     highlights: [
       'Legendary production stability with 2-year release cadence',
       'Supports virtually every CPU architecture known',
@@ -1509,6 +1604,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['desktop', 'gaming'],
     packageManager: 'pacman',
     rollingRelease: true,
+    licensing: {
+      model: 'foss',
+      license: 'GPL and others'
+    },
     highlights: [
       'Arch User Repository (AUR) gives access to virtually any Linux program',
       'Bleeding-edge vanilla packages directly from upstream',
@@ -1542,6 +1641,11 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['desktop', 'server', 'gaming', 'ai-gpu-compute'],
     packageManager: 'apt / snap',
     rollingRelease: false,
+    licensing: {
+      model: 'foss-optional-paid',
+      license: 'GPL and others',
+      note: 'Optional Ubuntu Pro subscription (free for personal use on up to 5 machines).'
+    },
     highlights: [
       'Extensive out-of-the-box driver support (NVIDIA, Wi-Fi, audio)',
       'Ubiquitous cloud support (standard AMI across AWS, GCP, Azure)',
@@ -1574,6 +1678,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['security-pentest'],
     packageManager: 'apt',
     rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-3.0-or-later'
+    },
     highlights: [
       'Amnesic live USB: leaves zero trace on the host computer after shutdown',
       'Routes all internet traffic through Tor automatically with MAC address spoofing',
@@ -1606,6 +1714,10 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     primaryUseCases: ['security-pentest'],
     packageManager: 'apt',
     rollingRelease: true,
+    licensing: {
+      model: 'foss',
+      license: 'GPL and others (Debian based)'
+    },
     highlights: [
       '600+ curated security, forensics, and penetration testing tools (Nmap, Wireshark, Metasploit)',
       'Rolling-release updates with custom wireless injection-patched kernels',

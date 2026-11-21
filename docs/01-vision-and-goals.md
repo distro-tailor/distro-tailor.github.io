@@ -79,5 +79,5 @@ DistroTailor democratizes Linux systems engineering through a **two-phase bridge
 | **Smart Home Enthusiast** | 100% private, cloud-free home automation hub | Home Assistant OS (HAOS) with atomic A/B updates |
 | **Hardware Hacker / Recycler** | Turn an old MacBook, phone, or TV box into a 24/7 server | Armbian, postmarketOS, antiX |
 | **Product Builder / Maker** | Boot directly into custom Flutter, Qt, Web, or Python app | Cage Wayland Appliance, Buildroot |
-| **AI Engineer / Miner** | Local LLM inference, PyTorch, multi-GPU crypto rig | Pop!_OS (NVIDIA), HiveOS |
+| **AI Engineer / Miner** | Local LLM inference, PyTorch, multi-GPU crypto rig | Pop!_OS (NVIDIA), Ubuntu Server |
 | **Embedded Systems Engineer** | Compile tiny rootfs for microcontrollers or network router | Buildroot (NOMMU / uClibc), OpenWrt |

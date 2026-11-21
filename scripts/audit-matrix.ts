@@ -334,7 +334,7 @@ const ARCHETYPES: Archetype[] = [
       architecture: 'x86_64',
       prefersGui: true
     },
-    expectedDistroId: ['porteus-kiosk', 'cage-appliance']
+    expectedDistroId: 'cage-appliance'
   },
   {
     id: 'single-app-pos-product',
@@ -406,7 +406,6 @@ const ARCHETYPES: Archetype[] = [
 
 // Single-purpose appliances that must NEVER win for a general desktop or educational request
 const APPLIANCE_DISTRO_IDS = [
-  'porteus-kiosk',
   'cage-appliance',
   'libreelec',
   'openwrt',

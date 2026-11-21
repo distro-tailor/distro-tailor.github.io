@@ -224,9 +224,9 @@ test('Core Matcher: Pinpoints Endless OS on older MacBook laptop with 4GB RAM (n
 
   assert.equal(result.bestMatch.distro.id, 'endless-os');
   assert.ok(result.bestMatch.score >= 90);
-  const porteus = result.allMatches.find(m => m.distro.id === 'porteus-kiosk');
-  assert.ok(porteus);
-  assert.ok(porteus.score < 65, 'Porteus Kiosk must not score high on an educational desktop');
+  const kiosk = result.allMatches.find(m => m.distro.id === 'cage-appliance');
+  assert.ok(kiosk);
+  assert.ok(kiosk.score < 65, 'A single-app kiosk appliance must not score high on an educational desktop');
 });
 
 test('Core Matcher: Pinpoints OpenMediaVault for family NAS and photo backups', () => {
@@ -299,17 +299,20 @@ test('Core Matcher: Identifies Pop!_OS for AI / Data Science GPU workstations', 
   assert.ok(result.bestMatch.score >= 80);
 });
 
-test('Core Matcher: Identifies HiveOS for multi-GPU mining rigs and compute nodes', () => {
-  const result = evaluateCriteria({
+test('Core Matcher: Recommends an open-source GPU OS (Pop!_OS / Ubuntu) for compute nodes and mining rigs', () => {
+  const gpu = evaluateCriteria({ useCase: 'ai-gpu-compute', driverPhilosophy: 'seamless-proprietary' });
+  assert.equal(gpu.bestMatch.distro.id, 'pop-os');
+
+  // Headless rig: Ubuntu Server with one-step proprietary NVIDIA drivers (ubuntu-drivers)
+  const rig = evaluateCriteria({
     experienceLevel: 'beginner',
     useCase: 'ai-gpu-compute',
     platform: 'server',
     footprint: 'lean',
-    architecture: 'x86_64'
+    prefersGui: false,
+    driverPhilosophy: 'seamless-proprietary'
   });
-
-  assert.equal(result.bestMatch.distro.id, 'hiveos');
-  assert.ok(result.bestMatch.score >= 80);
+  assert.equal(rig.bestMatch.distro.id, 'ubuntu');
 });
 
 test('Core Matcher: Identifies Proxmox VE for used enterprise server racks & homelab virtualization', () => {
@@ -526,9 +529,9 @@ test('Matcher: RAM constraints evaluate maxRamMb against minRamMb', () => {
   assert.equal(ramReason.matched, true);
 });
 
-test('Matcher: allMatches contains all 41 registered distributions ranked', () => {
+test('Matcher: allMatches contains all 39 registered distributions ranked', () => {
   const result = evaluateCriteria({});
-  assert.equal(result.allMatches.length, 41);
+  assert.equal(result.allMatches.length, 39);
   assert.equal(result.topMatches.length, 5);
   // Unconstrained baseline recommends Linux Mint at 100% instead of arbitrary Alpine 0%
   assert.equal(result.bestMatch.distro.id, 'linux-mint');

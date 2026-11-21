@@ -95,12 +95,6 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     architecture: 'x86_64',
     driverPhilosophy: 'seamless-proprietary'
   },
-  hiveos: {
-    experienceLevel: 'advanced',
-    useCase: 'ai-gpu-compute',
-    platform: 'server',
-    architecture: 'x86_64'
-  },
 
   // --- HARDWARE RECLAMATION & DESKTOP ---
   antix: {
@@ -264,12 +258,6 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
   },
 
   // --- KIOSK, WAYLAND APPLIANCE & WASM ---
-  'porteus-kiosk': {
-    experienceLevel: 'beginner',
-    useCase: 'kiosk-signage',
-    platform: 'kiosk',
-    architecture: 'x86_64'
-  },
   'cage-appliance': {
     experienceLevel: 'intermediate',
     useCase: 'appliance-product',

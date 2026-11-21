@@ -85,3 +85,9 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     When the same goal is paired with an "Android TV box" or a goal with no SBC hardware at all
     Then "Raspberry Pi OS" should not be recommended because it only boots on Raspberry Pi boards
     And use-case fit should outweigh flash-storage tuning (e.g. a router on an SD card still gets OpenWrt)
+
+  Scenario: Only free and/or open-source operating systems are recommended
+    Given the distribution registry
+    Then every distribution should declare its license and licensing model
+    And only free and open-source systems should be registered, optionally with paid support, an optional commercial edition, or the board vendor's boot firmware
+    And closed-source or usage-capped platforms (e.g. HiveOS, Porteus Kiosk, CheerpX-based WebVM) should not be recommended

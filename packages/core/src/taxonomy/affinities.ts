@@ -169,7 +169,7 @@ export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
   ],
   'low-power': [
     {
-      distroIds: ['antix', 'dietpi', 'libreelec', 'alpine', 'porteus-kiosk', 'freedos'],
+      distroIds: ['antix', 'dietpi', 'libreelec', 'alpine', 'freedos'],
       points: 15,
       feature: 'Low-Power Hardware',
       explanation: 'Ultra-low CPU and RAM footprint designed specifically to run smoothly on weak or low-power processors.'
@@ -290,7 +290,7 @@ export const DRIVER_PHILOSOPHY_AFFINITIES: AffinityTable<DriverPhilosophy> = {
   ],
   'seamless-proprietary': [
     {
-      distroIds: ['pop-os', 'linux-mint', 'ubuntu-studio', 'fedora', 'batocera'],
+      distroIds: ['pop-os', 'ubuntu', 'linux-mint', 'ubuntu-studio', 'fedora', 'batocera'],
       points: 10,
       feature: 'Proprietary Drivers',
       explanation: 'Includes out-of-the-box proprietary drivers (NVIDIA GPUs, Broadcom Wi-Fi, media codecs).'
@@ -631,7 +631,7 @@ export const SECURITY_PROFILE_AFFINITIES: AffinityTable<SecurityProfile> = {
   ],
   'amnesic-ram': [
     {
-      distroIds: ['porteus-kiosk', 'alpine'],
+      distroIds: ['tails', 'alpine'],
       points: 20,
       feature: 'Security Hardening',
       explanation: 'Runs entirely in volatile RAM disk with zero persistent traces on local storage.'
@@ -701,7 +701,7 @@ export const NETWORKING_STACK_AFFINITIES: AffinityTable<NetworkingStack> = {
 export const FIRMWARE_MODE_AFFINITIES: AffinityTable<FirmwareMode> = {
   'legacy-bios': [
     {
-      distroIds: ['antix', 'freedos', 'alpine', 'debian', 'porteus-kiosk', 'linux-mint', 'ubuntu'],
+      distroIds: ['antix', 'freedos', 'alpine', 'debian', 'linux-mint', 'ubuntu'],
       points: 15,
       feature: 'Firmware Mode',
       explanation: 'Ships images that boot on legacy BIOS / CSM (MBR) hardware as well as UEFI.'
@@ -738,7 +738,7 @@ export const SECURE_BOOT_AFFINITIES: AffinityTable<SecureBootPolicy> = {
       explanation: 'Boots out of the box with a Microsoft-signed shim and signed kernel under UEFI Secure Boot.'
     },
     {
-      distroIds: ['arch', 'alpine', 'buildroot', 'openwrt', 'opnsense', 'freedos', 'haiku', 'reactos', 'antix', 'porteus-kiosk'],
+      distroIds: ['arch', 'alpine', 'buildroot', 'openwrt', 'opnsense', 'freedos', 'haiku', 'reactos', 'antix'],
       points: -15,
       feature: 'Secure Boot',
       explanation: 'No signed shim by default; Secure Boot must be disabled or configured manually.'

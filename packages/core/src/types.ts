@@ -101,6 +101,32 @@ export type KernelModel =
   | 'realmode-dos'
   | 'microkernel';
 
+/**
+ * How a distribution is licensed and paid for. DistroTailor only recommends free and/or open-source
+ * systems; optional paid support or an optional commercial edition is fine (DISTRO_LICENSE_POLICY).
+ * - foss: free and open source.
+ * - foss-optional-paid: open-source core that is free to use, with optional paid support,
+ *   subscriptions, or an enterprise edition (e.g. Ubuntu Pro, Proxmox subscriptions).
+ * - foss-with-firmware: open-source OS that needs the board vendor's closed boot/GPU firmware, as
+ *   every OS on that hardware does (e.g. Raspberry Pi, Apple Silicon).
+ * - freemium-closed: closed-source core, or free only up to a usage cap. Not allowed.
+ * - proprietary: closed source and paid. Not allowed.
+ */
+export type LicenseModel =
+  | 'foss'
+  | 'foss-optional-paid'
+  | 'foss-with-firmware'
+  | 'freemium-closed'
+  | 'proprietary';
+
+export interface DistroLicensing {
+  model: LicenseModel;
+  /** Main license(s), SPDX identifiers where possible (e.g. 'GPL-2.0-only', 'Apache-2.0'). */
+  license: string;
+  /** What is optional or paid, or which firmware is closed. */
+  note?: string;
+}
+
 export interface DistroProfile {
   id: string;
   name: string;
@@ -126,6 +152,9 @@ export interface DistroProfile {
   // Package Management
   packageManager?: string;
   rollingRelease: boolean;
+
+  // Licensing: required so every registered distro is checked against the free/open-source policy
+  licensing: DistroLicensing;
 
   // Strengths & tradeoffs
   highlights: string[];

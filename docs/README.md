@@ -61,7 +61,7 @@ All functional behaviors, persona flows, and UX invariants are specified in Gher
 1. **[01-goal-oriented-selection.feature](../specs/01-goal-oriented-selection.feature):** Novice user goals (Media Center, Photo NAS, Smart Home, Custom App) and on-the-fly mode switching.
 2. **[02-hardware-targeting-and-driver-pruning.feature](../specs/02-hardware-targeting-and-driver-pruning.feature):** Reclaiming old MacBooks, Android TV boxes, repurposed gadgets, and the Zero-Bloat comparison metrics.
 3. **[03-modularity-and-frankenstein-hybrids.feature](../specs/03-modularity-and-frankenstein-hybrids.feature):** Multi-distro mixing via Distrobox (Arch AUR on Debian), desktop switching (Cage, XFCE, KDE), and Nix/Flatpak sandboxing.
-4. **[04-gpu-specialized-workloads.feature](../specs/04-gpu-specialized-workloads.feature):** Pop!_OS for AI/LLM/Data Science and HiveOS for multi-GPU mining/compute.
+4. **[04-gpu-specialized-workloads.feature](../specs/04-gpu-specialized-workloads.feature):** Pop!_OS for AI/LLM/Data Science and Ubuntu Server for headless multi-GPU compute.
 5. **[05-recipe-generation-and-build.feature](../specs/05-recipe-generation-and-build.feature):** Makefiles, defconfigs, hybrid ISOs, and QEMU test verification.
 6. **[06-url-sharing-and-state-persistence.feature](../specs/06-url-sharing-and-state-persistence.feature):** Real-time URL query encoding, schema migrations, and deep permalinks.
 
