@@ -233,6 +233,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'server', platform: 'bare-metal', footprint: 'lean', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'community' }
       },
       {
+        id: 'small_business_office',
+        label: 'Small Business or Shop Office (Shared Files, Printer & Backups)',
+        description: 'One quiet server for a shop, clinic, or small office: shared folders, printer and scanner sharing, and automatic backups. For staff PCs, pick Home Office',
+        icon: '🏪',
+        appliesCriteria: { useCase: 'nas-storage', footprint: 'lean', platform: 'bare-metal', prefersGui: false, releaseCadence: 'lts', deploymentSite: 'office' }
+      },
+      {
         id: 'nas_photo_backup',
         label: 'Family Photo/Video Backup & Home Storage (NAS)',
         description: 'Auto-backup family phone photos and videos over Wi-Fi, share files at home, and ditch monthly cloud fees',

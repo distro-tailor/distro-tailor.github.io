@@ -76,6 +76,12 @@ export const LEGAL_CAVEATS: readonly LegalCaveat[] = [
     appliesTo: (c) => c.formFactor === 'chromebook'
   },
   {
+    id: 'business-data-protection',
+    title: 'Customer and staff data may be regulated',
+    text: 'If the server stores customer or staff data, data-protection laws (such as the GDPR in the EU and UK) may apply. Limit who can access it, encrypt backups, and keep one copy off-site.',
+    appliesTo: (c) => c.deploymentSite === 'office'
+  },
+  {
     id: 'kodi-third-party-addons',
     title: 'Stick to official Kodi add-ons',
     text: 'Install add-ons from the official Kodi repository. Many third-party add-ons stream pirated movies and TV, which is illegal in most countries.',

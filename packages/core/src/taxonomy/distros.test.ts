@@ -256,3 +256,24 @@ test('Private everyday computer: privacy-by-default desktops, kept apart from Ta
   const params = serializeCriteriaToParams({ privacyFocus: true });
   assert.equal(deserializeCriteriaFromParams(params).privacyFocus, true);
 });
+
+test('Small business office: a quiet file and backup server with a data-protection note', () => {
+  const opt = (q: string, id: string) => QUESTIONS.find((x) => x.id === q)!.options.find((o) => o.id === id)!.appliesCriteria;
+  const deviceKeys = new Set(QUESTIONS.find((q) => q.id === 'beginner_device')!.options.flatMap((o) => Object.keys(o.appliesCriteria)));
+  const office = (device: string) =>
+    evaluateCriteria({
+      experienceLevel: 'beginner',
+      ...Object.fromEntries(Object.entries(opt('beginner_goal', 'small_business_office')).filter(([k]) => !deviceKeys.has(k))),
+      ...opt('beginner_device', device)
+    });
+
+  assert.equal(office('standard_desktop').bestMatch.distro.id, 'openmediavault');
+  assert.equal(office('used_server_rack').bestMatch.distro.id, 'truenas-scale');
+  assert.ok(office('raspberry_pi').legalCaveats.some((c) => c.id === 'business-data-protection'));
+  assert.deepEqual(office('standard_desktop').paidAlternatives.map((a) => a.id), ['unraid']);
+
+  // The office site is inferred in Goal mode, so beginners are not asked where it runs
+  const flow = new QuestionFlow(QUESTIONS);
+  const ids = flow.getEligibleQuestions({ experienceLevel: 'beginner', ...opt('beginner_goal', 'small_business_office') }).map((q) => q.id);
+  assert.ok(!ids.includes('deployment_site'));
+});

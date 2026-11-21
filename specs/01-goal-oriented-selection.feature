@@ -314,3 +314,11 @@ Feature: Goal-Oriented Linux Selection (The 20 Questions Game)
     When the user picks a desktop PC, laptop, or Chromebook
     Then the engine should recommend a distribution with no telemetry by default and installer disk encryption (e.g. "Linux Mint", "Fedora", or "Debian")
     And it should not recommend the amnesic or pentesting systems ("Tails", "Kali Linux"), which remain under the separate privacy, anonymity & cybersecurity goal
+
+  Scenario: A small business or shop gets a simple office server
+    Given the user picks the goal "Small Business or Shop Office (Shared Files, Printer & Backups)"
+    When the user picks a desktop PC, Raspberry Pi, or old gadget
+    Then the engine should recommend "OpenMediaVault (OMV)" (or "TrueNAS SCALE" on a used rack server)
+    And the office deployment site and long-term releases should be inferred without asking
+    And the legal notes should mention that customer and staff data may be regulated, for information only
+    And "Unraid" should only appear as a paid alternative
