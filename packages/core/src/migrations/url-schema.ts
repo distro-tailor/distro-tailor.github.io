@@ -184,6 +184,7 @@ export function deserializeCriteriaFromParams(params: Record<string, string>): U
     driverPhilosophy: params.driverPhilosophy,
     bootMedium: params.bootMedium,
     realtimeAudio: flag(params.realtimeAudio),
+    privacyFocus: flag(params.privacyFocus),
     requiresCustomBuild: flag(params.requiresCustomBuild),
     fileSystem: params.fileSystem,
     kernelFlavor: params.kernelFlavor,

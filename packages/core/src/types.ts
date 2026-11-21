@@ -383,6 +383,8 @@ export interface UserCriteria {
   driverPhilosophy?: DriverPhilosophy;
   bootMedium?: BootMedium;
   realtimeAudio?: boolean;
+  /** Everyday privacy: no telemetry by default and disk encryption offered at install. */
+  privacyFocus?: boolean;
   peripheralNeed?: PeripheralNeed;
   peripherals?: PeripheralNeed[];
 

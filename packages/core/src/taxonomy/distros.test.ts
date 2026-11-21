@@ -240,3 +240,19 @@ test('Chromebooks: distros with Chromebook fixes win, and the school-managed not
   assert.equal(onChromebook('kids_education').bestMatch.distro.id, 'endless-os');
   assert.ok(onChromebook('kids_education').legalCaveats.some((c) => c.id === 'school-managed-chromebook'));
 });
+
+test('Private everyday computer: privacy-by-default desktops, kept apart from Tails/Kali', () => {
+  const goal = QUESTIONS.find((q) => q.id === 'beginner_goal')!.options.find((o) => o.id === 'private_everyday')!.appliesCriteria;
+  assert.equal(goal.privacyFocus, true);
+  // As in the wizard, the laptop device answer replaces the goal's hardware keys (platform, footprint, …)
+  const deviceKeys = new Set(QUESTIONS.find((q) => q.id === 'beginner_device')!.options.flatMap((o) => Object.keys(o.appliesCriteria)));
+  const laptop = QUESTIONS.find((q) => q.id === 'beginner_device')!.options.find((o) => o.id === 'standard_laptop')!.appliesCriteria;
+  const goalOnly = Object.fromEntries(Object.entries(goal).filter(([k]) => !deviceKeys.has(k)));
+  const pick = evaluateCriteria({ experienceLevel: 'beginner', ...goalOnly, ...laptop }).bestMatch;
+  assert.ok(['linux-mint', 'fedora', 'fedora-silverblue', 'debian'].includes(pick.distro.id), pick.distro.id);
+  assert.ok(pick.reasons.some((r) => r.feature === 'Privacy by Default' && r.matched));
+  assert.ok(!['tails', 'kali-linux'].includes(pick.distro.id));
+
+  const params = serializeCriteriaToParams({ privacyFocus: true });
+  assert.equal(deserializeCriteriaFromParams(params).privacyFocus, true);
+});

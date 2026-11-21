@@ -117,6 +117,10 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     true: { label: 'Pro Audio (Low-Latency Realtime Kernel)', icon: '🎵' },
     false: { label: 'Standard Everyday Audio', icon: '🔊' }
   },
+  privacyFocus: {
+    true: { label: 'Private by Default (No Telemetry, Encrypted)', icon: '🔒' },
+    false: { label: 'No Special Privacy Needs', icon: '🔓' }
+  },
   peripheralNeed: {
     'touchscreen': { label: 'Touchscreen / 2-in-1 Tablet', icon: '📱' },
     'printer-scanner': { label: 'Home / Office Printers & Scanners', icon: '🖨️' },

@@ -22,6 +22,7 @@ import {
   DEPLOYMENT_SITE_AFFINITIES,
   HARDWARE_BOOT_SUPPORT,
   POWER_SUPPLY_AFFINITIES,
+  PRIVACY_FOCUS_AFFINITIES,
   UPLINK_AFFINITIES,
   HARDWARE_LOCK_PENALTY,
   SPECIALIST_DISTRO_USE_CASES,
@@ -74,6 +75,7 @@ export function evaluateCriteria(
   if (criteria.prefersGui !== undefined) maxWeight += 10;
   if (criteria.workflowStyle && criteria.workflowStyle !== 'no-preference') maxWeight += 10;
   if (criteria.realtimeAudio) maxWeight += 15;
+  if (criteria.privacyFocus) maxWeight += 10;
   if (criteria.fileSystem) maxWeight += 10;
   if (criteria.kernelFlavor) maxWeight += 10;
   if (criteria.bootloader) maxWeight += 10;
@@ -420,6 +422,11 @@ export function evaluateCriteria(
     }
     if (criteria.uplink) {
       applyAffinity(UPLINK_AFFINITIES[criteria.uplink]);
+    }
+
+    // 11D. Everyday privacy (Weight: 10)
+    if (criteria.privacyFocus) {
+      applyAffinity(PRIVACY_FOCUS_AFFINITIES);
     }
 
     // 11C. Deployment site: shared and remote sites favour long-term releases (penalty only)

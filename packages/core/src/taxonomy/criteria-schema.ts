@@ -388,6 +388,7 @@ export function sanitizeCriteria(input: UntrustedCriteria): UserCriteria {
     driverPhilosophy: pickEnum(DRIVER_PHILOSOPHY_VALUES, input.driverPhilosophy),
     bootMedium: pickEnum(BOOT_MEDIUM_VALUES, input.bootMedium),
     realtimeAudio: pickBoolean(input.realtimeAudio),
+    privacyFocus: pickBoolean(input.privacyFocus),
     peripheralNeed: pickEnum(PERIPHERAL_VALUES, input.peripheralNeed),
     peripherals: pickEnumList(PERIPHERAL_VALUES, input.peripherals),
     fileSystem: pickEnum(FILESYSTEM_VALUES, input.fileSystem),

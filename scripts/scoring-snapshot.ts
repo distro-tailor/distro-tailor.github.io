@@ -91,6 +91,7 @@ function buildCases(): Record<string, unknown>[] {
     maxRamMb: [256, 1024, 4096, 16384],
     prefersGui: [true, false],
     realtimeAudio: [true, false],
+    privacyFocus: [true, false],
     requiresCustomBuild: [true, false],
     enableDistrobox: [true, false],
     enableNix: [true, false],

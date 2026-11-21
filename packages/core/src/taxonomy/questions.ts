@@ -303,6 +303,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { useCase: 'ai-gpu-compute', footprint: 'lean', platform: 'server', prefersGui: false, driverPhilosophy: 'seamless-proprietary' }
       },
       {
+        id: 'private_everyday',
+        label: 'Private Everyday Computer (No Tracking, Encrypted Disk)',
+        description: 'A normal computer for web, school, and work with no telemetry and full-disk encryption. Your browser and online accounts matter too',
+        icon: '🔒',
+        appliesCriteria: { useCase: 'desktop', footprint: 'standard', platform: 'bare-metal', prefersGui: true, realtimeAudio: false, privacyFocus: true }
+      },
+      {
         id: 'security_privacy',
         label: 'Privacy, Anonymity & Cybersecurity (Tails / Kali Linux)',
         description: 'Amnesic Tor privacy from a USB stick (Tails) or ethical hacking and penetration testing toolkit (Kali)',

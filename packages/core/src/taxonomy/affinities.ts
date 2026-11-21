@@ -1027,3 +1027,13 @@ export const DEPLOYMENT_SITE_AFFINITIES: AffinityTable<DeploymentSite> = {
   datacenter: [PRODUCTION_STABILITY_TIER],
   community: [PRODUCTION_STABILITY_TIER]
 };
+
+/** Everyday privacy: distros with no telemetry by default and encryption offered in the installer. */
+export const PRIVACY_FOCUS_AFFINITIES: readonly AffinityTier[] = [
+  {
+    distroIds: ['fedora', 'fedora-silverblue', 'linux-mint', 'debian'],
+    points: 10,
+    feature: 'Privacy by Default',
+    explanation: 'No telemetry by default, full-disk encryption offered in the installer, and privacy-respecting defaults.'
+  }
+];
