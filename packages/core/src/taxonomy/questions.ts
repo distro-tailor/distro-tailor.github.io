@@ -576,6 +576,13 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { architecture: 'riscv64', platform: 'embedded-sbc', footprint: 'lean', formFactor: 'sbc', bootMedium: 'sd-card-usb' }
       },
       {
+        id: 'chromebook',
+        label: 'Chromebook (Intel or AMD)',
+        description: 'A Chromebook you own. Linux can run inside ChromeOS with no changes, or replace it after a firmware swap; school-managed Chromebooks are locked',
+        icon: '💻',
+        appliesCriteria: { architecture: 'x86_64', platform: 'bare-metal', formFactor: 'chromebook', bootMedium: 'nvme-ssd' }
+      },
+      {
         id: 'wifi_router',
         label: 'Wi-Fi Router or Outdoor Radio',
         description: 'A cheap home router or outdoor Wi-Fi radio that OpenWrt supports (TP-Link, GL.iNet, Ubiquiti, and similar)',

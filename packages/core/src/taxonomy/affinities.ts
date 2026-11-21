@@ -170,6 +170,20 @@ export const HARDWARE_BOOT_SUPPORT: readonly HardwareBootSupport[] = [
 const offersDesktop = (d: DistroProfile) => d.platforms.includes('desktop');
 
 export const FORM_FACTOR_AFFINITIES: AffinityTable<FormFactor> = {
+  chromebook: [
+    {
+      distroIds: ['linux-mint', 'ubuntu', 'fedora'],
+      points: 15,
+      feature: 'Chromebook Support',
+      explanation: 'Well-tested on Chromebooks after a firmware swap, with community scripts that fix Chromebook audio and keyboard keys.'
+    },
+    {
+      appliesTo: (d) => d.footprint === 'full' || d.minRamMb > 2048,
+      points: -10,
+      feature: 'Chromebook Support',
+      explanation: 'Most Chromebooks have 4 GB of RAM and small eMMC storage, which heavy systems outgrow quickly.'
+    }
+  ],
   handheld: [
     {
       distroIds: ['bazzite'],

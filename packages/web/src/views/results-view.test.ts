@@ -267,3 +267,22 @@ test('Results View: router builds get router flashing steps and no desktop add-o
   const desktopHtml = renderResultsView(evaluateCriteria(desktop), { ...state, criteria: desktop });
   assert.ok(desktopHtml.includes('Add-On Applications & Turnkey Services'));
 });
+
+test('Results View: Chromebooks get the built-in Linux route and the MrChromebox firmware route', () => {
+  const criteria = { experienceLevel: 'beginner' as const, useCase: 'desktop' as const, architecture: 'x86_64' as const, platform: 'bare-metal' as const, formFactor: 'chromebook' as const, prefersGui: true };
+  const state: AppState = {
+    criteria,
+    answeredQuestionIds: new Set(['user_familiarity', 'beginner_goal', 'beginner_device']),
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const html = renderResultsView(evaluateCriteria(criteria), state);
+  assert.ok(html.includes('Linux development environment'));
+  assert.ok(html.includes('mrchromebox.tech'));
+  assert.ok(html.includes('data-caveat-id="school-managed-chromebook"'));
+});

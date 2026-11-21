@@ -299,7 +299,8 @@ export type FormFactor =
   | 'low-power'
   | 'mac'
   | 'sbc'
-  | 'server';
+  | 'server'
+  | 'chromebook';
 
 export type DesktopWorkflowStyle =
   | 'windows'

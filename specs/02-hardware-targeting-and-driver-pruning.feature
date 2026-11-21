@@ -92,3 +92,11 @@ Feature: Hardware Targeting & Driver/Firmware Bloat Pruning
     Then the engine should recommend "Asahi Linux", the only distribution in the registry that boots directly on Apple Silicon
     And distributions that cannot boot there should explain that they need a VM on that Mac
     But running inside a VM on the Mac, or installing on an Intel Mac, should not be restricted
+
+  Scenario: Kids and adults with a Chromebook get a safe starter route
+    Given the user picks the device "Chromebook (Intel or AMD)"
+    When the user picks an everyday, office, or coding goal
+    Then the engine should recommend a distribution with community Chromebook fixes ("Ubuntu", "Linux Mint", or "Fedora")
+    And for the kid-safe goal it should recommend "Endless OS"
+    And the image card should offer the reversible built-in Linux environment first, then the MrChromebox firmware route
+    And the legal notes should say to only change Chromebooks you own, not school- or work-managed ones

@@ -19,7 +19,7 @@ export function renderTurnkeyImageCard(ctx: ResultsViewContext): string {
                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">Recommended</span>
               </div>
               <p class="text-xs text-slate-400 mt-1 break-words">
-                ${escapeHtml(getFlashInstructions(state.criteria.platform))}
+                ${escapeHtml(getFlashInstructions(state.criteria.platform, state.criteria.formFactor))}
               </p>
             </div>
             <a id="btn-download-image" href="${best.distro.prebuiltImage.downloadUrl}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto justify-center px-4 sm:px-5 py-2.5 text-xs font-bold rounded-xl bg-indigo-400 hover:bg-indigo-300 text-slate-950 transition-all flex items-center gap-1.5 whitespace-nowrap shadow-md shrink-0">

@@ -222,3 +222,21 @@ test('Remote sites: power and internet questions appear only for community build
   assert.equal(back.powerSupply, 'solar-battery');
   assert.equal(back.uplink, 'slow');
 });
+
+test('Chromebooks: distros with Chromebook fixes win, and the school-managed note always shows', () => {
+  const opt = (q: string, id: string) => QUESTIONS.find((x) => x.id === q)!.options.find((o) => o.id === id)!.appliesCriteria;
+  const deviceKeys = new Set(QUESTIONS.find((q) => q.id === 'beginner_device')!.options.flatMap((o) => Object.keys(o.appliesCriteria)));
+  const onChromebook = (goal: string) =>
+    evaluateCriteria({
+      experienceLevel: 'beginner',
+      ...Object.fromEntries(Object.entries(opt('beginner_goal', goal)).filter(([k]) => !deviceKeys.has(k))),
+      ...opt('beginner_device', 'chromebook'),
+      maxRamMb: 4096
+    });
+
+  for (const goal of ['daily_desktop', 'coding_dev', 'freelance_office_docs']) {
+    assert.ok(['ubuntu', 'linux-mint', 'fedora'].includes(onChromebook(goal).bestMatch.distro.id), goal);
+  }
+  assert.equal(onChromebook('kids_education').bestMatch.distro.id, 'endless-os');
+  assert.ok(onChromebook('kids_education').legalCaveats.some((c) => c.id === 'school-managed-chromebook'));
+});

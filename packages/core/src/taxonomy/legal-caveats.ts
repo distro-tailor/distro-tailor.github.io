@@ -64,6 +64,12 @@ export const LEGAL_CAVEATS: readonly LegalCaveat[] = [
     appliesTo: (c) => c.useCase === 'offline-library'
   },
   {
+    id: 'school-managed-chromebook',
+    title: 'Only change Chromebooks you own',
+    text: 'School- or work-managed Chromebooks are locked by their organisation; changing their firmware or OS breaks the device policy you agreed to and can wipe it. Use your own Chromebook, or ChromeOS\'s built-in Linux environment where the school allows it.',
+    appliesTo: (c) => c.formFactor === 'chromebook'
+  },
+  {
     id: 'kodi-third-party-addons',
     title: 'Stick to official Kodi add-ons',
     text: 'Install add-ons from the official Kodi repository. Many third-party add-ons stream pirated movies and TV, which is illegal in most countries.',

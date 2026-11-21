@@ -105,7 +105,8 @@ export const FORM_FACTOR_VALUES: EnumCatalog<FormFactor> = {
   'low-power': true,
   mac: true,
   sbc: true,
-  server: true
+  server: true,
+  chromebook: true
 };
 
 export const FOOTPRINT_VALUES: EnumCatalog<StorageFootprint> = {
