@@ -39,3 +39,11 @@ export function isServerContext(criteria: UserCriteria): boolean {
   if (criteria.useCase && SERVER_USE_CASES.has(criteria.useCase)) return true;
   return false;
 }
+
+/** Platforms that cannot run add-on desktop apps or Docker services (routers, microcontrollers). */
+const NO_ADD_ON_PLATFORMS = new Set<string>(['router-firewall', 'microcontroller']);
+
+/** Whether the add-on apps panel (desktop apps, Docker services, emulators) applies to this build. */
+export function supportsAddOnApps(criteria: UserCriteria): boolean {
+  return !(criteria.platform && NO_ADD_ON_PLATFORMS.has(criteria.platform));
+}

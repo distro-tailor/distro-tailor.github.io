@@ -137,3 +137,9 @@ Feature: Free & Open-Source Licensing Policy and Paid Alternatives
   Scenario: Power and connection questions stay out of everyday flows
     Given the user is building a home server, desktop, or other non-community machine
     Then the wizard should not ask about power supply or the site's internet connection
+
+  Scenario: Router and mesh results speak router, not desktop
+    Given the top match is router firmware such as "LibreMesh" or "OpenWrt" on a "Wi-Fi Router or Outdoor Radio"
+    Then the image card should explain installing the firmware for the exact router model from the router's own web interface
+    And the results should not offer desktop apps or Docker add-ons
+    And the hardware chip should read "Low-Power Hardware" rather than describing an old PC

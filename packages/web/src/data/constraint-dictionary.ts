@@ -58,7 +58,7 @@ export const CONSTRAINT_DICTIONARY: Record<string, Record<string, FormattedConst
     desktop: { label: 'Desktop PC / Tower', icon: '🖥️' },
     laptop: { label: 'Laptop / Notebook', icon: '💻' },
     handheld: { label: 'Handheld Gaming PC', icon: '🎮' },
-    'low-power': { label: 'Low-Power / Ancient PC', icon: '👴' },
+    'low-power': { label: 'Low-Power Hardware', icon: '🔋' },
     mac: { label: 'Apple Mac Hardware', icon: '🍏' },
     sbc: { label: 'Single-Board Computer', icon: '🍓' },
     server: { label: 'Enterprise Rack Server', icon: '🖧' }

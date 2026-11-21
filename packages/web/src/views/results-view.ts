@@ -16,7 +16,7 @@ import { renderVerificationLadder } from '../components/results/verification-lad
 import { renderWinnerBanner } from '../components/results/winner-banner.js';
 import { FLATPAK_PREINSTALLED_DISTRO_IDS } from '../data/flatpak-defaults.js';
 import { AppState } from '../state/store.js';
-import { isServerContext } from '../utils/context-detector.js';
+import { isServerContext, supportsAddOnApps } from '../utils/context-detector.js';
 
 export function renderResultsView(evaluation: RecommendationOutput, state: AppState): string {
   const best = evaluation.bestMatch;
@@ -77,7 +77,7 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
       <!-- PROGRESSIVE DISCLOSURE: OPTIONAL / ADVANCED SYSTEM CUSTOMIZATION PANELS   -->
       <!-- ========================================================================= -->
 
-      ${renderAppSuitePanel(ctx)}
+      ${supportsAddOnApps(state.criteria) ? renderAppSuitePanel(ctx) : ''}
 
       ${renderHeadToHeadPanel(ctx)}
 

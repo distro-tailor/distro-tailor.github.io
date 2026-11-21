@@ -240,3 +240,30 @@ test('Results View: legal notes appear when the setup has a legal catch', () => 
   const office = { ...base, criteria: { useCase: 'home-office' as const } };
   assert.ok(!renderResultsView(evaluateCriteria(office.criteria), office).includes('id="legal-caveats"'));
 });
+
+test('Results View: router builds get router flashing steps and no desktop add-on panel', () => {
+  const criteria = { experienceLevel: 'beginner' as const, useCase: 'community-network' as const, platform: 'router-firewall' as const, formFactor: 'low-power' as const, footprint: 'minimal' as const, prefersGui: false };
+  const state: AppState = {
+    criteria,
+    answeredQuestionIds: new Set(['user_familiarity', 'beginner_goal', 'beginner_device']),
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const evaluation = evaluateCriteria(criteria);
+  assert.equal(evaluation.bestMatch.distro.id, 'libremesh');
+  const html = renderResultsView(evaluation, state);
+  assert.ok(html.includes('own web interface (or with sysupgrade'));
+  assert.ok(!html.includes('Raspberry Pi Imager'));
+  assert.ok(!html.includes('Add-On Applications & Turnkey Services'));
+  assert.ok(html.includes('Low-Power Hardware'));
+
+  // Desktops keep the add-on panel and the generic flashing steps
+  const desktop = { useCase: 'desktop' as const, platform: 'bare-metal' as const };
+  const desktopHtml = renderResultsView(evaluateCriteria(desktop), { ...state, criteria: desktop });
+  assert.ok(desktopHtml.includes('Add-On Applications & Turnkey Services'));
+});
