@@ -89,8 +89,10 @@ export function generateGentooRecipe(criteria: UserCriteria): GeneratedRecipe {
     : isMusl
       ? 'gentoo/stage3:musl'
       : 'gentoo/stage3:latest';
+  const ptyFallback =
+    'python3 -c "import os,termios; m,s=os.openpty(); termios.tcgetattr(s)" 2>/dev/null || sed -i "s/_disable_openpty = .*/_disable_openpty = True/" /usr/lib/python*/site-packages/portage/util/_pty.py';
   const dockerInstallCmd =
-    'emerge --sync --quiet && emerge --getbinpkg --usepkg sys-devel/make sys-fs/squashfs-tools dev-libs/libisoburn sys-boot/grub';
+    `${ptyFallback} && emerge-webrsync && emerge --getbinpkg --usepkg dev-build/make sys-fs/squashfs-tools dev-libs/libisoburn sys-fs/mtools sys-boot/grub`;
 
   const makeConfContent = `# DistroTailor Portage configuration (${arch} | ${isMusl ? 'musl' : 'glibc'} | ${useSystemd ? 'systemd' : 'OpenRC'})
 COMMON_FLAGS="-O2 -pipe"
@@ -121,10 +123,14 @@ DOCKER_APP  ?= ${dockerApp}
 all: iso
 
 rootfs:
-\t@mkdir -p $(ROOTFS_DIR)/etc/portage $(OUTPUT_DIR)
+\t@mkdir -p $(ROOTFS_DIR)/etc/portage/package.use $(ROOTFS_DIR)/usr/share/openpgp-keys $(OUTPUT_DIR)
+\t@cp -r /etc/portage/gnupg $(ROOTFS_DIR)/etc/portage/ 2>/dev/null || true
+\t@cp -r /usr/share/openpgp-keys/. $(ROOTFS_DIR)/usr/share/openpgp-keys/ 2>/dev/null || true
 \t@cp make.conf $(ROOTFS_DIR)/etc/portage/make.conf
+\t@printf 'sys-kernel/installkernel dracut\\nnet-firewall/nftables json\\nnet-wireless/wpa_supplicant dbus\\n' > $(ROOTFS_DIR)/etc/portage/package.use/distrotailor
+\t@mkdir -p /etc/portage/package.use && cp $(ROOTFS_DIR)/etc/portage/package.use/distrotailor /etc/portage/package.use/distrotailor 2>/dev/null || true
 \t@echo "[+] Emerge binary/source packages into $(ROOTFS_DIR)..."
-\temerge --root=$(abspath $(ROOTFS_DIR)) --sysroot=$(abspath $(ROOTFS_DIR)) --getbinpkg --usepkg --oneshot ${extraAtoms}
+\tenv -u BUILD_DIR emerge --root=$(abspath $(ROOTFS_DIR)) --sysroot=$(abspath $(ROOTFS_DIR)) --getbinpkg --usepkg --oneshot ${extraAtoms}
 
 configure: rootfs
 \t@echo "[+] Configuring hostname, user, and ${useSystemd ? 'systemd' : 'OpenRC'} services..."
