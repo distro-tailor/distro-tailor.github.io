@@ -79,6 +79,28 @@ export const RECIPE_CAPABILITIES: Readonly<Record<RecipeGeneratorId, readonly Re
     'virtHost',
     'devicePassthrough'
   ],
+  'arch-pacstrap': [
+    'fileSystem',
+    'kernelFlavor',
+    'bootloader',
+    'networkingStack',
+    'firmwareMode',
+    'secureBoot',
+    'tpmUsage',
+    'virtHost',
+    'devicePassthrough'
+  ],
+  'gentoo-portage': [
+    'fileSystem',
+    'kernelFlavor',
+    'bootloader',
+    'networkingStack',
+    'firmwareMode',
+    'secureBoot',
+    'tpmUsage',
+    'virtHost',
+    'devicePassthrough'
+  ],
   'nixos-flake': [
     'fileSystem',
     'kernelFlavor',

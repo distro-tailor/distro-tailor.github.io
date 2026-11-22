@@ -72,8 +72,18 @@ export const RECIPE_SELECTION_RULES: readonly RecipeSelectionRule[] = [
     recipe: () => 'void-xbps'
   },
   {
-    description: 'Explicit customizations fall back to a Debian debootstrap build (Arch has no Debian base)',
-    when: (c, best) => hasExplicitRecipeModifiers(c) && best.id !== 'arch',
+    description: 'Explicit customizations on Arch Linux fall back to an Arch pacstrap build',
+    when: (c, best) => hasExplicitRecipeModifiers(c) && best.packageManager === 'pacman',
+    recipe: () => 'arch-pacstrap'
+  },
+  {
+    description: 'Explicit customizations on Gentoo Linux fall back to a Gentoo Portage build',
+    when: (c, best) => hasExplicitRecipeModifiers(c) && (best.packageManager?.includes('portage') || false),
+    recipe: () => 'gentoo-portage'
+  },
+  {
+    description: 'Explicit customizations fall back to a Debian debootstrap build',
+    when: (c) => hasExplicitRecipeModifiers(c),
     recipe: () => 'debootstrap-debian'
   }
 ];

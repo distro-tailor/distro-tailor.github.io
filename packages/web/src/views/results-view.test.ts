@@ -57,10 +57,10 @@ test('Results View: Arch Linux result does NOT display a Debian Debootstrap reci
   assert.equal(evaluation.bestMatch.distro.id, 'arch');
   const html = renderResultsView(evaluation, dummyState);
 
-  // Must NOT contain Debian Debootstrap recipe or DIY tab!
+  // Must NOT contain Debian Debootstrap recipe!
   assert.equal(html.includes('Custom Minimal Debian Appliance (Debootstrap)'), false);
   assert.equal(html.includes('debootstrap-debian'), false);
-  assert.equal(html.includes('id="tab-results-diy"'), false);
+  assert.ok(html.includes('id="tab-results-diy"'));
 
   // Must include Arch quickstart
   assert.ok(html.includes('archinstall'));

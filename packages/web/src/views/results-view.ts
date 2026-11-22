@@ -60,7 +60,6 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
 
   const hasPrebuiltOption = !!best.distro.prebuiltImage;
   const isNativeOnlyDistro =
-    best.distro.id === 'arch' ||
     best.distro.id === 'yocto' ||
     best.distro.id === 'zephyr' ||
     (!!best.distro.osFamily && best.distro.osFamily !== 'linux');

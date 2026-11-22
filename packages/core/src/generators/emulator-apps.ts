@@ -1,4 +1,5 @@
 import { CpuArchitecture, EmulatorAppId, UserCriteria } from '../types.js';
+import { FLATPAK_INSTALL_SNIPPET, PKG_MGR_DETECT_SCRIPT } from './pkg-manager-shell.js';
 
 export interface EmulatorAppDefinition {
   id: EmulatorAppId;
@@ -341,18 +342,7 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
-# Detect host package manager (supports Debian/Ubuntu, Alpine, Fedora, Arch)
-if command -v apk >/dev/null 2>&1; then
-  PKG_MGR="apk"
-elif command -v apt-get >/dev/null 2>&1; then
-  PKG_MGR="apt"
-elif command -v dnf >/dev/null 2>&1; then
-  PKG_MGR="dnf"
-elif command -v pacman >/dev/null 2>&1; then
-  PKG_MGR="pacman"
-else
-  PKG_MGR="unknown"
-fi
+${PKG_MGR_DETECT_SCRIPT}
 
 echo "===================================================================="
 echo " DistroTailor: Installing ${selectedApps.length} Retro Emulator(s)"
@@ -394,6 +384,15 @@ ${apkList.length > 0 ? `  apk update
 elif [ "$PKG_MGR" = "dnf" ]; then
   dnf install -y \\
     ${Array.from(new Set(aptList)).join(' \\\n    ')}
+elif [ "$PKG_MGR" = "zypper" ]; then
+  zypper --non-interactive install \\
+    ${Array.from(new Set(aptList)).join(' \\\n    ')}
+elif [ "$PKG_MGR" = "xbps" ]; then
+  xbps-install -Sy \\
+    ${Array.from(new Set(aptList)).join(' \\\n    ')}
+elif [ "$PKG_MGR" = "pacman" ]; then
+  pacman -S --noconfirm --needed \\
+    ${Array.from(new Set(aptList)).join(' \\\n    ')}
 fi
 echo "[✓] Native packages installed successfully."
 `
@@ -404,15 +403,7 @@ ${
   flatpakList.length > 0
     ? `
 echo "[+] Step 3: Preparing Flatpak universal desktop sandbox..."
-if ! command -v flatpak >/dev/null 2>&1; then
-  if [ "$PKG_MGR" = "apt" ]; then
-    apt-get update -y && apt-get install -y --no-install-recommends flatpak
-  elif [ "$PKG_MGR" = "apk" ]; then
-    apk update && apk add --no-cache flatpak
-  elif [ "$PKG_MGR" = "dnf" ]; then
-    dnf install -y flatpak
-  fi
-fi
+${FLATPAK_INSTALL_SNIPPET}
 
 # Ensure Flathub repository is registered
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo

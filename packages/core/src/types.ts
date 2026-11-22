@@ -219,6 +219,8 @@ export type RecipeGeneratorId =
   | 'fedora-dnf'
   | 'opensuse-zypper'
   | 'void-xbps'
+  | 'arch-pacstrap'
+  | 'gentoo-portage'
   | 'alpine-chroot'
   | 'buildroot-embedded'
   | 'kiosk-web'

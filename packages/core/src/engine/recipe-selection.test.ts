@@ -33,6 +33,7 @@ test('Recipe Selection: explicit customizations pick Alpine for Alpine-based dis
   assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('rocky-linux')), 'fedora-dnf');
   assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('opensuse-tumbleweed')), 'opensuse-zypper');
   assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('void-linux')), 'void-xbps');
-  assert.equal(selectRecipeGenerator({ enableNix: true }, distro('arch')), undefined);
+  assert.equal(selectRecipeGenerator({ enableNix: true }, distro('arch')), 'arch-pacstrap');
+  assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('gentoo')), 'gentoo-portage');
   assert.equal(selectRecipeGenerator({ useCase: 'desktop' }, distro('linux-mint')), undefined);
 });

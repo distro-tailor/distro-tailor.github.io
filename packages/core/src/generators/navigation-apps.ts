@@ -180,8 +180,20 @@ elif command -v apk >/dev/null 2>&1; then
   echo "[+] Step 2: Installing native packages via APK (Alpine)..."
   apk update
   apk add curl jq udev ${allApk.join(' ')}
+elif command -v dnf >/dev/null 2>&1; then
+  echo "[+] Step 2: Installing native packages via DNF (Fedora/RHEL)..."
+  dnf install -y curl jq systemd-udev ${allApt.join(' ')}
+elif command -v zypper >/dev/null 2>&1; then
+  echo "[+] Step 2: Installing native packages via Zypper (openSUSE)..."
+  zypper --non-interactive install curl jq udev ${allApt.join(' ')}
+elif command -v xbps-install >/dev/null 2>&1; then
+  echo "[+] Step 2: Installing native packages via XBPS (Void Linux)..."
+  xbps-install -Sy curl jq eudev ${allApt.join(' ')}
+elif command -v pacman >/dev/null 2>&1; then
+  echo "[+] Step 2: Installing native packages via Pacman (Arch Linux)..."
+  pacman -S --noconfirm --needed curl jq systemd ${allApt.join(' ')}
 else
-  echo "[!] Notice: Neither APT nor APK found. Ensure native packages are cross-compiled via Buildroot."
+  echo "[!] Notice: No supported package manager found. Ensure native packages are cross-compiled via Buildroot."
 fi
 
 ${

@@ -756,3 +756,31 @@ test('Recipe Generator void-xbps: bootstraps Void Linux rootfs with XBPS, runit,
   assert.match(makefile, /void-musl:latest/);
   assert.ok(voidMusl.files.some((f) => f.filename === 'docker-compose.yml'));
 });
+
+test('Recipe Generator arch-pacstrap: bootstraps Arch Linux rootfs with pacstrap, hardened kernel, and Docker build support', () => {
+  const archRecipe = resolveRecipeGenerator('arch-pacstrap', {
+    architecture: 'x86_64',
+    kernelFlavor: 'hardened',
+    fileSystem: 'btrfs',
+    dockerApps: ['pihole']
+  });
+  const makefile = archRecipe.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(makefile, /pacstrap -K/);
+  assert.match(makefile, /linux-hardened/);
+  assert.match(makefile, /archlinux:latest/);
+  assert.ok(archRecipe.files.some((f) => f.filename === 'docker-compose.yml'));
+});
+
+test('Recipe Generator gentoo-portage: generates Portage make.conf, OpenRC/systemd emerge Makefile, and Docker build support', () => {
+  const gentooRecipe = resolveRecipeGenerator('gentoo-portage', {
+    architecture: 'x86_64',
+    initPreference: 'openrc',
+    dockerApps: ['pihole']
+  });
+  const makefile = gentooRecipe.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  const makeConf = gentooRecipe.files.find((f) => f.filename === 'make.conf')?.content ?? '';
+  assert.match(makefile, /emerge --root=/);
+  assert.match(makefile, /gentoo\/stage3:latest/);
+  assert.match(makeConf, /-systemd openrc/);
+  assert.ok(gentooRecipe.files.some((f) => f.filename === 'docker-compose.yml'));
+});
