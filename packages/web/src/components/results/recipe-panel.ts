@@ -17,11 +17,11 @@ export function renderRecipePanel(ctx: ResultsViewContext): string {
               <span class="text-xl sm:text-2xl p-1.5 sm:p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 shrink-0">🛠️</span>
               <div class="min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h3 class="text-sm sm:text-base font-bold text-slate-100 break-words">${recipe.title}</h3>
+                  <h3 class="text-sm sm:text-base font-bold text-slate-100 break-words">Custom Build Recipe (Makefile)</h3>
                   <span class="px-2 py-0.5 rounded text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">Custom Build Recipe</span>
                 </div>
                 <p class="text-xs text-slate-400 mt-0.5 break-words">
-                  Compile a tailored, minimal ${best.distro.name} appliance image from source (~${recipe.estimatedBuildTimeMinutes} min build).
+                  ${escapeHtml(recipe.title)} (~${recipe.estimatedBuildTimeMinutes} min build)
                 </p>
               </div>
             </div>
@@ -33,11 +33,14 @@ export function renderRecipePanel(ctx: ResultsViewContext): string {
               <p class="text-xs text-slate-400 break-words">${recipe.summary}</p>
               
               <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap min-w-0 max-w-full sm:shrink-0">
+                <button id="btn-download-recipe-bundle" class="flex-auto sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Download a ready-to-run shell script that extracts all recipe files">
+                  <span>⬇️</span> Download All (.sh)
+                </button>
                 <button id="btn-share-recipe" class="flex-auto sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Share this build recipe permalink">
                   <span>🔗</span> Share
                 </button>
-                <button id="btn-copy-recipe" class="flex-auto sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
-                  <span>📋</span> Copy File
+                <button id="btn-copy-recipe" class="flex-auto sm:flex-none justify-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-emerald-400 border border-slate-700 hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="Copy currently selected file tab">
+                  <span>📋</span> Copy Tab
                 </button>
               </div>
             </div>
@@ -90,9 +93,12 @@ ${
             </div>
 
             <!-- Quickstart Snippet -->
-            <div class="mt-4 p-3 bg-slate-950 rounded-lg border border-slate-800/80 overflow-hidden min-w-0 max-w-full">
-              <span class="text-xs text-slate-500 uppercase tracking-wider block mb-1 font-semibold">Quickstart Commands:</span>
-              <pre class="text-xs font-mono text-emerald-400 overflow-x-auto p-1 max-w-full whitespace-pre"><code>${recipe.quickstartCommands.join('\n')}</code></pre>
+            <div data-copy-box class="mt-4 p-3 bg-slate-950 rounded-lg border border-slate-800/80 overflow-hidden min-w-0 max-w-full">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Quickstart Commands:</span>
+                <button type="button" class="btn-copy-command px-2 py-0.5 rounded text-[10px] font-sans font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition-colors cursor-pointer shrink-0">📋 Copy</button>
+              </div>
+              <pre class="text-xs font-mono text-emerald-400 overflow-x-auto p-1 max-w-full whitespace-pre"><code>${escapeHtml(recipe.quickstartCommands.join('\n'))}</code></pre>
             </div>
           </div>
         </details>

@@ -109,6 +109,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'endless-os',
     name: 'Endless OS',
+    basedOn: 'Debian',
     tagline: 'The ultimate kid-friendly, educational operating system for school, coding, and family learning',
     description:
       'A simple, iPad-like operating system designed for children, students, and families. Features an immutable, kid-proof root filesystem that cannot be accidentally broken, built-in parental controls, and hundreds of preloaded educational apps (Scratch coding, Khan Academy, Wikipedia, GCompris math & science games, and LibreOffice) that work both online and completely offline without internet.',

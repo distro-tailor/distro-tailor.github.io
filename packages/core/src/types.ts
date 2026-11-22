@@ -170,6 +170,8 @@ export interface DistroProfile {
   name: string;
   osFamily?: OsFamily;
   kernelModel?: KernelModel;
+  /** Upstream base distribution when derived (e.g. 'Debian', 'Ubuntu', 'Fedora'). */
+  basedOn?: string;
   tagline: string;
   description: string;
   website: string;

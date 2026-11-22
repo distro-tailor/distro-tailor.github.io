@@ -1,4 +1,5 @@
 import { ResultsViewContext } from './context.js';
+import { escapeHtml } from '../../utils/dom.js';
 import { formatOsEcosystem } from '../../utils/formatters.js';
 
 /** Top match hero card with technical attributes, strengths, and tradeoffs. */
@@ -19,6 +20,11 @@ export function renderWinnerBanner(ctx: ResultsViewContext): string {
                 <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-slate-300 border border-slate-700 shrink-0">
                   ${formatOsEcosystem(best.distro)}
                 </span>
+                ${
+                  best.distro.basedOn
+                    ? `<span class="px-2 py-0.5 rounded text-[11px] font-mono bg-indigo-950/60 text-indigo-300 border border-indigo-700/50 shrink-0">Based on ${escapeHtml(best.distro.basedOn)}</span>`
+                    : ''
+                }
               </div>
               <p class="text-xs sm:text-sm text-emerald-300 font-medium mt-1 break-words">${best.distro.tagline}</p>
             </div>

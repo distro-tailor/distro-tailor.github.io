@@ -15,44 +15,47 @@ export function renderVerificationLadder(ctx: ResultsViewContext): string {
     (f) => f.filename === 'Makefile' && /^docker-build:/m.test(f.content)
   );
 
+  const defaultIsoFilename = `${best.distro.id}.iso`;
   const tier1Title = recipe ? 'Tier 1: Build & Verify' : 'Tier 1: Verify Download';
   const tier1Desc = recipe
     ? hasDockerBuild
       ? 'Build the tailored image reproducibly on macOS, Windows, or Linux with zero changes to your host OS.'
       : `Generate and validate the ${escapeHtml(recipe.title)} artifacts locally before deploying.`
     : `Verify the official ${escapeHtml(best.distro.name)} image checksum before flashing or booting.`;
-  const tier1Cmd = recipe
-    ? hasDockerBuild
-      ? 'make docker-build   # macOS / Windows / cross-arch\nsudo make           # Native Linux host'
-      : recipe.quickstartCommands[0] || 'make'
-    : 'shasum -a 256 <downloaded-image>';
+  const tier1CmdHtml = recipe
+    ? escapeHtml(
+        hasDockerBuild
+          ? 'make docker-build   # macOS / Windows / cross-arch\nsudo make           # Native Linux host'
+          : recipe.quickstartCommands[0] || 'make'
+      )
+    : `shasum -a 256 <span data-iso-filename>${escapeHtml(defaultIsoFilename)}</span>`;
 
   const tier2Label = isContainer ? 'Container / RootFS Test' : 'QEMU VM Test (Optional)';
-  const isoPath = recipe ? 'output/*.iso' : '<downloaded-image>.iso';
-  let tier2Cmd = `qemu-system-x86_64 -cdrom ${isoPath} -m 2048 -enable-kvm`;
+  const isoPathHtml = recipe ? 'output/*.iso' : `<span data-iso-filename>${escapeHtml(defaultIsoFilename)}</span>`;
+  let tier2CmdHtml = `qemu-system-x86_64 -cdrom ${isoPathHtml} -m 2048 -enable-kvm`;
   let tier2Note = 'macOS Intel: -accel hvf | Apple Silicon: omit -enable-kvm (or use VirtualBox / UTM)';
   if (isArm64 && !isVm && !isWsl && !isContainer) {
-    tier2Cmd =
-      `qemu-system-aarch64 -M virt -accel hvf -cpu host -m 2048 \\\n  -bios "$(brew --prefix qemu)/share/qemu/edk2-aarch64-code.fd" \\\n  -cdrom ${isoPath} -device virtio-gpu-pci -display cocoa`;
+    tier2CmdHtml =
+      `qemu-system-aarch64 -M virt -accel hvf -cpu host -m 2048 \\\n  -bios "$(brew --prefix qemu)/share/qemu/edk2-aarch64-code.fd" \\\n  -cdrom ${isoPathHtml} -device virtio-gpu-pci -display cocoa`;
     tier2Note = 'Linux host: omit -accel hvf, use -cpu cortex-a57 and AAVMF_CODE.fd';
   } else if (isVm) {
-    tier2Cmd = 'make test-qemu\nssh -p 2222 tailor@localhost';
+    tier2CmdHtml = escapeHtml('make test-qemu\nssh -p 2222 tailor@localhost');
     tier2Note = 'Boots the generated QCOW2 disk locally with SSH forwarded to port 2222';
   } else if (isWsl) {
-    tier2Cmd = 'wsl --import TailoredLinux C:\\WSL\\Tailored output\\*.tar.gz\nwsl -d TailoredLinux';
+    tier2CmdHtml = escapeHtml('wsl --import TailoredLinux C:\\WSL\\Tailored output\\*.tar.gz\nwsl -d TailoredLinux');
     tier2Note = 'Runs inside Windows Subsystem for Linux 2 with zero disk partitioning';
   } else if (recipe?.targetFormat === 'tarball') {
-    tier2Cmd = 'tar -tzf output/*.tar.gz | head -n 20\ndocker import output/*.tar.gz tailored-test && docker run --rm -it tailored-test /bin/sh';
+    tier2CmdHtml = escapeHtml('tar -tzf output/*.tar.gz | head -n 20\ndocker import output/*.tar.gz tailored-test && docker run --rm -it tailored-test /bin/sh');
     tier2Note = 'Inspect or boot the rootfs tarball inside a throwaway container';
   } else if (isContainer) {
-    tier2Cmd = recipe?.quickstartCommands[0] || 'docker build -t tailored-app . && docker run --rm -it tailored-app';
+    tier2CmdHtml = escapeHtml(recipe?.quickstartCommands[0] || 'docker build -t tailored-app . && docker run --rm -it tailored-app');
     tier2Note = 'Runs the generated container image in complete isolation';
   }
 
   let tier3Title = 'Tier 3: Bare-Metal Live USB';
   let tier3Desc = 'Flash the bootable ISO to a USB drive and test Wi-Fi, GPU, and audio on real hardware without touching your internal drive.';
   let tier3Steps = [
-    '1. Flash via <strong>balenaEtcher</strong> or <strong>Rufus</strong>',
+    '1. Flash via <strong>balenaEtcher</strong> (Win/Mac/Linux) or <strong>Rufus</strong> (Windows)',
     '2. Boot: Tap <strong>F12</strong> (Dell/Lenovo), <strong>Del/F8</strong> (Asus), or <strong>Option ⌥</strong> (Mac)'
   ];
   let tier3Badge = 'UEFI USB Boot';
@@ -114,9 +117,29 @@ export function renderVerificationLadder(ctx: ResultsViewContext): string {
                 <p class="text-xs text-slate-400 mb-3 leading-relaxed break-words">
                   ${tier1Desc}
                 </p>
-                <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 overflow-x-auto min-w-0 max-w-full">
-                  <span class="text-slate-500 uppercase tracking-wider block mb-1 text-[10px] font-semibold">Command:</span>
-                  <pre class="text-sky-300 block text-[10px] overflow-x-auto p-0.5 max-w-full whitespace-pre font-mono"><code>${escapeHtml(tier1Cmd)}</code></pre>
+                ${
+                  !recipe
+                    ? `
+                  <div class="mb-2.5">
+                    <label for="input-prebuilt-filename" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Downloaded Filename:</label>
+                    <input
+                      id="input-prebuilt-filename"
+                      type="text"
+                      value="${escapeHtml(defaultIsoFilename)}"
+                      data-default-filename="${escapeHtml(defaultIsoFilename)}"
+                      placeholder="${escapeHtml(defaultIsoFilename)}"
+                      class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-400"
+                    />
+                  </div>
+                `
+                    : ''
+                }
+                <div data-copy-box class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 overflow-x-auto min-w-0 max-w-full">
+                  <div class="flex items-center justify-between gap-2 mb-1">
+                    <span class="text-slate-500 uppercase tracking-wider text-[10px] font-semibold">Command:</span>
+                    <button type="button" class="btn-copy-command px-1.5 py-0.5 rounded text-[10px] font-sans font-semibold bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 transition-colors cursor-pointer shrink-0">📋 Copy</button>
+                  </div>
+                  <pre class="text-sky-300 block text-[10px] overflow-x-auto p-0.5 max-w-full whitespace-pre font-mono"><code>${tier1CmdHtml}</code></pre>
                 </div>
               </div>
               <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
@@ -135,9 +158,12 @@ export function renderVerificationLadder(ctx: ResultsViewContext): string {
                 <p class="text-xs text-slate-400 mb-3 leading-relaxed break-words">
                   ${isContainer || isVm || isWsl ? 'Simulate boot, networking, and login credentials in isolation before touching target storage.' : 'Optional: test-boot in a VM (QEMU, VirtualBox, or UTM) before touching target storage, or skip straight to Tier 3.'}
                 </p>
-                <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 space-y-1.5 overflow-x-auto min-w-0 max-w-full">
-                  <span class="text-slate-500 uppercase tracking-wider block text-[10px] font-semibold">${tier2Label}:</span>
-                  <pre class="text-emerald-400 block text-[10px] overflow-x-auto p-0.5 max-w-full whitespace-pre font-mono"><code>${escapeHtml(tier2Cmd)}</code></pre>
+                <div data-copy-box class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 space-y-1.5 overflow-x-auto min-w-0 max-w-full">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-slate-500 uppercase tracking-wider text-[10px] font-semibold">${tier2Label}:</span>
+                    <button type="button" class="btn-copy-command px-1.5 py-0.5 rounded text-[10px] font-sans font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition-colors cursor-pointer shrink-0">📋 Copy</button>
+                  </div>
+                  <pre class="text-emerald-400 block text-[10px] overflow-x-auto p-0.5 max-w-full whitespace-pre font-mono"><code>${tier2CmdHtml}</code></pre>
                   <span class="text-slate-500 block text-[10px] break-words">${escapeHtml(tier2Note)}</span>
                 </div>
               </div>

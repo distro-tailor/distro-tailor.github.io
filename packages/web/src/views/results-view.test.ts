@@ -358,7 +358,49 @@ test('Results View: Offline GPS & Navigation suite only renders for navigation/a
   const recipeIdx = desktopHtml.indexOf('Custom Build Recipe');
   assert.ok(h2hIdx < appsIdx && appsIdx < layersIdx && layersIdx < recipeIdx);
 
-  // Prebuilt desktop match must reference <downloaded-image>.iso, not output/*.iso
-  assert.ok(desktopHtml.includes('&lt;downloaded-image&gt;.iso'));
+  // Prebuilt desktop match binds live filename input to Tier 1 & Tier 2 commands, not output/*.iso
+  assert.ok(desktopHtml.includes('id="input-prebuilt-filename"'));
+  assert.ok(desktopHtml.includes('data-iso-filename'));
   assert.ok(!desktopHtml.includes('output/*.iso'));
+  assert.equal((desktopHtml.match(/class="btn-copy-command/g) || []).length, 2);
+});
+
+test('Results View: recipe panel keeps "Custom Build Recipe (Makefile)" header and puts dynamic title in subheader', () => {
+  const state: AppState = {
+    criteria: { useCase: 'desktop', dockerApps: ['pihole'] },
+    answeredQuestionIds: new Set(),
+    panelOpen: {},
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const evaluation = evaluateCriteria(state.criteria);
+  assert.ok(evaluation.recommendedRecipe);
+  const html = renderResultsView(evaluation, state);
+  assert.match(html, /<h3[^>]*>Custom Build Recipe \(Makefile\)<\/h3>/);
+  assert.match(html, new RegExp(`<p[^>]*>\\s*${evaluation.recommendedRecipe.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+  assert.ok(html.includes('id="btn-download-recipe-bundle"'));
+});
+
+test('Results View: winner banner displays Debian base badge for Endless OS', () => {
+  const state: AppState = {
+    criteria: { useCase: 'education-kids', architecture: 'x86_64', platform: 'bare-metal', prefersGui: true },
+    answeredQuestionIds: new Set(),
+    panelOpen: {},
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const evaluation = evaluateCriteria(state.criteria);
+  assert.equal(evaluation.bestMatch.distro.id, 'endless-os');
+  const html = renderResultsView(evaluation, state);
+  assert.ok(html.includes('Based on Debian'));
 });

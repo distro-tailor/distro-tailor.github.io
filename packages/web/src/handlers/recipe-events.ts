@@ -13,11 +13,49 @@ import { getAddonCombos } from '../components/app-suites.js';
 import { router } from '../state/router.js';
 import { store } from '../state/store.js';
 import { copyToClipboard, showToast } from '../utils/dom.js';
+import { generateRecipeBundleScript } from '../utils/recipe-bundle.js';
 import { HandlerContext } from './context.js';
 
 /** Recipe file tabs, add-on layers (Distrobox, Nix, Flatpak, desktop env, apps, Docker), combos, and copy buttons. */
 export function bindRecipeEvents(ctx: HandlerContext): void {
   const { evaluation } = ctx;
+
+  // Live filename sync for Prebuilt Verification Ladder commands
+  const prebuiltInput = document.getElementById('input-prebuilt-filename') as HTMLInputElement | null;
+  prebuiltInput?.addEventListener('input', () => {
+    const fallback = prebuiltInput.getAttribute('data-default-filename') || 'distro.iso';
+    const nextName = prebuiltInput.value.trim() || fallback;
+    document.querySelectorAll<HTMLElement>('[data-iso-filename]').forEach((el) => {
+      el.textContent = nextName;
+    });
+  });
+
+  // Download All Recipe Files as a ready-to-run .sh bundle
+  document.getElementById('btn-download-recipe-bundle')?.addEventListener('click', () => {
+    const recipe = evaluation.recommendedRecipe;
+    if (!recipe) return;
+    const script = generateRecipeBundleScript(recipe);
+    const blob = new Blob([script], { type: 'text/x-shellscript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${recipe.id}-bundle.sh`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast(`Downloaded ${recipe.id}-bundle.sh (${recipe.files.length} files). Run: bash ${recipe.id}-bundle.sh`, '⬇️');
+  });
+
+  // Copy buttons inside Verification Ladder command boxes
+  document.querySelectorAll<HTMLButtonElement>('.btn-copy-command').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const cmd = btn.closest('[data-copy-box]')?.querySelector('code')?.textContent?.trim();
+      if (cmd) {
+        copyToClipboard(cmd, 'Command copied to clipboard!', '📋');
+      }
+    });
+  });
 
   // Recipe Tabs
   document.querySelectorAll<HTMLButtonElement>('.recipe-tab').forEach((tab) => {
