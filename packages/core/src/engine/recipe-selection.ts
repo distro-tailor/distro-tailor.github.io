@@ -62,6 +62,11 @@ export const RECIPE_SELECTION_RULES: readonly RecipeSelectionRule[] = [
     recipe: () => 'fedora-dnf'
   },
   {
+    description: 'Explicit customizations on openSUSE distros fall back to an openSUSE Zypper build',
+    when: (c, best) => hasExplicitRecipeModifiers(c) && best.packageManager === 'zypper',
+    recipe: () => 'opensuse-zypper'
+  },
+  {
     description: 'Explicit customizations fall back to a Debian debootstrap build (Arch has no Debian base)',
     when: (c, best) => hasExplicitRecipeModifiers(c) && best.id !== 'arch',
     recipe: () => 'debootstrap-debian'

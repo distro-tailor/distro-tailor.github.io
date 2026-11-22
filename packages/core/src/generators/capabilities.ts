@@ -56,6 +56,18 @@ export const RECIPE_CAPABILITIES: Readonly<Record<RecipeGeneratorId, readonly Re
     'virtHost',
     'devicePassthrough'
   ],
+  'opensuse-zypper': [
+    'fileSystem',
+    'kernelFlavor',
+    'bootloader',
+    'securityProfile',
+    'networkingStack',
+    'firmwareMode',
+    'secureBoot',
+    'tpmUsage',
+    'virtHost',
+    'devicePassthrough'
+  ],
   'nixos-flake': [
     'fileSystem',
     'kernelFlavor',

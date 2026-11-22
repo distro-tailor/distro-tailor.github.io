@@ -729,3 +729,16 @@ test('Recipe Generator fedora-dnf: bootstraps Fedora RPM rootfs with DNF, SELinu
   assert.match(makefile, /fedora:41/);
   assert.ok(fed.files.some((f) => f.filename === 'docker-compose.yml'));
 });
+
+test('Recipe Generator opensuse-zypper: bootstraps openSUSE Tumbleweed rootfs with Zypper, Snapper, and Docker build support', () => {
+  const suse = resolveRecipeGenerator('opensuse-zypper', {
+    architecture: 'x86_64',
+    fileSystem: 'btrfs',
+    dockerApps: ['pihole']
+  });
+  const makefile = suse.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(makefile, /zypper --root/);
+  assert.match(makefile, /btrfsprogs snapper/);
+  assert.match(makefile, /opensuse\/tumbleweed:latest/);
+  assert.ok(suse.files.some((f) => f.filename === 'docker-compose.yml'));
+});
