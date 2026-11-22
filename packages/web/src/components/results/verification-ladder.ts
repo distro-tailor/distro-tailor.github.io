@@ -27,12 +27,13 @@ export function renderVerificationLadder(ctx: ResultsViewContext): string {
       : recipe.quickstartCommands[0] || 'make'
     : 'shasum -a 256 <downloaded-image>';
 
-  const tier2Label = isContainer ? 'Container / RootFS Test' : 'QEMU VM Test';
-  let tier2Cmd = 'qemu-system-x86_64 -cdrom output/*.iso -m 2048 -enable-kvm';
-  let tier2Note = 'macOS Intel: -accel hvf | Apple Silicon: omit -enable-kvm';
+  const tier2Label = isContainer ? 'Container / RootFS Test' : 'QEMU VM Test (Optional)';
+  const isoPath = recipe ? 'output/*.iso' : '<downloaded-image>.iso';
+  let tier2Cmd = `qemu-system-x86_64 -cdrom ${isoPath} -m 2048 -enable-kvm`;
+  let tier2Note = 'macOS Intel: -accel hvf | Apple Silicon: omit -enable-kvm (or use VirtualBox / UTM)';
   if (isArm64 && !isVm && !isWsl && !isContainer) {
     tier2Cmd =
-      'qemu-system-aarch64 -M virt -accel hvf -cpu host -m 2048 \\\n  -bios "$(brew --prefix qemu)/share/qemu/edk2-aarch64-code.fd" \\\n  -cdrom output/*.iso -device virtio-gpu-pci -display cocoa';
+      `qemu-system-aarch64 -M virt -accel hvf -cpu host -m 2048 \\\n  -bios "$(brew --prefix qemu)/share/qemu/edk2-aarch64-code.fd" \\\n  -cdrom ${isoPath} -device virtio-gpu-pci -display cocoa`;
     tier2Note = 'Linux host: omit -accel hvf, use -cpu cortex-a57 and AAVMF_CODE.fd';
   } else if (isVm) {
     tier2Cmd = 'make test-qemu\nssh -p 2222 tailor@localhost';
@@ -132,7 +133,7 @@ export function renderVerificationLadder(ctx: ResultsViewContext): string {
                   <h4 class="text-sm font-bold text-emerald-400 break-words">Tier 2: Safe Sandbox</h4>
                 </div>
                 <p class="text-xs text-slate-400 mb-3 leading-relaxed break-words">
-                  Simulate boot, networking, and login credentials in isolation before touching target storage.
+                  ${isContainer || isVm || isWsl ? 'Simulate boot, networking, and login credentials in isolation before touching target storage.' : 'Optional: test-boot in a VM (QEMU, VirtualBox, or UTM) before touching target storage, or skip straight to Tier 3.'}
                 </p>
                 <div class="text-[11px] font-mono bg-slate-900 p-2.5 rounded border border-slate-800 text-slate-300 space-y-1.5 overflow-x-auto min-w-0 max-w-full">
                   <span class="text-slate-500 uppercase tracking-wider block text-[10px] font-semibold">${tier2Label}:</span>

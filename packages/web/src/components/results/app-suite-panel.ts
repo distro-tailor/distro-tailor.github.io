@@ -15,7 +15,7 @@ export function renderAppSuitePanel(ctx: ResultsViewContext): string {
             <span class="text-xl sm:text-2xl p-1.5 sm:p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 shrink-0">📦</span>
             <div class="min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="text-sm sm:text-base font-bold text-slate-100 break-words">Add-On Applications & Turnkey Services</h3>
+                <h3 class="text-sm sm:text-base font-bold text-slate-100 break-words">Add-On Applications & Services</h3>
                 <span class="px-2 py-0.5 rounded text-[10px] font-mono font-semibold ${hasSelectedApps ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700/60'}">
                   ${hasSelectedApps ? `${selectedAppsCount} Selected` : 'Optional'}
                 </span>

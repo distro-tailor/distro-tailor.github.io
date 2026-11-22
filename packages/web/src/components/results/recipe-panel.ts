@@ -1,3 +1,4 @@
+import { supportsAddOnApps } from '../../utils/context-detector.js';
 import { escapeHtml } from '../../utils/dom.js';
 import { panelAttributes } from '../panel.js';
 import { ResultsViewContext } from './context.js';
@@ -125,7 +126,11 @@ ${
             ${
               best.distro.id !== 'arch'
                 ? `<p class="text-slate-400">
-              Want a custom build <code class="px-1 py-0.5 rounded bg-slate-950 text-slate-300 font-mono">Makefile</code> anyway? Pick a 1-Click app in <strong>Panel 1</strong> or enable a package layer in <strong>Panel 3</strong> to generate a tailored image recipe.
+              Want a custom build <code class="px-1 py-0.5 rounded bg-slate-950 text-slate-300 font-mono">Makefile</code> anyway? ${
+                supportsAddOnApps(state.criteria)
+                  ? 'Select an app or Docker stack under <strong>Add-On Applications &amp; Services</strong>, or enable an overlay under <strong>Supplemental App Layers &amp; Runtimes</strong>, to generate a tailored image recipe.'
+                  : 'Enable an overlay under <strong>Supplemental App Layers &amp; Runtimes</strong> above to generate a tailored image recipe.'
+              }
             </p>`
                 : ''
             }

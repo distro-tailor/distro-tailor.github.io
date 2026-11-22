@@ -28,7 +28,7 @@ test('Results View: renders progressive disclosure accordions for advanced app l
   assert.ok(html.includes('Your Tailored Blueprint'));
 
   // Must render progressive disclosure accordions
-  assert.ok(html.includes('Add-On Applications & Turnkey Services'));
+  assert.ok(html.includes('Add-On Applications & Services'));
   assert.ok(html.includes('Head-to-Head Comparison'));
   assert.ok(html.includes('Supplemental App Layers & Runtimes'));
   assert.ok(html.includes('<details'));
@@ -259,13 +259,13 @@ test('Results View: router builds get router flashing steps and no desktop add-o
   const html = renderResultsView(evaluation, state);
   assert.ok(html.includes('own web interface (or with sysupgrade'));
   assert.ok(!html.includes('Raspberry Pi Imager'));
-  assert.ok(!html.includes('Add-On Applications & Turnkey Services'));
+  assert.ok(!html.includes('Add-On Applications & Services'));
   assert.ok(html.includes('Low-Power Hardware'));
 
   // Desktops keep the add-on panel and the generic flashing steps
   const desktop = { useCase: 'desktop' as const, platform: 'bare-metal' as const };
   const desktopHtml = renderResultsView(evaluateCriteria(desktop), { ...state, criteria: desktop });
-  assert.ok(desktopHtml.includes('Add-On Applications & Turnkey Services'));
+  assert.ok(desktopHtml.includes('Add-On Applications & Services'));
 });
 
 test('Results View: budget laptops get USB install steps plus the Chromebook routes', () => {
@@ -351,4 +351,14 @@ test('Results View: Offline GPS & Navigation suite only renders for navigation/a
   };
   const navHtml = renderResultsView(evaluateCriteria(navState.criteria), navState);
   assert.ok(navHtml.includes('Offline GPS & In-Car Navigation Suite'));
+
+  const h2hIdx = desktopHtml.indexOf('Head-to-Head Comparison');
+  const appsIdx = desktopHtml.indexOf('Add-On Applications & Services');
+  const layersIdx = desktopHtml.indexOf('Supplemental App Layers & Runtimes');
+  const recipeIdx = desktopHtml.indexOf('Custom Build Recipe');
+  assert.ok(h2hIdx < appsIdx && appsIdx < layersIdx && layersIdx < recipeIdx);
+
+  // Prebuilt desktop match must reference <downloaded-image>.iso, not output/*.iso
+  assert.ok(desktopHtml.includes('&lt;downloaded-image&gt;.iso'));
+  assert.ok(!desktopHtml.includes('output/*.iso'));
 });

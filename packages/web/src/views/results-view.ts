@@ -77,13 +77,13 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
 
       ${renderTurnkeyImageCard(ctx)}
 
+      ${renderHeadToHeadPanel(ctx)}
+
       <!-- ========================================================================= -->
       <!-- PROGRESSIVE DISCLOSURE: OPTIONAL / ADVANCED SYSTEM CUSTOMIZATION PANELS   -->
       <!-- ========================================================================= -->
 
       ${supportsAddOnApps(state.criteria) ? renderAppSuitePanel(ctx) : ''}
-
-      ${renderHeadToHeadPanel(ctx)}
 
       ${renderPackageLayersPanel(ctx)}
 
