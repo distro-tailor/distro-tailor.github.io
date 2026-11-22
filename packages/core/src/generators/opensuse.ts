@@ -83,7 +83,7 @@ export function generateOpenSuseRecipe(criteria: UserCriteria): GeneratedRecipe 
     .join(' ');
 
   const grubPkg = arch === 'aarch64' ? 'grub2-arm64-efi' : 'grub2-i386-pc grub2-x86_64-efi';
-  const dockerInstallCmd = `zypper --non-interactive install --no-recommends make squashfs xorriso ${grubPkg} dosfstools`;
+  const dockerInstallCmd = `zypper --non-interactive install --no-recommends make squashfs xorriso mtools ${grubPkg} dosfstools`;
   const repoUrl =
     arch === 'aarch64'
       ? 'https://download.opensuse.org/ports/aarch64/tumbleweed/repo/oss/'

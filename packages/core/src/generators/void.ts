@@ -97,7 +97,7 @@ export function generateVoidRecipe(criteria: UserCriteria): GeneratedRecipe {
   const grubPkg = arch.startsWith('aarch64')
     ? 'grub-arm64-efi'
     : 'grub-i386-efi grub-x86_64-efi grub';
-  const dockerInstallCmd = `xbps-install -Suy xbps && xbps-install -Sy make squashfs-tools xorriso ${grubPkg} dosfstools`;
+  const dockerInstallCmd = `rm -f /etc/xbps.d/noextract*.conf && xbps-install -Suy xbps && xbps-install -Syf ${isMusl ? '' : 'glibc '}make libgcc squashfs-tools xorriso mtools ${grubPkg} dosfstools`;
   const dockerImage = isMusl
     ? 'ghcr.io/void-linux/void-musl:latest'
     : 'ghcr.io/void-linux/void-glibc:latest';

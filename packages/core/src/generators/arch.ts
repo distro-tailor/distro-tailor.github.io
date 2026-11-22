@@ -90,7 +90,7 @@ export function generateArchRecipe(criteria: UserCriteria): GeneratedRecipe {
     .join(' ');
 
   const dockerInstallCmd =
-    'pacman -Syu --noconfirm arch-install-scripts make squashfs-tools xorriso grub dosfstools';
+    'sed -i "s/^#DisableSandbox/DisableSandbox/" /etc/pacman.conf && pacman -Syu --noconfirm arch-install-scripts make squashfs-tools xorriso mtools grub dosfstools';
 
   const iommuArg =
     criteria.devicePassthrough === 'gpu-vfio' || criteria.devicePassthrough === 'pci-devices'
