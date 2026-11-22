@@ -216,6 +216,7 @@ export interface DistroProfile {
 
 export type RecipeGeneratorId =
   | 'debootstrap-debian'
+  | 'fedora-dnf'
   | 'alpine-chroot'
   | 'buildroot-embedded'
   | 'kiosk-web'

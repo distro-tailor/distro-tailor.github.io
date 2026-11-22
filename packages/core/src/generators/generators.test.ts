@@ -714,3 +714,18 @@ test('media creative apps (handbrake, kdenlive, inkscape, krita, darktable, gthu
   assert.match(bootstrap, /org\.audacityteam\.Audacity/);
   assert.match(bootstrap, /org\.ardour\.Ardour/);
 });
+
+test('Recipe Generator fedora-dnf: bootstraps Fedora RPM rootfs with DNF, SELinux, and Docker build support', () => {
+  const fed = resolveRecipeGenerator('fedora-dnf', {
+    architecture: 'x86_64',
+    fileSystem: 'btrfs',
+    securityProfile: 'selinux',
+    dockerApps: ['pihole']
+  });
+  const makefile = fed.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(makefile, /dnf --installroot=/);
+  assert.match(makefile, /btrfs-progs/);
+  assert.match(makefile, /SELINUX=enforcing/);
+  assert.match(makefile, /fedora:41/);
+  assert.ok(fed.files.some((f) => f.filename === 'docker-compose.yml'));
+});

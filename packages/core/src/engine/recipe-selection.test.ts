@@ -28,6 +28,9 @@ test("Recipe Selection: falls back to the best match's own generator", () => {
 test('Recipe Selection: explicit customizations pick Alpine for Alpine-based distros and debootstrap otherwise, except for Arch', () => {
   assert.equal(selectRecipeGenerator({ enableNix: true }, distro('linux-mint')), 'debootstrap-debian');
   assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('postmarketos')), 'alpine-chroot');
+  assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('fedora')), 'fedora-dnf');
+  assert.equal(selectRecipeGenerator({ desktopApps: ['firefox'] }, distro('bazzite')), 'fedora-dnf');
+  assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('rocky-linux')), 'fedora-dnf');
   assert.equal(selectRecipeGenerator({ enableNix: true }, distro('arch')), undefined);
   assert.equal(selectRecipeGenerator({ useCase: 'desktop' }, distro('linux-mint')), undefined);
 });

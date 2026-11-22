@@ -55,6 +55,13 @@ export const RECIPE_SELECTION_RULES: readonly RecipeSelectionRule[] = [
     recipe: () => 'alpine-chroot'
   },
   {
+    description: 'Explicit customizations on Fedora/RHEL-based distros fall back to a Fedora DNF build',
+    when: (c, best) =>
+      hasExplicitRecipeModifiers(c) &&
+      (best.packageManager?.includes('dnf') || best.packageManager?.includes('rpm-ostree') || false),
+    recipe: () => 'fedora-dnf'
+  },
+  {
     description: 'Explicit customizations fall back to a Debian debootstrap build (Arch has no Debian base)',
     when: (c, best) => hasExplicitRecipeModifiers(c) && best.id !== 'arch',
     recipe: () => 'debootstrap-debian'
