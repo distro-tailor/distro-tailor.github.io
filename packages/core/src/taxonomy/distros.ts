@@ -1824,6 +1824,265 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
     prebuiltImage: {
       downloadUrl: 'https://www.kali.org/get-kali/'
     }
+  },
+  {
+    id: 'freebsd',
+    name: 'FreeBSD',
+    osFamily: 'bsd',
+    kernelModel: 'monolithic-bsd',
+    tagline: 'Unified BSD UNIX operating system famed for native OpenZFS storage, Jails, and networking',
+    description:
+      'A complete, cohesively engineered BSD operating system where the kernel and base userland are developed together. Known for first-class root-on-ZFS, lightweight Jails isolation, PF firewall, DTrace, and rock-solid server/NAS stability.',
+    website: 'https://www.freebsd.org',
+    documentationUrl: 'https://docs.freebsd.org',
+    logoEmoji: '😈',
+    platforms: ['bare-metal', 'vm', 'server', 'embedded-sbc'],
+    architectures: ['x86_64', 'arm64', 'riscv64'],
+    footprint: 'lean',
+    minRamMb: 512,
+    initSystems: ['bsd-rc'],
+    cLibraries: ['bsd-libc'],
+    stateModel: 'mutable',
+    experienceLevel: 'advanced',
+    primaryUseCases: ['server', 'nas-storage', 'router-networking'],
+    packageManager: 'pkg',
+    rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'BSD-2-Clause'
+    },
+    highlights: [
+      'Cohesive base system + kernel developed together (not a patchwork of third-party Linux packages)',
+      'First-class native OpenZFS root filesystem, boot environments, and lightweight Jails containers',
+      'Clean bsd-rc init system and high-throughput networking stack'
+    ],
+    tradeoffs: [
+      'Smaller hardware/Wi-Fi driver ecosystem than Linux on newer consumer laptops; some Linux-only binaries need compatibility layers'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.freebsd.org/where/'
+    }
+  },
+  {
+    id: 'openbsd',
+    name: 'OpenBSD',
+    osFamily: 'bsd',
+    kernelModel: 'monolithic-bsd',
+    tagline: 'Security-audited BSD operating system prioritizing code correctness, PF, and minimal attack surface',
+    description:
+      'A proactively security-focused BSD operating system produced by the creators of OpenSSH, LibreSSL, and the PF packet filter. Enforces W^X memory protection, pledge/unveil sandboxing, and zero closed-source binary blobs by default.',
+    website: 'https://www.openbsd.org',
+    documentationUrl: 'https://www.openbsd.org/faq/',
+    logoEmoji: '🐡',
+    platforms: ['bare-metal', 'vm', 'server'],
+    architectures: ['x86_64', 'arm64', 'riscv64'],
+    footprint: 'lean',
+    minRamMb: 256,
+    initSystems: ['bsd-rc'],
+    cLibraries: ['bsd-libc'],
+    stateModel: 'mutable',
+    experienceLevel: 'advanced',
+    primaryUseCases: ['router-networking', 'server'],
+    packageManager: 'pkg_add',
+    rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'ISC / BSD'
+    },
+    highlights: [
+      'Unmatched security track record with continuous source audits, pledge(), unveil(), and W^X',
+      'Built-in PF firewall, OpenSSH, httpd, relayd, and bgpd with clean, readable config files',
+      'Strictly open-source base with zero proprietary kernel blobs'
+    ],
+    tradeoffs: [
+      'Prioritizes correctness and security over raw multi-core SMP throughput or consumer GPU acceleration'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.openbsd.org/faq/faq4.html'
+    }
+  },
+  {
+    id: 'netbsd',
+    name: 'NetBSD',
+    osFamily: 'bsd',
+    kernelModel: 'monolithic-bsd',
+    tagline: 'Clean, ultra-portable BSD operating system supporting dozens of CPU and embedded architectures',
+    description:
+      'A clean-design BSD UNIX OS built around portability ("Of course it runs NetBSD") and the cross-platform pkgsrc package system, supporting everything from x86_64/ARM64 servers to legacy and embedded boards.',
+    website: 'https://www.netbsd.org',
+    documentationUrl: 'https://www.netbsd.org/docs/',
+    logoEmoji: '🚩',
+    platforms: ['bare-metal', 'vm', 'embedded-sbc', 'server'],
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64', 'mips'],
+    footprint: 'minimal',
+    minRamMb: 128,
+    initSystems: ['bsd-rc'],
+    cLibraries: ['bsd-libc'],
+    stateModel: 'mutable',
+    experienceLevel: 'systems-engineer',
+    primaryUseCases: ['iot-embedded', 'server'],
+    packageManager: 'pkgsrc',
+    rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'BSD-2-Clause'
+    },
+    highlights: [
+      'Runs on 50+ hardware platforms including legacy, MIPS, ARM, RISC-V, and x86_64',
+      'Clean, well-structured kernel architecture and cross-buildable toolchain (build.sh)',
+      'Uses pkgsrc for reproducible third-party software builds'
+    ],
+    tradeoffs: [
+      'Smaller community and fewer pre-configured desktop niceties than Linux or FreeBSD'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://cdn.netbsd.org/'
+    }
+  },
+  {
+    id: 'opensuse-tumbleweed',
+    name: 'openSUSE Tumbleweed',
+    tagline: 'Automated openQA-tested rolling Linux with Btrfs Snapper bootable rollbacks and YaST',
+    description:
+      'An enterprise-engineered rolling-release Linux distribution from SUSE. Every update snapshot passes automated openQA integration testing before release, and Btrfs + Snapper automatically lets you roll back from GRUB if an upgrade ever breaks.',
+    website: 'https://www.opensuse.org',
+    documentationUrl: 'https://doc.opensuse.org',
+    logoEmoji: '🦎',
+    platforms: ['bare-metal', 'desktop', 'vm', 'server', 'wsl2'],
+    architectures: ['x86_64', 'arm64'],
+    footprint: 'standard',
+    minRamMb: 2048,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['desktop', 'home-office', 'server'],
+    packageManager: 'zypper',
+    rollingRelease: true,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0 and others'
+    },
+    highlights: [
+      'openQA automated testing makes Tumbleweed one of the most reliable rolling releases',
+      'Out-of-the-box Btrfs + Snapper snapshots let you boot directly into a prior working state',
+      'Powerful zypper solver and YaST administration suite'
+    ],
+    tradeoffs: [
+      'Frequent large rolling updates require regular bandwidth; third-party multimedia codecs need Packman repo'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://get.opensuse.org/tumbleweed/'
+    }
+  },
+  {
+    id: 'rocky-linux',
+    name: 'Rocky Linux',
+    basedOn: 'RHEL',
+    tagline: '100% bug-for-bug RHEL-compatible enterprise Linux with a 10-year support lifecycle',
+    description:
+      'A community-owned enterprise Linux distribution built to be downstream-compatible with Red Hat Enterprise Linux (RHEL). Delivers predictable ABI stability, SELinux enforcing security, and 10-year LTS support for production infrastructure.',
+    website: 'https://rockylinux.org',
+    documentationUrl: 'https://docs.rockylinux.org',
+    logoEmoji: '⛰️',
+    platforms: ['server', 'bare-metal', 'vm', 'container'],
+    architectures: ['x86_64', 'arm64'],
+    footprint: 'standard',
+    minRamMb: 1024,
+    initSystems: ['systemd'],
+    cLibraries: ['glibc'],
+    stateModel: 'mutable',
+    experienceLevel: 'intermediate',
+    primaryUseCases: ['server', 'hypervisor-vms'],
+    packageManager: 'dnf',
+    rollingRelease: false,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0 and others'
+    },
+    highlights: [
+      'Full 10-year enterprise security & ABI stability matching RHEL without subscription fees',
+      'SELinux enforcing out of the box with broad commercial/datacenter software certification',
+      'Clean dnf + Cockpit web administration and native Podman container tooling'
+    ],
+    tradeoffs: [
+      'Packages are intentionally older for ABI stability; desktop hardware/gaming support trails Fedora or Ubuntu'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://rockylinux.org/download'
+    }
+  },
+  {
+    id: 'void-linux',
+    name: 'Void Linux',
+    tagline: 'Independent rolling Linux built around runit init, XBPS packages, and glibc/musl choice',
+    description:
+      'An independent, general-purpose rolling-release Linux distribution built from scratch without systemd. Uses the fast runit init supervisor and native XBPS package manager, with official glibc and musl builds.',
+    website: 'https://voidlinux.org',
+    documentationUrl: 'https://docs.voidlinux.org',
+    logoEmoji: '🕳️',
+    platforms: ['bare-metal', 'desktop', 'server', 'vm'],
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    footprint: 'lean',
+    minRamMb: 512,
+    initSystems: ['runit'],
+    cLibraries: ['glibc', 'musl'],
+    stateModel: 'mutable',
+    experienceLevel: 'advanced',
+    primaryUseCases: ['desktop', 'server'],
+    packageManager: 'xbps',
+    rollingRelease: true,
+    licensing: {
+      model: 'foss',
+      license: 'BSD-2-Clause / GPL'
+    },
+    highlights: [
+      'Fast, simple runit supervision and init instead of systemd',
+      'Stable rolling model with native XBPS binary packages and void-packages source templates',
+      'Official first-class support for both glibc and musl libc builds'
+    ],
+    tradeoffs: [
+      'Smaller community than Arch/Debian; software assuming systemd logind requires elogind or manual setup'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://voidlinux.org/download/'
+    }
+  },
+  {
+    id: 'gentoo',
+    name: 'Gentoo Linux',
+    tagline: 'Source-based Linux meta-distribution offering Portage USE-flag tuning and OpenRC/systemd choice',
+    description:
+      'An ultra-configurable Linux distribution powered by the Portage package manager. Lets systems engineers compile packages from source with custom USE flags, compiler optimizations, custom kernels, and a choice of OpenRC or systemd.',
+    website: 'https://www.gentoo.org',
+    documentationUrl: 'https://wiki.gentoo.org',
+    logoEmoji: '🧬',
+    platforms: ['bare-metal', 'desktop', 'server', 'vm'],
+    architectures: ['x86_64', 'arm64', 'armv7', 'riscv64'],
+    footprint: 'lean',
+    minRamMb: 1024,
+    initSystems: ['openrc', 'systemd'],
+    cLibraries: ['glibc', 'musl'],
+    stateModel: 'mutable',
+    experienceLevel: 'systems-engineer',
+    primaryUseCases: ['desktop', 'server', 'iot-embedded'],
+    packageManager: 'portage (emerge)',
+    rollingRelease: true,
+    licensing: {
+      model: 'foss',
+      license: 'GPL-2.0 and others'
+    },
+    highlights: [
+      'Fine-grained Portage USE flags strip unwanted dependencies and compile only what you need',
+      'Supports both OpenRC and systemd, plus glibc and musl profiles',
+      'Gentoo Handbook and Wiki provide deep systems-engineering control'
+    ],
+    tradeoffs: [
+      'Compiling major updates from source requires significant CPU time and maintenance (though binary packages are also available)'
+    ],
+    prebuiltImage: {
+      downloadUrl: 'https://www.gentoo.org/downloads/'
+    }
   }
 ];
 

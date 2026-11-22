@@ -1286,6 +1286,27 @@ export const QUESTIONS: Question[] = [
         appliesCriteria: { cLibPreference: 'glibc', initPreference: 'systemd' }
       },
       {
+        id: 'glibc_openrc',
+        label: 'glibc + OpenRC (Non-systemd / Source-friendly)',
+        description: 'Classic dependency-based init without systemd, used by Gentoo and custom Linux builds',
+        icon: '🧬',
+        appliesCriteria: { cLibPreference: 'glibc', initPreference: 'openrc' }
+      },
+      {
+        id: 'glibc_runit',
+        label: 'glibc + runit (Fast Non-systemd Supervision)',
+        description: 'Minimal parallel service supervision with no systemd, used by Void Linux',
+        icon: '🕳️',
+        appliesCriteria: { cLibPreference: 'glibc', initPreference: 'runit' }
+      },
+      {
+        id: 'bsd_rc_libc',
+        label: 'BSD libc + bsd-rc (Unified BSD Base)',
+        description: 'Cohesive UNIX base + kernel developed together (FreeBSD, OpenBSD, NetBSD)',
+        icon: '😈',
+        appliesCriteria: { cLibPreference: 'bsd-libc', initPreference: 'bsd-rc' }
+      },
+      {
         id: 'musl_busybox',
         label: 'musl libc + BusyBox / OpenRC',
         description: 'Maximum space savings, fastest cold boot, static linking friendly',

@@ -320,6 +320,63 @@ export const DISTRO_TARGET_CRITERIA: Readonly<Record<string, UserCriteria>> = {
     platform: 'vm',
     architecture: 'x86_64',
     releaseCadence: 'rolling'
+  },
+  freebsd: {
+    experienceLevel: 'advanced',
+    useCase: 'server',
+    platform: 'server',
+    footprint: 'lean',
+    cLibPreference: 'bsd-libc',
+    initPreference: 'bsd-rc',
+    fileSystem: 'zfs'
+  },
+  openbsd: {
+    experienceLevel: 'advanced',
+    useCase: 'router-networking',
+    platform: 'bare-metal',
+    cLibPreference: 'bsd-libc',
+    initPreference: 'bsd-rc',
+    driverPhilosophy: 'free-software-only'
+  },
+  netbsd: {
+    experienceLevel: 'systems-engineer',
+    useCase: 'iot-embedded',
+    platform: 'embedded-sbc',
+    architecture: 'mips',
+    cLibPreference: 'bsd-libc',
+    initPreference: 'bsd-rc',
+    footprint: 'minimal'
+  },
+  'opensuse-tumbleweed': {
+    experienceLevel: 'intermediate',
+    useCase: 'desktop',
+    platform: 'bare-metal',
+    footprint: 'standard',
+    releaseCadence: 'rolling',
+    fileSystem: 'btrfs'
+  },
+  'rocky-linux': {
+    experienceLevel: 'intermediate',
+    useCase: 'server',
+    platform: 'server',
+    releaseCadence: 'lts',
+    deploymentSite: 'datacenter',
+    fileSystem: 'xfs'
+  },
+  'void-linux': {
+    experienceLevel: 'advanced',
+    useCase: 'desktop',
+    platform: 'bare-metal',
+    releaseCadence: 'rolling',
+    initPreference: 'runit'
+  },
+  gentoo: {
+    experienceLevel: 'systems-engineer',
+    useCase: 'desktop',
+    platform: 'bare-metal',
+    releaseCadence: 'rolling',
+    initPreference: 'openrc',
+    cLibPreference: 'glibc'
   }
 };
 

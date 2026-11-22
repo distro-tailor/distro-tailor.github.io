@@ -485,7 +485,7 @@ export const FILESYSTEM_AFFINITIES: AffinityTable<FileSystemPreference> = {
   ],
   btrfs: [
     {
-      distroIds: ['fedora', 'fedora-silverblue', 'bazzite', 'arch'],
+      distroIds: ['fedora', 'fedora-silverblue', 'bazzite', 'opensuse-tumbleweed', 'arch'],
       points: 15,
       feature: 'Root Filesystem',
       explanation: 'Default or native Btrfs root filesystem with transparent zstd compression and subvolume snapshots.'
@@ -519,7 +519,7 @@ export const FILESYSTEM_AFFINITIES: AffinityTable<FileSystemPreference> = {
   ],
   xfs: [
     {
-      distroIds: ['fedora', 'proxmox-ve'],
+      distroIds: ['fedora', 'proxmox-ve', 'rocky-linux'],
       points: 12,
       feature: 'Root Filesystem',
       explanation: 'High-performance scalable XFS enterprise filesystem with parallel allocation groups.'

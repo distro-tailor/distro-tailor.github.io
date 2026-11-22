@@ -10,9 +10,9 @@ import {
 } from './distro-urls.js';
 
 test('Distro URLs: every registered distro has winning criteria and a deterministic permalink', () => {
-  assert.equal(DISTRO_REGISTRY.length, 41, 'Must register exactly 41 distributions');
+  assert.equal(DISTRO_REGISTRY.length, 48, 'Must register exactly 48 distributions');
   const directory = getDistroUrlDirectory();
-  assert.equal(directory.length, 41, 'Directory must contain 41 entries');
+  assert.equal(directory.length, 48, 'Directory must contain 48 entries');
 
   for (const distro of DISTRO_REGISTRY) {
     const criteria = getDistroTargetCriteria(distro.id);
