@@ -20,6 +20,16 @@ import { HandlerContext } from './context.js';
 export function bindRecipeEvents(ctx: HandlerContext): void {
   const { evaluation } = ctx;
 
+  // Results Mode Tabs (Recommended Prebuilt OS vs DIY Custom OS)
+  document.querySelectorAll<HTMLButtonElement>('.btn-results-mode').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const mode = btn.getAttribute('data-results-mode');
+      if (mode === 'recommended' || mode === 'diy') {
+        store.update({ resultsMode: mode });
+      }
+    });
+  });
+
   // Live filename sync for Prebuilt Verification Ladder commands
   const prebuiltInput = document.getElementById('input-prebuilt-filename') as HTMLInputElement | null;
   prebuiltInput?.addEventListener('input', () => {

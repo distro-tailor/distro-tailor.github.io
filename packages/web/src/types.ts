@@ -58,6 +58,8 @@ export interface AppState {
   theme?: 'dark' | 'light';
   /** Panels the user explicitly opened (true) or closed (false). UI-only: never written to the URL. */
   panelOpen?: Readonly<Record<string, boolean>>;
+  /** Active results sub-view when a prebuilt distro is matched ('recommended' vs 'diy'). UI-only. */
+  resultsMode?: 'recommended' | 'diy';
 }
 
 /**

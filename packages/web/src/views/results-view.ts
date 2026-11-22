@@ -6,6 +6,7 @@ import { getAddonCombos } from '../components/app-suites.js';
 import { renderAppSuitePanel } from '../components/results/app-suite-panel.js';
 import { renderBlueprintSummary } from '../components/results/blueprint-summary.js';
 import { ResultsViewContext } from '../components/results/context.js';
+import { renderDiyHeader } from '../components/results/diy-header.js';
 import { renderHeadToHeadPanel } from '../components/results/head-to-head-panel.js';
 import { renderPackageLayersPanel } from '../components/results/package-layers-panel.js';
 import { renderRecipePanel } from '../components/results/recipe-panel.js';
@@ -57,6 +58,52 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
     hasFlatpakDefault
   };
 
+  const hasPrebuiltOption = !!best.distro.prebuiltImage;
+  const hasCustomSelections = hasSelectedApps || hasFrankenstein || !!state.criteria.requiresCustomBuild;
+  const activeMode: 'recommended' | 'diy' =
+    state.resultsMode || (hasCustomSelections ? 'diy' : 'recommended');
+  const prebuiltCtx: ResultsViewContext = { ...ctx, recipe: undefined };
+  const recommendedCaveats = evaluation.legalCaveats.filter(
+    (c) => c.id !== 'game-roms-and-bios' || c.distroIds?.includes(best.distro.id)
+  );
+  const diyCaveats = evaluation.legalCaveats.filter(
+    (c) => c.id === 'game-roms-and-bios' && !c.distroIds?.includes(best.distro.id)
+  );
+
+  if (!hasPrebuiltOption) {
+    return `
+      <div class="space-y-6 min-w-0 max-w-full overflow-hidden">
+
+        ${renderSharedConfigBanner(ctx)}
+
+        ${renderResultsChangeBanner(ctx)}
+
+        ${renderWinnerBanner(ctx)}
+
+        ${renderBlueprintSummary(ctx)}
+
+        ${renderLegalCaveats(evaluation.legalCaveats)}
+
+        ${renderAlternativeComparisons(best.distro)}
+
+        ${renderPaidAlternatives(evaluation.paidAlternatives)}
+
+        ${renderTurnkeyImageCard(ctx)}
+
+        ${renderHeadToHeadPanel(ctx)}
+
+        ${supportsAddOnApps(state.criteria) ? renderAppSuitePanel(ctx) : ''}
+
+        ${renderPackageLayersPanel(ctx)}
+
+        ${renderRecipePanel(ctx)}
+
+        ${renderVerificationLadder(ctx)}
+
+      </div>
+    `;
+  }
+
   return `
     <div class="space-y-6 min-w-0 max-w-full overflow-hidden">
 
@@ -64,32 +111,77 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
 
       ${renderResultsChangeBanner(ctx)}
 
-      ${renderWinnerBanner(ctx)}
-
       ${renderBlueprintSummary(ctx)}
 
-      ${renderLegalCaveats(evaluation.legalCaveats)}
+      <!-- 2-Tab Switcher: Official Recommended OS vs DIY Custom Build -->
+      <div class="flex flex-wrap items-center gap-2 p-1.5 bg-slate-900/80 border border-slate-800 rounded-2xl shadow-lg" role="tablist" aria-label="Results view mode">
+        <button
+          id="tab-results-recommended"
+          type="button"
+          role="tab"
+          aria-selected="${activeMode === 'recommended'}"
+          aria-controls="results-panel-recommended"
+          data-results-mode="recommended"
+          class="btn-results-mode flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeMode === 'recommended'
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent'
+          }"
+        >
+          <span>${best.distro.logoEmoji || '🐧'}</span>
+          <span>${best.distro.name} (Recommended)</span>
+        </button>
+        <button
+          id="tab-results-diy"
+          type="button"
+          role="tab"
+          aria-selected="${activeMode === 'diy'}"
+          aria-controls="results-panel-diy"
+          data-results-mode="diy"
+          class="btn-results-mode flex-1 sm:flex-none px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeMode === 'diy'
+              ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-transparent'
+          }"
+        >
+          <span>🛠️</span>
+          <span>DIY Custom OS (From Scratch)</span>
+          ${hasCustomSelections ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-indigo-500/30 text-indigo-200">Active</span>' : ''}
+        </button>
+      </div>
 
-      <!-- 💡 Data-Driven Comparison: Why This Over Common Alternatives (e.g. Mint vs Ubuntu, Fedora vs RHEL) -->
-      ${renderAlternativeComparisons(best.distro)}
+      <!-- Tab 1: Recommended Prebuilt OS -->
+      <div id="results-panel-recommended" role="tabpanel" aria-labelledby="tab-results-recommended" class="space-y-6 min-w-0" ${activeMode === 'recommended' ? '' : 'hidden'}>
+        ${renderWinnerBanner(prebuiltCtx)}
 
-      ${renderPaidAlternatives(evaluation.paidAlternatives)}
+        ${renderLegalCaveats(recommendedCaveats)}
 
-      ${renderTurnkeyImageCard(ctx)}
+        <!-- 💡 Data-Driven Comparison: Why This Over Common Alternatives (e.g. Mint vs Ubuntu, Fedora vs RHEL) -->
+        ${renderAlternativeComparisons(best.distro)}
 
-      ${renderHeadToHeadPanel(ctx)}
+        ${renderPaidAlternatives(evaluation.paidAlternatives)}
 
-      <!-- ========================================================================= -->
-      <!-- PROGRESSIVE DISCLOSURE: OPTIONAL / ADVANCED SYSTEM CUSTOMIZATION PANELS   -->
-      <!-- ========================================================================= -->
+        ${renderTurnkeyImageCard(prebuiltCtx)}
 
-      ${supportsAddOnApps(state.criteria) ? renderAppSuitePanel(ctx) : ''}
+        ${renderHeadToHeadPanel(prebuiltCtx)}
 
-      ${renderPackageLayersPanel(ctx)}
+        ${renderVerificationLadder(prebuiltCtx)}
+      </div>
 
-      ${renderRecipePanel(ctx)}
+      <!-- Tab 2: DIY Custom OS Builder -->
+      <div id="results-panel-diy" role="tabpanel" aria-labelledby="tab-results-diy" class="space-y-6 min-w-0" ${activeMode === 'diy' ? '' : 'hidden'}>
+        ${renderDiyHeader(ctx)}
 
-      ${renderVerificationLadder(ctx)}
+        ${supportsAddOnApps(state.criteria) ? renderAppSuitePanel(ctx) : ''}
+
+        ${renderLegalCaveats(diyCaveats)}
+
+        ${renderPackageLayersPanel(ctx)}
+
+        ${renderRecipePanel(ctx)}
+
+        ${recipe ? renderVerificationLadder(ctx) : ''}
+      </div>
 
     </div>
   `;

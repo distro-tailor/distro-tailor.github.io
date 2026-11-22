@@ -403,4 +403,51 @@ test('Results View: winner banner displays Debian base badge for Endless OS', ()
   assert.equal(evaluation.bestMatch.distro.id, 'endless-os');
   const html = renderResultsView(evaluation, state);
   assert.ok(html.includes('Based on Debian'));
+  assert.ok(html.includes('id="tab-results-recommended"'));
+  assert.ok(html.includes('id="tab-results-diy"'));
+  assert.match(html, /id="tab-results-recommended"[^>]*aria-selected="true"/);
+  assert.match(html, /id="results-panel-diy"[^>]*\bhidden>/);
+});
+
+test('Results View: defaults to DIY Custom OS tab when custom add-ons are selected, and hides tabs for custom-only winners', () => {
+  const diyState: AppState = {
+    criteria: { useCase: 'education-kids', architecture: 'x86_64', platform: 'bare-metal', prefersGui: true, dockerApps: ['pihole'] },
+    answeredQuestionIds: new Set(),
+    panelOpen: {},
+    activeTab: 'results',
+    flowMode: 'smart',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: true
+  };
+  const diyHtml = renderResultsView(evaluateCriteria(diyState.criteria), diyState);
+  assert.match(diyHtml, /id="tab-results-diy"[^>]*aria-selected="true"/);
+  assert.match(diyHtml, /id="results-panel-recommended"[^>]*\bhidden>/);
+  assert.ok(diyHtml.includes('DIY Custom OS Builder'));
+  assert.ok(diyHtml.includes('Starter DIY Custom Combos'));
+
+  const customWinnerState: AppState = {
+    ...diyState,
+    criteria: { useCase: 'appliance-product', architecture: 'x86_64' }
+  };
+  const customWinnerEval = evaluateCriteria(customWinnerState.criteria);
+  assert.equal(customWinnerEval.bestMatch.distro.prebuiltImage, undefined);
+  const customWinnerHtml = renderResultsView(customWinnerEval, customWinnerState);
+  assert.equal(customWinnerHtml.includes('id="tab-results-diy"'), false);
+
+  // Emulator legal caveat from DIY add-ons must stay in DIY panel, not in Endless OS Recommended panel
+  const emuDiyState: AppState = {
+    ...diyState,
+    criteria: { useCase: 'education-kids', architecture: 'x86_64', platform: 'bare-metal', prefersGui: true, emulatorApps: ['retroarch'] }
+  };
+  const emuHtml = renderResultsView(evaluateCriteria(emuDiyState.criteria), emuDiyState);
+  const recStart = emuHtml.indexOf('id="results-panel-recommended"');
+  const diyStart = emuHtml.indexOf('id="results-panel-diy"');
+  const recSection = emuHtml.slice(recStart, diyStart);
+  const diySection = emuHtml.slice(diyStart);
+  assert.equal(recSection.includes('Only play games you own'), false);
+  assert.ok(diySection.includes('Only play games you own'));
+  assert.ok(diySection.indexOf('Add-On Applications & Services') < diySection.indexOf('Only play games you own'));
 });

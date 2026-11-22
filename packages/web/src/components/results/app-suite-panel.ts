@@ -63,7 +63,7 @@ export function renderAppSuitePanel(ctx: ResultsViewContext): string {
           <!-- Mix & Match Hybrid Combos -->
           <div class="pt-4 border-t border-slate-800/80">
             <h4 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2">
-              <span>🧩</span> Popular Combos for ${best.distro.name}
+              <span>🧩</span> ${best.distro.prebuiltImage ? 'Starter DIY Custom Combos' : `Popular Combos for ${best.distro.name}`}
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 min-w-0">
               ${combos
