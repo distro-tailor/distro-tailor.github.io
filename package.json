@@ -24,6 +24,7 @@
     "check:packages": "tsx scripts/check-packages.ts",
     "check:compose": "tsx scripts/check-compose.ts",
     "verify:builds": "tsx scripts/verify-persona-builds.ts",
+    "verify:families": "tsx scripts/verify-family-builds.ts",
     "prepare": "git config core.hooksPath .githooks || true"
   },
   "devDependencies": {
