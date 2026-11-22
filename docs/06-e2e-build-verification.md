@@ -12,10 +12,12 @@ Each generator below was exported with `{ architecture: 'x86_64', dockerApps: ['
 
 | Recipe Generator | Date Verified | Container Image | Produced Artifact | Status |
 | :--- | :--- | :--- | :--- | :--- |
+| `debootstrap-debian` | 2026-11-22 | `debian:bookworm` | `output/TailoredDebian-1.0.0-x86_64.iso` | Passed |
 | `fedora-dnf` | 2026-11-22 | `fedora:41` | `output/TailoredFedora-41-x86_64.iso` (433 MB) | Passed |
 | `opensuse-zypper` | 2026-11-22 | `opensuse/tumbleweed:latest` | `output/TailoredOpenSUSE-Tumbleweed-x86_64.iso` | Passed |
 | `void-xbps` | 2026-11-22 | `ghcr.io/void-linux/void-glibc:latest` | `output/TailoredVoid-x86_64.iso` | Passed |
 | `arch-pacstrap` | 2026-11-22 | `archlinux:latest` | `output/TailoredArch-x86_64.iso` | Passed |
+| `alpine-chroot` | 2026-11-22 | `alpine` | `output/TailoredAlpine-x86_64.tar.gz` | Passed |
 | `freebsd-pkg` | 2026-11-22 | `alpine:3.21` (`xorriso` provisioning ISO) | `output/TailoredFreeBSD-amd64.iso` | Passed |
 | `openbsd-pkg` | 2026-11-22 | `alpine:3.21` (`xorriso` provisioning ISO) | `output/TailoredOpenBSD-amd64.iso` | Passed |
 
