@@ -86,7 +86,7 @@ export function generateFedoraRecipe(criteria: UserCriteria): GeneratedRecipe {
     .filter(Boolean)
     .join(' ');
 
-  const grubPkg = arch === 'aarch64' ? 'grub2-efi-aa64' : 'grub2-pc grub2-efi-x64';
+  const grubPkg = arch === 'aarch64' ? 'grub2-efi-aa64 grub2-tools-extra' : 'grub2-pc grub2-efi-x64 grub2-tools-extra';
   const dockerInstallCmd = `dnf install -y make dnf-plugins-core squashfs-tools xorriso ${grubPkg} dosfstools`;
 
   const selinuxLine =
@@ -125,6 +125,7 @@ rootfs:
 \t@mkdir -p $(ROOTFS_DIR) $(OUTPUT_DIR)
 \t@echo "[+] Bootstrapping Fedora $(RELEASEVER) ($(ARCH)) via dnf --installroot..."
 \tdnf --installroot=$(abspath $(ROOTFS_DIR)) \\
+\t\t--use-host-config \\
 \t\t--releasever=$(RELEASEVER) \\
 \t\t--forcearch=$(ARCH) \\
 \t\t--setopt=install_weak_deps=False \\
