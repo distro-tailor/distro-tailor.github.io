@@ -126,11 +126,20 @@ ${
               ${
                 best.distro.id === 'arch'
                   ? 'Arch Linux uses its own rolling base install (<code class="px-1 py-0.5 rounded bg-slate-950 text-emerald-400 font-mono">archinstall</code>) rather than a generated Debian build Makefile.'
+                  : best.distro.id === 'yocto'
+                  ? 'Yocto Project uses BitBake and OpenEmbedded layers (<code class="px-1 py-0.5 rounded bg-slate-950 text-emerald-400 font-mono">poky</code>) rather than a generated Buildroot or Debian Makefile.'
+                  : best.distro.id === 'zephyr'
+                  ? 'Zephyr RTOS uses its own <code class="px-1 py-0.5 rounded bg-slate-950 text-emerald-400 font-mono">west</code> build toolchain rather than a generated Linux rootfs Makefile.'
+                  : best.distro.osFamily && best.distro.osFamily !== 'linux'
+                  ? `<strong>${escapeHtml(best.distro.name)}</strong> uses its own native installation and packaging workflow rather than a generated Linux build Makefile.`
                   : `For your selected use case, <strong>${escapeHtml(best.distro.name)}</strong> provides a ready-to-boot prebuilt image, which is faster and better tested than compiling a custom rootfs from scratch.`
               }
             </p>
             ${
-              best.distro.id !== 'arch'
+              best.distro.id !== 'arch' &&
+              best.distro.id !== 'yocto' &&
+              best.distro.id !== 'zephyr' &&
+              (!best.distro.osFamily || best.distro.osFamily === 'linux')
                 ? `<p class="text-slate-400">
               Want a custom build <code class="px-1 py-0.5 rounded bg-slate-950 text-slate-300 font-mono">Makefile</code> anyway? ${
                 supportsAddOnApps(state.criteria)

@@ -17,6 +17,8 @@ test('Recipe Selection: deployment target overrides the best match recipe', () =
 test('Recipe Selection: use-case rules apply before the best match recipe', () => {
   assert.equal(selectRecipeGenerator({ useCase: 'hypervisor-vms' }, distro('cage-appliance')), 'proxmox-lxc');
   assert.equal(selectRecipeGenerator({ useCase: 'iot-embedded' }, distro('cage-appliance')), 'buildroot-embedded');
+  assert.equal(selectRecipeGenerator({ useCase: 'iot-embedded' }, distro('yocto')), undefined);
+  assert.equal(selectRecipeGenerator({ useCase: 'iot-embedded' }, distro('zephyr')), undefined);
 });
 
 test("Recipe Selection: falls back to the best match's own generator", () => {

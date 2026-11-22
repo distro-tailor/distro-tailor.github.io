@@ -40,8 +40,8 @@ export const RECIPE_SELECTION_RULES: readonly RecipeSelectionRule[] = [
     recipe: () => 'proxmox-lxc'
   },
   {
-    description: 'Embedded IoT use case builds a Buildroot image',
-    when: (c) => c.useCase === 'iot-embedded',
+    description: 'Embedded IoT use case builds a Buildroot image (unless Yocto or Zephyr is the winner)',
+    when: (c, best) => c.useCase === 'iot-embedded' && best.id !== 'yocto' && best.id !== 'zephyr',
     recipe: () => 'buildroot-embedded'
   },
   {

@@ -57,9 +57,10 @@ test('Results View: Arch Linux result does NOT display a Debian Debootstrap reci
   assert.equal(evaluation.bestMatch.distro.id, 'arch');
   const html = renderResultsView(evaluation, dummyState);
 
-  // Must NOT contain Debian Debootstrap recipe!
+  // Must NOT contain Debian Debootstrap recipe or DIY tab!
   assert.equal(html.includes('Custom Minimal Debian Appliance (Debootstrap)'), false);
   assert.equal(html.includes('debootstrap-debian'), false);
+  assert.equal(html.includes('id="tab-results-diy"'), false);
 
   // Must include Arch quickstart
   assert.ok(html.includes('archinstall'));
@@ -450,4 +451,31 @@ test('Results View: defaults to DIY Custom OS tab when custom add-ons are select
   assert.equal(recSection.includes('Only play games you own'), false);
   assert.ok(diySection.includes('Only play games you own'));
   assert.ok(diySection.indexOf('Add-On Applications & Services') < diySection.indexOf('Only play games you own'));
+});
+
+test('Results View: Yocto Project hides DIY tab and does not fall back to Buildroot recipe', () => {
+  const yoctoState: AppState = {
+    criteria: {
+      experienceLevel: 'systems-engineer',
+      useCase: 'iot-embedded',
+      platform: 'embedded-sbc',
+      footprint: 'minimal',
+      statePreference: 'immutable-ostree'
+    },
+    answeredQuestionIds: new Set(),
+    panelOpen: {},
+    activeTab: 'results',
+    flowMode: 'expert',
+    activeFileIndex: 0,
+    history: [],
+    showAllContenders: false,
+    showShareModal: false,
+    isSharedView: false
+  };
+  const evaluation = evaluateCriteria(yoctoState.criteria);
+  assert.equal(evaluation.bestMatch.distro.id, 'yocto');
+  assert.equal(evaluation.recommendedRecipe, undefined);
+  const html = renderResultsView(evaluation, yoctoState);
+  assert.equal(html.includes('id="tab-results-diy"'), false);
+  assert.ok(html.includes('BitBake'));
 });

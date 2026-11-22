@@ -59,6 +59,12 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
   };
 
   const hasPrebuiltOption = !!best.distro.prebuiltImage;
+  const isNativeOnlyDistro =
+    best.distro.id === 'arch' ||
+    best.distro.id === 'yocto' ||
+    best.distro.id === 'zephyr' ||
+    (!!best.distro.osFamily && best.distro.osFamily !== 'linux');
+  const showDiyTab = hasPrebuiltOption && !isNativeOnlyDistro;
   const hasCustomSelections = hasSelectedApps || hasFrankenstein || !!state.criteria.requiresCustomBuild;
   const activeMode: 'recommended' | 'diy' =
     state.resultsMode || (hasCustomSelections ? 'diy' : 'recommended');
@@ -70,7 +76,7 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
     (c) => c.id === 'game-roms-and-bios' && !c.distroIds?.includes(best.distro.id)
   );
 
-  if (!hasPrebuiltOption) {
+  if (!showDiyTab) {
     return `
       <div class="space-y-6 min-w-0 max-w-full overflow-hidden">
 
@@ -92,9 +98,9 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
 
         ${renderHeadToHeadPanel(ctx)}
 
-        ${supportsAddOnApps(state.criteria) ? renderAppSuitePanel(ctx) : ''}
+        ${!isNativeOnlyDistro && supportsAddOnApps(state.criteria) ? renderAppSuitePanel(ctx) : ''}
 
-        ${renderPackageLayersPanel(ctx)}
+        ${!isNativeOnlyDistro ? renderPackageLayersPanel(ctx) : ''}
 
         ${renderRecipePanel(ctx)}
 
