@@ -50,6 +50,11 @@ export const RECIPE_SELECTION_RULES: readonly RecipeSelectionRule[] = [
     recipe: (best) => best.recipeGeneratorId
   },
   {
+    description: 'Explicit customizations on Alpine-based distros fall back to an Alpine chroot build',
+    when: (c, best) => hasExplicitRecipeModifiers(c) && best.cLibraries.includes('musl') && best.packageManager === 'apk',
+    recipe: () => 'alpine-chroot'
+  },
+  {
     description: 'Explicit customizations fall back to a Debian debootstrap build (Arch has no Debian base)',
     when: (c, best) => hasExplicitRecipeModifiers(c) && best.id !== 'arch',
     recipe: () => 'debootstrap-debian'

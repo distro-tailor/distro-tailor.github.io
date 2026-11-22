@@ -25,8 +25,9 @@ test("Recipe Selection: falls back to the best match's own generator", () => {
   assert.equal(selectRecipeGenerator({ useCase: 'kiosk-signage' }, distro('cage-appliance')), 'kiosk-web');
 });
 
-test('Recipe Selection: explicit customizations fall back to debootstrap, except for Arch', () => {
+test('Recipe Selection: explicit customizations pick Alpine for Alpine-based distros and debootstrap otherwise, except for Arch', () => {
   assert.equal(selectRecipeGenerator({ enableNix: true }, distro('linux-mint')), 'debootstrap-debian');
+  assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('postmarketos')), 'alpine-chroot');
   assert.equal(selectRecipeGenerator({ enableNix: true }, distro('arch')), undefined);
   assert.equal(selectRecipeGenerator({ useCase: 'desktop' }, distro('linux-mint')), undefined);
 });

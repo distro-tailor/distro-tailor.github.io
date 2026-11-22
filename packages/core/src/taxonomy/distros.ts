@@ -149,6 +149,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'openmediavault',
     name: 'OpenMediaVault (OMV)',
+    basedOn: 'Debian',
     tagline: 'Turn any old PC into a private home NAS for phone photo backups, media, and shared family storage',
     description:
       'A Debian-based turnkey Network Attached Storage (NAS) operating system that lets families ditch iCloud and Google Photos monthly storage fees. Controlled entirely through a clean web browser interface with 1-click support for phone photo & video auto-backup (Immich/Nextcloud), Mac Time Machine, Windows file shares (SMB/CIFS), and disk health monitoring.',
@@ -228,6 +229,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'proxmox-ve',
     name: 'Proxmox Virtual Environment (PVE)',
+    basedOn: 'Debian',
     tagline: 'Enterprise Type-1 Hypervisor (KVM + LXC) with web GUI, ZFS, and cluster management',
     description:
       'The undisputed champion for repurposed enterprise server racks (Dell PowerEdge, HP ProLiant, Supermicro) and homelab servers. Combines enterprise KVM virtualization and lightweight LXC containers on a solid Debian base. Includes native OpenZFS storage pools, software-defined Ceph clustering, live VM migration, automated backups, and complete hardware monitoring accessible via a slick web dashboard.',
@@ -268,6 +270,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'truenas-scale',
     name: 'TrueNAS SCALE',
+    basedOn: 'Debian',
     tagline: 'Enterprise OpenZFS storage appliance and Docker/K8s application host on Debian',
     description:
       'The premier open-source network-attached storage (NAS) and storage area network (SAN) operating system for multi-drive chassis and rack servers. Built on Debian Linux, it pairs bulletproof OpenZFS with a polished web GUI for RAID-Z disk arrays, snapshots, cloud sync, SMB/NFS file shares, and containerized homelab apps.',
@@ -370,6 +373,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'asahi-linux',
     name: 'Fedora Asahi Remix (Apple Silicon)',
+    basedOn: 'Fedora',
     tagline: 'Native bare-metal Linux for Apple Silicon (M1/M2/M3/M4) with conformant Rust GPU drivers',
     description:
       'The premier Linux distribution for Apple Silicon MacBooks (Air/Pro), Mac Mini, and Mac Studio. A collaboration between the Asahi Linux reverse-engineering team and the Fedora Project, featuring custom Apple M-series kernel patches, m1n1 bootloader, open-source Rust OpenGL 4.6 & Vulkan 1.3 GPU drivers, and calibrated speaker DSP protection.',
@@ -409,6 +413,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'bazzite',
     name: 'Bazzite',
+    basedOn: 'Fedora',
     tagline: 'The next-generation SteamOS alternative for PC gaming and handhelds',
     description:
       'An immutable gaming-focused operating system built on Fedora Atomic. Features Steam Big Picture Mode out of the box, ready-to-play Proton gaming, and pre-installed GPU drivers for NVIDIA and AMD.',
@@ -447,6 +452,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'pop-os',
     name: 'Pop!_OS (System76)',
+    basedOn: 'Ubuntu',
     tagline: 'The premier Linux workstation OS for AI, machine learning, and GPU compute',
     description:
       'Developed by System76, Pop!_OS features dedicated out-of-the-box NVIDIA ISOs with pre-baked GPU drivers, CUDA/cuDNN support, and seamless hybrid graphics switching. The standard choice for data scientists, ML engineers, and local AI development (PyTorch, TensorFlow, Ollama, Stable Diffusion) without DKMS or driver breakage.',
@@ -497,6 +503,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'antix',
     name: 'antiX Linux',
+    basedOn: 'Debian',
     tagline: 'Ultra-lightweight lifesaver for ancient, obsolete computers',
     description:
       'A fast, lightweight, systemd-free desktop operating system designed specifically to revive old computers with as little as 256MB RAM and 15-20 year old processors that modern operating systems have abandoned.',
@@ -723,6 +730,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'linux-mint',
     name: 'Linux Mint',
+    basedOn: 'Ubuntu',
     tagline: 'The most welcoming, elegant desktop for Linux newcomers',
     description:
       'The gold standard distribution for people transitioning from Windows or macOS. Everything works out of the box: media codecs, office suites, web browsers, and hardware drivers with zero terminal knowledge required.',
@@ -823,6 +831,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'ubuntu-studio',
     name: 'Ubuntu Studio',
+    basedOn: 'Ubuntu',
     tagline: 'Turnkey creative multimedia operating system for graphic artists, 3D animators, and video editors',
     description:
       'The definitive open-source operating system for freelance creatives, designers, and video producers. Built on Ubuntu LTS with a low-latency kernel, real-time PipeWire/JACK audio routing, and the complete creative suite pre-installed: Krita, Blender, Inkscape, Darktable, GIMP, OBS Studio, and Kdenlive.',
@@ -1050,6 +1059,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'libremesh',
     name: 'LibreMesh',
+    basedOn: 'OpenWrt',
     tagline: 'Community mesh firmware for neighbourhood and village Wi-Fi',
     description:
       'A modular framework built on OpenWrt for community wireless mesh networks. Flash low-cost routers and they find each other automatically, share one or more internet uplinks across the whole mesh, and route around nodes that fail. Used by community networks in Latin America and beyond, including the LibreRouter project.',
@@ -1150,6 +1160,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'dietpi',
     name: 'DietPi',
+    basedOn: 'Debian',
     tagline: 'Ultra-lightweight, high-performance OS for single-board computers',
     description:
       'A heavily optimized, stripped-down Debian derivative designed to squeeze maximum performance out of Raspberry Pis and SBCs with an automated menu-driven software installer.',
@@ -1197,6 +1208,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'armbian',
     name: 'Armbian',
+    basedOn: 'Debian / Ubuntu',
     tagline: 'Optimized Linux for ARM TV boxes and single-board computers',
     description:
       'A purpose-built Debian and Ubuntu derivative optimized specifically for ARM single-board computers (Orange Pi, Banana Pi, Odroid) and cheap Android TV boxes/sticks (Amlogic S905/S912, Rockchip, Allwinner). Features custom hardware device trees (FDT/DTB), GPU/VPU hardware acceleration, and automated configuration tools.',
@@ -1235,6 +1247,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'internet-in-a-box',
     name: 'Internet-in-a-Box (IIAB)',
+    basedOn: 'Debian / Ubuntu',
     tagline: 'Offline library server: Wikipedia, maps, books, and courses over local Wi-Fi',
     description:
       'Turns a Raspberry Pi or small PC into a local Wi-Fi hotspot that serves offline Wikipedia and other Kiwix libraries, OpenStreetMap maps, e-books, and course packs to any phone or laptop with a browser. Built for schools, clinics, and communities with little or no internet. Installs on Raspberry Pi OS, Debian, or Ubuntu, or from prebuilt microSD images.',
@@ -1273,6 +1286,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'raspberry-pi-os',
     name: 'Raspberry Pi OS',
+    basedOn: 'Debian',
     tagline: 'The official desktop OS for Raspberry Pi boards',
     description:
       'The official Debian-based operating system from Raspberry Pi Ltd. Ships a lightweight Wayland desktop with a browser, LibreOffice, Scratch, Thonny Python IDE, and first-class support for the GPIO header, camera modules, and HATs. Flashed to a MicroSD card in minutes with Raspberry Pi Imager.',
@@ -1312,6 +1326,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'postmarketos',
     name: 'postmarketOS (pmOS)',
+    basedOn: 'Alpine',
     tagline: 'True Alpine Linux extending the lifespan of old smartphones and gadgets',
     description:
       'A touch-friendly and server-capable distribution built on Alpine Linux designed to reclaim abandoned consumer hardware (old smartphones, tablets, Ouya, and handhelds). Features mainline Linux kernel drivers, avoids Android battery drain and vendor lock-in, and turns idle phones with built-in battery UPS into zero-cost home servers.',
@@ -1514,6 +1529,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'fedora-silverblue',
     name: 'Fedora Silverblue / Atomic',
+    basedOn: 'Fedora',
     tagline: 'Immutable desktop operating system powered by rpm-ostree',
     description:
       'An immutable desktop variant of Fedora where the core OS filesystem (`/usr`) is mounted read-only and version-controlled like a Git commit using rpm-ostree. Applications run inside Flatpak and Toolbx/Distrobox containers.',
@@ -1738,6 +1754,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'tails',
     name: 'Tails',
+    basedOn: 'Debian',
     tagline: 'Portable amnesic OS that routes all connections through Tor and leaves no trace',
     description:
       'A live Debian-based operating system designed for privacy, anonymity, and censorship circumvention. Boots from a USB stick into RAM, forces all network traffic through the Tor network, includes KeePassXC and OnionShare, and wipes memory clean on shutdown.',
@@ -1774,6 +1791,7 @@ export const DISTRO_REGISTRY: DistroProfile[] = [
   {
     id: 'kali-linux',
     name: 'Kali Linux',
+    basedOn: 'Debian',
     tagline: 'Industry-standard Debian-based platform for penetration testing and security auditing',
     description:
       'A rolling-release security distribution maintained by OffSec with 600+ pre-packaged penetration testing, network forensics, reverse engineering, and vulnerability assessment tools across x86_64, ARM64, and VMs.',
