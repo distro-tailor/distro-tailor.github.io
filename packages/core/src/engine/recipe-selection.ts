@@ -82,6 +82,16 @@ export const RECIPE_SELECTION_RULES: readonly RecipeSelectionRule[] = [
     recipe: () => 'gentoo-portage'
   },
   {
+    description: 'Explicit customizations on FreeBSD generate a FreeBSD pkg/PF provisioning recipe',
+    when: (c, best) => hasExplicitRecipeModifiers(c) && best.id === 'freebsd',
+    recipe: () => 'freebsd-pkg'
+  },
+  {
+    description: 'Explicit customizations on OpenBSD generate an OpenBSD pkg_add/PF provisioning recipe',
+    when: (c, best) => hasExplicitRecipeModifiers(c) && best.id === 'openbsd',
+    recipe: () => 'openbsd-pkg'
+  },
+  {
     description: 'Explicit customizations fall back to a Debian debootstrap build',
     when: (c) => hasExplicitRecipeModifiers(c),
     recipe: () => 'debootstrap-debian'

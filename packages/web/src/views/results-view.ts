@@ -62,7 +62,10 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
   const isNativeOnlyDistro =
     best.distro.id === 'yocto' ||
     best.distro.id === 'zephyr' ||
-    (!!best.distro.osFamily && best.distro.osFamily !== 'linux');
+    (!!best.distro.osFamily &&
+      best.distro.osFamily !== 'linux' &&
+      best.distro.id !== 'freebsd' &&
+      best.distro.id !== 'openbsd');
   const showDiyTab = hasPrebuiltOption && !isNativeOnlyDistro;
   const hasCustomSelections = hasSelectedApps || hasFrankenstein || !!state.criteria.requiresCustomBuild;
   const activeMode: 'recommended' | 'diy' =

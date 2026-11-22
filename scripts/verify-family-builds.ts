@@ -21,6 +21,8 @@ export const FAMILY_BUILD_IDS: readonly RecipeGeneratorId[] = [
   'void-xbps',
   'arch-pacstrap',
   'gentoo-portage',
+  'freebsd-pkg',
+  'openbsd-pkg',
   'alpine-chroot'
 ];
 

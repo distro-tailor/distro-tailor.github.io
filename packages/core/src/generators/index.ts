@@ -5,6 +5,7 @@ import { generateOpenSuseRecipe } from './opensuse.js';
 import { generateVoidRecipe } from './void.js';
 import { generateArchRecipe } from './arch.js';
 import { generateGentooRecipe } from './gentoo.js';
+import { generateFreeBsdRecipe, generateOpenBsdRecipe } from './bsd.js';
 import { generateAlpineRecipe } from './alpine.js';
 import { generateBuildrootRecipe } from './buildroot.js';
 import { generateKioskRecipe } from './kiosk.js';
@@ -32,6 +33,8 @@ export const RECIPE_GENERATORS: Readonly<Record<RecipeGeneratorId, (criteria: Us
   'void-xbps': generateVoidRecipe,
   'arch-pacstrap': generateArchRecipe,
   'gentoo-portage': generateGentooRecipe,
+  'freebsd-pkg': generateFreeBsdRecipe,
+  'openbsd-pkg': generateOpenBsdRecipe,
   'alpine-chroot': generateAlpineRecipe,
   'buildroot-embedded': generateBuildrootRecipe,
   'kiosk-web': generateKioskRecipe,

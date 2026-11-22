@@ -221,6 +221,8 @@ export type RecipeGeneratorId =
   | 'void-xbps'
   | 'arch-pacstrap'
   | 'gentoo-portage'
+  | 'freebsd-pkg'
+  | 'openbsd-pkg'
   | 'alpine-chroot'
   | 'buildroot-embedded'
   | 'kiosk-web'

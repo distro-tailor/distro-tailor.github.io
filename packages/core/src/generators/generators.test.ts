@@ -784,3 +784,26 @@ test('Recipe Generator gentoo-portage: generates Portage make.conf, OpenRC/syste
   assert.match(makeConf, /-systemd openrc/);
   assert.ok(gentooRecipe.files.some((f) => f.filename === 'docker-compose.yml'));
 });
+
+test('Recipe Generator freebsd-pkg & openbsd-pkg: generate native pkg, sysrc/rcctl, and PF firewall files', () => {
+  const fbsd = resolveRecipeGenerator('freebsd-pkg', {
+    architecture: 'x86_64',
+    fileSystem: 'zfs',
+    virtHost: 'container-only',
+    dockerApps: ['pihole']
+  });
+  const fbsdScript = fbsd.files.find((f) => f.filename === 'bootstrap-freebsd.sh')?.content ?? '';
+  assert.match(fbsdScript, /pkg install -y/);
+  assert.match(fbsdScript, /sysrc zfs_enable="YES"/);
+  assert.match(fbsdScript, /sysrc bastille_enable="YES"/);
+  assert.ok(fbsd.files.some((f) => f.filename === 'pf.conf'));
+
+  const obsd = resolveRecipeGenerator('openbsd-pkg', {
+    architecture: 'x86_64',
+    desktopApps: ['neovim']
+  });
+  const obsdScript = obsd.files.find((f) => f.filename === 'bootstrap-openbsd.sh')?.content ?? '';
+  assert.match(obsdScript, /pkg_add -I/);
+  assert.match(obsdScript, /rcctl enable sshd/);
+  assert.ok(obsd.files.some((f) => f.filename === 'pf.conf'));
+});

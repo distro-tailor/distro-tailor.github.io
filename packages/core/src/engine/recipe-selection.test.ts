@@ -35,5 +35,7 @@ test('Recipe Selection: explicit customizations pick Alpine for Alpine-based dis
   assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('void-linux')), 'void-xbps');
   assert.equal(selectRecipeGenerator({ enableNix: true }, distro('arch')), 'arch-pacstrap');
   assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('gentoo')), 'gentoo-portage');
+  assert.equal(selectRecipeGenerator({ dockerApps: ['pihole'] }, distro('freebsd')), 'freebsd-pkg');
+  assert.equal(selectRecipeGenerator({ desktopApps: ['neovim'] }, distro('openbsd')), 'openbsd-pkg');
   assert.equal(selectRecipeGenerator({ useCase: 'desktop' }, distro('linux-mint')), undefined);
 });

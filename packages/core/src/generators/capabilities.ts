@@ -101,6 +101,8 @@ export const RECIPE_CAPABILITIES: Readonly<Record<RecipeGeneratorId, readonly Re
     'virtHost',
     'devicePassthrough'
   ],
+  'freebsd-pkg': ['fileSystem', 'networkingStack', 'virtHost'],
+  'openbsd-pkg': ['networkingStack'],
   'nixos-flake': [
     'fileSystem',
     'kernelFlavor',
