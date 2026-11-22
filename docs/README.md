@@ -38,6 +38,10 @@ Welcome to the central documentation index for **DistroTailor**—the 20-Questio
   - Hands-on recipes: NixOS Flake VM (`make test-vm`), Debian Cloud-Init QCOW2 (`make image`), Live Hybrid ISO (`make iso`)
   - Testing Wayland Kiosks and WebAssembly in-browser emulators
 
+- **[E2E Build Verification Log](06-e2e-build-verification.md)**
+  - Dated live `make docker-build` ISO proof across Linux & BSD family generators (`2026-11-22`)
+  - Reproducible verification commands (`npm run verify:families`)
+
 - **[Distro Recommendations Matrix & Archetype Audit Report](distro-recommendations-matrix.md)**
   - Automated sanity evaluation over 27 real-world system archetypes
   - Reproducible URL state permalinks and CLI export test commands for each persona
