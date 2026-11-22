@@ -337,7 +337,12 @@ export type DockerAppId =
   | 'adguard-home'
   | 'dockge'
   | 'caddy'
-  | 'lychee';
+  | 'lychee'
+  | 'meilisearch'
+  | 'opensearch'
+  | 'searxng'
+  | 'prowlarr'
+  | 'nzbhydra2';
 
 export type ReleaseCadence = 'lts' | 'rolling' | 'standard';
 export type DriverPhilosophy = 'seamless-proprietary' | 'free-software-only' | 'no-preference';

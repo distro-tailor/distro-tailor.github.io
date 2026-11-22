@@ -317,7 +317,12 @@ export const DOCKER_APP_VALUES: EnumCatalog<DockerAppId> = {
   'adguard-home': true,
   dockge: true,
   caddy: true,
-  lychee: true
+  lychee: true,
+  meilisearch: true,
+  opensearch: true,
+  searxng: true,
+  prowlarr: true,
+  nzbhydra2: true
 };
 
 export const DESKTOP_APP_VALUES: EnumCatalog<DesktopAppId> = {

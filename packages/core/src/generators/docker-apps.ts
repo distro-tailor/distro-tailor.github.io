@@ -11,6 +11,8 @@ export interface DockerAppDefinition {
   category: 'media' | 'homelab' | 'smart-home' | 'ai' | 'cloud' | 'web';
   /** Optional group name for mutually similar tools where users typically pick one (e.g. 'DNS Ad-Blocker'). */
   pairGroup?: string;
+  /** Official upstream compose / docs URL so users can inspect latest upstream env vars. */
+  upstreamComposeUrl?: string;
   minRamMb: number;
   architectures: CpuArchitecture[];
   generateCompose: (criteria: UserCriteria) => string;
@@ -74,6 +76,7 @@ export const DOCKER_APPS_REGISTRY: DockerAppDefinition[] = [
     webUrl: 'http://localhost:2283',
     category: 'cloud',
     pairGroup: 'Photo Library',
+    upstreamComposeUrl: 'https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml',
     minRamMb: 4096,
     architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
@@ -238,6 +241,7 @@ services:
     defaultPort: '3000',
     webUrl: 'http://localhost:3000',
     category: 'ai',
+    upstreamComposeUrl: 'https://github.com/open-webui/open-webui/blob/main/docker-compose.yaml',
     minRamMb: 8192,
     architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
@@ -618,6 +622,7 @@ services:
     defaultPort: '8188',
     webUrl: 'http://localhost:8188',
     category: 'ai',
+    upstreamComposeUrl: 'https://github.com/YanWenKun/ComfyUI-Docker',
     minRamMb: 8192,
     architectures: ['x86_64'],
     generateCompose: (criteria) => `# ==============================================================================
@@ -655,6 +660,7 @@ services:
     defaultPort: '8000',
     webUrl: 'http://localhost:8000',
     category: 'cloud',
+    upstreamComposeUrl: 'https://github.com/paperless-ngx/paperless-ngx/tree/main/docker/compose',
     minRamMb: 1024,
     architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
@@ -806,6 +812,7 @@ services:
     defaultPort: '5000',
     webUrl: 'http://localhost:5000',
     category: 'smart-home',
+    upstreamComposeUrl: 'https://docs.frigate.video/frigate/installation/',
     minRamMb: 2048,
     architectures: ['x86_64', 'arm64'],
     generateCompose: () => `# ==============================================================================
@@ -1069,6 +1076,157 @@ services:
       - "8080:80"
     restart: unless-stopped
 `
+  },
+  {
+    id: 'meilisearch',
+    name: 'Meilisearch (Fast Search)',
+    tagline: 'Lightweight Instant Full-Text Search',
+    description: 'Blazing-fast, typo-tolerant Rust search engine (lightweight alternative to Elasticsearch for apps & docs).',
+    icon: '🔍',
+    defaultPort: '7700',
+    webUrl: 'http://localhost:7700',
+    category: 'homelab',
+    pairGroup: 'Search Engine',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Meilisearch Instant Search Engine
+# API & Search Preview: http://localhost:7700
+# Set MEILI_MASTER_KEY in .env before exposing beyond localhost.
+# ==============================================================================
+services:
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: meilisearch
+    environment:
+      - MEILI_ENV=development
+    volumes:
+      - /opt/meilisearch/data:/meili_data
+    ports:
+      - "7700:7700"
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'opensearch',
+    name: 'OpenSearch (Analytics)',
+    tagline: 'Elasticsearch-Compatible Search & Logs',
+    description: 'Full-featured Apache-2.0 distributed search, log analytics, and vector database engine (requires 2+ GB RAM).',
+    icon: '🔎',
+    defaultPort: '9200',
+    webUrl: 'http://localhost:9200',
+    category: 'homelab',
+    pairGroup: 'Search Engine',
+    minRamMb: 2048,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: OpenSearch Single-Node Search & Analytics
+# REST API: http://localhost:9200
+# For production, enable security plugin and set OPENSEARCH_INITIAL_ADMIN_PASSWORD in .env.
+# ==============================================================================
+services:
+  opensearch:
+    image: opensearchproject/opensearch:latest
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - /opt/opensearch/data:/usr/share/opensearch/data
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'searxng',
+    name: 'SearXNG (Private Search)',
+    tagline: 'Self-Hosted Privacy Metasearch Engine',
+    description: 'Ad-free, tracking-free metasearch engine aggregating 70+ search services with no user profiling.',
+    icon: '🕵️',
+    defaultPort: '8080',
+    webUrl: 'http://localhost:8080',
+    category: 'homelab',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64', 'armv7'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: SearXNG Private Metasearch Engine
+# Web UI: http://localhost:8080
+# ==============================================================================
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    volumes:
+      - /opt/searxng/config:/etc/searxng
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'prowlarr',
+    name: 'Prowlarr (Indexer Hub)',
+    tagline: 'Unified NZB & Torrent Indexer Manager',
+    description: 'Modern indexer manager that searches Usenet NZB and torrent trackers and syncs directly with SABnzbd & qBittorrent.',
+    icon: '📡',
+    defaultPort: '9696',
+    webUrl: 'http://localhost:9696',
+    category: 'media',
+    pairGroup: 'NZB / Media Indexer',
+    minRamMb: 256,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: Prowlarr Unified NZB & Torrent Indexer Manager
+# Web UI: http://localhost:9696
+# ==============================================================================
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /opt/prowlarr/config:/config
+    ports:
+      - "9696:9696"
+    restart: unless-stopped
+`
+  },
+  {
+    id: 'nzbhydra2',
+    name: 'NZBHydra2 (NZB Search)',
+    tagline: 'Dedicated Usenet Meta-Search & Stats',
+    description: 'Meta-search aggregator across multiple Newznab/Usenet indexers with unified API and download stats for SABnzbd.',
+    icon: '🐍',
+    defaultPort: '5076',
+    webUrl: 'http://localhost:5076',
+    category: 'media',
+    pairGroup: 'NZB / Media Indexer',
+    minRamMb: 512,
+    architectures: ['x86_64', 'arm64'],
+    generateCompose: () => `# ==============================================================================
+# DistroTailor: NZBHydra2 Usenet Meta-Search Aggregator
+# Web UI: http://localhost:5076
+# ==============================================================================
+services:
+  nzbhydra2:
+    image: lscr.io/linuxserver/nzbhydra2:latest
+    container_name: nzbhydra2
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /opt/nzbhydra2/config:/config
+    ports:
+      - "5076:5076"
+    restart: unless-stopped
+`
   }
 ];
 
@@ -1132,6 +1290,11 @@ function applyHostPortOverride(compose: string, fromPort: string, toPort: string
   return updated.replace(new RegExp(`http://localhost:${fromPort}`, 'g'), `http://localhost:${toPort}`);
 }
 
+function withUpstreamReference(compose: string, app: DockerAppDefinition): string {
+  if (!app.upstreamComposeUrl) return compose;
+  return `# Upstream Compose Reference: ${app.upstreamComposeUrl}\n${compose}`;
+}
+
 /**
  * Generates isolated per-stack Compose files:
  * - 1 stack: root `docker-compose.yml` (classic single-app layout)
@@ -1153,7 +1316,7 @@ export function generateDockerStackFiles(criteria: UserCriteria): {
         {
           filename: 'docker-compose.yml',
           description: `Turnkey Docker Compose configuration for ${app.name} (${app.tagline})`,
-          content: app.generateCompose(criteria)
+          content: withUpstreamReference(app.generateCompose(criteria), app)
         }
       ],
       quickstartCommands: [`docker compose up -d  # Launch ${app.name} at ${app.webUrl}`],
@@ -1163,7 +1326,7 @@ export function generateDockerStackFiles(criteria: UserCriteria): {
   const resolved = resolveDockerStackPorts(apps);
   return {
     files: resolved.map(({ app, hostPort, reassignedFrom, conflictWith }) => {
-      const baseCompose = app.generateCompose(criteria);
+      const baseCompose = withUpstreamReference(app.generateCompose(criteria), app);
       const content =
         reassignedFrom && conflictWith
           ? applyHostPortOverride(baseCompose, reassignedFrom, hostPort, conflictWith)

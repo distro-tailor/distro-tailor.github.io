@@ -668,7 +668,20 @@ test('multi-stack dockerApps auto-adjusts colliding host ports across stacks', (
 });
 
 test('counterpart services (gitlab-ce, bookstack, navidrome, adguard-home, dockge, caddy) and kodi wire into recipes', () => {
-  for (const serviceId of ['gitlab-ce', 'bookstack', 'navidrome', 'adguard-home', 'dockge', 'caddy', 'lychee'] as const) {
+  for (const serviceId of [
+    'gitlab-ce',
+    'bookstack',
+    'navidrome',
+    'adguard-home',
+    'dockge',
+    'caddy',
+    'lychee',
+    'meilisearch',
+    'opensearch',
+    'searxng',
+    'prowlarr',
+    'nzbhydra2'
+  ] as const) {
     const recipe = resolveRecipeGenerator('cloud-init-qcow2', {
       architecture: 'x86_64',
       dockerApp: serviceId
