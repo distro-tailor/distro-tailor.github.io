@@ -2,6 +2,7 @@ import { GeneratedRecipe, RecipeGeneratorId, UserCriteria } from '../types.js';
 import { generateDebootstrapRecipe } from './debootstrap.js';
 import { generateFedoraRecipe } from './fedora.js';
 import { generateOpenSuseRecipe } from './opensuse.js';
+import { generateVoidRecipe } from './void.js';
 import { generateAlpineRecipe } from './alpine.js';
 import { generateBuildrootRecipe } from './buildroot.js';
 import { generateKioskRecipe } from './kiosk.js';
@@ -26,6 +27,7 @@ export const RECIPE_GENERATORS: Readonly<Record<RecipeGeneratorId, (criteria: Us
   'debootstrap-debian': generateDebootstrapRecipe,
   'fedora-dnf': generateFedoraRecipe,
   'opensuse-zypper': generateOpenSuseRecipe,
+  'void-xbps': generateVoidRecipe,
   'alpine-chroot': generateAlpineRecipe,
   'buildroot-embedded': generateBuildrootRecipe,
   'kiosk-web': generateKioskRecipe,

@@ -218,6 +218,7 @@ export type RecipeGeneratorId =
   | 'debootstrap-debian'
   | 'fedora-dnf'
   | 'opensuse-zypper'
+  | 'void-xbps'
   | 'alpine-chroot'
   | 'buildroot-embedded'
   | 'kiosk-web'

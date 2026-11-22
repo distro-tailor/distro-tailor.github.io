@@ -742,3 +742,17 @@ test('Recipe Generator opensuse-zypper: bootstraps openSUSE Tumbleweed rootfs wi
   assert.match(makefile, /opensuse\/tumbleweed:latest/);
   assert.ok(suse.files.some((f) => f.filename === 'docker-compose.yml'));
 });
+
+test('Recipe Generator void-xbps: bootstraps Void Linux rootfs with XBPS, runit, musl support, and Docker build support', () => {
+  const voidMusl = resolveRecipeGenerator('void-xbps', {
+    architecture: 'x86_64',
+    cLibPreference: 'musl',
+    dockerApps: ['pihole']
+  });
+  const makefile = voidMusl.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(makefile, /xbps-install/);
+  assert.match(makefile, /runsvdir\/default/);
+  assert.match(makefile, /current\/musl/);
+  assert.match(makefile, /void-musl:latest/);
+  assert.ok(voidMusl.files.some((f) => f.filename === 'docker-compose.yml'));
+});

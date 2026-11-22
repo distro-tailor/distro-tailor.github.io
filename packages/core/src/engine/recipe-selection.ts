@@ -67,6 +67,11 @@ export const RECIPE_SELECTION_RULES: readonly RecipeSelectionRule[] = [
     recipe: () => 'opensuse-zypper'
   },
   {
+    description: 'Explicit customizations on Void Linux fall back to a Void XBPS build',
+    when: (c, best) => hasExplicitRecipeModifiers(c) && best.packageManager === 'xbps',
+    recipe: () => 'void-xbps'
+  },
+  {
     description: 'Explicit customizations fall back to a Debian debootstrap build (Arch has no Debian base)',
     when: (c, best) => hasExplicitRecipeModifiers(c) && best.id !== 'arch',
     recipe: () => 'debootstrap-debian'
