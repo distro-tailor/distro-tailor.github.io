@@ -77,7 +77,7 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
 
   if (!showDiyTab) {
     return `
-      <div class="space-y-6 min-w-0 max-w-full overflow-hidden">
+      <div class="space-y-6 min-w-0 max-w-full overflow-x-clip">
 
         ${renderSharedConfigBanner(ctx)}
 
@@ -110,7 +110,7 @@ export function renderResultsView(evaluation: RecommendationOutput, state: AppSt
   }
 
   return `
-    <div class="space-y-6 min-w-0 max-w-full overflow-hidden">
+    <div class="space-y-6 min-w-0 max-w-full overflow-x-clip">
 
       ${renderSharedConfigBanner(ctx)}
 

@@ -28,7 +28,7 @@ export function renderRecipePanel(ctx: ResultsViewContext): string {
             <span class="text-slate-500 group-open:rotate-180 transition-transform duration-200 text-base ml-2 shrink-0">▼</span>
           </summary>
 
-          <div class="p-4 sm:p-8 pt-0 border-t border-slate-800/60 mt-2">
+          <div class="p-4 sm:p-8 pt-4 sm:pt-5 border-t border-slate-800/60">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 min-w-0">
               <p class="text-xs text-slate-400 break-words">${recipe.summary}</p>
               
@@ -121,7 +121,7 @@ ${
             <span class="text-slate-500 group-open:rotate-180 transition-transform duration-200 text-base ml-2 shrink-0">▼</span>
           </summary>
 
-          <div class="p-4 sm:p-6 pt-0 border-t border-slate-800/60 mt-2 space-y-3 text-xs text-slate-300">
+          <div class="p-4 sm:p-6 pt-4 sm:pt-5 border-t border-slate-800/60 space-y-3 text-xs text-slate-300">
             <p class="leading-relaxed">
               ${
                 best.distro.id === 'arch'

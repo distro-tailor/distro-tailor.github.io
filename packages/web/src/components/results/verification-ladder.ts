@@ -21,7 +21,7 @@ export function renderVerificationLadder(ctx: ResultsViewContext): string {
     ? hasDockerBuild
       ? 'Build the tailored image reproducibly on macOS, Windows, or Linux with zero changes to your host OS.'
       : `Generate and validate the ${escapeHtml(recipe.title)} artifacts locally before deploying.`
-    : `Verify the official ${escapeHtml(best.distro.name)} image checksum before flashing or booting.`;
+    : `Compare the SHA-256 hash against ${escapeHtml(best.distro.name)}'s published checksum to catch corrupted or tampered downloads before flashing a USB.`;
   const tier1CmdHtml = recipe
     ? escapeHtml(
         hasDockerBuild
@@ -105,7 +105,7 @@ export function renderVerificationLadder(ctx: ResultsViewContext): string {
           <span class="text-slate-500 group-open:rotate-180 transition-transform duration-200 text-base ml-2 shrink-0">▼</span>
         </summary>
 
-        <div class="p-4 sm:p-8 pt-0 border-t border-slate-800/60 mt-2">
+        <div class="p-4 sm:p-8 pt-4 sm:pt-5 border-t border-slate-800/60">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4 min-w-0">
             <!-- Tier 1: Build / Verify -->
             <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 sm:p-4 flex flex-col justify-between min-w-0">

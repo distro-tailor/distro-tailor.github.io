@@ -97,7 +97,7 @@ function render(): void {
     ${renderNavbar(state, evaluation)}
 
     <!-- Main Workspace -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-3.5 py-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 min-w-0 max-w-full overflow-x-clip">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 min-w-0 max-w-full overflow-x-clip">
       
       <!-- Primary Left Column: Wizard Cards, Results, or Expert Matrix -->
       <section class="lg:col-span-8 flex flex-col gap-6 min-w-0 w-full max-w-full overflow-x-clip">

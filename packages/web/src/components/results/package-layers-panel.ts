@@ -24,7 +24,7 @@ export function renderPackageLayersPanel(ctx: ResultsViewContext): string {
           <span class="text-slate-500 group-open:rotate-180 transition-transform duration-200 text-base ml-2 shrink-0">▼</span>
         </summary>
 
-        <div class="p-4 sm:p-8 pt-0 border-t border-slate-800/60 mt-2">
+        <div class="p-4 sm:p-8 pt-4 sm:pt-5 border-t border-slate-800/60">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-3.5 text-xs min-w-0">
             
             <!-- Distrobox Card -->
