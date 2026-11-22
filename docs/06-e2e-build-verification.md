@@ -23,6 +23,19 @@ Each generator below was exported with `{ architecture: 'x86_64', dockerApps: ['
 
 ---
 
+## Live End-to-End Persona, Container & Declarative Builds
+
+| Generator / Persona | Date Verified | Environment / Tooling | Produced Artifact & Smoke Check | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| `wasm-browser` (`in-browser-v86`) | 2026-11-22 | macOS host (`make fetch`) | `linux.iso`, `bochs-bios.bin`, `bochs-vgabios.bin` (SHA-256 verified) | Passed |
+| `kiosk-web` (`wayland-kiosk-appliance`) | 2026-11-22 | `debian:bookworm` (`--platform linux/amd64`) | `build/rootfs` (`command -v cage && test -x /home/appuser/app-start.sh`) | Passed |
+| `wsl2-debian` (`wsl2-developer-box`) | 2026-11-22 | `debian:bookworm` (`--platform linux/amd64`) + `docker import` | `output/rootfs.tar.gz` (`cat /etc/os-release && command -v systemctl`) | Passed |
+| `proxmox-lxc` (`proxmox-lxc-container`) | 2026-11-22 | `debian:bookworm` (`--platform linux/amd64`) | `output/distro-tailor-lxc-debian-amd64.tar.xz` (42 MB, `tar -tJf` + `chroot` `systemctl`) | Passed |
+| `nixos-flake` | 2026-11-22 | `nixos/nix:latest` (`nix flake check --no-build`) | Evaluated `nixosConfigurations.tailor-nixos` (`all checks passed!`) | Passed |
+| `distroless-docker` | 2026-11-22 | Docker multi-stage (`golang:1.23-alpine` -> `gcr.io/distroless/static-debian12:nonroot`) | Container image built cleanly (`docker build`, 15.2s) | Passed |
+
+---
+
 ## Dry-Run (`make -n`) & Automated Test Verification
 
 | Scope | Date Verified | Command / Coverage | Status |

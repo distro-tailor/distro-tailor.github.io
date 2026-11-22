@@ -3,7 +3,7 @@ import { CREDENTIAL_MAKE_VARS, credentialSetupSteps } from './credentials.js';
 
 export function generateLxcRecipe(criteria: UserCriteria): GeneratedRecipe {
   const templateName = 'distro-tailor-lxc-debian';
-  const arch = criteria.architecture || 'x86_64';
+  const arch = criteria.architecture === 'arm64' ? 'arm64' : 'amd64';
 
   const makefileContent = `SHELL       := /bin/bash
 TEMPLATE    := ${templateName}

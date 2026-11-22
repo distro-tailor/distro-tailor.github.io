@@ -73,7 +73,7 @@ export const PERSONA_BUILD_SPECS: readonly PersonaBuildSpec[] = [
     buildCommand: 'sudo make',
     verifyCommand: 'tar -tJf output/*.tar.xz | head -n 20',
     smokeCommand:
-      'IMG_ID=$(docker import output/*.tar.xz) && docker run --rm "$IMG_ID" /bin/sh -c "cat /etc/os-release && command -v systemctl" && docker rmi "$IMG_ID"'
+      'sudo chroot build/rootfs /bin/sh -c "cat /etc/os-release && command -v systemctl"'
   },
   {
     personaId: 'cloud-init-vm',
@@ -325,9 +325,9 @@ async function main(): Promise<void> {
       const chrootSmokeInsideDocker =
         !args.skipSmoke && spec.smokeCommand?.includes('chroot ') ? spec.smokeCommand : null;
       const copyBack = [
-        'if [ -d output ]; then mkdir -p /work/output && cp -a output/. /work/output/; fi',
-        'if [ -d build/iso/boot ]; then mkdir -p /work/build/iso/boot && cp -a build/iso/boot/. /work/build/iso/boot/; fi',
-        'if [ -d build/rootfs/boot ]; then mkdir -p /work/build/rootfs/boot && cp -a build/rootfs/boot/. /work/build/rootfs/boot/; fi'
+        'if [ -d output ]; then mkdir -p /work/output && cp -a --no-preserve=ownership output/. /work/output/; fi',
+        'if [ -d build/iso/boot ]; then mkdir -p /work/build/iso/boot && cp -a --no-preserve=ownership build/iso/boot/. /work/build/iso/boot/; fi',
+        'if [ -d build/rootfs/boot ]; then mkdir -p /work/build/rootfs/boot && cp -a --no-preserve=ownership build/rootfs/boot/. /work/build/rootfs/boot/; fi'
       ].join(' && ');
       const innerSteps = [
         'set -e',

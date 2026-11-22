@@ -2,7 +2,7 @@ import { GeneratedRecipe, UserCriteria } from '../types.js';
 
 export function generateWslRecipe(criteria: UserCriteria): GeneratedRecipe {
   const distroName = 'distro-tailor-wsl';
-  const arch = criteria.architecture || 'x86_64';
+  const arch = criteria.architecture === 'arm64' ? 'arm64' : 'amd64';
 
   const wslConfContent = `[boot]
 systemd=true
@@ -83,6 +83,8 @@ configure: rootfs
 	sudo chroot $(BUILD_DIR) /bin/bash -c "\\
 		apt-get update && \\
 		DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \\
+			systemd \\
+			systemd-sysv \\
 			sudo \\
 			curl \\
 			git \\

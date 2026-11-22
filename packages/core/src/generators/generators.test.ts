@@ -418,6 +418,16 @@ test('Recipe Generator: capability warnings flag unsupported options and archite
   assert.ok(ciVbox.warnings?.some((w) => w.includes('virtualbox-guest-utils')));
 });
 
+test('Recipe Generator: wsl2-debian and proxmox-lxc map x86_64 to Debian amd64 for debootstrap', () => {
+  const wsl = resolveRecipeGenerator('wsl2-debian', { architecture: 'x86_64' });
+  const wslMk = wsl.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(wslMk, /^ARCH\s*:=\s*amd64$/m);
+
+  const lxc = resolveRecipeGenerator('proxmox-lxc', { architecture: 'x86_64' });
+  const lxcMk = lxc.files.find((f) => f.filename === 'Makefile')?.content ?? '';
+  assert.match(lxcMk, /^ARCH\s*:=\s*amd64$/m);
+});
+
 test('Recipe Generator: alpine and buildroot wire expert kernel, filesystem, virt, and networking options', () => {
   const alpineMk =
     generateAlpineRecipe({
