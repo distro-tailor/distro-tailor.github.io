@@ -168,12 +168,20 @@ qcow2: configure
 	$(QEMU_IMG) create -f qcow2 $(QCOW2_FILE) $(DISK_SIZE)
 	@echo "[+] Converting rootfs to partitioned QCOW2 (${fsType})..."
 	sudo rm -f $(ROOTFS_DIR)/usr/bin/$(QEMU_USER_STATIC)
-	sudo virt-make-fs --partition=${partitionTable} --type=${fsType} --format=qcow2 --size=$(DISK_SIZE) $(ROOTFS_DIR) $(QCOW2_FILE)
+	@K_ARG=""; M_ARG=""; KVM_ARG=""; \\
+	if ! ls /boot/vmlinuz-* >/dev/null 2>&1; then \\
+		K_PATH=$$(ls $(ROOTFS_DIR)/boot/vmlinuz-* 2>/dev/null | head -n1); \\
+		M_PATH=$$(ls -d $(ROOTFS_DIR)/lib/modules/* 2>/dev/null | head -n1); \\
+		if [ -n "$$K_PATH" ]; then K_ARG="SUPERMIN_KERNEL=$$K_PATH"; fi; \\
+		if [ -n "$$M_PATH" ]; then M_ARG="SUPERMIN_MODULES=$$M_PATH"; fi; \\
+	fi; \\
+	if [ ! -e /dev/kvm ]; then KVM_ARG="LIBGUESTFS_BACKEND_SETTINGS=force_tcg"; fi; \\
+	sudo env $$K_ARG $$M_ARG $$KVM_ARG virt-make-fs --partition=${partitionTable} --type=${fsType} --format=qcow2 --size=$(DISK_SIZE) $(ROOTFS_DIR) $(QCOW2_FILE)
 
 ${dockerBuildTarget({
   image: 'debian:bookworm',
   platform: debArch === 'arm64' ? 'linux/arm64' : 'linux/amd64',
-  installCmd: 'apt-get update && apt-get install -y --no-install-recommends make sudo debootstrap qemu-utils libguestfs-tools'
+  installCmd: `apt-get update && apt-get install -y --no-install-recommends make sudo debootstrap qemu-utils libguestfs-tools linux-image-cloud-${debArch}`
 })}
 
 test-qemu:

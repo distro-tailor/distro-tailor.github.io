@@ -19,7 +19,9 @@ BUILDROOT_VERSION ?= ${BUILDROOT_VERSION}
 BUILDROOT_URL     ?= ${BUILDROOT_DOWNLOADS}/buildroot-$(BUILDROOT_VERSION).tar.gz
 # Published SHA-256 from buildroot-$(BUILDROOT_VERSION).tar.gz.sign (override when changing version)
 BUILDROOT_SHA256  ?= ${BUILDROOT_TARBALL_SHA256}
-SRC_DIR           ?= buildroot-$(BUILDROOT_VERSION)
+BUILD_DIR         ?= .
+OUTPUT_DIR        ?= ./output
+SRC_DIR           ?= $(BUILD_DIR)/buildroot-$(BUILDROOT_VERSION)
 
 .PHONY: all fetch-buildroot configure build clean menuconfig docker-build
 
@@ -27,36 +29,38 @@ ${dockerBuildTarget({
   image: 'debian:bookworm',
   platform: 'linux/amd64',
   installCmd:
-    'apt-get update && apt-get install -y --no-install-recommends make curl ca-certificates xz-utils bzip2 build-essential bison flex libncurses-dev libssl-dev rsync unzip file bc cpio python3'
+    'apt-get update && apt-get install -y --no-install-recommends make curl wget ca-certificates xz-utils bzip2 build-essential bison flex libncurses-dev libssl-dev rsync unzip file bc cpio python3'
 })}
 
 all: fetch-buildroot configure build
+	@mkdir -p $(OUTPUT_DIR)
+	@if [ -d "$(SRC_DIR)/output/images" ]; then cp -r $(SRC_DIR)/output/images/. $(OUTPUT_DIR)/; fi
 	@echo "===================================================="
 	@echo " Build Complete!"
-	@echo " Output Image: $(SRC_DIR)/output/images/rootfs.tar"
-	@echo " Kernel:       $(SRC_DIR)/output/images/zImage"
+	@echo " Output Images: $(OUTPUT_DIR)/ (rootfs.tar, rootfs.ext2)"
 	@echo "===================================================="
 
 fetch-buildroot:
 	@if [ ! -d "$(SRC_DIR)" ]; then \\
 		echo "[+] Fetching Buildroot source tree..."; \\
-		curl -fsSL $(BUILDROOT_URL) -o buildroot.tar.gz && \\
-		echo "$(BUILDROOT_SHA256)  buildroot.tar.gz" | sha256sum -c - && \\
-		tar -xzf buildroot.tar.gz && rm buildroot.tar.gz; \\
+		mkdir -p $(BUILD_DIR) && \\
+		curl -fsSL $(BUILDROOT_URL) -o $(BUILD_DIR)/buildroot.tar.gz && \\
+		echo "$(BUILDROOT_SHA256)  $(BUILD_DIR)/buildroot.tar.gz" | sha256sum -c - && \\
+		tar --no-same-owner -xzf $(BUILD_DIR)/buildroot.tar.gz -C $(BUILD_DIR) && rm -f $(BUILD_DIR)/buildroot.tar.gz; \\
 	fi
 
 configure: fetch-buildroot
 	@echo "[+] Injecting tailored defconfig into Buildroot..."
 	cp distro.defconfig $(SRC_DIR)/configs/distro_tailor_defconfig
-	$(MAKE) -C $(SRC_DIR) distro_tailor_defconfig
+	env -u BUILD_DIR -u MAKEFLAGS -u MAKEOVERRIDES $(MAKE) -C $(SRC_DIR) distro_tailor_defconfig
 
 menuconfig: fetch-buildroot
 	@echo "[+] Launching interactive menuconfig for fine-tuning..."
-	$(MAKE) -C $(SRC_DIR) menuconfig
+	env -u BUILD_DIR -u MAKEFLAGS -u MAKEOVERRIDES $(MAKE) -C $(SRC_DIR) menuconfig
 
 build:
 	@echo "[+] Compiling toolchain, BusyBox, kernel, and assembling rootfs..."
-	$(MAKE) -C $(SRC_DIR) -j$$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
+	env -u BUILD_DIR -u MAKEFLAGS -u MAKEOVERRIDES FORCE_UNSAFE_CONFIGURE=1 $(MAKE) -C $(SRC_DIR) -j$$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
 
 clean:
 	@if [ -d "$(SRC_DIR)" ]; then \\

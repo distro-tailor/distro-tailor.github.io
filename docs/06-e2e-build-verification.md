@@ -33,6 +33,8 @@ Each generator below was exported with `{ architecture: 'x86_64', dockerApps: ['
 | `proxmox-lxc` (`proxmox-lxc-container`) | 2026-11-22 | `debian:bookworm` (`--platform linux/amd64`) | `output/distro-tailor-lxc-debian-amd64.tar.xz` (42 MB, `tar -tJf` + `chroot` `systemctl`) | Passed |
 | `nixos-flake` | 2026-11-22 | `nixos/nix:latest` (`nix flake check --no-build`) | Evaluated `nixosConfigurations.tailor-nixos` (`all checks passed!`) | Passed |
 | `distroless-docker` | 2026-11-22 | Docker multi-stage (`golang:1.23-alpine` -> `gcr.io/distroless/static-debian12:nonroot`) | Container image built cleanly (`docker build`, 15.2s) | Passed |
+| `cloud-init-qcow2` (`cloud-init-vm`) | 2026-11-22 | `debian:bookworm` (`--platform linux/amd64`) + host `qemu-system-x86_64` | `output/distro-tailor-cloud.qcow2` (10 GiB, QEMU matched `/login:\|Cloud-init.*finished/`) | Passed |
+| `buildroot-embedded` (`x86_64` / `musl`) | 2026-11-22 | `debian:bookworm` (`--platform linux/arm64` cross-compile) | `output/rootfs.ext2` (60 MB), `output/rootfs.ext4`, `output/rootfs.tar` (2.2 MB) | Passed |
 
 ---
 

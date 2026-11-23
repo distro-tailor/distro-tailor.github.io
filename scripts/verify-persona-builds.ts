@@ -226,6 +226,7 @@ function runQemuSmokeTest(config: QemuSmokeConfig, cwd: string): Promise<void> {
     console.log(`$ ${config.command}`);
     const child = spawn('/bin/bash', ['-lc', config.command], {
       cwd,
+      detached: true,
       stdio: ['ignore', 'pipe', 'pipe']
     });
 
@@ -237,14 +238,21 @@ function runQemuSmokeTest(config: QemuSmokeConfig, cwd: string): Promise<void> {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      if (!child.killed) {
-        child.kill('SIGKILL');
+      child.stdout?.destroy();
+      child.stderr?.destroy();
+      if (child.pid) {
+        try {
+          process.kill(-child.pid, 'SIGKILL');
+        } catch {
+          // Process group already exited.
+        }
       }
       if (err) reject(err);
       else resolve();
     };
 
     const onChunk = (chunk: Buffer) => {
+      if (settled) return;
       const text = chunk.toString('utf-8');
       process.stdout.write(text);
       output += text;
@@ -321,7 +329,14 @@ async function main(): Promise<void> {
     }
 
     if (useDocker) {
-      const containerApt = Array.from(new Set(['sudo', ...spec.aptPackages.filter((p) => p !== 'qemu-system-x86')]));
+      const needsContainerKernel = spec.aptPackages.includes('libguestfs-tools');
+      const containerApt = Array.from(
+        new Set([
+          'sudo',
+          ...spec.aptPackages.filter((p) => p !== 'qemu-system-x86'),
+          ...(needsContainerKernel ? ['linux-image-cloud-amd64'] : [])
+        ])
+      );
       const chrootSmokeInsideDocker =
         !args.skipSmoke && spec.smokeCommand?.includes('chroot ') ? spec.smokeCommand : null;
       const copyBack = [
